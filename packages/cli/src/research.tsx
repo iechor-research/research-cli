@@ -323,11 +323,11 @@ async function validateNonInterActiveAuth(
   nonInteractiveConfig: Config,
 ) {
   // making a special case for the cli. many headless environments might not have a settings.json set
-  // so if RESEARCH_API_KEY is set, we'll use that. However since the oauth things are interactive anyway, we'll
+  // so if GEMINI_API_KEY  is set, we'll use that. However since the oauth things are interactive anyway, we'll
   // still expect that exists
-  if (!selectedAuthType && !process.env.RESEARCH_API_KEY) {
+  if (!selectedAuthType && !process.env.GEMINI_API_KEY ) {
     console.error(
-      `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify RESEARCH_API_KEY env variable file before running`,
+      `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify GEMINI_API_KEY  env variable file before running`,
     );
     process.exit(1);
   }

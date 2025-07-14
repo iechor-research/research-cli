@@ -17,8 +17,8 @@ export const validateAuthMethod = (authMethod: string): string | null => {
   }
 
   if (authMethod === AuthType.USE_RESEARCH) {
-    if (!process.env.RESEARCH_API_KEY) {
-      return 'RESEARCH_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!';
+    if (!process.env.GEMINI_API_KEY ) {
+      return 'GEMINI_API_KEY  environment variable not found. Add that to your environment and try again (no reload needed if using .env)!';
     }
     return null;
   }

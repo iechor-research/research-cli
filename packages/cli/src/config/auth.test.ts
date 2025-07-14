@@ -33,14 +33,14 @@ describe('validateAuthMethod', () => {
   });
 
   describe('USE_RESEARCH', () => {
-    it('should return null if RESEARCH_API_KEY is set', () => {
-      process.env.RESEARCH_API_KEY = 'test-key';
+    it('should return null if GEMINI_API_KEY  is set', () => {
+      process.env.GEMINI_API_KEY  = 'test-key';
       expect(validateAuthMethod(AuthType.USE_RESEARCH)).toBeNull();
     });
 
-    it('should return an error message if RESEARCH_API_KEY is not set', () => {
+    it('should return an error message if GEMINI_API_KEY  is not set', () => {
       expect(validateAuthMethod(AuthType.USE_RESEARCH)).toBe(
-        'RESEARCH_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!',
+        'GEMINI_API_KEY  environment variable not found. Add that to your environment and try again (no reload needed if using .env)!',
       );
     });
   });

@@ -56,7 +56,7 @@ export async function createContentGeneratorConfig(
   model: string | undefined,
   authType: AuthType | undefined,
 ): Promise<ContentGeneratorConfig> {
-  const researchApiKey = process.env.RESEARCH_API_KEY || undefined;
+  const researchApiKey = process.env.GEMINI_API_KEY  || undefined;
   const iechorApiKey = process.env.GOOGLE_API_KEY || undefined;
   const iechorCloudProject = process.env.GOOGLE_CLOUD_PROJECT || undefined;
   const iechorCloudLocation = process.env.GOOGLE_CLOUD_LOCATION || undefined;

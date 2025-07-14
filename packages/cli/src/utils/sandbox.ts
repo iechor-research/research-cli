@@ -509,9 +509,9 @@ export async function start_sandbox(
   const containerName = `${imageName}-${index}`;
   args.push('--name', containerName, '--hostname', containerName);
 
-  // copy RESEARCH_API_KEY(s)
-  if (process.env.RESEARCH_API_KEY) {
-    args.push('--env', `RESEARCH_API_KEY=${process.env.RESEARCH_API_KEY}`);
+  // copy GEMINI_API_KEY (s)
+  if (process.env.GEMINI_API_KEY ) {
+    args.push('--env', `GEMINI_API_KEY =${process.env.GEMINI_API_KEY }`);
   }
   if (process.env.GOOGLE_API_KEY) {
     args.push('--env', `GOOGLE_API_KEY=${process.env.GOOGLE_API_KEY}`);

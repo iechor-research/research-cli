@@ -77,8 +77,8 @@ describe('createContentGeneratorConfig', () => {
     process.env = originalEnv;
   });
 
-  it('should configure for Research using RESEARCH_API_KEY when set', async () => {
-    process.env.RESEARCH_API_KEY = 'env-research-key';
+  it('should configure for Research using GEMINI_API_KEY  when set', async () => {
+    process.env.GEMINI_API_KEY  = 'env-research-key';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,
@@ -87,8 +87,8 @@ describe('createContentGeneratorConfig', () => {
     expect(config.vertexai).toBe(false);
   });
 
-  it('should not configure for Research if RESEARCH_API_KEY is empty', async () => {
-    process.env.RESEARCH_API_KEY = '';
+  it('should not configure for Research if GEMINI_API_KEY  is empty', async () => {
+    process.env.GEMINI_API_KEY  = '';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,

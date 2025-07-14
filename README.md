@@ -46,7 +46,7 @@ The Research API provides a free tier with [100 requests per day](https://ai.iec
 2. Set it as an environment variable in your terminal. Replace `YOUR_API_KEY` with your generated key.
 
    ```bash
-   export RESEARCH_API_KEY="YOUR_API_KEY"
+   export GEMINI_API_KEY ="YOUR_API_KEY"
    ```
 
 3. (Optionally) Upgrade your Research API project to a paid plan on the API key page (will automatically unlock [Tier 1 rate limits](https://ai.iechor.dev/research-api/docs/rate-limits#tier-1))

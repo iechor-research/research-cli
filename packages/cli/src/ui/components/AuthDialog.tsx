@@ -52,10 +52,10 @@ export function AuthDialog({
     }
 
     if (
-      process.env.RESEARCH_API_KEY &&
+      process.env.GEMINI_API_KEY  &&
       (!defaultAuthType || defaultAuthType === AuthType.USE_RESEARCH)
     ) {
-      return 'Existing API key detected (RESEARCH_API_KEY). Select "Research API Key" option to use it.';
+      return 'Existing API key detected (GEMINI_API_KEY ). Select "Research API Key" option to use it.';
     }
     return null;
   });
@@ -91,7 +91,7 @@ export function AuthDialog({
       return item.value === defaultAuthType;
     }
 
-    if (process.env.RESEARCH_API_KEY) {
+    if (process.env.GEMINI_API_KEY ) {
       return item.value === AuthType.USE_RESEARCH;
     }
 

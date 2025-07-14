@@ -28,14 +28,14 @@ The Research CLI requires you to authenticate with iEchor's AI services. On init
 
 2.  **<a id="research-api-key"></a>Research API key:**
     - Obtain your API key from iEchor AI Studio: [https://aistudio.iechor.com/app/apikey](https://aistudio.iechor.com/app/apikey)
-    - Set the `RESEARCH_API_KEY` environment variable. In the following methods, replace `YOUR_RESEARCH_API_KEY` with the API key you obtained from iEchor AI Studio:
+    - Set the `GEMINI_API_KEY ` environment variable. In the following methods, replace `YOUR_GEMINI_API_KEY ` with the API key you obtained from iEchor AI Studio:
       - You can temporarily set the environment variable in your current shell session using the following command:
         ```bash
-        export RESEARCH_API_KEY="YOUR_RESEARCH_API_KEY"
+        export GEMINI_API_KEY ="YOUR_GEMINI_API_KEY "
         ```
       - For repeated use, you can add the environment variable to your [.env file](#persisting-environment-variables-with-env-files) or your shell's configuration file (like `~/.bashrc`, `~/.zshrc`, or `~/.profile`). For example, the following command adds the environment variable to a `~/.bashrc` file:
         ```bash
-        echo 'export RESEARCH_API_KEY="YOUR_RESEARCH_API_KEY"' >> ~/.bashrc
+        echo 'export GEMINI_API_KEY ="YOUR_GEMINI_API_KEY "' >> ~/.bashrc
         source ~/.bashrc
         ```
 
@@ -104,6 +104,6 @@ echo 'GOOGLE_CLOUD_PROJECT="your-project-id"' >> .research/.env
 mkdir -p ~/.research
 cat >> ~/.research/.env <<'EOF'
 GOOGLE_CLOUD_PROJECT="your-project-id"
-RESEARCH_API_KEY="your-research-api-key"
+GEMINI_API_KEY ="your-research-api-key"
 EOF
 ```
