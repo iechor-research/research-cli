@@ -53,6 +53,11 @@ esbuild
       'ansi-escapes',
       'semver',
       'chalk',
+      // Google Auth and related
+      'google-auth-library',
+      'ws',
+      'zod',
+      'zod-to-json-schema',
       // Internal packages
       '@iechor/research-cli-core',
     ],

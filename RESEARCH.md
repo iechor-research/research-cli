@@ -33,7 +33,7 @@ This project uses **Vitest** as its primary testing framework. When writing test
 ### Commonly Mocked Modules
 
 - **Node.js built-ins**: `fs`, `fs/promises`, `os` (especially `os.homedir()`), `path`, `child_process` (`execSync`, `spawn`).
-- **External SDKs**: `@iechor/genai`, `@modelcontextprotocol/sdk`.
+- **External SDKs**: `@google/genai`, `@modelcontextprotocol/sdk`.
 - **Internal Project Modules**: Dependencies from other project packages are often mocked.
 
 ### React Component Testing (CLI UI - Ink)

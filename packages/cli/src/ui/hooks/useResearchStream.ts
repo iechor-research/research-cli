@@ -26,7 +26,7 @@ import {
   UserPromptEvent,
   DEFAULT_RESEARCH_FLASH_MODEL,
 } from '@iechor/research-cli-core';
-import { type Part, type PartListUnion } from '@iechor/genai';
+import { type Part, type PartListUnion } from '@google/genai';
 import {
   StreamingState,
   HistoryItem,

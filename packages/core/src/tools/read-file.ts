@@ -8,7 +8,7 @@ import path from 'path';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 import { makeRelative, shortenPath } from '../utils/paths.js';
 import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import {
   isWithinRoot,
   processSingleFileContent,

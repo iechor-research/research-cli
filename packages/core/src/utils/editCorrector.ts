@@ -9,7 +9,7 @@ import {
   GenerateContentConfig,
   SchemaUnion,
   Type,
-} from '@iechor/genai';
+} from '@google/genai';
 import { ResearchClient } from '../core/client.js';
 import { EditToolParams, EditTool } from '../tools/edit.js';
 import { WriteFileTool } from '../tools/write-file.js';

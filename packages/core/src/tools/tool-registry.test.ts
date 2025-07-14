@@ -28,7 +28,7 @@ import {
   mcpToTool,
   Type,
   Schema,
-} from '@iechor/genai';
+} from '@google/genai';
 import { spawn } from 'node:child_process';
 
 // Use vi.hoisted to define the mock function so it can be used in the vi.mock factory
@@ -82,10 +82,10 @@ vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => {
   return { SSEClientTransport: MockSSEClientTransport };
 });
 
-// Mock @iechor/genai mcpToTool
-vi.mock('@iechor/genai', async () => {
+// Mock @google/genai mcpToTool
+vi.mock('@google/genai', async () => {
   const actualGenai =
-    await vi.importActual<typeof import('@iechor/genai')>('@iechor/genai');
+    await vi.importActual<typeof import('@google/genai')>('@google/genai');
   return {
     ...actualGenai,
     mcpToTool: vi.fn().mockImplementation(() => ({

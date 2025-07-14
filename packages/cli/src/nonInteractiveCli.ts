@@ -17,7 +17,7 @@ import {
   Part,
   FunctionCall,
   GenerateContentResponse,
-} from '@iechor/genai';
+} from '@google/genai';
 
 import { parseAndFormatApiError } from './ui/utils/errorParsing.js';
 

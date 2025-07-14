@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setupUser, ProjectIdRequiredError } from './setup.js';
 import { CodeAssistServer } from '../code_assist/server.js';
-import { OAuth2Client } from 'iechor-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 import { ResearchUserTier, UserTierId } from './types.js';
 
 vi.mock('../code_assist/server.js');

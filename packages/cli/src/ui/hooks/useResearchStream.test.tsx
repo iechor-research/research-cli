@@ -17,7 +17,7 @@ import {
   TrackedCancelledToolCall,
 } from './useReactToolScheduler.js';
 import { Config, EditorType, AuthType } from '@iechor/research-cli-core';
-import { Part, PartListUnion } from '@iechor/genai';
+import { Part, PartListUnion } from '@google/genai';
 import { UseHistoryManagerReturn } from './useHistoryManager.js';
 import {
   HistoryItem,

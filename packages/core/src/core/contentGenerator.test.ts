@@ -11,11 +11,11 @@ import {
   createContentGeneratorConfig,
 } from './contentGenerator.js';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
-import { GoogleGenAI } from '@iechor/genai';
+import { GoogleGenAI } from '@google/genai';
 import { Config } from '../config/config.js';
 
 vi.mock('../code_assist/codeAssist.js');
-vi.mock('@iechor/genai');
+vi.mock('@google/genai');
 
 const mockConfig = {} as unknown as Config;
 

@@ -14,7 +14,7 @@ import {
   ToolCallConfirmationDetails,
   Config,
 } from '../index.js';
-import { Part, Type } from '@iechor/genai';
+import { Part, Type } from '@google/genai';
 
 const mockConfig = {
   getSessionId: () => 'test-session-id',

@@ -9,7 +9,7 @@ import {
   GenerateContentResponse,
   FunctionCall,
   FunctionDeclaration,
-} from '@iechor/genai';
+} from '@google/genai';
 import {
   ToolCallConfirmationDetails,
   ToolResult,

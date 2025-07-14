@@ -20,7 +20,7 @@ import {
   ToolResult,
   Config,
 } from '../index.js';
-import { Part, PartListUnion } from '@iechor/genai';
+import { Part, PartListUnion } from '@google/genai';
 
 import { ModifiableTool, ModifyContext } from '../tools/modifiable-tool.js';
 

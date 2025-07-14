@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Content, SchemaUnion, Type } from '@iechor/genai';
+import { Content, SchemaUnion, Type } from '@google/genai';
 import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { ResearchClient } from '../core/client.js';
 import { ResearchChat } from '../core/researchChat.js';

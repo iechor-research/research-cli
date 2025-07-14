@@ -11,7 +11,7 @@ import {
   ToolCallConfirmationDetails,
   ToolConfirmationOutcome,
 } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import { getErrorMessage } from '../utils/errors.js';
 import { Config, ApprovalMode } from '../config/config.js';
 import { getResponseText } from '../utils/generateContentResponseUtilities.js';

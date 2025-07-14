@@ -9,10 +9,10 @@ import {
   Content,
   GenerateContentConfig,
   GenerateContentResponse,
-} from '@iechor/genai';
+} from '@google/genai';
 import { ResearchClient } from '../core/client.js';
 import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
-import { PartListUnion } from '@iechor/genai';
+import { PartListUnion } from '@google/genai';
 
 /**
  * A function that summarizes the result of a tool execution.

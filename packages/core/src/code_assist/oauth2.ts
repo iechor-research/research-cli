@@ -9,7 +9,7 @@ import {
   Credentials,
   Compute,
   CodeChallengeMethod,
-} from 'iechor-auth-library';
+} from 'google-auth-library';
 import * as http from 'http';
 import url from 'url';
 import crypto from 'crypto';

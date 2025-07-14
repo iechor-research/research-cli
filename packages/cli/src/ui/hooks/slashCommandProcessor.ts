@@ -5,7 +5,7 @@
  */
 
 import { useCallback, useMemo, useEffect, useState } from 'react';
-import { type PartListUnion } from '@iechor/genai';
+import { type PartListUnion } from '@google/genai';
 import open from 'open';
 import process from 'node:process';
 import { UseHistoryManagerReturn } from './useHistoryManager.js';

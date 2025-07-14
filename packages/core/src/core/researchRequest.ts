@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { type PartListUnion, type Part } from '@iechor/genai';
+import { type PartListUnion, type Part } from '@google/genai';
 
 /**
  * Represents a request to be sent to the Research API.

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GroundingMetadata } from '@iechor/genai';
+import { GroundingMetadata } from '@google/genai';
 import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 
 import { getErrorMessage } from '../utils/errors.js';

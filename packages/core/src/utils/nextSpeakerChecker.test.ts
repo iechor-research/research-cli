@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
-import { Content, GoogleGenAI, Models } from '@iechor/genai';
+import { Content, GoogleGenAI, Models } from '@google/genai';
 import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { ResearchClient } from '../core/client.js';
 import { Config } from '../config/config.js';
@@ -30,9 +30,9 @@ const mockGoogleGenAIInstance = {
   // Add other methods of GoogleGenAI if they are directly used by ResearchChat constructor or its methods
 } as unknown as GoogleGenAI;
 
-vi.mock('@iechor/genai', async () => {
+vi.mock('@google/genai', async () => {
   const actualGenAI =
-    await vi.importActual<typeof import('@iechor/genai')>('@iechor/genai');
+    await vi.importActual<typeof import('@google/genai')>('@google/genai');
   return {
     ...actualGenAI,
     GoogleGenAI: vi.fn(() => mockGoogleGenAIInstance), // Mock constructor to return the predefined instance

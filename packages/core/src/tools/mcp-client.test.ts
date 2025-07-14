@@ -16,7 +16,7 @@ import {
 } from 'vitest';
 import { discoverMcpTools } from './mcp-client.js';
 import { sanitizeParameters } from './tool-registry.js';
-import { Schema, Type } from '@iechor/genai';
+import { Schema, Type } from '@google/genai';
 import { Config, MCPServerConfig } from '../config/config.js';
 import { DiscoveredMCPTool } from './mcp-tool.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';

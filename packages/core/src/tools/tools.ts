@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { FunctionDeclaration, PartListUnion, Schema } from '@iechor/genai';
+import { FunctionDeclaration, PartListUnion, Schema } from '@google/genai';
 
 /**
  * Interface representing the base Tool functionality
@@ -29,7 +29,7 @@ export interface Tool<
   description: string;
 
   /**
-   * Function declaration schema from @iechor/genai
+   * Function declaration schema from @google/genai
    */
   schema: FunctionDeclaration;
 

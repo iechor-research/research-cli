@@ -16,7 +16,7 @@ import {
   ToolExecuteConfirmationDetails,
   ToolConfirmationOutcome,
 } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 import { getErrorMessage } from '../utils/errors.js';
 import stripAnsi from 'strip-ansi';

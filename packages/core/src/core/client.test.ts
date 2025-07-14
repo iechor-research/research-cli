@@ -12,7 +12,7 @@ import {
   EmbedContentResponse,
   GenerateContentResponse,
   GoogleGenAI,
-} from '@iechor/genai';
+} from '@google/genai';
 import { findIndexAfterFraction, ResearchClient } from './client.js';
 import { AuthType, ContentGenerator } from './contentGenerator.js';
 import { ResearchChat } from './researchChat.js';
@@ -30,7 +30,7 @@ const mockGenerateContentFn = vi.fn();
 const mockEmbedContentFn = vi.fn();
 const mockTurnRunFn = vi.fn();
 
-vi.mock('@iechor/genai');
+vi.mock('@google/genai');
 vi.mock('./turn', () => {
   // Define a mock class that has the same shape as the real Turn
   class MockTurn {
@@ -214,7 +214,7 @@ describe('Research Client (client.ts)', () => {
   });
 
   // NOTE: The following tests for startChat were removed due to persistent issues with
-  // the @iechor/genai mock. Specifically, the mockChatCreateFn (representing instance.chats.create)
+  // the @google/genai mock. Specifically, the mockChatCreateFn (representing instance.chats.create)
   // was not being detected as called by the ResearchClient instance.
   // This likely points to a subtle issue in how the iEchorGenerativeAI class constructor
   // and its instance methods are mocked and then used by the class under test.
@@ -225,7 +225,7 @@ describe('Research Client (client.ts)', () => {
   // it('startChat should call getCoreSystemPrompt with empty string if userMemory is empty', async () => { ... });
 
   // NOTE: The following tests for generateJson were removed due to persistent issues with
-  // the @iechor/genai mock, similar to the startChat tests. The mockGenerateContentFn
+  // the @google/genai mock, similar to the startChat tests. The mockGenerateContentFn
   // (representing instance.models.generateContent) was not being detected as called, or the mock
   // was not preventing an actual API call (leading to API key errors).
   // For future debugging, ensure `this.client.models.generateContent` in `ResearchClient` correctly

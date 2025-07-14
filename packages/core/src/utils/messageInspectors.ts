@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Content } from '@iechor/genai';
+import { Content } from '@google/genai';
 
 export function isFunctionResponse(content: Content): boolean {
   return (

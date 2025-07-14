@@ -11,7 +11,7 @@ import {
   GenerateContentConfig,
   Part,
   GenerateContentResponse,
-} from '@iechor/genai';
+} from '@google/genai';
 import { ResearchChat } from './researchChat.js';
 import { Config } from '../config/config.js';
 import { setSimulate429 } from '../utils/testUtils.js';

@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { partListUnionToString } from './researchRequest.js';
-import { type Part } from '@iechor/genai';
+import { type Part } from '@google/genai';
 
 describe('partListUnionToString', () => {
   it('should return the string value if the input is a string', () => {

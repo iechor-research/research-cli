@@ -6,7 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { PartUnion } from '@iechor/genai';
+import { PartUnion } from '@google/genai';
 import mime from 'mime-types';
 
 // Constants for text file processing

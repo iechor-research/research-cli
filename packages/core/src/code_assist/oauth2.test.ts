@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { getOauthClient } from './oauth2.js';
 import { getCachediEchorAccount } from '../utils/user_account.js';
-import { OAuth2Client, Compute } from 'iechor-auth-library';
+import { OAuth2Client, Compute } from 'google-auth-library';
 import * as fs from 'fs';
 import * as path from 'path';
 import http from 'http';
@@ -26,7 +26,7 @@ vi.mock('os', async (importOriginal) => {
   };
 });
 
-vi.mock('iechor-auth-library');
+vi.mock('google-auth-library');
 vi.mock('http');
 vi.mock('open');
 vi.mock('crypto');

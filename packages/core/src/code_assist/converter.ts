@@ -27,7 +27,7 @@ import {
   ThinkingConfig,
   ToolListUnion,
   ToolConfig,
-} from '@iechor/genai';
+} from '@google/genai';
 
 export interface CAGenerateContentRequest {
   model: string;

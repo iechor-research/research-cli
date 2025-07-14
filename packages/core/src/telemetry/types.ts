@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GenerateContentResponseUsageMetadata } from '@iechor/genai';
+import { GenerateContentResponseUsageMetadata } from '@google/genai';
 import { Config } from '../config/config.js';
 import { CompletedToolCall } from '../core/coreToolScheduler.js';
 import { ToolConfirmationOutcome } from '../tools/tools.js';

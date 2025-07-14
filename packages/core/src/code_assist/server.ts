@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { OAuth2Client } from 'iechor-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 import {
   CodeAssistGlobalUserSettingResponse,
   LoadCodeAssistRequest,
@@ -20,7 +20,7 @@ import {
   EmbedContentResponse,
   GenerateContentParameters,
   GenerateContentResponse,
-} from '@iechor/genai';
+} from '@google/genai';
 import * as readline from 'readline';
 import { ContentGenerator } from '../core/contentGenerator.js';
 import { UserTierId } from './types.js';

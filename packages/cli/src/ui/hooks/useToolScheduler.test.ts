@@ -11,7 +11,7 @@ import {
   useReactToolScheduler,
   mapToDisplay,
 } from './useReactToolScheduler.js';
-import { PartUnion, FunctionResponse } from '@iechor/genai';
+import { PartUnion, FunctionResponse } from '@google/genai';
 import {
   Config,
   ToolCallRequestInfo,

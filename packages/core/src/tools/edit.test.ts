@@ -31,7 +31,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { ApprovalMode, Config } from '../config/config.js';
-import { Content, Part, SchemaUnion } from '@iechor/genai';
+import { Content, Part, SchemaUnion } from '@google/genai';
 
 describe('EditTool', () => {
   let tool: EditTool;

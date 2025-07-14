@@ -45,7 +45,7 @@ import {
 import * as metrics from './metrics.js';
 import * as sdk from './sdk.js';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
-import { GenerateContentResponseUsageMetadata } from '@iechor/genai';
+import { GenerateContentResponseUsageMetadata } from '@google/genai';
 import * as uiTelemetry from './uiTelemetry.js';
 
 describe('loggers', () => {

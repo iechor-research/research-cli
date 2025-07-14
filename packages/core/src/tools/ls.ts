@@ -7,7 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 import { makeRelative, shortenPath } from '../utils/paths.js';
 import { Config } from '../config/config.js';

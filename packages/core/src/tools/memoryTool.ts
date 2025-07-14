@@ -5,7 +5,7 @@
  */
 
 import { BaseTool, ToolResult } from './tools.js';
-import { FunctionDeclaration, Type } from '@iechor/genai';
+import { FunctionDeclaration, Type } from '@google/genai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { homedir } from 'os';

@@ -19,7 +19,7 @@ import {
   ToolCallEvent,
   ToolConfirmationPayload,
 } from '../index.js';
-import { Part, PartListUnion } from '@iechor/genai';
+import { Part, PartListUnion } from '@google/genai';
 import { getResponseTextFromParts } from '../utils/generateContentResponseUtilities.js';
 import {
   isModifiableTool,

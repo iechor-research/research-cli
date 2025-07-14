@@ -81,5 +81,13 @@
     "typescript-eslint": "^8.30.1",
     "vitest": "^3.2.4",
     "yargs": "^17.7.2"
+  },
+  "dependencies": {
+    "gcp-metadata": "^7.0.1",
+    "google-auth-library": "^10.1.0",
+    "google-logging-utils": "^1.1.1",
+    "ws": "^8.18.3",
+    "zod": "^4.0.5",
+    "zod-to-json-schema": "^3.24.6"
   }
 }

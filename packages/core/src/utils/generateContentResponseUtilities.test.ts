@@ -20,7 +20,7 @@ import {
   Part,
   FinishReason,
   SafetyRating,
-} from '@iechor/genai';
+} from '@google/genai';
 
 const mockTextPart = (text: string): Part => ({ text });
 const mockFunctionCallPart = (

@@ -6,9 +6,9 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { CodeAssistServer } from './server.js';
-import { OAuth2Client } from 'iechor-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 
-vi.mock('iechor-auth-library');
+vi.mock('google-auth-library');
 
 describe('CodeAssistServer', () => {
   it('should be able to be constructed', () => {

@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { runNonInteractive } from './nonInteractiveCli.js';
 import { Config, ResearchClient, ToolRegistry } from '@iechor/research-cli-core';
-import { GenerateContentResponse, Part, FunctionCall } from '@iechor/genai';
+import { GenerateContentResponse, Part, FunctionCall } from '@google/genai';
 
 // Mock dependencies
 vi.mock('@iechor/research-cli-core', async () => {

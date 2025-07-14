@@ -11,15 +11,15 @@ import {
   ServerResearchToolCallRequestEvent,
   ServerResearchErrorEvent,
 } from './turn.js';
-import { GenerateContentResponse, Part, Content } from '@iechor/genai';
+import { GenerateContentResponse, Part, Content } from '@google/genai';
 import { reportError } from '../utils/errorReporting.js';
 import { ResearchChat } from './researchChat.js';
 
 const mockSendMessageStream = vi.fn();
 const mockGetHistory = vi.fn();
 
-vi.mock('@iechor/genai', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@iechor/genai')>();
+vi.mock('@google/genai', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@google/genai')>();
   const MockChat = vi.fn().mockImplementation(() => ({
     sendMessageStream: mockSendMessageStream,
     getHistory: mockGetHistory,

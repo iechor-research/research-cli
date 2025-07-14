@@ -13,7 +13,7 @@ import {
   Content,
   Tool,
   GenerateContentResponse,
-} from '@iechor/genai';
+} from '@google/genai';
 import { getFolderStructure } from '../utils/getFolderStructure.js';
 import {
   Turn,

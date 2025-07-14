@@ -15,7 +15,7 @@ import {
   GenerateContentResponse,
   FinishReason,
   BlockedReason,
-} from '@iechor/genai';
+} from '@google/genai';
 
 describe('converter', () => {
   describe('toCodeAssistRequest', () => {

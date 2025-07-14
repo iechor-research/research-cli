@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Schema } from '@iechor/genai';
+import { Schema } from '@google/genai';
 import * as ajv from 'ajv';
 
 const ajValidator = new ajv.Ajv();
@@ -33,7 +33,7 @@ export class SchemaValidator {
   }
 
   /**
-   * Converts @iechor/genai's Schema to an object compatible with avj.
+   * Converts @google/genai's Schema to an object compatible with avj.
    * This is necessry because it represents Types as an Enum (with
    * UPPERCASE values) and minItems and minLength as strings, when they should be numbers.
    */

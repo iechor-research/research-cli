@@ -6,7 +6,7 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PartListUnion, PartUnion } from '@iechor/genai';
+import { PartListUnion, PartUnion } from '@google/genai';
 import {
   Config,
   getErrorMessage,

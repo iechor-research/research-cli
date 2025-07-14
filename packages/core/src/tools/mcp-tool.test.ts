@@ -16,9 +16,9 @@ import {
 } from 'vitest';
 import { DiscoveredMCPTool } from './mcp-tool.js'; // Added getStringifiedResultForDisplay
 import { ToolResult, ToolConfirmationOutcome } from './tools.js'; // Added ToolConfirmationOutcome
-import { CallableTool, Part } from '@iechor/genai';
+import { CallableTool, Part } from '@google/genai';
 
-// Mock @iechor/genai mcpToTool and CallableTool
+// Mock @google/genai mcpToTool and CallableTool
 // We only need to mock the parts of CallableTool that DiscoveredMCPTool uses.
 const mockCallTool = vi.fn();
 const mockToolMethod = vi.fn();

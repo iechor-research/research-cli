@@ -11,7 +11,7 @@ import { EOL } from 'os';
 import { spawn } from 'child_process';
 import { globStream } from 'glob';
 import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@iechor/genai';
+import { Type } from '@google/genai';
 import { SchemaValidator } from '../utils/schemaValidator.js';
 import { makeRelative, shortenPath } from '../utils/paths.js';
 import { getErrorMessage, isNodeError } from '../utils/errors.js';
