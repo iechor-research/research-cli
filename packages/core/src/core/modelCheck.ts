@@ -28,7 +28,7 @@ export async function getEffectiveModel(
 
   const modelToTest = DEFAULT_RESEARCH_MODEL;
   const fallbackModel = DEFAULT_RESEARCH_FLASH_MODEL;
-  const endpoint = `https://generativelanguage.iechorapis.com/v1beta/models/${modelToTest}:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelToTest}:generateContent?key=${apiKey}`;
   const body = JSON.stringify({
     contents: [{ parts: [{ text: 'test' }] }],
     generationConfig: {

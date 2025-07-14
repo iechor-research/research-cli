@@ -41,7 +41,7 @@ import { ProxyAgent, setGlobalDispatcher } from 'undici';
 import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 
 function isThinkingSupported(model: string) {
-  if (model.startsWith('research-2.5')) return true;
+  if (model.startsWith('gemini-2.5')) return true;
   return false;
 }
 
