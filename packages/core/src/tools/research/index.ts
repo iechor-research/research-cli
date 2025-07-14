@@ -56,6 +56,7 @@ export { ResearchToolRegistry, researchToolRegistry } from './registry.js';
 
 // 导出工具实例
 export { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
+export { BibliographyManager } from './analysis/bibliography-manager.js';
 
 // 导出集成功能
 export {
