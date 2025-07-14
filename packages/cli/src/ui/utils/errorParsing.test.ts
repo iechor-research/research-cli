@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@ import { parseAndFormatApiError } from './errorParsing.js';
 import {
   AuthType,
   UserTierId,
-  DEFAULT_GEMINI_FLASH_MODEL,
+  DEFAULT_RESEARCH_FLASH_MODEL,
   isProQuotaExceededError,
 } from '@iechor/research-cli-core';
 
@@ -35,7 +35,7 @@ describe('parseAndFormatApiError', () => {
       undefined,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
@@ -51,7 +51,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
@@ -106,7 +106,7 @@ describe('parseAndFormatApiError', () => {
       },
     });
 
-    const result = parseAndFormatApiError(errorMessage, AuthType.USE_GEMINI);
+    const result = parseAndFormatApiError(errorMessage, AuthType.USE_RESEARCH);
     expect(result).toContain('Research 2.5 Pro Preview');
     expect(result).toContain(researchMessage);
   });
@@ -136,7 +136,7 @@ describe('parseAndFormatApiError', () => {
     expect(parseAndFormatApiError(error)).toBe(expected);
   });
 
-  it('should format a 429 API error with Pro quota exceeded message for Google auth (Free tier)', () => {
+  it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Free tier)', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -144,7 +144,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
@@ -157,7 +157,7 @@ describe('parseAndFormatApiError', () => {
     );
   });
 
-  it('should format a regular 429 API error with standard message for Google auth', () => {
+  it('should format a regular 429 API error with standard message for iEchor auth', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Rate limit exceeded","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -165,7 +165,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
@@ -176,7 +176,7 @@ describe('parseAndFormatApiError', () => {
     );
   });
 
-  it('should format a 429 API error with generic quota exceeded message for Google auth', () => {
+  it('should format a 429 API error with generic quota exceeded message for iEchor auth', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -184,7 +184,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'GenerationRequests'",
@@ -195,7 +195,7 @@ describe('parseAndFormatApiError', () => {
     );
   });
 
-  it('should prioritize Pro quota message over generic quota message for Google auth', () => {
+  it('should prioritize Pro quota message over generic quota message for iEchor auth', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -203,7 +203,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
@@ -214,7 +214,7 @@ describe('parseAndFormatApiError', () => {
     expect(result).not.toContain('You have reached your daily quota limit');
   });
 
-  it('should format a 429 API error with Pro quota exceeded message for Google auth (Standard tier)', () => {
+  it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Standard tier)', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -222,7 +222,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
@@ -238,7 +238,7 @@ describe('parseAndFormatApiError', () => {
     );
   });
 
-  it('should format a 429 API error with Pro quota exceeded message for Google auth (Legacy tier)', () => {
+  it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Legacy tier)', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -246,7 +246,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.LEGACY,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
@@ -273,14 +273,14 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     const resultPreview = parseAndFormatApiError(
       errorMessagePreview,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
       'research-2.5-preview-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
 
     expect(result25).toContain(
@@ -335,7 +335,7 @@ describe('parseAndFormatApiError', () => {
     ).toBe(false);
   });
 
-  it('should format a generic quota exceeded message for Google auth (Standard tier)', () => {
+  it('should format a generic quota exceeded message for iEchor auth (Standard tier)', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -343,7 +343,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'GenerationRequests'",
@@ -357,7 +357,7 @@ describe('parseAndFormatApiError', () => {
     );
   });
 
-  it('should format a regular 429 API error with standard message for Google auth (Standard tier)', () => {
+  it('should format a regular 429 API error with standard message for iEchor auth (Standard tier)', () => {
     const errorMessage =
       'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Rate limit exceeded","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
@@ -365,7 +365,7 @@ describe('parseAndFormatApiError', () => {
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
       'research-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,14 +17,14 @@ import { ReadFileTool } from '../tools/read-file.js';
 import { ReadManyFilesTool } from '../tools/read-many-files.js';
 import { GrepTool } from '../tools/grep.js';
 import { LruCache } from './LruCache.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import {
   isFunctionResponse,
   isFunctionCall,
 } from '../utils/messageInspectors.js';
 import * as fs from 'fs';
 
-const EditModel = DEFAULT_GEMINI_FLASH_MODEL;
+const EditModel = DEFAULT_RESEARCH_FLASH_MODEL;
 const EditConfig: GenerateContentConfig = {
   thinkingConfig: {
     thinkingBudget: 0,

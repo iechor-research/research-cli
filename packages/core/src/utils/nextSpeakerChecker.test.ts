@@ -1,12 +1,12 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
-import { Content, GoogleGenAI, Models } from '@iechor/genai';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { Content, iEchorGenAI, Models } from '@iechor/genai';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { ResearchClient } from '../core/client.js';
 import { Config } from '../config/config.js';
 import { checkNextSpeaker, NextSpeakerResponse } from './nextSpeakerChecker.js';
@@ -16,7 +16,7 @@ import { ResearchChat } from '../core/researchChat.js';
 vi.mock('../core/client.js');
 vi.mock('../config/config.js');
 
-// Define mocks for GoogleGenAI and Models instances that will be used across tests
+// Define mocks for iEchorGenAI and Models instances that will be used across tests
 const mockModelsInstance = {
   generateContent: vi.fn(),
   generateContentStream: vi.fn(),
@@ -25,17 +25,17 @@ const mockModelsInstance = {
   batchEmbedContents: vi.fn(),
 } as unknown as Models;
 
-const mockGoogleGenAIInstance = {
+const mockiEchorGenAIInstance = {
   getGenerativeModel: vi.fn().mockReturnValue(mockModelsInstance),
-  // Add other methods of GoogleGenAI if they are directly used by ResearchChat constructor or its methods
-} as unknown as GoogleGenAI;
+  // Add other methods of iEchorGenAI if they are directly used by ResearchChat constructor or its methods
+} as unknown as iEchorGenAI;
 
 vi.mock('@iechor/genai', async () => {
   const actualGenAI =
     await vi.importActual<typeof import('@iechor/genai')>('@iechor/genai');
   return {
     ...actualGenAI,
-    GoogleGenAI: vi.fn(() => mockGoogleGenAIInstance), // Mock constructor to return the predefined instance
+    iEchorGenAI: vi.fn(() => mockiEchorGenAIInstance), // Mock constructor to return the predefined instance
     // If Models is instantiated directly in ResearchChat, mock its constructor too
     // For now, assuming Models instance is obtained via getGenerativeModel
   };
@@ -68,10 +68,10 @@ describe('checkNextSpeaker', () => {
     vi.mocked(mockModelsInstance.generateContent).mockReset();
     vi.mocked(mockModelsInstance.generateContentStream).mockReset();
 
-    // ResearchChat will receive the mocked instances via the mocked GoogleGenAI constructor
+    // ResearchChat will receive the mocked instances via the mocked iEchorGenAI constructor
     chatInstance = new ResearchChat(
       mockConfigInstance,
-      mockModelsInstance, // This is the instance returned by mockGoogleGenAIInstance.getGenerativeModel
+      mockModelsInstance, // This is the instance returned by mockiEchorGenAIInstance.getGenerativeModel
       {},
       [], // initial history
     );
@@ -233,7 +233,7 @@ describe('checkNextSpeaker', () => {
     expect(result).toBeNull();
   });
 
-  it('should call generateJson with DEFAULT_GEMINI_FLASH_MODEL', async () => {
+  it('should call generateJson with DEFAULT_RESEARCH_FLASH_MODEL', async () => {
     (chatInstance.getHistory as Mock).mockReturnValue([
       { role: 'model', parts: [{ text: 'Some model output.' }] },
     ] as Content[]);
@@ -248,6 +248,6 @@ describe('checkNextSpeaker', () => {
     expect(mockResearchClient.generateJson).toHaveBeenCalled();
     const generateJsonCall = (mockResearchClient.generateJson as Mock).mock
       .calls[0];
-    expect(generateJsonCall[3]).toBe(DEFAULT_GEMINI_FLASH_MODEL);
+    expect(generateJsonCall[3]).toBe(DEFAULT_RESEARCH_FLASH_MODEL);
   });
 });

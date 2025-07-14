@@ -18,7 +18,7 @@ Research CLI comes with a selection of pre-defined themes, which you can list us
   - `Ayu Light`
   - `Default Light`
   - `GitHub Light`
-  - `Google Code`
+  - `iEchor Code`
   - `Xcode`
 
 ### Changing Themes
@@ -76,9 +76,9 @@ Selected themes are saved in Research CLI's [configuration](./configuration.md) 
 
 <img src="../assets/theme-github-light.png" alt="GitHub Light theme" width="600">
 
-### Google Code
+### iEchor Code
 
-<img src="../assets/theme-iechor-light.png" alt="Google Code theme" width="600">
+<img src="../assets/theme-iechor-light.png" alt="iEchor Code theme" width="600">
 
 ### Xcode
 

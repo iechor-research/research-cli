@@ -2,7 +2,7 @@
 
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -62,7 +62,7 @@ service:
 `;
 
 async function main() {
-  console.log('✨ Starting Local Telemetry Exporter for Google Cloud ✨');
+  console.log('✨ Starting Local Telemetry Exporter for iEchor Cloud ✨');
 
   let collectorProcess;
   let collectorLogFd;
@@ -84,14 +84,14 @@ async function main() {
       '🛑 Error: OTLP_GOOGLE_CLOUD_PROJECT environment variable is not exported.',
     );
     console.log(
-      '   Please set it to your Google Cloud Project ID and try again.',
+      '   Please set it to your iEchor Cloud Project ID and try again.',
     );
     console.log('   `export OTLP_GOOGLE_CLOUD_PROJECT=your-project-id`');
     process.exit(1);
   }
-  console.log(`✅ Using OTLP Google Cloud Project ID: ${projectId}`);
+  console.log(`✅ Using OTLP iEchor Cloud Project ID: ${projectId}`);
 
-  console.log('\n🔑 Please ensure you are authenticated with Google Cloud:');
+  console.log('\n🔑 Please ensure you are authenticated with iEchor Cloud:');
   console.log(
     '  - Run `gcloud auth application-default login` OR ensure `GOOGLE_APPLICATION_CREDENTIALS` environment variable points to a valid service account key.',
   );
@@ -172,7 +172,7 @@ async function main() {
   console.log(
     `📄 Tail collector logs in another terminal: tail -f ${OTEL_LOG_FILE}`,
   );
-  console.log(`\n📊 View your telemetry data in Google Cloud Console:`);
+  console.log(`\n📊 View your telemetry data in iEchor Cloud Console:`);
   console.log(
     `   - Logs: https://console.cloud.iechor.com/logs/query;query=logName%3D%22projects%2F${projectId}%2Flogs%2Fresearch_cli%22?project=${projectId}`,
   );

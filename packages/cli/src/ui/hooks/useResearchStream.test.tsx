@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -277,7 +277,7 @@ describe('useResearchStream', () => {
       model: 'test-model',
       apiKey: 'test-key',
       vertexai: false,
-      authType: AuthType.USE_GEMINI,
+      authType: AuthType.USE_RESEARCH,
     };
 
     mockConfig = {

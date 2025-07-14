@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,7 +24,7 @@ import {
   ThoughtSummary,
   UnauthorizedError,
   UserPromptEvent,
-  DEFAULT_GEMINI_FLASH_MODEL,
+  DEFAULT_RESEARCH_FLASH_MODEL,
 } from '@iechor/research-cli-core';
 import { type Part, type PartListUnion } from '@iechor/genai';
 import {
@@ -411,7 +411,7 @@ export const useResearchStream = (
             config.getContentGeneratorConfig()?.authType,
             undefined,
             config.getModel(),
-            DEFAULT_GEMINI_FLASH_MODEL,
+            DEFAULT_RESEARCH_FLASH_MODEL,
           ),
         },
         userMessageTimestamp,
@@ -591,7 +591,7 @@ export const useResearchStream = (
                 config.getContentGeneratorConfig()?.authType,
                 undefined,
                 config.getModel(),
-                DEFAULT_GEMINI_FLASH_MODEL,
+                DEFAULT_RESEARCH_FLASH_MODEL,
               ),
             },
             userMessageTimestamp,

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -61,7 +61,7 @@ export const useAuthCommand = (
           console.log(
             `
 ----------------------------------------------------------------
-Logging in with Google... Please restart Research CLI to continue.
+Logging in with iEchor... Please restart Research CLI to continue.
 ----------------------------------------------------------------
             `,
           );

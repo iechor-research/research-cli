@@ -5,14 +5,14 @@ Research CLI's core package (`packages/core`) is the backend portion of Research
 ## Navigating this section
 
 - **[Core tools API](./tools-api.md):** Information on how tools are defined, registered, and used by the core.
-- **[Memory Import Processor](./memport.md):** Documentation for the modular GEMINI.md import feature using @file.md syntax.
+- **[Memory Import Processor](./memport.md):** Documentation for the modular RESEARCH.md import feature using @file.md syntax.
 
 ## Role of the core
 
 While the `packages/cli` portion of Research CLI provides the user interface, `packages/core` is responsible for:
 
-- **Research API interaction:** Securely communicating with the Google Research API, sending user prompts, and receiving model responses.
-- **Prompt engineering:** Constructing effective prompts for the Research model, potentially incorporating conversation history, tool definitions, and instructional context from `GEMINI.md` files.
+- **Research API interaction:** Securely communicating with the iEchor Research API, sending user prompts, and receiving model responses.
+- **Prompt engineering:** Constructing effective prompts for the Research model, potentially incorporating conversation history, tool definitions, and instructional context from `RESEARCH.md` files.
 - **Tool management & orchestration:**
   - Registering available tools (e.g., file system tools, shell command execution).
   - Interpreting tool use requests from the Research model.
@@ -25,7 +25,7 @@ While the `packages/cli` portion of Research CLI provides the user interface, `p
 
 The core plays a vital role in security:
 
-- **API key management:** It handles the `GEMINI_API_KEY` and ensures it's used securely when communicating with the Research API.
+- **API key management:** It handles the `RESEARCH_API_KEY` and ensures it's used securely when communicating with the Research API.
 - **Tool execution:** When tools interact with the local system (e.g., `run_shell_command`), the core (and its underlying tool implementations) must do so with appropriate caution, often involving sandboxing mechanisms to prevent unintended modifications.
 
 ## Chat history compression
@@ -34,7 +34,7 @@ To ensure that long conversations don't exceed the token limits of the Research 
 
 When a conversation approaches the token limit for the configured model, the core automatically compresses the conversation history before sending it to the model. This compression is designed to be lossless in terms of the information conveyed, but it reduces the overall number of tokens used.
 
-You can find the token limits for each model in the [Google AI documentation](https://ai.iechor.dev/research-api/docs/models).
+You can find the token limits for each model in the [iEchor AI documentation](https://ai.iechor.dev/research-api/docs/models).
 
 ## Model fallback
 
@@ -48,8 +48,8 @@ The file discovery service is responsible for finding files in the project that 
 
 ## Memory discovery service
 
-The memory discovery service is responsible for finding and loading the `GEMINI.md` files that provide context to the model. It searches for these files in a hierarchical manner, starting from the current working directory and moving up to the project root and the user's home directory. It also searches in subdirectories.
+The memory discovery service is responsible for finding and loading the `RESEARCH.md` files that provide context to the model. It searches for these files in a hierarchical manner, starting from the current working directory and moving up to the project root and the user's home directory. It also searches in subdirectories.
 
 This allows you to have global, project-level, and component-level context files, which are all combined to provide the model with the most relevant information.
 
-You can use the [`/memory` command](../cli/commands.md) to `show`, `add`, and `refresh` the content of loaded `GEMINI.md` files.
+You can use the [`/memory` command](../cli/commands.md) to `show`, `add`, and `refresh` the content of loaded `RESEARCH.md` files.

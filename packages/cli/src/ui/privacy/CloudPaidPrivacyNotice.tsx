@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,10 +28,10 @@ export const CloudPaidPrivacyNotice = ({
       <Newline />
       <Text>
         Service Specific Terms<Text color={Colors.AccentBlue}>[1]</Text> are
-        incorporated into the agreement under which Google has agreed to provide
-        Google Cloud Platform<Text color={Colors.AccentGreen}>[2]</Text> to
+        incorporated into the agreement under which iEchor has agreed to provide
+        iEchor Cloud Platform<Text color={Colors.AccentGreen}>[2]</Text> to
         Customer (the “Agreement”). If the Agreement authorizes the resale or
-        supply of Google Cloud Platform under a Google Cloud partner or reseller
+        supply of iEchor Cloud Platform under a iEchor Cloud partner or reseller
         program, then except for in the section entitled “Partner-Specific
         Terms”, all references to Customer in the Service Specific Terms mean
         Partner or Reseller (as applicable), and all references to Customer Data

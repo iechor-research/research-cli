@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -56,7 +56,7 @@ function getNodeMemoryArgs(config: Config): string[] {
     );
   }
 
-  if (process.env.GEMINI_CLI_NO_RELAUNCH) {
+  if (process.env.RESEARCH_CLI_NO_RELAUNCH) {
     return [];
   }
 
@@ -74,7 +74,7 @@ function getNodeMemoryArgs(config: Config): string[] {
 
 async function relaunchWithAdditionalArgs(additionalArgs: string[]) {
   const nodeArgs = [...additionalArgs, ...process.argv.slice(1)];
-  const newEnv = { ...process.env, GEMINI_CLI_NO_RELAUNCH: 'true' };
+  const newEnv = { ...process.env, RESEARCH_CLI_NO_RELAUNCH: 'true' };
 
   const child = spawn(process.execPath, nodeArgs, {
     stdio: 'inherit',
@@ -323,16 +323,16 @@ async function validateNonInterActiveAuth(
   nonInteractiveConfig: Config,
 ) {
   // making a special case for the cli. many headless environments might not have a settings.json set
-  // so if GEMINI_API_KEY is set, we'll use that. However since the oauth things are interactive anyway, we'll
+  // so if RESEARCH_API_KEY is set, we'll use that. However since the oauth things are interactive anyway, we'll
   // still expect that exists
-  if (!selectedAuthType && !process.env.GEMINI_API_KEY) {
+  if (!selectedAuthType && !process.env.RESEARCH_API_KEY) {
     console.error(
-      `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify GEMINI_API_KEY env variable file before running`,
+      `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify RESEARCH_API_KEY env variable file before running`,
     );
     process.exit(1);
   }
 
-  selectedAuthType = selectedAuthType || AuthType.USE_GEMINI;
+  selectedAuthType = selectedAuthType || AuthType.USE_RESEARCH;
   const err = validateAuthMethod(selectedAuthType);
   if (err != null) {
     console.error(err);

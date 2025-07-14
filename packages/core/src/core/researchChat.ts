@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,7 +34,7 @@ import {
   ApiRequestEvent,
   ApiResponseEvent,
 } from '../telemetry/types.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 
 /**
  * Returns true if the response is valid, false otherwise.
@@ -214,7 +214,7 @@ export class ResearchChat {
     }
 
     const currentModel = this.config.getModel();
-    const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
+    const fallbackModel = DEFAULT_RESEARCH_FLASH_MODEL;
 
     // Don't fallback if already using Flash model
     if (currentModel === fallbackModel) {
@@ -281,12 +281,12 @@ export class ResearchChat {
 
     try {
       const apiCall = () => {
-        const modelToUse = this.config.getModel() || DEFAULT_GEMINI_FLASH_MODEL;
+        const modelToUse = this.config.getModel() || DEFAULT_RESEARCH_FLASH_MODEL;
 
         // Prevent Flash model calls immediately after quota error
         if (
           this.config.getQuotaErrorOccurred() &&
-          modelToUse === DEFAULT_GEMINI_FLASH_MODEL
+          modelToUse === DEFAULT_RESEARCH_FLASH_MODEL
         ) {
           throw new Error(
             'Please submit a new query to continue with the Flash model.',
@@ -393,7 +393,7 @@ export class ResearchChat {
         // Prevent Flash model calls immediately after quota error
         if (
           this.config.getQuotaErrorOccurred() &&
-          modelToUse === DEFAULT_GEMINI_FLASH_MODEL
+          modelToUse === DEFAULT_RESEARCH_FLASH_MODEL
         ) {
           throw new Error(
             'Please submit a new query to continue with the Flash model.',

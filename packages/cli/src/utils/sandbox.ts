@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -233,8 +233,8 @@ export async function start_sandbox(
         ...process.argv.map((arg) => quote([arg])),
       ].join(' '),
     ];
-    // start and set up proxy if GEMINI_SANDBOX_PROXY_COMMAND is set
-    const proxyCommand = process.env.GEMINI_SANDBOX_PROXY_COMMAND;
+    // start and set up proxy if RESEARCH_SANDBOX_PROXY_COMMAND is set
+    const proxyCommand = process.env.RESEARCH_SANDBOX_PROXY_COMMAND;
     let proxyProcess: ChildProcess | undefined = undefined;
     let sandboxProcess: ChildProcess | undefined = undefined;
     const sandboxEnv = { ...process.env };
@@ -343,7 +343,7 @@ export async function start_sandbox(
           stdio: 'inherit',
           env: {
             ...process.env,
-            GEMINI_SANDBOX: config.command, // in case sandbox is enabled via flags (see config.ts under cli package)
+            RESEARCH_SANDBOX: config.command, // in case sandbox is enabled via flags (see config.ts under cli package)
           },
         },
       );
@@ -455,8 +455,8 @@ export async function start_sandbox(
 
   // copy proxy environment variables, replacing localhost with SANDBOX_PROXY_NAME
   // copy as both upper-case and lower-case as is required by some utilities
-  // GEMINI_SANDBOX_PROXY_COMMAND implies HTTPS_PROXY unless HTTP_PROXY is set
-  const proxyCommand = process.env.GEMINI_SANDBOX_PROXY_COMMAND;
+  // RESEARCH_SANDBOX_PROXY_COMMAND implies HTTPS_PROXY unless HTTP_PROXY is set
+  const proxyCommand = process.env.RESEARCH_SANDBOX_PROXY_COMMAND;
 
   if (proxyCommand) {
     let proxy =
@@ -509,9 +509,9 @@ export async function start_sandbox(
   const containerName = `${imageName}-${index}`;
   args.push('--name', containerName, '--hostname', containerName);
 
-  // copy GEMINI_API_KEY(s)
-  if (process.env.GEMINI_API_KEY) {
-    args.push('--env', `GEMINI_API_KEY=${process.env.GEMINI_API_KEY}`);
+  // copy RESEARCH_API_KEY(s)
+  if (process.env.RESEARCH_API_KEY) {
+    args.push('--env', `RESEARCH_API_KEY=${process.env.RESEARCH_API_KEY}`);
   }
   if (process.env.GOOGLE_API_KEY) {
     args.push('--env', `GOOGLE_API_KEY=${process.env.GOOGLE_API_KEY}`);
@@ -541,9 +541,9 @@ export async function start_sandbox(
     );
   }
 
-  // copy GEMINI_MODEL
-  if (process.env.GEMINI_MODEL) {
-    args.push('--env', `GEMINI_MODEL=${process.env.GEMINI_MODEL}`);
+  // copy RESEARCH_MODEL
+  if (process.env.RESEARCH_MODEL) {
+    args.push('--env', `RESEARCH_MODEL=${process.env.RESEARCH_MODEL}`);
   }
 
   // copy TERM and COLORTERM to try to maintain terminal setup
@@ -621,7 +621,7 @@ export async function start_sandbox(
   let userFlag = '';
   const finalEntrypoint = entrypoint(workdir);
 
-  if (process.env.GEMINI_CLI_INTEGRATION_TEST === 'true') {
+  if (process.env.RESEARCH_CLI_INTEGRATION_TEST === 'true') {
     args.push('--user', 'root');
     userFlag = '--user root';
   } else if (await shouldUseCurrentUserInSandbox()) {
@@ -668,7 +668,7 @@ export async function start_sandbox(
   // push container entrypoint (including args)
   args.push(...finalEntrypoint);
 
-  // start and set up proxy if GEMINI_SANDBOX_PROXY_COMMAND is set
+  // start and set up proxy if RESEARCH_SANDBOX_PROXY_COMMAND is set
   let proxyProcess: ChildProcess | undefined = undefined;
   let sandboxProcess: ChildProcess | undefined = undefined;
 

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +8,7 @@ import path from 'node:path';
 import os from 'os';
 import * as crypto from 'crypto';
 
-export const GEMINI_DIR = '.research';
+export const RESEARCH_DIR = '.research';
 export const GOOGLE_ACCOUNTS_FILENAME = 'iechor_accounts.json';
 const TMP_DIR_NAME = 'tmp';
 
@@ -156,5 +156,5 @@ export function getProjectHash(projectRoot: string): string {
  */
 export function getProjectTempDir(projectRoot: string): string {
   const hash = getProjectHash(projectRoot);
-  return path.join(os.homedir(), GEMINI_DIR, TMP_DIR_NAME, hash);
+  return path.join(os.homedir(), RESEARCH_DIR, TMP_DIR_NAME, hash);
 }

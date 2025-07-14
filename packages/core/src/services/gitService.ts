@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@ import { isNodeError } from '../utils/errors.js';
 import { isGitRepository } from '../utils/gitUtils.js';
 import { exec } from 'node:child_process';
 import { simpleGit, SimpleGit, CheckRepoActions } from 'simple-git';
-import { getProjectHash, GEMINI_DIR } from '../utils/paths.js';
+import { getProjectHash, RESEARCH_DIR } from '../utils/paths.js';
 
 export class GitService {
   private projectRoot: string;
@@ -22,7 +22,7 @@ export class GitService {
 
   private getHistoryDir(): string {
     const hash = getProjectHash(this.projectRoot);
-    return path.join(os.homedir(), GEMINI_DIR, 'history', hash);
+    return path.join(os.homedir(), RESEARCH_DIR, 'history', hash);
   }
 
   async initialize(): Promise<void> {

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,10 +26,10 @@ export const ResearchPrivacyNotice = ({ onExit }: ResearchPrivacyNoticeProps) =>
       <Newline />
       <Text>
         By using the Research API<Text color={Colors.AccentBlue}>[1]</Text>,
-        Google AI Studio
-        <Text color={Colors.AccentRed}>[2]</Text>, and the other Google
+        iEchor AI Studio
+        <Text color={Colors.AccentRed}>[2]</Text>, and the other iEchor
         developer services that reference these terms (collectively, the
-        &quot;APIs&quot; or &quot;Services&quot;), you are agreeing to Google
+        &quot;APIs&quot; or &quot;Services&quot;), you are agreeing to iEchor
         APIs Terms of Service (the &quot;API Terms&quot;)
         <Text color={Colors.AccentGreen}>[3]</Text>, and the Research API
         Additional Terms of Service (the &quot;Additional Terms&quot;)

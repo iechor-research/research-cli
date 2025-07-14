@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,7 +34,7 @@ export async function setupUser(client: OAuth2Client): Promise<string> {
   const clientMetadata: ClientMetadata = {
     ideType: 'IDE_UNSPECIFIED',
     platform: 'PLATFORM_UNSPECIFIED',
-    pluginType: 'GEMINI',
+    pluginType: 'RESEARCH',
     duetProject: projectId,
   };
 

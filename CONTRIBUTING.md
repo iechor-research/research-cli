@@ -12,7 +12,7 @@ You (or your employer) retain the copyright to your contribution; this simply
 gives us permission to use and redistribute your contributions as part of the
 project.
 
-If you or your current employer have already signed the Google CLA (even if it
+If you or your current employer have already signed the iEchor CLA (even if it
 was for a different project), you probably don't need to do it again.
 
 Visit <https://cla.developers.iechor.com/> to see your current agreements or to
@@ -20,7 +20,7 @@ sign a new one.
 
 ### Review our Community Guidelines
 
-This project follows [Google's Open Source Community
+This project follows [iEchor's Open Source Community
 Guidelines](https://opensource.iechor/conduct/).
 
 ## Contribution Process
@@ -76,7 +76,7 @@ In the PR description, explain the "why" behind your changes and link to the rel
 
 ## Forking
 
-If you are forking the repository you will be able to run the Build, Test and Integration test workflows. However in order to make the integration tests run you'll need to add a [GitHub Repository Secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) with a value of `GEMINI_API_KEY` and set that to a valid API key that you have available. Your key and secret are private to your repo; no one without access can see your key and you cannot see any secrets related to this repo.
+If you are forking the repository you will be able to run the Build, Test and Integration test workflows. However in order to make the integration tests run you'll need to add a [GitHub Repository Secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) with a value of `RESEARCH_API_KEY` and set that to a valid API key that you have available. Your key and secret are private to your repo; no one without access can see your key and you cannot see any secrets related to this repo.
 
 Additionally you will need to click on the `Actions` tab and enable workflows for your repository, you'll find it's the large blue button in the center of the screen.
 
@@ -118,7 +118,7 @@ This command typically compiles TypeScript to JavaScript, bundles assets, and pr
 
 ### Enabling Sandboxing
 
-[Sandboxing](#sandboxing) is highly recommended and requires, at a minimum, setting `GEMINI_SANDBOX=true` in your `~/.env` and ensuring a sandboxing provider (e.g. `macOS Seatbelt`, `docker`, or `podman`) is available. See [Sandboxing](#sandboxing) for details.
+[Sandboxing](#sandboxing) is highly recommended and requires, at a minimum, setting `RESEARCH_SANDBOX=true` in your `~/.env` and ensuring a sandboxing provider (e.g. `macOS Seatbelt`, `docker`, or `podman`) is available. See [Sandboxing](#sandboxing) for details.
 
 To build both the `research` CLI utility and the sandbox container, run `build:all` from the root directory:
 
@@ -209,7 +209,7 @@ npm run lint
 ### Coding Conventions
 
 - Please adhere to the coding style, patterns, and conventions used throughout the existing codebase.
-- Consult [GEMINI.md](https://github.com/iechor-research/research-cli/blob/main/GEMINI.md) (typically found in the project root) for specific instructions related to AI-assisted development, including conventions for React, comments, and Git usage.
+- Consult [RESEARCH.md](https://github.com/iechor-research/research-cli/blob/main/RESEARCH.md) (typically found in the project root) for specific instructions related to AI-assisted development, including conventions for React, comments, and Git usage.
 - **Imports:** Pay special attention to import paths. The project uses `eslint-rules/no-relative-cross-package-imports.js` to enforce restrictions on relative imports between packages.
 
 ### Project Structure
@@ -278,13 +278,13 @@ On MacOS, `research` uses Seatbelt (`sandbox-exec`) under a `permissive-open` pr
 
 ### Container-based Sandboxing (All Platforms)
 
-For stronger container-based sandboxing on MacOS or other platforms, you can set `GEMINI_SANDBOX=true|docker|podman|<command>` in your environment or `.env` file. The specified command (or if `true` then either `docker` or `podman`) must be installed on the host machine. Once enabled, `npm run build:all` will build a minimal container ("sandbox") image and `npm start` will launch inside a fresh instance of that container. The first build can take 20-30s (mostly due to downloading of the base image) but after that both build and start overhead should be minimal. Default builds (`npm run build`) will not rebuild the sandbox.
+For stronger container-based sandboxing on MacOS or other platforms, you can set `RESEARCH_SANDBOX=true|docker|podman|<command>` in your environment or `.env` file. The specified command (or if `true` then either `docker` or `podman`) must be installed on the host machine. Once enabled, `npm run build:all` will build a minimal container ("sandbox") image and `npm start` will launch inside a fresh instance of that container. The first build can take 20-30s (mostly due to downloading of the base image) but after that both build and start overhead should be minimal. Default builds (`npm run build`) will not rebuild the sandbox.
 
 Container-based sandboxing mounts the project directory (and system temp directory) with read-write access and is started/stopped/removed automatically as you start/stop Research CLI. Files created within the sandbox should be automatically mapped to your user/group on host machine. You can easily specify additional mounts, ports, or environment variables by setting `SANDBOX_{MOUNTS,PORTS,ENV}` as needed. You can also fully customize the sandbox for your projects by creating the files `.research/sandbox.Dockerfile` and/or `.research/sandbox.bashrc` under your project settings directory (`.research`) and running `research` with `BUILD_SANDBOX=1` to trigger building of your custom sandbox.
 
 #### Proxied Networking
 
-All sandboxing methods, including MacOS Seatbelt using `*-proxied` profiles, support restricting outbound network traffic through a custom proxy server that can be specified as `GEMINI_SANDBOX_PROXY_COMMAND=<command>`, where `<command>` must start a proxy server that listens on `:::8877` for relevant requests. See `docs/examples/proxy-script.md` for a minimal proxy that only allows `HTTPS` connections to `example.com:443` (e.g. `curl https://example.com`) and declines all other requests. The proxy is started and stopped automatically alongside the sandbox.
+All sandboxing methods, including MacOS Seatbelt using `*-proxied` profiles, support restricting outbound network traffic through a custom proxy server that can be specified as `RESEARCH_SANDBOX_PROXY_COMMAND=<command>`, where `<command>` must start a proxy server that listens on `:::8877` for relevant requests. See `docs/examples/proxy-script.md` for a minimal proxy that only allows `HTTPS` connections to `example.com:443` (e.g. `curl https://example.com`) and declines all other requests. The proxy is started and stopped automatically alongside the sandbox.
 
 ## Manual Publish
 

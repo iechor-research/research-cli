@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,7 +28,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         <Text color={Colors.Foreground}>
           3. Create{' '}
           <Text bold color={Colors.AccentPurple}>
-            GEMINI.md
+            RESEARCH.md
           </Text>{' '}
           files to customize your interactions with Research.
         </Text>

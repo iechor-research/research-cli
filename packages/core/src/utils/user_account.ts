@@ -1,21 +1,21 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import path from 'node:path';
 import { promises as fsp, existsSync, readFileSync } from 'node:fs';
 import * as os from 'os';
-import { GEMINI_DIR, GOOGLE_ACCOUNTS_FILENAME } from './paths.js';
+import { RESEARCH_DIR, GOOGLE_ACCOUNTS_FILENAME } from './paths.js';
 
 interface UserAccounts {
   active: string | null;
   old: string[];
 }
 
-function getGoogleAccountsCachePath(): string {
-  return path.join(os.homedir(), GEMINI_DIR, GOOGLE_ACCOUNTS_FILENAME);
+function getiEchorAccountsCachePath(): string {
+  return path.join(os.homedir(), RESEARCH_DIR, GOOGLE_ACCOUNTS_FILENAME);
 }
 
 async function readAccounts(filePath: string): Promise<UserAccounts> {
@@ -36,8 +36,8 @@ async function readAccounts(filePath: string): Promise<UserAccounts> {
   }
 }
 
-export async function cacheGoogleAccount(email: string): Promise<void> {
-  const filePath = getGoogleAccountsCachePath();
+export async function cacheiEchorAccount(email: string): Promise<void> {
+  const filePath = getiEchorAccountsCachePath();
   await fsp.mkdir(path.dirname(filePath), { recursive: true });
 
   const accounts = await readAccounts(filePath);
@@ -55,9 +55,9 @@ export async function cacheGoogleAccount(email: string): Promise<void> {
   await fsp.writeFile(filePath, JSON.stringify(accounts, null, 2), 'utf-8');
 }
 
-export function getCachedGoogleAccount(): string | null {
+export function getCachediEchorAccount(): string | null {
   try {
-    const filePath = getGoogleAccountsCachePath();
+    const filePath = getiEchorAccountsCachePath();
     if (existsSync(filePath)) {
       const content = readFileSync(filePath, 'utf-8').trim();
       if (!content) {
@@ -68,14 +68,14 @@ export function getCachedGoogleAccount(): string | null {
     }
     return null;
   } catch (error) {
-    console.debug('Error reading cached Google Account:', error);
+    console.debug('Error reading cached iEchor Account:', error);
     return null;
   }
 }
 
-export function getLifetimeGoogleAccounts(): number {
+export function getLifetimeiEchorAccounts(): number {
   try {
-    const filePath = getGoogleAccountsCachePath();
+    const filePath = getiEchorAccountsCachePath();
     if (!existsSync(filePath)) {
       return 0;
     }
@@ -91,13 +91,13 @@ export function getLifetimeGoogleAccounts(): number {
     }
     return count;
   } catch (error) {
-    console.debug('Error reading lifetime Google Accounts:', error);
+    console.debug('Error reading lifetime iEchor Accounts:', error);
     return 0;
   }
 }
 
-export async function clearCachedGoogleAccount(): Promise<void> {
-  const filePath = getGoogleAccountsCachePath();
+export async function clearCachediEchorAccount(): Promise<void> {
+  const filePath = getiEchorAccountsCachePath();
   if (!existsSync(filePath)) {
     return;
   }

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,8 +13,8 @@ import {
   setResearchMdFilename as setServerResearchMdFilename,
   getCurrentResearchMdFilename,
   ApprovalMode,
-  DEFAULT_GEMINI_MODEL,
-  DEFAULT_GEMINI_EMBEDDING_MODEL,
+  DEFAULT_RESEARCH_MODEL,
+  DEFAULT_RESEARCH_EMBEDDING_MODEL,
   FileDiscoveryService,
   TelemetryTarget,
 } from '@iechor/research-cli-core';
@@ -67,7 +67,7 @@ export async function parseArguments(): Promise<CliArgs> {
       alias: 'm',
       type: 'string',
       description: `Model`,
-      default: process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL,
+      default: process.env.RESEARCH_MODEL || DEFAULT_RESEARCH_MODEL,
     })
     .option('prompt', {
       alias: 'p',
@@ -277,7 +277,7 @@ export async function loadCliConfig(
 
   return new Config({
     sessionId,
-    embeddingModel: DEFAULT_GEMINI_EMBEDDING_MODEL,
+    embeddingModel: DEFAULT_RESEARCH_EMBEDDING_MODEL,
     sandbox: sandboxConfig,
     targetDir: process.cwd(),
     debugMode,

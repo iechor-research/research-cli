@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -46,11 +46,11 @@ Do NOT use this tool:
 - \`fact\` (string, required): The specific fact or piece of information to remember. This should be a clear, self-contained statement. For example, if the user says "My favorite color is blue", the fact would be "My favorite color is blue".
 `;
 
-export const GEMINI_CONFIG_DIR = '.research';
-export const DEFAULT_CONTEXT_FILENAME = 'GEMINI.md';
+export const RESEARCH_CONFIG_DIR = '.research';
+export const DEFAULT_CONTEXT_FILENAME = 'RESEARCH.md';
 export const MEMORY_SECTION_HEADER = '## Research Added Memories';
 
-// This variable will hold the currently configured filename for GEMINI.md context files.
+// This variable will hold the currently configured filename for RESEARCH.md context files.
 // It defaults to DEFAULT_CONTEXT_FILENAME but can be overridden by setResearchMdFilename.
 let currentResearchMdFilename: string | string[] = DEFAULT_CONTEXT_FILENAME;
 
@@ -83,7 +83,7 @@ interface SaveMemoryParams {
 }
 
 function getGlobalMemoryFilePath(): string {
-  return path.join(homedir(), GEMINI_CONFIG_DIR, getCurrentResearchMdFilename());
+  return path.join(homedir(), RESEARCH_CONFIG_DIR, getCurrentResearchMdFilename());
 }
 
 /**

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -56,7 +56,7 @@ export interface WebSearchToolResult extends ToolResult {
 }
 
 /**
- * A tool to perform web searches using Google Search via the Research API.
+ * A tool to perform web searches using iEchor Search via the Research API.
  */
 export class WebSearchTool extends BaseTool<
   WebSearchToolParams,
@@ -67,8 +67,8 @@ export class WebSearchTool extends BaseTool<
   constructor(private readonly config: Config) {
     super(
       WebSearchTool.Name,
-      'GoogleSearch',
-      'Performs a web search using Google Search (via the Research API) and returns the results. This tool is useful for finding information on the internet based on a query.',
+      'iEchorSearch',
+      'Performs a web search using iEchor Search (via the Research API) and returns the results. This tool is useful for finding information on the internet based on a query.',
       {
         type: Type.OBJECT,
         properties: {

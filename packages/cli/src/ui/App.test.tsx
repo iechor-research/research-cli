@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -131,7 +131,7 @@ vi.mock('@iechor/research-cli-core', async (importOriginal) => {
         getProjectRoot: vi.fn(() => opts.targetDir),
         getResearchClient: vi.fn(() => ({})),
         getCheckpointingEnabled: vi.fn(() => opts.checkpointing ?? true),
-        getAllResearchMdFilenames: vi.fn(() => ['GEMINI.md']),
+        getAllResearchMdFilenames: vi.fn(() => ['RESEARCH.md']),
         setFlashFallbackHandler: vi.fn(),
         getSessionId: vi.fn(() => 'test-session-id'),
         getUserTier: vi.fn().mockResolvedValue(undefined),
@@ -141,7 +141,7 @@ vi.mock('@iechor/research-cli-core', async (importOriginal) => {
     ...actualCore,
     Config: ConfigClassMock,
     MCPServerConfig: actualCore.MCPServerConfig,
-    getAllResearchMdFilenames: vi.fn(() => ['GEMINI.md']),
+    getAllResearchMdFilenames: vi.fn(() => ['RESEARCH.md']),
   };
 });
 
@@ -258,7 +258,7 @@ describe('App UI', () => {
     vi.clearAllMocks(); // Clear mocks after each test
   });
 
-  it('should display default "GEMINI.md" in footer when contextFileName is not set and count is 1', async () => {
+  it('should display default "RESEARCH.md" in footer when contextFileName is not set and count is 1', async () => {
     mockConfig.getResearchMdFileCount.mockReturnValue(1);
     // For this test, ensure showMemoryUsage is false or debugMode is false if it relies on that
     mockConfig.getDebugMode.mockReturnValue(false);
@@ -273,10 +273,10 @@ describe('App UI', () => {
     );
     currentUnmount = unmount;
     await Promise.resolve(); // Wait for any async updates
-    expect(lastFrame()).toContain('Using 1 GEMINI.md file');
+    expect(lastFrame()).toContain('Using 1 RESEARCH.md file');
   });
 
-  it('should display default "GEMINI.md" with plural when contextFileName is not set and count is > 1', async () => {
+  it('should display default "RESEARCH.md" with plural when contextFileName is not set and count is > 1', async () => {
     mockConfig.getResearchMdFileCount.mockReturnValue(2);
     mockConfig.getDebugMode.mockReturnValue(false);
     mockConfig.getShowMemoryUsage.mockReturnValue(false);
@@ -290,7 +290,7 @@ describe('App UI', () => {
     );
     currentUnmount = unmount;
     await Promise.resolve();
-    expect(lastFrame()).toContain('Using 2 GEMINI.md files');
+    expect(lastFrame()).toContain('Using 2 RESEARCH.md files');
   });
 
   it('should display custom contextFileName in footer when set and count is 1', async () => {
@@ -376,7 +376,7 @@ describe('App UI', () => {
     expect(lastFrame()).not.toContain('ANY_FILE.MD');
   });
 
-  it('should display GEMINI.md and MCP server count when both are present', async () => {
+  it('should display RESEARCH.md and MCP server count when both are present', async () => {
     mockConfig.getResearchMdFileCount.mockReturnValue(2);
     mockConfig.getMcpServers.mockReturnValue({
       server1: {} as MCPServerConfig,
@@ -396,7 +396,7 @@ describe('App UI', () => {
     expect(lastFrame()).toContain('server');
   });
 
-  it('should display only MCP server count when GEMINI.md count is 0', async () => {
+  it('should display only MCP server count when RESEARCH.md count is 0', async () => {
     mockConfig.getResearchMdFileCount.mockReturnValue(0);
     mockConfig.getMcpServers.mockReturnValue({
       server1: {} as MCPServerConfig,

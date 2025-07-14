@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,7 +15,7 @@ async function main() {
   const rootDir = join(__dirname, '..');
   const integrationTestsDir = join(rootDir, '.integration-tests');
 
-  if (process.env.GEMINI_SANDBOX === 'docker' && !process.env.IS_DOCKER) {
+  if (process.env.RESEARCH_SANDBOX === 'docker' && !process.env.IS_DOCKER) {
     console.log('Building sandbox for Docker...');
     const buildResult = spawnSync('npm', ['run', 'build:all'], {
       stdio: 'inherit',
@@ -82,7 +82,7 @@ async function main() {
       stdio: 'pipe',
       env: {
         ...process.env,
-        GEMINI_CLI_INTEGRATION_TEST: 'true',
+        RESEARCH_CLI_INTEGRATION_TEST: 'true',
         INTEGRATION_TEST_FILE_DIR: testFileDir,
         KEEP_OUTPUT: keepOutput.toString(),
         VERBOSE: verbose.toString(),

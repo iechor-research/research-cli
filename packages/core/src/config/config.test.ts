@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -47,9 +47,9 @@ vi.mock('../tools/read-many-files');
 vi.mock('../tools/memoryTool', () => ({
   MemoryTool: vi.fn(),
   setResearchMdFilename: vi.fn(),
-  getCurrentResearchMdFilename: vi.fn(() => 'GEMINI.md'), // Mock the original filename
-  DEFAULT_CONTEXT_FILENAME: 'GEMINI.md',
-  GEMINI_CONFIG_DIR: '.research',
+  getCurrentResearchMdFilename: vi.fn(() => 'RESEARCH.md'), // Mock the original filename
+  DEFAULT_CONTEXT_FILENAME: 'RESEARCH.md',
+  RESEARCH_CONFIG_DIR: '.research',
 }));
 
 vi.mock('../core/contentGenerator.js', async (importOriginal) => {
@@ -111,7 +111,7 @@ describe('Server Config (config.ts)', () => {
   describe('refreshAuth', () => {
     it('should refresh auth and update config', async () => {
       const config = new Config(baseParams);
-      const authType = AuthType.USE_GEMINI;
+      const authType = AuthType.USE_RESEARCH;
       const newModel = 'research-flash';
       const mockContentConfig = {
         model: newModel,

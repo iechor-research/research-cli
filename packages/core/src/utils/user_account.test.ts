@@ -1,15 +1,15 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach, Mock } from 'vitest';
 import {
-  cacheGoogleAccount,
-  getCachedGoogleAccount,
-  clearCachedGoogleAccount,
-  getLifetimeGoogleAccounts,
+  cacheiEchorAccount,
+  getCachediEchorAccount,
+  clearCachediEchorAccount,
+  getLifetimeiEchorAccounts,
 } from './user_account.js';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
@@ -38,11 +38,11 @@ describe('user_account', () => {
     vi.clearAllMocks();
   });
 
-  describe('cacheGoogleAccount', () => {
+  describe('cacheiEchorAccount', () => {
     it('should create directory and write initial account file', async () => {
-      await cacheGoogleAccount('test1@iechor.com');
+      await cacheiEchorAccount('test1@iechor.com');
 
-      // Verify Google Account ID was cached
+      // Verify iEchor Account ID was cached
       expect(fs.existsSync(accountsFile())).toBe(true);
       expect(fs.readFileSync(accountsFile(), 'utf-8')).toBe(
         JSON.stringify({ active: 'test1@iechor.com', old: [] }, null, 2),
@@ -60,7 +60,7 @@ describe('user_account', () => {
         ),
       );
 
-      await cacheGoogleAccount('test3@iechor.com');
+      await cacheiEchorAccount('test3@iechor.com');
 
       expect(fs.readFileSync(accountsFile(), 'utf-8')).toBe(
         JSON.stringify(
@@ -84,8 +84,8 @@ describe('user_account', () => {
           2,
         ),
       );
-      await cacheGoogleAccount('test2@iechor.com');
-      await cacheGoogleAccount('test1@iechor.com');
+      await cacheiEchorAccount('test2@iechor.com');
+      await cacheiEchorAccount('test1@iechor.com');
 
       expect(fs.readFileSync(accountsFile(), 'utf-8')).toBe(
         JSON.stringify(
@@ -103,7 +103,7 @@ describe('user_account', () => {
         .spyOn(console, 'debug')
         .mockImplementation(() => {});
 
-      await cacheGoogleAccount('test1@iechor.com');
+      await cacheiEchorAccount('test1@iechor.com');
 
       expect(consoleDebugSpy).toHaveBeenCalled();
       expect(JSON.parse(fs.readFileSync(accountsFile(), 'utf-8'))).toEqual({
@@ -113,26 +113,26 @@ describe('user_account', () => {
     });
   });
 
-  describe('getCachedGoogleAccount', () => {
+  describe('getCachediEchorAccount', () => {
     it('should return the active account if file exists and is valid', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(
         accountsFile(),
         JSON.stringify({ active: 'active@iechor.com', old: [] }, null, 2),
       );
-      const account = getCachedGoogleAccount();
+      const account = getCachediEchorAccount();
       expect(account).toBe('active@iechor.com');
     });
 
     it('should return null if file does not exist', () => {
-      const account = getCachedGoogleAccount();
+      const account = getCachediEchorAccount();
       expect(account).toBeNull();
     });
 
     it('should return null if file is empty', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), '');
-      const account = getCachedGoogleAccount();
+      const account = getCachediEchorAccount();
       expect(account).toBeNull();
     });
 
@@ -143,14 +143,14 @@ describe('user_account', () => {
         .spyOn(console, 'debug')
         .mockImplementation(() => {});
 
-      const account = getCachedGoogleAccount();
+      const account = getCachediEchorAccount();
 
       expect(account).toBeNull();
       expect(consoleDebugSpy).toHaveBeenCalled();
     });
   });
 
-  describe('clearCachedGoogleAccount', () => {
+  describe('clearCachediEchorAccount', () => {
     it('should set active to null and move it to old', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(
@@ -162,7 +162,7 @@ describe('user_account', () => {
         ),
       );
 
-      await clearCachedGoogleAccount();
+      await clearCachediEchorAccount();
 
       const stored = JSON.parse(fs.readFileSync(accountsFile(), 'utf-8'));
       expect(stored.active).toBeNull();
@@ -172,22 +172,22 @@ describe('user_account', () => {
     it('should handle empty file gracefully', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), '');
-      await clearCachedGoogleAccount();
+      await clearCachediEchorAccount();
       const stored = JSON.parse(fs.readFileSync(accountsFile(), 'utf-8'));
       expect(stored.active).toBeNull();
       expect(stored.old).toEqual([]);
     });
   });
 
-  describe('getLifetimeGoogleAccounts', () => {
+  describe('getLifetimeiEchorAccounts', () => {
     it('should return 0 if the file does not exist', () => {
-      expect(getLifetimeGoogleAccounts()).toBe(0);
+      expect(getLifetimeiEchorAccounts()).toBe(0);
     });
 
     it('should return 0 if the file is empty', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), '');
-      expect(getLifetimeGoogleAccounts()).toBe(0);
+      expect(getLifetimeiEchorAccounts()).toBe(0);
     });
 
     it('should return 0 if the file is corrupted', () => {
@@ -197,7 +197,7 @@ describe('user_account', () => {
         .spyOn(console, 'debug')
         .mockImplementation(() => {});
 
-      expect(getLifetimeGoogleAccounts()).toBe(0);
+      expect(getLifetimeiEchorAccounts()).toBe(0);
       expect(consoleDebugSpy).toHaveBeenCalled();
     });
 
@@ -207,7 +207,7 @@ describe('user_account', () => {
         accountsFile(),
         JSON.stringify({ active: 'test1@iechor.com', old: [] }),
       );
-      expect(getLifetimeGoogleAccounts()).toBe(1);
+      expect(getLifetimeiEchorAccounts()).toBe(1);
     });
 
     it('should correctly count old accounts when active is null', () => {
@@ -219,7 +219,7 @@ describe('user_account', () => {
           old: ['test1@iechor.com', 'test2@iechor.com'],
         }),
       );
-      expect(getLifetimeGoogleAccounts()).toBe(2);
+      expect(getLifetimeiEchorAccounts()).toBe(2);
     });
 
     it('should correctly count both active and old accounts', () => {
@@ -231,7 +231,7 @@ describe('user_account', () => {
           old: ['test1@iechor.com', 'test2@iechor.com'],
         }),
       );
-      expect(getLifetimeGoogleAccounts()).toBe(3);
+      expect(getLifetimeiEchorAccounts()).toBe(3);
     });
   });
 });

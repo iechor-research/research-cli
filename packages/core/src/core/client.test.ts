@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@ import {
   Content,
   EmbedContentResponse,
   GenerateContentResponse,
-  GoogleGenAI,
+  iEchorGenAI,
 } from '@iechor/genai';
 import { findIndexAfterFraction, ResearchClient } from './client.js';
 import { AuthType, ContentGenerator } from './contentGenerator.js';
@@ -19,7 +19,7 @@ import { ResearchChat } from './researchChat.js';
 import { Config } from '../config/config.js';
 import { ResearchEventType, Turn } from './turn.js';
 import { getCoreSystemPrompt } from './prompts.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { setSimulate429 } from '../utils/testUtils.js';
 import { tokenLimit } from './tokenLimits.js';
@@ -138,9 +138,9 @@ describe('Research Client (client.ts)', () => {
     // Disable 429 simulation for tests
     setSimulate429(false);
 
-    // Set up the mock for GoogleGenAI constructor and its methods
-    const MockedGoogleGenAI = vi.mocked(GoogleGenAI);
-    MockedGoogleGenAI.mockImplementation(() => {
+    // Set up the mock for iEchorGenAI constructor and its methods
+    const MockediEchorGenAI = vi.mocked(iEchorGenAI);
+    MockediEchorGenAI.mockImplementation(() => {
       const mock = {
         chats: { create: mockChatCreateFn },
         models: {
@@ -148,7 +148,7 @@ describe('Research Client (client.ts)', () => {
           embedContent: mockEmbedContentFn,
         },
       };
-      return mock as unknown as GoogleGenAI;
+      return mock as unknown as iEchorGenAI;
     });
 
     mockChatCreateFn.mockResolvedValue({} as Chat);
@@ -175,7 +175,7 @@ describe('Research Client (client.ts)', () => {
       model: 'test-model',
       apiKey: 'test-key',
       vertexai: false,
-      authType: AuthType.USE_GEMINI,
+      authType: AuthType.USE_RESEARCH,
     };
     MockedConfig.mockImplementation(() => {
       const mock = {
@@ -203,7 +203,7 @@ describe('Research Client (client.ts)', () => {
     });
 
     // We can instantiate the client here since Config is mocked
-    // and the constructor will use the mocked GoogleGenAI
+    // and the constructor will use the mocked iEchorGenAI
     const mockConfig = new Config({} as never);
     client = new ResearchClient(mockConfig);
     await client.initialize(contentGeneratorConfig);
@@ -216,10 +216,10 @@ describe('Research Client (client.ts)', () => {
   // NOTE: The following tests for startChat were removed due to persistent issues with
   // the @iechor/genai mock. Specifically, the mockChatCreateFn (representing instance.chats.create)
   // was not being detected as called by the ResearchClient instance.
-  // This likely points to a subtle issue in how the GoogleGenerativeAI class constructor
+  // This likely points to a subtle issue in how the iEchorGenerativeAI class constructor
   // and its instance methods are mocked and then used by the class under test.
   // For future debugging, ensure that the `this.client` in `ResearchClient` (which is an
-  // instance of the mocked GoogleGenerativeAI) correctly has its `chats.create` method
+  // instance of the mocked iEchorGenerativeAI) correctly has its `chats.create` method
   // pointing to `mockChatCreateFn`.
   // it('startChat should call getCoreSystemPrompt with userMemory and pass to chats.create', async () => { ... });
   // it('startChat should call getCoreSystemPrompt with empty string if userMemory is empty', async () => { ... });
@@ -938,7 +938,7 @@ describe('Research Client (client.ts)', () => {
   describe('handleFlashFallback', () => {
     it('should use current model from config when checking for fallback', async () => {
       const initialModel = client['config'].getModel();
-      const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
+      const fallbackModel = DEFAULT_RESEARCH_FLASH_MODEL;
 
       // mock config been changed
       const currentModel = initialModel + '-changed';

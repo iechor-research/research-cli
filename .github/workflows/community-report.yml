@@ -55,7 +55,7 @@ jobs:
               fi
 
               if gh api "orgs/iechorrs/members/$author" --silent 2>/dev/null; then
-                  echo "🧑‍💻 $author is a Googler."
+                  echo "🧑‍💻 $author is a iEchorr."
                   author_is_iechorr[$author]=0
               else
                   echo "🌍 $author is a community contributor."
@@ -144,7 +144,7 @@ jobs:
 
           **Period:** $START_DATE to $END_DATE
 
-          | Category | Googlers | Community | Total |
+          | Category | iEchorrs | Community | Total |
           |---|---:|---:|---:|
           | **Issues** | $iechorr_issues | $non_iechorr_issues | **$TOTAL_ISSUES** |
           | **Pull Requests** | $iechorr_prs | $non_iechorr_prs | **$TOTAL_PRS** |
@@ -168,7 +168,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
           version: 0.1.8-rc.0
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEARCH_API_KEY: ${{ secrets.RESEARCH_API_KEY }}
           OTLP_GCP_WIF_PROVIDER: ${{ secrets.OTLP_GCP_WIF_PROVIDER }}
           OTLP_GOOGLE_CLOUD_PROJECT: ${{ secrets.OTLP_GOOGLE_CLOUD_PROJECT }}
           settings_json: |

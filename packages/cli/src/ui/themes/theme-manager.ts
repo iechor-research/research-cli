@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@ import { AtomOneDark } from './atom-one-dark.js';
 import { Dracula } from './dracula.js';
 import { GitHubDark } from './github-dark.js';
 import { GitHubLight } from './github-light.js';
-import { GoogleCode } from './iechorcode.js';
+import { iEchorCode } from './iechorcode.js';
 import { DefaultLight } from './default-light.js';
 import { DefaultDark } from './default.js';
 import { ShadesOfPurple } from './shades-of-purple.js';
@@ -42,7 +42,7 @@ class ThemeManager {
       DefaultDark,
       GitHubDark,
       GitHubLight,
-      GoogleCode,
+      iEchorCode,
       ShadesOfPurple,
       XCode,
       ANSI,

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +8,7 @@ import { GitIgnoreParser, GitIgnoreFilter } from '../utils/gitIgnoreParser.js';
 import { isGitRepository } from '../utils/gitUtils.js';
 import * as path from 'path';
 
-const GEMINI_IGNORE_FILE_NAME = '.researchignore';
+const RESEARCH_IGNORE_FILE_NAME = '.researchignore';
 
 export interface FilterFilesOptions {
   respectGitIgnore?: boolean;
@@ -33,7 +33,7 @@ export class FileDiscoveryService {
     }
     const gParser = new GitIgnoreParser(this.projectRoot);
     try {
-      gParser.loadPatterns(GEMINI_IGNORE_FILE_NAME);
+      gParser.loadPatterns(RESEARCH_IGNORE_FILE_NAME);
     } catch (_error) {
       // ignore file not found
     }

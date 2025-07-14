@@ -13,8 +13,8 @@ With the Research CLI you can:
 - Generate new apps from PDFs or sketches, using Research's multimodal capabilities.
 - Automate operational tasks, like querying pull requests or handling complex rebases.
 - Use tools and MCP servers to connect new capabilities, including [media generation with Imagen,
-  Veo or Lyria](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
-- Ground your queries with the [Google Search](https://ai.iechor.dev/research-api/docs/grounding)
+  Veo or Lyria](https://github.com/iEchorCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
+- Ground your queries with the [iEchor Search](https://ai.iechor.dev/research-api/docs/grounding)
   tool, built in to Research.
 
 ## Quickstart
@@ -34,7 +34,7 @@ With the Research CLI you can:
    ```
 
 3. **Pick a color theme**
-4. **Authenticate:** When prompted, sign in with your personal Google account. This will grant you up to 60 model requests per minute and 1,000 model requests per day using Research.
+4. **Authenticate:** When prompted, sign in with your personal iEchor account. This will grant you up to 60 model requests per minute and 1,000 model requests per day using Research.
 
 You are now ready to use the Research CLI!
 
@@ -42,11 +42,11 @@ You are now ready to use the Research CLI!
 
 The Research API provides a free tier with [100 requests per day](https://ai.iechor.dev/research-api/docs/rate-limits#free-tier) using Research 2.5 Pro, control over which model you use, and access to higher rate limits (with a paid plan):
 
-1. Generate a key from [Google AI Studio](https://aistudio.iechor.com/apikey).
+1. Generate a key from [iEchor AI Studio](https://aistudio.iechor.com/apikey).
 2. Set it as an environment variable in your terminal. Replace `YOUR_API_KEY` with your generated key.
 
    ```bash
-   export GEMINI_API_KEY="YOUR_API_KEY"
+   export RESEARCH_API_KEY="YOUR_API_KEY"
    ```
 
 3. (Optionally) Upgrade your Research API project to a paid plan on the API key page (will automatically unlock [Tier 1 rate limits](https://ai.iechor.dev/research-api/docs/rate-limits#tier-1))
@@ -55,7 +55,7 @@ The Research API provides a free tier with [100 requests per day](https://ai.iec
 
 The Vertex AI API provides a [free tier](https://cloud.iechor.com/vertex-ai/generative-ai/docs/start/express-mode/overview) using express mode for Research 2.5 Pro, control over which model you use, and access to higher rate limits with a billing account:
 
-1. Generate a key from [Google Cloud](https://cloud.iechor.com/vertex-ai/generative-ai/docs/start/api-keys).
+1. Generate a key from [iEchor Cloud](https://cloud.iechor.com/vertex-ai/generative-ai/docs/start/api-keys).
 2. Set it as an environment variable in your terminal. Replace `YOUR_API_KEY` with your generated key and set GOOGLE_GENAI_USE_VERTEXAI to true
 
    ```bash
@@ -65,7 +65,7 @@ The Vertex AI API provides a [free tier](https://cloud.iechor.com/vertex-ai/gene
 
 3. (Optionally) Add a billing account on your project to get access to [higher usage limits](https://cloud.iechor.com/vertex-ai/generative-ai/docs/quotas)
 
-For other authentication methods, including Google Workspace accounts, see the [authentication](./docs/cli/authentication.md) guide.
+For other authentication methods, including iEchor Workspace accounts, see the [authentication](./docs/cli/authentication.md) guide.
 
 ## Examples
 

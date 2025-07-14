@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -762,7 +762,7 @@ export const useSlashCommandProcessor = (
               chat.clearHistory();
               const rolemap: { [key: string]: MessageType } = {
                 user: MessageType.USER,
-                model: MessageType.GEMINI,
+                model: MessageType.RESEARCH,
               };
               let hasSystemPrompt = false;
               let i = 0;
@@ -789,7 +789,7 @@ export const useSlashCommandProcessor = (
                   addItem(
                     {
                       type:
-                        (item.role && rolemap[item.role]) || MessageType.GEMINI,
+                        (item.role && rolemap[item.role]) || MessageType.RESEARCH,
                       text,
                     } as HistoryItemWithoutId,
                     i,

@@ -46,7 +46,7 @@ body:
     id: login-info
     attributes:
       label: Login information
-      description: Describe how you are logging in (e.g., Google Account, API key).
+      description: Describe how you are logging in (e.g., iEchor Account, API key).
 
   - type: textarea
     id: additional-context

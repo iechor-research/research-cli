@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@ import {
   createContentGeneratorConfig,
 } from './contentGenerator.js';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
-import { GoogleGenAI } from '@iechor/genai';
+import { iEchorGenAI } from '@iechor/genai';
 import { Config } from '../config/config.js';
 
 vi.mock('../code_assist/codeAssist.js');
@@ -36,20 +36,20 @@ describe('createContentGenerator', () => {
     expect(generator).toBe(mockGenerator);
   });
 
-  it('should create a GoogleGenAI content generator', async () => {
+  it('should create a iEchorGenAI content generator', async () => {
     const mockGenerator = {
       models: {},
     } as unknown;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
+    vi.mocked(iEchorGenAI).mockImplementation(() => mockGenerator as never);
     const generator = await createContentGenerator(
       {
         model: 'test-model',
         apiKey: 'test-api-key',
-        authType: AuthType.USE_GEMINI,
+        authType: AuthType.USE_RESEARCH,
       },
       mockConfig,
     );
-    expect(GoogleGenAI).toHaveBeenCalledWith({
+    expect(iEchorGenAI).toHaveBeenCalledWith({
       apiKey: 'test-api-key',
       vertexai: undefined,
       httpOptions: {
@@ -58,7 +58,7 @@ describe('createContentGenerator', () => {
         },
       },
     });
-    expect(generator).toBe((mockGenerator as GoogleGenAI).models);
+    expect(generator).toBe((mockGenerator as iEchorGenAI).models);
   });
 });
 
@@ -77,21 +77,21 @@ describe('createContentGeneratorConfig', () => {
     process.env = originalEnv;
   });
 
-  it('should configure for Research using GEMINI_API_KEY when set', async () => {
-    process.env.GEMINI_API_KEY = 'env-research-key';
+  it('should configure for Research using RESEARCH_API_KEY when set', async () => {
+    process.env.RESEARCH_API_KEY = 'env-research-key';
     const config = await createContentGeneratorConfig(
       undefined,
-      AuthType.USE_GEMINI,
+      AuthType.USE_RESEARCH,
     );
     expect(config.apiKey).toBe('env-research-key');
     expect(config.vertexai).toBe(false);
   });
 
-  it('should not configure for Research if GEMINI_API_KEY is empty', async () => {
-    process.env.GEMINI_API_KEY = '';
+  it('should not configure for Research if RESEARCH_API_KEY is empty', async () => {
+    process.env.RESEARCH_API_KEY = '';
     const config = await createContentGeneratorConfig(
       undefined,
-      AuthType.USE_GEMINI,
+      AuthType.USE_RESEARCH,
     );
     expect(config.apiKey).toBeUndefined();
     expect(config.vertexai).toBeUndefined();

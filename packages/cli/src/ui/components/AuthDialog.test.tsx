@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,8 +17,8 @@ describe('AuthDialog', () => {
 
   beforeEach(() => {
     originalEnv = { ...process.env };
-    process.env.GEMINI_API_KEY = '';
-    process.env.GEMINI_DEFAULT_AUTH_TYPE = '';
+    process.env.RESEARCH_API_KEY = '';
+    process.env.RESEARCH_DEFAULT_AUTH_TYPE = '';
     vi.clearAllMocks();
   });
 
@@ -27,7 +27,7 @@ describe('AuthDialog', () => {
   });
 
   it('should show an error if the initial auth type is invalid', () => {
-    process.env.GEMINI_API_KEY = '';
+    process.env.RESEARCH_API_KEY = '';
 
     const settings: LoadedSettings = new LoadedSettings(
       {
@@ -36,7 +36,7 @@ describe('AuthDialog', () => {
       },
       {
         settings: {
-          selectedAuthType: AuthType.USE_GEMINI,
+          selectedAuthType: AuthType.USE_RESEARCH,
         },
         path: '',
       },
@@ -51,18 +51,18 @@ describe('AuthDialog', () => {
       <AuthDialog
         onSelect={() => {}}
         settings={settings}
-        initialErrorMessage="GEMINI_API_KEY  environment variable not found"
+        initialErrorMessage="RESEARCH_API_KEY  environment variable not found"
       />,
     );
 
     expect(lastFrame()).toContain(
-      'GEMINI_API_KEY  environment variable not found',
+      'RESEARCH_API_KEY  environment variable not found',
     );
   });
 
-  describe('GEMINI_API_KEY environment variable', () => {
-    it('should detect GEMINI_API_KEY environment variable', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
+  describe('RESEARCH_API_KEY environment variable', () => {
+    it('should detect RESEARCH_API_KEY environment variable', () => {
+      process.env.RESEARCH_API_KEY = 'foobar';
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -83,13 +83,13 @@ describe('AuthDialog', () => {
       );
 
       expect(lastFrame()).toContain(
-        'Existing API key detected (GEMINI_API_KEY)',
+        'Existing API key detected (RESEARCH_API_KEY)',
       );
     });
 
-    it('should not show the GEMINI_API_KEY message if GEMINI_DEFAULT_AUTH_TYPE is set to something else', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
-      process.env.GEMINI_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
+    it('should not show the RESEARCH_API_KEY message if RESEARCH_DEFAULT_AUTH_TYPE is set to something else', () => {
+      process.env.RESEARCH_API_KEY = 'foobar';
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -110,13 +110,13 @@ describe('AuthDialog', () => {
       );
 
       expect(lastFrame()).not.toContain(
-        'Existing API key detected (GEMINI_API_KEY)',
+        'Existing API key detected (RESEARCH_API_KEY)',
       );
     });
 
-    it('should show the GEMINI_API_KEY message if GEMINI_DEFAULT_AUTH_TYPE is set to use api key', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
-      process.env.GEMINI_DEFAULT_AUTH_TYPE = AuthType.USE_GEMINI;
+    it('should show the RESEARCH_API_KEY message if RESEARCH_DEFAULT_AUTH_TYPE is set to use api key', () => {
+      process.env.RESEARCH_API_KEY = 'foobar';
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.USE_RESEARCH;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -137,14 +137,14 @@ describe('AuthDialog', () => {
       );
 
       expect(lastFrame()).toContain(
-        'Existing API key detected (GEMINI_API_KEY)',
+        'Existing API key detected (RESEARCH_API_KEY)',
       );
     });
   });
 
-  describe('GEMINI_DEFAULT_AUTH_TYPE environment variable', () => {
-    it('should select the auth type specified by GEMINI_DEFAULT_AUTH_TYPE', () => {
-      process.env.GEMINI_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
+  describe('RESEARCH_DEFAULT_AUTH_TYPE environment variable', () => {
+    it('should select the auth type specified by RESEARCH_DEFAULT_AUTH_TYPE', () => {
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -165,10 +165,10 @@ describe('AuthDialog', () => {
       );
 
       // This is a bit brittle, but it's the best way to check which item is selected.
-      expect(lastFrame()).toContain('● Login with Google');
+      expect(lastFrame()).toContain('● Login with iEchor');
     });
 
-    it('should fall back to default if GEMINI_DEFAULT_AUTH_TYPE is not set', () => {
+    it('should fall back to default if RESEARCH_DEFAULT_AUTH_TYPE is not set', () => {
       const settings: LoadedSettings = new LoadedSettings(
         {
           settings: {
@@ -188,11 +188,11 @@ describe('AuthDialog', () => {
       );
 
       // Default is LOGIN_WITH_GOOGLE
-      expect(lastFrame()).toContain('● Login with Google');
+      expect(lastFrame()).toContain('● Login with iEchor');
     });
 
-    it('should show an error and fall back to default if GEMINI_DEFAULT_AUTH_TYPE is invalid', () => {
-      process.env.GEMINI_DEFAULT_AUTH_TYPE = 'invalid-auth-type';
+    it('should show an error and fall back to default if RESEARCH_DEFAULT_AUTH_TYPE is invalid', () => {
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE = 'invalid-auth-type';
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -213,11 +213,11 @@ describe('AuthDialog', () => {
       );
 
       expect(lastFrame()).toContain(
-        'Invalid value for GEMINI_DEFAULT_AUTH_TYPE: "invalid-auth-type"',
+        'Invalid value for RESEARCH_DEFAULT_AUTH_TYPE: "invalid-auth-type"',
       );
 
       // Default is LOGIN_WITH_GOOGLE
-      expect(lastFrame()).toContain('● Login with Google');
+      expect(lastFrame()).toContain('● Login with iEchor');
     });
   });
 
@@ -301,7 +301,7 @@ describe('AuthDialog', () => {
       },
       {
         settings: {
-          selectedAuthType: AuthType.USE_GEMINI,
+          selectedAuthType: AuthType.USE_RESEARCH,
         },
         path: '',
       },

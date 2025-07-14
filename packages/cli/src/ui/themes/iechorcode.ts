@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -22,8 +22,8 @@ const iechorCodeColors: ColorsTheme = {
   GradientColors: ['#066', '#606'],
 };
 
-export const GoogleCode: Theme = new Theme(
-  'Google Code',
+export const iEchorCode: Theme = new Theme(
+  'iEchor Code',
   'light',
   {
     hljs: {

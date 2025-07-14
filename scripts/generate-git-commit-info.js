@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -51,7 +51,7 @@ try {
 
 const fileContent = `/**
  * @license
- * Copyright ${new Date().getFullYear()} Google LLC
+ * Copyright ${new Date().getFullYear()} iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 

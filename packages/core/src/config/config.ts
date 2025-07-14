@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,7 +25,7 @@ import { ReadManyFilesTool } from '../tools/read-many-files.js';
 import {
   MemoryTool,
   setResearchMdFilename,
-  GEMINI_CONFIG_DIR as GEMINI_DIR,
+  RESEARCH_CONFIG_DIR as RESEARCH_DIR,
 } from '../tools/memoryTool.js';
 import { WebSearchTool } from '../tools/web-search.js';
 import { ResearchClient } from '../core/client.js';
@@ -41,8 +41,8 @@ import {
   StartSessionEvent,
 } from '../telemetry/index.js';
 import {
-  DEFAULT_GEMINI_EMBEDDING_MODEL,
-  DEFAULT_GEMINI_FLASH_MODEL,
+  DEFAULT_RESEARCH_EMBEDDING_MODEL,
+  DEFAULT_RESEARCH_FLASH_MODEL,
 } from './models.js';
 import { ClearcutLogger } from '../telemetry/clearcut-logger/clearcut-logger.js';
 
@@ -193,7 +193,7 @@ export class Config {
   constructor(params: ConfigParameters) {
     this.sessionId = params.sessionId;
     this.embeddingModel =
-      params.embeddingModel ?? DEFAULT_GEMINI_EMBEDDING_MODEL;
+      params.embeddingModel ?? DEFAULT_RESEARCH_EMBEDDING_MODEL;
     this.sandbox = params.sandbox;
     this.targetDir = path.resolve(params.targetDir);
     this.debugMode = params.debugMode;
@@ -440,7 +440,7 @@ export class Config {
   }
 
   getResearchDir(): string {
-    return path.join(this.targetDir, GEMINI_DIR);
+    return path.join(this.targetDir, RESEARCH_DIR);
   }
 
   getProjectTempDir(): string {
@@ -574,4 +574,4 @@ export class Config {
   }
 }
 // Export model constants for use in CLI
-export { DEFAULT_GEMINI_FLASH_MODEL };
+export { DEFAULT_RESEARCH_FLASH_MODEL };

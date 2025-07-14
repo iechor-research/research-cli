@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -37,7 +37,7 @@ function getSandboxCommand(
 
   // note environment variable takes precedence over argument (from command line or settings)
   const environmentConfiguredSandbox =
-    process.env.GEMINI_SANDBOX?.toLowerCase().trim() ?? '';
+    process.env.RESEARCH_SANDBOX?.toLowerCase().trim() ?? '';
   sandbox =
     environmentConfiguredSandbox?.length > 0
       ? environmentConfiguredSandbox
@@ -63,7 +63,7 @@ function getSandboxCommand(
       return sandbox;
     }
     console.error(
-      `ERROR: missing sandbox command '${sandbox}' (from GEMINI_SANDBOX)`,
+      `ERROR: missing sandbox command '${sandbox}' (from RESEARCH_SANDBOX)`,
     );
     process.exit(1);
   }
@@ -81,8 +81,8 @@ function getSandboxCommand(
   // throw an error if user requested sandbox but no command was found
   if (sandbox === true) {
     console.error(
-      'ERROR: GEMINI_SANDBOX is true but failed to determine command for sandbox; ' +
-        'install docker or podman or specify command in GEMINI_SANDBOX',
+      'ERROR: RESEARCH_SANDBOX is true but failed to determine command for sandbox; ' +
+        'install docker or podman or specify command in RESEARCH_SANDBOX',
     );
     process.exit(1);
   }
@@ -100,7 +100,7 @@ export async function loadSandboxConfig(
   const packageJson = await getPackageJson();
   const image =
     argv.sandboxImage ??
-    process.env.GEMINI_SANDBOX_IMAGE ??
+    process.env.RESEARCH_SANDBOX_IMAGE ??
     packageJson?.config?.sandboxImageUri;
 
   return command && image ? { command, image } : undefined;

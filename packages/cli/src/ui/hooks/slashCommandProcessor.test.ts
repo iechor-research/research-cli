@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -179,7 +179,7 @@ describe('useSlashCommandProcessor', () => {
   const getProcessorHook = (showToolDescriptions: boolean = false) => {
     const settings = {
       merged: {
-        contextFileName: 'GEMINI.md',
+        contextFileName: 'RESEARCH.md',
       },
     } as unknown as LoadedSettings;
     return renderHook(() =>
@@ -288,7 +288,7 @@ describe('useSlashCommandProcessor', () => {
       const settings = {
         merged: {
           selectedAuthType: 'test-auth-type',
-          contextFileName: 'GEMINI.md',
+          contextFileName: 'RESEARCH.md',
         },
       } as unknown as LoadedSettings;
 

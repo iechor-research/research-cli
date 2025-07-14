@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,10 +8,10 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
-import { GEMINI_DIR } from './paths.js';
+import { RESEARCH_DIR } from './paths.js';
 
 const homeDir = os.homedir() ?? '';
-const researchDir = path.join(homeDir, GEMINI_DIR);
+const researchDir = path.join(homeDir, RESEARCH_DIR);
 const installationIdFile = path.join(researchDir, 'installation_id');
 
 function ensureResearchDirExists() {

@@ -2,7 +2,7 @@
 
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,17 +24,17 @@ const projectHash = crypto
   .digest('hex');
 
 // User-level .research directory in home
-const USER_GEMINI_DIR = path.join(os.homedir(), '.research');
+const USER_RESEARCH_DIR = path.join(os.homedir(), '.research');
 // Project-level .research directory in the workspace
-const WORKSPACE_GEMINI_DIR = path.join(projectRoot, '.research');
+const WORKSPACE_RESEARCH_DIR = path.join(projectRoot, '.research');
 
 // Telemetry artifacts are stored in a hashed directory under the user's ~/.research/tmp
-export const OTEL_DIR = path.join(USER_GEMINI_DIR, 'tmp', projectHash, 'otel');
+export const OTEL_DIR = path.join(USER_RESEARCH_DIR, 'tmp', projectHash, 'otel');
 export const BIN_DIR = path.join(OTEL_DIR, 'bin');
 
 // Workspace settings remain in the project's .research directory
 export const WORKSPACE_SETTINGS_FILE = path.join(
-  WORKSPACE_GEMINI_DIR,
+  WORKSPACE_RESEARCH_DIR,
   'settings.json',
 );
 

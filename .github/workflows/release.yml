@@ -95,7 +95,7 @@ jobs:
           npm run test:integration:sandbox:none
           npm run test:integration:sandbox:docker
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEARCH_API_KEY: ${{ secrets.RESEARCH_API_KEY }}
 
       - name: Configure Git User
         run: |

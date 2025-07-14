@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -147,7 +147,7 @@ describe('loadCliConfig', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(os.homedir).mockReturnValue('/mock/home/user');
-    process.env.GEMINI_API_KEY = 'test-api-key'; // Ensure API key is set for tests
+    process.env.RESEARCH_API_KEY = 'test-api-key'; // Ensure API key is set for tests
   });
 
   afterEach(() => {
@@ -196,7 +196,7 @@ describe('loadCliConfig telemetry', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(os.homedir).mockReturnValue('/mock/home/user');
-    process.env.GEMINI_API_KEY = 'test-api-key';
+    process.env.RESEARCH_API_KEY = 'test-api-key';
   });
 
   afterEach(() => {
@@ -381,7 +381,7 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
           name: 'ext1',
           version: '1.0.0',
         },
-        contextFiles: ['/path/to/ext1/GEMINI.md'],
+        contextFiles: ['/path/to/ext1/RESEARCH.md'],
       },
       {
         config: {
@@ -408,7 +408,7 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
       false,
       expect.any(Object),
       [
-        '/path/to/ext1/GEMINI.md',
+        '/path/to/ext1/RESEARCH.md',
         '/path/to/ext3/context1.md',
         '/path/to/ext3/context2.md',
       ],
@@ -425,8 +425,8 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
   // Example of a previously failing test structure:
   /*
   it('should correctly use mocked homedir for global path', async () => {
-    const MOCK_GEMINI_DIR_LOCAL = path.join('/mock/home/user', '.research');
-    const MOCK_GLOBAL_PATH_LOCAL = path.join(MOCK_GEMINI_DIR_LOCAL, 'GEMINI.md');
+    const MOCK_RESEARCH_DIR_LOCAL = path.join('/mock/home/user', '.research');
+    const MOCK_GLOBAL_PATH_LOCAL = path.join(MOCK_RESEARCH_DIR_LOCAL, 'RESEARCH.md');
     mockFs({
       [MOCK_GLOBAL_PATH_LOCAL]: { type: 'file', content: 'GlobalContentOnly' }
     });
@@ -648,7 +648,7 @@ describe('loadCliConfig with allowed-mcp-server-names', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(os.homedir).mockReturnValue('/mock/home/user');
-    process.env.GEMINI_API_KEY = 'test-api-key';
+    process.env.RESEARCH_API_KEY = 'test-api-key';
   });
 
   afterEach(() => {

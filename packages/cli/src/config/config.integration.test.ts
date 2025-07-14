@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -39,7 +39,7 @@ describe('Configuration Integration Tests', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(tmpdir(), 'research-cli-test-'));
     originalEnv = { ...process.env };
-    process.env.GEMINI_API_KEY = 'test-api-key';
+    process.env.RESEARCH_API_KEY = 'test-api-key';
     vi.clearAllMocks();
   });
 

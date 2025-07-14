@@ -44,5 +44,5 @@ jobs:
 
       - name: Run E2E tests
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEARCH_API_KEY: ${{ secrets.RESEARCH_API_KEY }}
         run: npm run test:integration:${{ matrix.sandbox }} -- --verbose --keep-output

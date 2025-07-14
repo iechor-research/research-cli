@@ -1,11 +1,11 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { Content, SchemaUnion, Type } from '@iechor/genai';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { ResearchClient } from '../core/client.js';
 import { ResearchChat } from '../core/researchChat.js';
 import { isFunctionResponse } from './messageInspectors.js';
@@ -132,7 +132,7 @@ export async function checkNextSpeaker(
       contents,
       RESPONSE_SCHEMA,
       abortSignal,
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_RESEARCH_FLASH_MODEL,
     )) as unknown as NextSpeakerResponse;
 
     if (

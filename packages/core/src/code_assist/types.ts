@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,7 +32,7 @@ export type ClientMetadataPlatform =
 export type ClientMetadataPluginType =
   | 'PLUGIN_UNSPECIFIED'
   | 'CLOUD_CODE'
-  | 'GEMINI'
+  | 'RESEARCH'
   | 'AIPLUGIN_INTELLIJ'
   | 'AIPLUGIN_STUDIO';
 

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,7 +32,7 @@ const argv = yargs(hideBin(process.argv)).option('q', {
   default: false,
 }).argv;
 
-let researchSandbox = process.env.GEMINI_SANDBOX;
+let researchSandbox = process.env.RESEARCH_SANDBOX;
 
 if (!researchSandbox) {
   const userSettingsFile = join(os.homedir(), '.research', 'settings.json');
@@ -64,7 +64,7 @@ if (!researchSandbox) {
     }
     currentDir = parentDir;
   }
-  researchSandbox = process.env.GEMINI_SANDBOX;
+  researchSandbox = process.env.RESEARCH_SANDBOX;
 }
 
 researchSandbox = (researchSandbox || '').toLowerCase();
@@ -95,7 +95,7 @@ if (['1', 'true'].includes(researchSandbox)) {
     command = 'podman';
   } else {
     console.error(
-      'ERROR: install docker or podman or specify command in GEMINI_SANDBOX',
+      'ERROR: install docker or podman or specify command in RESEARCH_SANDBOX',
     );
     process.exit(1);
   }
@@ -104,7 +104,7 @@ if (['1', 'true'].includes(researchSandbox)) {
     command = researchSandbox;
   } else {
     console.error(
-      `ERROR: missing sandbox command '${researchSandbox}' (from GEMINI_SANDBOX)`,
+      `ERROR: missing sandbox command '${researchSandbox}' (from RESEARCH_SANDBOX)`,
     );
     process.exit(1);
   }

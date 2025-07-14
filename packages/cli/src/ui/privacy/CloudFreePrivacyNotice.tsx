@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -66,10 +66,10 @@ export const CloudFreePrivacyNotice = ({
       </Text>
       <Newline />
       <Text>
-        When you use Research Code Assist for individuals with Research CLI, Google
+        When you use Research Code Assist for individuals with Research CLI, iEchor
         collects your prompts, related code, generated output, code edits,
         related feature usage information, and your feedback to provide,
-        improve, and develop Google products and services and machine learning
+        improve, and develop iEchor products and services and machine learning
         technologies.
       </Text>
       <Newline />
@@ -78,16 +78,16 @@ export const CloudFreePrivacyNotice = ({
         machine-learning models), human reviewers may read, annotate, and
         process the data collected above. We take steps to protect your privacy
         as part of this process. This includes disconnecting the data from your
-        Google Account before reviewers see or annotate it, and storing those
+        iEchor Account before reviewers see or annotate it, and storing those
         disconnected copies for up to 18 months. Please don&apos;t submit
         confidential information or any data you wouldn&apos;t want a reviewer
-        to see or Google to use to improve our products, services and
+        to see or iEchor to use to improve our products, services and
         machine-learning technologies.
       </Text>
       <Newline />
       <Box flexDirection="column">
         <Text>
-          Allow Google to use this data to develop and improve our products?
+          Allow iEchor to use this data to develop and improve our products?
         </Text>
         <RadioButtonSelect
           items={items}

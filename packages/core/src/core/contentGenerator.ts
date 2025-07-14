@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,10 +11,10 @@ import {
   CountTokensParameters,
   EmbedContentResponse,
   EmbedContentParameters,
-  GoogleGenAI,
+  iEchorGenAI,
 } from '@iechor/genai';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
-import { DEFAULT_GEMINI_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_MODEL } from '../config/models.js';
 import { Config } from '../config/config.js';
 import { getEffectiveModel } from './modelCheck.js';
 import { UserTierId } from '../code_assist/types.js';
@@ -40,7 +40,7 @@ export interface ContentGenerator {
 
 export enum AuthType {
   LOGIN_WITH_GOOGLE = 'oauth-personal',
-  USE_GEMINI = 'research-api-key',
+  USE_RESEARCH = 'research-api-key',
   USE_VERTEX_AI = 'vertex-ai',
   CLOUD_SHELL = 'cloud-shell',
 }
@@ -56,20 +56,20 @@ export async function createContentGeneratorConfig(
   model: string | undefined,
   authType: AuthType | undefined,
 ): Promise<ContentGeneratorConfig> {
-  const researchApiKey = process.env.GEMINI_API_KEY || undefined;
+  const researchApiKey = process.env.RESEARCH_API_KEY || undefined;
   const iechorApiKey = process.env.GOOGLE_API_KEY || undefined;
   const iechorCloudProject = process.env.GOOGLE_CLOUD_PROJECT || undefined;
   const iechorCloudLocation = process.env.GOOGLE_CLOUD_LOCATION || undefined;
 
   // Use runtime model from config if available, otherwise fallback to parameter or default
-  const effectiveModel = model || DEFAULT_GEMINI_MODEL;
+  const effectiveModel = model || DEFAULT_RESEARCH_MODEL;
 
   const contentGeneratorConfig: ContentGeneratorConfig = {
     model: effectiveModel,
     authType,
   };
 
-  // If we are using Google auth or we are in Cloud Shell, there is nothing else to validate for now
+  // If we are using iEchor auth or we are in Cloud Shell, there is nothing else to validate for now
   if (
     authType === AuthType.LOGIN_WITH_GOOGLE ||
     authType === AuthType.CLOUD_SHELL
@@ -77,7 +77,7 @@ export async function createContentGeneratorConfig(
     return contentGeneratorConfig;
   }
 
-  if (authType === AuthType.USE_GEMINI && researchApiKey) {
+  if (authType === AuthType.USE_RESEARCH && researchApiKey) {
     contentGeneratorConfig.apiKey = researchApiKey;
     contentGeneratorConfig.vertexai = false;
     contentGeneratorConfig.model = await getEffectiveModel(
@@ -125,10 +125,10 @@ export async function createContentGenerator(
   }
 
   if (
-    config.authType === AuthType.USE_GEMINI ||
+    config.authType === AuthType.USE_RESEARCH ||
     config.authType === AuthType.USE_VERTEX_AI
   ) {
-    const iechorGenAI = new GoogleGenAI({
+    const iechorGenAI = new iEchorGenAI({
       apiKey: config.apiKey === '' ? undefined : config.apiKey,
       vertexai: config.vertexai,
       httpOptions,

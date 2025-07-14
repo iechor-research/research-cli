@@ -18,7 +18,7 @@ The Research CLI is primarily composed of two main packages, along with a suite 
 2.  **Core package (`packages/core`):**
     - **Purpose:** This acts as the backend for the Research CLI. It receives requests sent from `packages/cli`, orchestrates interactions with the Research API, and manages the execution of available tools.
     - **Key functions contained in the package:**
-      - API client for communicating with the Google Research API
+      - API client for communicating with the iEchor Research API
       - Prompt construction and management
       - Tool registration and execution logic
       - State management for conversations or sessions

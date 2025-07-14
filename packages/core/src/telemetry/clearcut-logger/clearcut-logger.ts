@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -20,8 +20,8 @@ import { EventMetadataKey } from './event-metadata-key.js';
 import { Config } from '../../config/config.js';
 import { getInstallationId } from '../../utils/user_id.js';
 import {
-  getCachedGoogleAccount,
-  getLifetimeGoogleAccounts,
+  getCachediEchorAccount,
+  getLifetimeiEchorAccounts,
 } from '../../utils/user_account.js';
 
 const start_session_event_name = 'start_session';
@@ -71,16 +71,16 @@ export class ClearcutLogger {
   }
 
   createLogEvent(name: string, data: object[]): object {
-    const email = getCachedGoogleAccount();
-    const totalAccounts = getLifetimeGoogleAccounts();
+    const email = getCachediEchorAccount();
+    const totalAccounts = getLifetimeiEchorAccounts();
     data.push({
-      research_cli_key: EventMetadataKey.GEMINI_CLI_GOOGLE_ACCOUNTS_COUNT,
+      research_cli_key: EventMetadataKey.RESEARCH_CLI_GOOGLE_ACCOUNTS_COUNT,
       value: totalAccounts.toString(),
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logEvent: any = {
-      console_type: 'GEMINI_CLI',
+      console_type: 'RESEARCH_CLI',
       application: 102,
       event_name: name,
       event_metadata: [data] as object[],
@@ -204,63 +204,63 @@ export class ClearcutLogger {
   logStartSessionEvent(event: StartSessionEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_START_SESSION_MODEL,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_MODEL,
         value: event.model,
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_EMBEDDING_MODEL,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_EMBEDDING_MODEL,
         value: event.embedding_model,
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_START_SESSION_SANDBOX,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_SANDBOX,
         value: event.sandbox_enabled.toString(),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_START_SESSION_CORE_TOOLS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_CORE_TOOLS,
         value: event.core_tools_enabled,
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_START_SESSION_APPROVAL_MODE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_APPROVAL_MODE,
         value: event.approval_mode,
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_API_KEY_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_API_KEY_ENABLED,
         value: event.api_key_enabled.toString(),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_VERTEX_API_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_VERTEX_API_ENABLED,
         value: event.vertex_ai_enabled.toString(),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_DEBUG_MODE_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_DEBUG_MODE_ENABLED,
         value: event.debug_enabled.toString(),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_VERTEX_API_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_VERTEX_API_ENABLED,
         value: event.vertex_ai_enabled.toString(),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_START_SESSION_MCP_SERVERS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_MCP_SERVERS,
         value: event.mcp_servers,
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_VERTEX_API_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_VERTEX_API_ENABLED,
         value: event.vertex_ai_enabled.toString(),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_TELEMETRY_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_TELEMETRY_ENABLED,
         value: event.telemetry_enabled.toString(),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_START_SESSION_TELEMETRY_LOG_USER_PROMPTS_ENABLED,
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_TELEMETRY_LOG_USER_PROMPTS_ENABLED,
         value: event.telemetry_log_user_prompts_enabled.toString(),
       },
     ];
@@ -274,15 +274,15 @@ export class ClearcutLogger {
   logNewPromptEvent(event: UserPromptEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_USER_PROMPT_LENGTH,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_USER_PROMPT_LENGTH,
         value: JSON.stringify(event.prompt_length),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_PROMPT_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_PROMPT_ID,
         value: JSON.stringify(event.prompt_id),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_AUTH_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_AUTH_TYPE,
         value: JSON.stringify(event.auth_type),
       },
     ];
@@ -294,31 +294,31 @@ export class ClearcutLogger {
   logToolCallEvent(event: ToolCallEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_CALL_NAME,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_CALL_NAME,
         value: JSON.stringify(event.function_name),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_PROMPT_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_PROMPT_ID,
         value: JSON.stringify(event.prompt_id),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_CALL_DECISION,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_CALL_DECISION,
         value: JSON.stringify(event.decision),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_CALL_SUCCESS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_CALL_SUCCESS,
         value: JSON.stringify(event.success),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_CALL_DURATION_MS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_CALL_DURATION_MS,
         value: JSON.stringify(event.duration_ms),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_ERROR_MESSAGE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_ERROR_MESSAGE,
         value: JSON.stringify(event.error),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_TOOL_CALL_ERROR_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_TOOL_CALL_ERROR_TYPE,
         value: JSON.stringify(event.error_type),
       },
     ];
@@ -331,11 +331,11 @@ export class ClearcutLogger {
   logApiRequestEvent(event: ApiRequestEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_REQUEST_MODEL,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_REQUEST_MODEL,
         value: JSON.stringify(event.model),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_PROMPT_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_PROMPT_ID,
         value: JSON.stringify(event.prompt_id),
       },
     ];
@@ -347,52 +347,52 @@ export class ClearcutLogger {
   logApiResponseEvent(event: ApiResponseEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_RESPONSE_MODEL,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_RESPONSE_MODEL,
         value: JSON.stringify(event.model),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_PROMPT_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_PROMPT_ID,
         value: JSON.stringify(event.prompt_id),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_RESPONSE_STATUS_CODE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_RESPONSE_STATUS_CODE,
         value: JSON.stringify(event.status_code),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_RESPONSE_DURATION_MS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_RESPONSE_DURATION_MS,
         value: JSON.stringify(event.duration_ms),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_ERROR_MESSAGE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_ERROR_MESSAGE,
         value: JSON.stringify(event.error),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_API_RESPONSE_INPUT_TOKEN_COUNT,
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_INPUT_TOKEN_COUNT,
         value: JSON.stringify(event.input_token_count),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_API_RESPONSE_OUTPUT_TOKEN_COUNT,
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_OUTPUT_TOKEN_COUNT,
         value: JSON.stringify(event.output_token_count),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_API_RESPONSE_CACHED_TOKEN_COUNT,
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_CACHED_TOKEN_COUNT,
         value: JSON.stringify(event.cached_content_token_count),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_API_RESPONSE_THINKING_TOKEN_COUNT,
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_THINKING_TOKEN_COUNT,
         value: JSON.stringify(event.thoughts_token_count),
       },
       {
         research_cli_key:
-          EventMetadataKey.GEMINI_CLI_API_RESPONSE_TOOL_TOKEN_COUNT,
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_TOOL_TOKEN_COUNT,
         value: JSON.stringify(event.tool_token_count),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_AUTH_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_AUTH_TYPE,
         value: JSON.stringify(event.auth_type),
       },
     ];
@@ -404,27 +404,27 @@ export class ClearcutLogger {
   logApiErrorEvent(event: ApiErrorEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_ERROR_MODEL,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_ERROR_MODEL,
         value: JSON.stringify(event.model),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_PROMPT_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_PROMPT_ID,
         value: JSON.stringify(event.prompt_id),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_ERROR_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_ERROR_TYPE,
         value: JSON.stringify(event.error_type),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_ERROR_STATUS_CODE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_ERROR_STATUS_CODE,
         value: JSON.stringify(event.status_code),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_API_ERROR_DURATION_MS,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_ERROR_DURATION_MS,
         value: JSON.stringify(event.duration_ms),
       },
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_AUTH_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_AUTH_TYPE,
         value: JSON.stringify(event.auth_type),
       },
     ];
@@ -436,7 +436,7 @@ export class ClearcutLogger {
   logFlashFallbackEvent(event: FlashFallbackEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_AUTH_TYPE,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_AUTH_TYPE,
         value: JSON.stringify(event.auth_type),
       },
     ];
@@ -450,7 +450,7 @@ export class ClearcutLogger {
   logEndSessionEvent(event: EndSessionEvent): void {
     const data = [
       {
-        research_cli_key: EventMetadataKey.GEMINI_CLI_END_SESSION_ID,
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_END_SESSION_ID,
         value: event?.session_id?.toString() ?? '',
       },
     ];

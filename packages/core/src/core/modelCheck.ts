@@ -1,12 +1,12 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import {
-  DEFAULT_GEMINI_MODEL,
-  DEFAULT_GEMINI_FLASH_MODEL,
+  DEFAULT_RESEARCH_MODEL,
+  DEFAULT_RESEARCH_FLASH_MODEL,
 } from '../config/models.js';
 
 /**
@@ -21,13 +21,13 @@ export async function getEffectiveModel(
   apiKey: string,
   currentConfiguredModel: string,
 ): Promise<string> {
-  if (currentConfiguredModel !== DEFAULT_GEMINI_MODEL) {
+  if (currentConfiguredModel !== DEFAULT_RESEARCH_MODEL) {
     // Only check if the user is trying to use the specific pro model we want to fallback from.
     return currentConfiguredModel;
   }
 
-  const modelToTest = DEFAULT_GEMINI_MODEL;
-  const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
+  const modelToTest = DEFAULT_RESEARCH_MODEL;
+  const fallbackModel = DEFAULT_RESEARCH_FLASH_MODEL;
   const endpoint = `https://generativelanguage.iechorapis.com/v1beta/models/${modelToTest}:generateContent?key=${apiKey}`;
   const body = JSON.stringify({
     contents: [{ parts: [{ text: 'test' }] }],

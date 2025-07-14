@@ -38,8 +38,8 @@ In addition to a project settings file, a project's `.research` directory can co
 ### Available settings in `settings.json`:
 
 - **`contextFileName`** (string or array of strings):
-  - **Description:** Specifies the filename for context files (e.g., `GEMINI.md`, `AGENTS.md`). Can be a single filename or a list of accepted filenames.
-  - **Default:** `GEMINI.md`
+  - **Description:** Specifies the filename for context files (e.g., `RESEARCH.md`, `AGENTS.md`). Can be a single filename or a list of accepted filenames.
+  - **Default:** `RESEARCH.md`
   - **Example:** `"contextFileName": "AGENTS.md"`
 
 - **`bugCommand`** (object):
@@ -254,36 +254,36 @@ The CLI automatically loads environment variables from an `.env` file. The loadi
 2.  If not found, it searches upwards in parent directories until it finds an `.env` file or reaches the project root (identified by a `.git` folder) or the home directory.
 3.  If still not found, it looks for `~/.env` (in the user's home directory).
 
-- **`GEMINI_API_KEY`** (Required):
+- **`RESEARCH_API_KEY`** (Required):
   - Your API key for the Research API.
   - **Crucial for operation.** The CLI will not function without it.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
-- **`GEMINI_MODEL`**:
+- **`RESEARCH_MODEL`**:
   - Specifies the default Research model to use.
   - Overrides the hardcoded default
-  - Example: `export GEMINI_MODEL="research-2.5-flash"`
+  - Example: `export RESEARCH_MODEL="research-2.5-flash"`
 - **`GOOGLE_API_KEY`**:
-  - Your Google Cloud API key.
+  - Your iEchor Cloud API key.
   - Required for using Vertex AI in express mode.
   - Ensure you have the necessary permissions.
   - Example: `export GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"`.
 - **`GOOGLE_CLOUD_PROJECT`**:
-  - Your Google Cloud Project ID.
+  - Your iEchor Cloud Project ID.
   - Required for using Code Assist or Vertex AI.
   - If using Vertex AI, ensure you have the necessary permissions in this project.
   - **Cloud Shell Note:** When running in a Cloud Shell environment, this variable defaults to a special project allocated for Cloud Shell users. If you have `GOOGLE_CLOUD_PROJECT` set in your global environment in Cloud Shell, it will be overridden by this default. To use a different project in Cloud Shell, you must define `GOOGLE_CLOUD_PROJECT` in a `.env` file.
   - Example: `export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"`.
 - **`GOOGLE_APPLICATION_CREDENTIALS`** (string):
-  - **Description:** The path to your Google Application Credentials JSON file.
+  - **Description:** The path to your iEchor Application Credentials JSON file.
   - **Example:** `export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/credentials.json"`
 - **`OTLP_GOOGLE_CLOUD_PROJECT`**:
-  - Your Google Cloud Project ID for Telemetry in Google Cloud
+  - Your iEchor Cloud Project ID for Telemetry in iEchor Cloud
   - Example: `export OTLP_GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"`.
 - **`GOOGLE_CLOUD_LOCATION`**:
-  - Your Google Cloud Project Location (e.g., us-central1).
+  - Your iEchor Cloud Project Location (e.g., us-central1).
   - Required for using Vertex AI in non express mode.
   - Example: `export GOOGLE_CLOUD_LOCATION="YOUR_PROJECT_LOCATION"`.
-- **`GEMINI_SANDBOX`**:
+- **`RESEARCH_SANDBOX`**:
   - Alternative to the `sandbox` setting in `settings.json`.
   - Accepts `true`, `false`, `docker`, `podman`, or a custom command string.
 - **`SEATBELT_PROFILE`** (macOS specific):
@@ -345,11 +345,11 @@ Arguments passed directly when running the CLI can override other configurations
 
 ## Context Files (Hierarchical Instructional Context)
 
-While not strictly configuration for the CLI's _behavior_, context files (defaulting to `GEMINI.md` but configurable via the `contextFileName` setting) are crucial for configuring the _instructional context_ (also referred to as "memory") provided to the Research model. This powerful feature allows you to give project-specific instructions, coding style guides, or any relevant background information to the AI, making its responses more tailored and accurate to your needs. The CLI includes UI elements, such as an indicator in the footer showing the number of loaded context files, to keep you informed about the active context.
+While not strictly configuration for the CLI's _behavior_, context files (defaulting to `RESEARCH.md` but configurable via the `contextFileName` setting) are crucial for configuring the _instructional context_ (also referred to as "memory") provided to the Research model. This powerful feature allows you to give project-specific instructions, coding style guides, or any relevant background information to the AI, making its responses more tailored and accurate to your needs. The CLI includes UI elements, such as an indicator in the footer showing the number of loaded context files, to keep you informed about the active context.
 
 - **Purpose:** These Markdown files contain instructions, guidelines, or context that you want the Research model to be aware of during your interactions. The system is designed to manage this instructional context hierarchically.
 
-### Example Context File Content (e.g., `GEMINI.md`)
+### Example Context File Content (e.g., `RESEARCH.md`)
 
 Here's a conceptual example of what a context file at the root of a TypeScript project might contain:
 
@@ -384,9 +384,9 @@ Here's a conceptual example of what a context file at the root of a TypeScript p
 
 This example demonstrates how you can provide general project context, specific coding conventions, and even notes about particular files or components. The more relevant and precise your context files are, the better the AI can assist you. Project-specific context files are highly encouraged to establish conventions and context.
 
-- **Hierarchical Loading and Precedence:** The CLI implements a sophisticated hierarchical memory system by loading context files (e.g., `GEMINI.md`) from several locations. Content from files lower in this list (more specific) typically overrides or supplements content from files higher up (more general). The exact concatenation order and final context can be inspected using the `/memory show` command. The typical loading order is:
+- **Hierarchical Loading and Precedence:** The CLI implements a sophisticated hierarchical memory system by loading context files (e.g., `RESEARCH.md`) from several locations. Content from files lower in this list (more specific) typically overrides or supplements content from files higher up (more general). The exact concatenation order and final context can be inspected using the `/memory show` command. The typical loading order is:
   1.  **Global Context File:**
-      - Location: `~/.research/<contextFileName>` (e.g., `~/.research/GEMINI.md` in your user home directory).
+      - Location: `~/.research/<contextFileName>` (e.g., `~/.research/RESEARCH.md` in your user home directory).
       - Scope: Provides default instructions for all your projects.
   2.  **Project Root & Ancestors Context Files:**
       - Location: The CLI searches for the configured context file in the current working directory and then in each parent directory up to either the project root (identified by a `.git` folder) or your home directory.
@@ -409,7 +409,7 @@ The Research CLI can execute potentially unsafe operations (like shell commands 
 Sandboxing is disabled by default, but you can enable it in a few ways:
 
 - Using `--sandbox` or `-s` flag.
-- Setting `GEMINI_SANDBOX` environment variable.
+- Setting `RESEARCH_SANDBOX` environment variable.
 - Sandbox is enabled in `--yolo` mode by default.
 
 By default, it uses a pre-built `research-cli-sandbox` Docker image.

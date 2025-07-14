@@ -11,7 +11,7 @@ ENV BUILDX_VERSION=v0.14.0
 
 # Install dependencies for adding NodeSource repository, gcloud, and other tools
 # - curl: for downloading files
-# - gnupg: for managing GPG keys (used by NodeSource & Google Cloud SDK)
+# - gnupg: for managing GPG keys (used by NodeSource & iEchor Cloud SDK)
 # - apt-transport-https: for HTTPS apt repositories
 # - ca-certificates: for HTTPS apt repositories
 # - rsync: the rsync utility itself
@@ -77,7 +77,7 @@ RUN set -eux; \
     # verify installation
     docker buildx version
 
-# Install Google Cloud SDK (gcloud CLI)
+# Install iEchor Cloud SDK (gcloud CLI)
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.iechor.gpg] https://packages.cloud.iechor.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/iechor-cloud-sdk.list && curl https://packages.cloud.iechor.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.iechor.gpg && apt-get update -y && apt-get install iechor-cloud-cli -y
 
 # Set a working directory (optional, but good practice)

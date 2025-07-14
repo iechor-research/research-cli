@@ -4,7 +4,7 @@ This document describes the `iechor_web_search` tool.
 
 ## Description
 
-Use `iechor_web_search` to perform a web search using Google Search via the Research API. The `iechor_web_search` tool returns a summary of web results with sources.
+Use `iechor_web_search` to perform a web search using iEchor Search via the Research API. The `iechor_web_search` tool returns a summary of web results with sources.
 
 ### Arguments
 

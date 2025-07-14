@@ -1,12 +1,12 @@
 # Research CLI: Quotas and Pricing
 
-Your Research CLI quotas and pricing depend on the type of account you use to authenticate with Google. Additionally, both quotas and pricing may be calculated differently based on the model version, requests, and tokens used. A summary of model usage is available through the `/stats` command and presented on exit at the end of a session. See [privacy and terms](./tos-privacy.md) for details on Privacy policy and Terms of Service. Note: published prices are list price; additional negotiated commercial discounting may apply.
+Your Research CLI quotas and pricing depend on the type of account you use to authenticate with iEchor. Additionally, both quotas and pricing may be calculated differently based on the model version, requests, and tokens used. A summary of model usage is available through the `/stats` command and presented on exit at the end of a session. See [privacy and terms](./tos-privacy.md) for details on Privacy policy and Terms of Service. Note: published prices are list price; additional negotiated commercial discounting may apply.
 
 This article outlines the specific quotas and pricing applicable to the Research CLI when using different authentication methods.
 
-## 1. Log in with Google (Research Code Assist Free Tier)
+## 1. Log in with iEchor (Research Code Assist Free Tier)
 
-For users who authenticate by using their Google account to access Research Code Assist for individuals:
+For users who authenticate by using their iEchor account to access Research Code Assist for individuals:
 
 - **Quota:**
   - 60 requests per minute
@@ -35,7 +35,7 @@ If you are using a Research API key with a paid plan:
 - **Cost:** Varies by pricing tier and model/token usage.
 - **Details:** [Research API Rate Limits](https://ai.iechor.dev/research-api/docs/rate-limits), [Research API Pricing](https://ai.iechor.dev/research-api/docs/pricing)
 
-## 4. Login with Google (for Workspace or Licensed Code Assist users)
+## 4. Login with iEchor (for Workspace or Licensed Code Assist users)
 
 For users of Standard or Enterprise editions of Research Code Assist, quotas and pricing are based on a fixed price subscription with assigned license seats:
 
@@ -43,11 +43,11 @@ For users of Standard or Enterprise editions of Research Code Assist, quotas and
   - **Quota:** 120 requests per minute, 1500 per day
 - **Enterprise Tier:**
   - **Quota:** 120 requests per minute, 2000 per day
-- **Cost:** Fixed price included with your Research for Google Workspace or Research Code Assist subscription.
+- **Cost:** Fixed price included with your Research for iEchor Workspace or Research Code Assist subscription.
 - **Details:** [Research Code Assist Quotas](https://developers.iechor.com/research-code-assist/resources/quotas#quotas-for-agent-mode-research-cli), [Research Code Assist Pricing](https://cloud.iechor.com/products/research/pricing)
 - **Notes:**
   - Specific quota for different models is not specified; model fallback may occur to preserve shared experience quality.
-  - Members of the Google Developer Program may have Research Code Assist licenses through their membership.
+  - Members of the iEchor Developer Program may have Research Code Assist licenses through their membership.
 
 ## 5. Vertex AI (Express Mode)
 
@@ -65,6 +65,6 @@ If you are using the standard Vertex AI service:
 - **Cost:** Based on model and token usage. See [Vertex AI Pricing](https://cloud.iechor.com/vertex-ai/pricing).
 - **Details:** [Vertex AI Dynamic Shared Quota](https://cloud.iechor.com/vertex-ai/generative-ai/docs/resources/dynamic-shared-quota)
 
-## 7. Google One and Ultra plans, Research for Workspace plans
+## 7. iEchor One and Ultra plans, Research for Workspace plans
 
-These plans currently apply only to the use of Research web-based products provided by Google-based experiences (for example, the Research web app or the Flow video editor). These plans do not apply to the API usage which powers the Research CLI. Supporting these plans is under active consideration for future support.
+These plans currently apply only to the use of Research web-based products provided by iEchor-based experiences (for example, the Research web app or the Flow video editor). These plans do not apply to the API usage which powers the Research CLI. Supporting these plans is under active consideration for future support.

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -56,7 +56,7 @@ export class StartSessionEvent {
     let useResearch = false;
     let useVertex = false;
     if (generatorConfig && generatorConfig.authType) {
-      useResearch = generatorConfig.authType === AuthType.USE_GEMINI;
+      useResearch = generatorConfig.authType === AuthType.USE_RESEARCH;
       useVertex = generatorConfig.authType === AuthType.USE_VERTEX_AI;
     }
 

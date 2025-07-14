@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -277,7 +277,7 @@ describe('loggers', () => {
         'test-model',
         100,
         'prompt-id-1',
-        AuthType.USE_GEMINI,
+        AuthType.USE_RESEARCH,
         usageData,
         'test-response',
         'test-error',

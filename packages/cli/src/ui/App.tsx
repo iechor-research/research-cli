@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -229,7 +229,7 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
     addItem(
       {
         type: MessageType.INFO,
-        text: 'Refreshing hierarchical memory (GEMINI.md or other context files)...',
+        text: 'Refreshing hierarchical memory (RESEARCH.md or other context files)...',
       },
       Date.now(),
     );
@@ -871,7 +871,7 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
                 width="100%"
               >
                 <Box>
-                  {process.env.GEMINI_SYSTEM_MD && (
+                  {process.env.RESEARCH_SYSTEM_MD && (
                     <Text color={Colors.AccentRed}>|⌐■_■| </Text>
                   )}
                   {ctrlCPressedOnce ? (

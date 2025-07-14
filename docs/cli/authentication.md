@@ -1,18 +1,18 @@
 # Authentication Setup
 
-The Research CLI requires you to authenticate with Google's AI services. On initial startup you'll need to configure **one** of the following authentication methods:
+The Research CLI requires you to authenticate with iEchor's AI services. On initial startup you'll need to configure **one** of the following authentication methods:
 
-1.  **Login with Google (Research Code Assist):**
+1.  **Login with iEchor (Research Code Assist):**
     - Use this option to log in with your iechor account.
     - During initial startup, Research CLI will direct you to a webpage for authentication. Once authenticated, your credentials will be cached locally so the web login can be skipped on subsequent runs.
     - Note that the web login must be done in a browser that can communicate with the machine Research CLI is being run from. (Specifically, the browser will be redirected to a localhost url that Research CLI will be listening on).
     - <a id="workspace-gca">Users may have to specify a GOOGLE_CLOUD_PROJECT if:</a>
-      1. You have a Google Workspace account. Google Workspace is a paid service for businesses and organizations that provides a suite of productivity tools, including a custom email domain (e.g. your-name@your-company.com), enhanced security features, and administrative controls. These accounts are often managed by an employer or school.
-      1. You have received a free Code Assist license through the [Google Developer Program](https://developers.iechor.com/program/plans-and-pricing) (including qualified Google Developer Experts)
+      1. You have a iEchor Workspace account. iEchor Workspace is a paid service for businesses and organizations that provides a suite of productivity tools, including a custom email domain (e.g. your-name@your-company.com), enhanced security features, and administrative controls. These accounts are often managed by an employer or school.
+      1. You have received a free Code Assist license through the [iEchor Developer Program](https://developers.iechor.com/program/plans-and-pricing) (including qualified iEchor Developer Experts)
       1. You have been assigned a license to a current Research Code Assist standard or enterprise subscription.
       1. You are using the product outside the [supported regions](https://developers.iechor.com/research-code-assist/resources/available-locations) for free individual usage.
-      1. You are a Google account holder under the age of 18
-      - If you fall into one of these categories, you must first configure a Google Cloud Project Id to use, [enable the Research for Cloud API](https://cloud.iechor.com/research/docs/discover/set-up-research#enable-api) and [configure access permissions](https://cloud.iechor.com/research/docs/discover/set-up-research#grant-iam).
+      1. You are a iEchor account holder under the age of 18
+      - If you fall into one of these categories, you must first configure a iEchor Cloud Project Id to use, [enable the Research for Cloud API](https://cloud.iechor.com/research/docs/discover/set-up-research#enable-api) and [configure access permissions](https://cloud.iechor.com/research/docs/discover/set-up-research#grant-iam).
 
       You can temporarily set the environment variable in your current shell session using the following command:
 
@@ -27,20 +27,20 @@ The Research CLI requires you to authenticate with Google's AI services. On init
       ```
 
 2.  **<a id="research-api-key"></a>Research API key:**
-    - Obtain your API key from Google AI Studio: [https://aistudio.iechor.com/app/apikey](https://aistudio.iechor.com/app/apikey)
-    - Set the `GEMINI_API_KEY` environment variable. In the following methods, replace `YOUR_GEMINI_API_KEY` with the API key you obtained from Google AI Studio:
+    - Obtain your API key from iEchor AI Studio: [https://aistudio.iechor.com/app/apikey](https://aistudio.iechor.com/app/apikey)
+    - Set the `RESEARCH_API_KEY` environment variable. In the following methods, replace `YOUR_RESEARCH_API_KEY` with the API key you obtained from iEchor AI Studio:
       - You can temporarily set the environment variable in your current shell session using the following command:
         ```bash
-        export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+        export RESEARCH_API_KEY="YOUR_RESEARCH_API_KEY"
         ```
       - For repeated use, you can add the environment variable to your [.env file](#persisting-environment-variables-with-env-files) or your shell's configuration file (like `~/.bashrc`, `~/.zshrc`, or `~/.profile`). For example, the following command adds the environment variable to a `~/.bashrc` file:
         ```bash
-        echo 'export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"' >> ~/.bashrc
+        echo 'export RESEARCH_API_KEY="YOUR_RESEARCH_API_KEY"' >> ~/.bashrc
         source ~/.bashrc
         ```
 
 3.  **Vertex AI:**
-    - Obtain your Google Cloud API key: [Get an API Key](https://cloud.iechor.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=newuser)
+    - Obtain your iEchor Cloud API key: [Get an API Key](https://cloud.iechor.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=newuser)
       - Set the `GOOGLE_API_KEY` environment variable. In the following methods, replace `YOUR_GOOGLE_API_KEY` with your Vertex AI API key:
         - You can temporarily set these environment variables in your current shell session using the following commands:
           ```bash
@@ -52,11 +52,11 @@ The Research CLI requires you to authenticate with Google's AI services. On init
           source ~/.bashrc
           ```
     - To use Application Default Credentials (ADC), use the following command:
-      - Ensure you have a Google Cloud project and have enabled the Vertex AI API.
+      - Ensure you have a iEchor Cloud project and have enabled the Vertex AI API.
         ```bash
         gcloud auth application-default login
         ```
-        For more information, see [Set up Application Default Credentials for Google Cloud](https://cloud.iechor.com/docs/authentication/provide-credentials-adc).
+        For more information, see [Set up Application Default Credentials for iEchor Cloud](https://cloud.iechor.com/docs/authentication/provide-credentials-adc).
       - Set the `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` environment variables. In the following methods, replace `YOUR_PROJECT_ID` and `YOUR_PROJECT_LOCATION` with the relevant values for your project:
         - You can temporarily set these environment variables in your current shell session using the following commands:
           ```bash
@@ -70,7 +70,7 @@ The Research CLI requires you to authenticate with Google's AI services. On init
           source ~/.bashrc
           ```
 4.  **Cloud Shell:**
-    - This option is only available when running in a Google Cloud Shell environment.
+    - This option is only available when running in a iEchor Cloud Shell environment.
     - It automatically uses the credentials of the logged-in user in the Cloud Shell environment.
     - This is the default authentication method when running in Cloud Shell and no other method is configured.
 
@@ -104,6 +104,6 @@ echo 'GOOGLE_CLOUD_PROJECT="your-project-id"' >> .research/.env
 mkdir -p ~/.research
 cat >> ~/.research/.env <<'EOF'
 GOOGLE_CLOUD_PROJECT="your-project-id"
-GEMINI_API_KEY="your-research-api-key"
+RESEARCH_API_KEY="your-research-api-key"
 EOF
 ```

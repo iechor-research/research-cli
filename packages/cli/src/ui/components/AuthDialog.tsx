@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -41,27 +41,27 @@ export function AuthDialog({
     }
 
     const defaultAuthType = parseDefaultAuthType(
-      process.env.GEMINI_DEFAULT_AUTH_TYPE,
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE,
     );
 
-    if (process.env.GEMINI_DEFAULT_AUTH_TYPE && defaultAuthType === null) {
+    if (process.env.RESEARCH_DEFAULT_AUTH_TYPE && defaultAuthType === null) {
       return (
-        `Invalid value for GEMINI_DEFAULT_AUTH_TYPE: "${process.env.GEMINI_DEFAULT_AUTH_TYPE}". ` +
+        `Invalid value for RESEARCH_DEFAULT_AUTH_TYPE: "${process.env.RESEARCH_DEFAULT_AUTH_TYPE}". ` +
         `Valid values are: ${Object.values(AuthType).join(', ')}.`
       );
     }
 
     if (
-      process.env.GEMINI_API_KEY &&
-      (!defaultAuthType || defaultAuthType === AuthType.USE_GEMINI)
+      process.env.RESEARCH_API_KEY &&
+      (!defaultAuthType || defaultAuthType === AuthType.USE_RESEARCH)
     ) {
-      return 'Existing API key detected (GEMINI_API_KEY). Select "Research API Key" option to use it.';
+      return 'Existing API key detected (RESEARCH_API_KEY). Select "Research API Key" option to use it.';
     }
     return null;
   });
   const items = [
     {
-      label: 'Login with Google',
+      label: 'Login with iEchor',
       value: AuthType.LOGIN_WITH_GOOGLE,
     },
     ...(process.env.CLOUD_SHELL === 'true'
@@ -74,7 +74,7 @@ export function AuthDialog({
       : []),
     {
       label: 'Use Research API Key',
-      value: AuthType.USE_GEMINI,
+      value: AuthType.USE_RESEARCH,
     },
     { label: 'Vertex AI', value: AuthType.USE_VERTEX_AI },
   ];
@@ -85,14 +85,14 @@ export function AuthDialog({
     }
 
     const defaultAuthType = parseDefaultAuthType(
-      process.env.GEMINI_DEFAULT_AUTH_TYPE,
+      process.env.RESEARCH_DEFAULT_AUTH_TYPE,
     );
     if (defaultAuthType) {
       return item.value === defaultAuthType;
     }
 
-    if (process.env.GEMINI_API_KEY) {
-      return item.value === AuthType.USE_GEMINI;
+    if (process.env.RESEARCH_API_KEY) {
+      return item.value === AuthType.USE_RESEARCH;
     }
 
     return item.value === AuthType.LOGIN_WITH_GOOGLE;

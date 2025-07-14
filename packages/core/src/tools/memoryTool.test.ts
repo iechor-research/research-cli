@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -56,7 +56,7 @@ describe('MemoryTool', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    // Reset GEMINI_MD_FILENAME to its original value after each test
+    // Reset RESEARCH_MD_FILENAME to its original value after each test
     setResearchMdFilename(DEFAULT_CONTEXT_FILENAME);
   });
 

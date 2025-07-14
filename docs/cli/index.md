@@ -4,7 +4,7 @@ Within Research CLI, `packages/cli` is the frontend for users to send and receiv
 
 ## Navigating this section
 
-- **[Authentication](./authentication.md):** A guide to setting up authentication with Google's AI services.
+- **[Authentication](./authentication.md):** A guide to setting up authentication with iEchor's AI services.
 - **[Commands](./commands.md):** A reference for Research CLI commands (e.g., `/help`, `/tools`, `/theme`).
 - **[Configuration](./configuration.md):** A guide to tailoring Research CLI behavior using configuration files.
 - **[Token Caching](./token-caching.md):** Optimize API costs through token caching.

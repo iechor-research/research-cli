@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@ import {
   GenerateContentResponse,
 } from '@iechor/genai';
 import { ResearchClient } from '../core/client.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { PartListUnion } from '@iechor/genai';
 
 /**
@@ -74,7 +74,7 @@ function getResponseText(response: GenerateContentResponse): string | null {
   return null;
 }
 
-const toolOutputSummarizerModel = DEFAULT_GEMINI_FLASH_MODEL;
+const toolOutputSummarizerModel = DEFAULT_RESEARCH_FLASH_MODEL;
 const toolOutputSummarizerConfig: GenerateContentConfig = {
   maxOutputTokens: 2000,
 };

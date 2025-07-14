@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,15 +32,15 @@ describe('validateAuthMethod', () => {
     expect(validateAuthMethod(AuthType.CLOUD_SHELL)).toBeNull();
   });
 
-  describe('USE_GEMINI', () => {
-    it('should return null if GEMINI_API_KEY is set', () => {
-      process.env.GEMINI_API_KEY = 'test-key';
-      expect(validateAuthMethod(AuthType.USE_GEMINI)).toBeNull();
+  describe('USE_RESEARCH', () => {
+    it('should return null if RESEARCH_API_KEY is set', () => {
+      process.env.RESEARCH_API_KEY = 'test-key';
+      expect(validateAuthMethod(AuthType.USE_RESEARCH)).toBeNull();
     });
 
-    it('should return an error message if GEMINI_API_KEY is not set', () => {
-      expect(validateAuthMethod(AuthType.USE_GEMINI)).toBe(
-        'GEMINI_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!',
+    it('should return an error message if RESEARCH_API_KEY is not set', () => {
+      expect(validateAuthMethod(AuthType.USE_RESEARCH)).toBe(
+        'RESEARCH_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!',
       );
     });
   });

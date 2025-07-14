@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@ import { homedir, platform } from 'os';
 import * as dotenv from 'dotenv';
 import {
   MCPServerConfig,
-  GEMINI_CONFIG_DIR as GEMINI_DIR,
+  RESEARCH_CONFIG_DIR as RESEARCH_DIR,
   getErrorMessage,
   BugCommandSettings,
   TelemetrySettings,
@@ -200,8 +200,8 @@ function resolveEnvVarsInObject<T>(obj: T): T {
 function findEnvFile(startDir: string): string | null {
   let currentDir = path.resolve(startDir);
   while (true) {
-    // prefer research-specific .env under GEMINI_DIR
-    const researchEnvPath = path.join(currentDir, GEMINI_DIR, '.env');
+    // prefer research-specific .env under RESEARCH_DIR
+    const researchEnvPath = path.join(currentDir, RESEARCH_DIR, '.env');
     if (fs.existsSync(researchEnvPath)) {
       return researchEnvPath;
     }
@@ -212,7 +212,7 @@ function findEnvFile(startDir: string): string | null {
     const parentDir = path.dirname(currentDir);
     if (parentDir === currentDir || !parentDir) {
       // check .env under home as fallback, again preferring research-specific .env
-      const homeResearchEnvPath = path.join(homedir(), GEMINI_DIR, '.env');
+      const homeResearchEnvPath = path.join(homedir(), RESEARCH_DIR, '.env');
       if (fs.existsSync(homeResearchEnvPath)) {
         return homeResearchEnvPath;
       }

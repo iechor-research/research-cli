@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -253,7 +253,7 @@ describe('useTextBuffer', () => {
       );
       const state = getBufferState(result);
       // Including multiple spaces at the end of the lines like this is
-      // consistent with Google docs behavior and makes it intuitive to edit
+      // consistent with iEchor docs behavior and makes it intuitive to edit
       // the spaces as needed.
       expect(state.allVisualLines).toEqual([
         'The  quick ',
@@ -273,7 +273,7 @@ describe('useTextBuffer', () => {
       );
       const state = getBufferState(result);
       // Including multiple spaces at the end of the lines like this is
-      // consistent with Google docs behavior and makes it intuitive to edit
+      // consistent with iEchor docs behavior and makes it intuitive to edit
       // the spaces as needed.
       expect(state.allVisualLines).toEqual(['123456789012345', 'ABCDEFG']);
     });

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,7 +30,7 @@ interface ImportState {
 }
 
 /**
- * Processes import statements in GEMINI.md content
+ * Processes import statements in RESEARCH.md content
  * Supports @path/to/file.md syntax for importing content from other files
  *
  * @param content - The content to process for imports

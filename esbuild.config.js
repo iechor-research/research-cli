@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,6 +21,41 @@ esbuild
     outfile: 'bundle/research.js',
     platform: 'node',
     format: 'esm',
+    external: [
+      // React
+      'react',
+      'react/jsx-runtime',
+      'react-dom',
+      // Ink UI components
+      'ink',
+      'ink-gradient',
+      'ink-spinner',
+      'ink-big-text',
+      'ink-link',
+      'ink-select-input',
+      // Third-party libraries
+      'gaxios',
+      'string-width',
+      'lowlight',
+      'highlight.js',
+      'yargs',
+      'dotenv',
+      'glob',
+      'diff',
+      'mime-types',
+      'open',
+      'shell-quote',
+      'strip-ansi',
+      'strip-json-comments',
+      'update-notifier',
+      'command-exists',
+      'read-package-up',
+      'ansi-escapes',
+      'semver',
+      'chalk',
+      // Internal packages
+      '@iechor/research-cli-core',
+    ],
     define: {
       'process.env.CLI_VERSION': JSON.stringify(pkg.version),
     },

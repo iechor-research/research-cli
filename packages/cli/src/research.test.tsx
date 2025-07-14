@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -76,9 +76,9 @@ describe('research.tsx main function', () => {
     loadSettingsMock = vi.mocked(loadSettings);
 
     // Store and clear sandbox-related env variables to ensure a consistent test environment
-    originalEnvResearchSandbox = process.env.GEMINI_SANDBOX;
+    originalEnvResearchSandbox = process.env.RESEARCH_SANDBOX;
     originalEnvSandbox = process.env.SANDBOX;
-    delete process.env.GEMINI_SANDBOX;
+    delete process.env.RESEARCH_SANDBOX;
     delete process.env.SANDBOX;
 
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -87,9 +87,9 @@ describe('research.tsx main function', () => {
   afterEach(() => {
     // Restore original env variables
     if (originalEnvResearchSandbox !== undefined) {
-      process.env.GEMINI_SANDBOX = originalEnvResearchSandbox;
+      process.env.RESEARCH_SANDBOX = originalEnvResearchSandbox;
     } else {
-      delete process.env.GEMINI_SANDBOX;
+      delete process.env.RESEARCH_SANDBOX;
     }
     if (originalEnvSandbox !== undefined) {
       process.env.SANDBOX = originalEnvSandbox;

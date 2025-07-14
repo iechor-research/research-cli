@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -97,7 +97,7 @@ async function getTier(server: CodeAssistServer): Promise<UserTierId> {
     metadata: {
       ideType: 'IDE_UNSPECIFIED',
       platform: 'PLATFORM_UNSPECIFIED',
-      pluginType: 'GEMINI',
+      pluginType: 'RESEARCH',
       duetProject: server.projectId,
     },
   });

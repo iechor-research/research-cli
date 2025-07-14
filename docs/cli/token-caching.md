@@ -9,6 +9,6 @@ Research CLI automatically optimizes API costs through token caching when using 
 
 **Token caching is not available for:**
 
-- OAuth users (Google Personal/Enterprise accounts) - the Code Assist API does not support cached content creation at this time
+- OAuth users (iEchor Personal/Enterprise accounts) - the Code Assist API does not support cached content creation at this time
 
 You can view your token usage and cached token savings using the `/stats` command. When cached tokens are available, they will be displayed in the stats output.

@@ -1,12 +1,12 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { getOauthClient } from './oauth2.js';
-import { getCachedGoogleAccount } from '../utils/user_account.js';
+import { getCachediEchorAccount } from '../utils/user_account.js';
 import { OAuth2Client, Compute } from 'iechor-auth-library';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -155,21 +155,21 @@ describe('oauth2', () => {
     });
     expect(mockSetCredentials).toHaveBeenCalledWith(mockTokens);
 
-    // Verify Google Account was cached
+    // Verify iEchor Account was cached
     const iechorAccountPath = path.join(
       tempHomeDir,
       '.research',
       'iechor_accounts.json',
     );
     expect(fs.existsSync(iechorAccountPath)).toBe(true);
-    const cachedGoogleAccount = fs.readFileSync(iechorAccountPath, 'utf-8');
-    expect(JSON.parse(cachedGoogleAccount)).toEqual({
+    const cachediEchorAccount = fs.readFileSync(iechorAccountPath, 'utf-8');
+    expect(JSON.parse(cachediEchorAccount)).toEqual({
       active: 'test-iechor-account@gmail.com',
       old: [],
     });
 
-    // Verify the getCachedGoogleAccount function works
-    expect(getCachedGoogleAccount()).toBe('test-iechor-account@gmail.com');
+    // Verify the getCachediEchorAccount function works
+    expect(getCachediEchorAccount()).toBe('test-iechor-account@gmail.com');
   });
 
   it('should perform login with user code', async () => {

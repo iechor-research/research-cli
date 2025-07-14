@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,9 +21,9 @@ import * as os from 'os';
 import { Config } from '../config/config.js';
 import { getErrorMessage } from '../utils/errors.js';
 import {
-  cacheGoogleAccount,
-  getCachedGoogleAccount,
-  clearCachedGoogleAccount,
+  cacheiEchorAccount,
+  getCachediEchorAccount,
+  clearCachediEchorAccount,
 } from '../utils/user_account.js';
 import { AuthType } from '../core/contentGenerator.js';
 import readline from 'node:readline';
@@ -53,7 +53,7 @@ const SIGN_IN_SUCCESS_URL =
 const SIGN_IN_FAILURE_URL =
   'https://developers.iechor.com/research-code-assist/auth_failure_research';
 
-const GEMINI_DIR = '.research';
+const RESEARCH_DIR = '.research';
 const CREDENTIAL_FILENAME = 'oauth_creds.json';
 
 /**
@@ -82,8 +82,8 @@ export async function getOauthClient(
   // If there are cached creds on disk, they always take precedence
   if (await loadCachedCredentials(client)) {
     // Found valid cached credentials.
-    // Check if we need to retrieve Google Account ID or Email
-    if (!getCachedGoogleAccount()) {
+    // Check if we need to retrieve iEchor Account ID or Email
+    if (!getCachediEchorAccount()) {
       try {
         await fetchAndCacheUserInfo(client);
       } catch {
@@ -94,7 +94,7 @@ export async function getOauthClient(
     return client;
   }
 
-  // In Google Cloud Shell, we can use Application Default Credentials (ADC)
+  // In iEchor Cloud Shell, we can use Application Default Credentials (ADC)
   // provided via its metadata server to authenticate non-interactively using
   // the identity of the user logged into Cloud Shell.
   if (authType === AuthType.CLOUD_SHELL) {
@@ -233,15 +233,15 @@ async function authWithWeb(client: OAuth2Client): Promise<OauthWebLogin> {
             redirect_uri: redirectUri,
           });
           client.setCredentials(tokens);
-          // Retrieve and cache Google Account ID during authentication
+          // Retrieve and cache iEchor Account ID during authentication
           try {
             await fetchAndCacheUserInfo(client);
           } catch (error) {
             console.error(
-              'Failed to retrieve Google Account ID during authentication:',
+              'Failed to retrieve iEchor Account ID during authentication:',
               error,
             );
-            // Don't fail the auth flow if Google Account ID retrieval fails
+            // Don't fail the auth flow if iEchor Account ID retrieval fails
           }
 
           res.writeHead(HTTP_REDIRECT, { Location: SIGN_IN_SUCCESS_URL });
@@ -318,14 +318,14 @@ async function cacheCredentials(credentials: Credentials) {
 }
 
 function getCachedCredentialPath(): string {
-  return path.join(os.homedir(), GEMINI_DIR, CREDENTIAL_FILENAME);
+  return path.join(os.homedir(), RESEARCH_DIR, CREDENTIAL_FILENAME);
 }
 
 export async function clearCachedCredentialFile() {
   try {
     await fs.rm(getCachedCredentialPath(), { force: true });
-    // Clear the Google Account ID cache when credentials are cleared
-    await clearCachedGoogleAccount();
+    // Clear the iEchor Account ID cache when credentials are cleared
+    await clearCachediEchorAccount();
   } catch (_) {
     /* empty */
   }
@@ -358,7 +358,7 @@ async function fetchAndCacheUserInfo(client: OAuth2Client): Promise<void> {
 
     const userInfo = await response.json();
     if (userInfo.email) {
-      await cacheGoogleAccount(userInfo.email);
+      await cacheiEchorAccount(userInfo.email);
     }
   } catch (error) {
     console.error('Error retrieving user info:', error);

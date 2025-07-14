@@ -5,10 +5,10 @@ This guide provides solutions to common issues and debugging tips.
 ## Authentication
 
 - **Error: `Failed to login. Message: Request contains an invalid argument`**
-  - Users with Google Workspace accounts, or users with Google Cloud accounts
+  - Users with iEchor Workspace accounts, or users with iEchor Cloud accounts
     associated with their Gmail accounts may not be able to activate the free
-    tier of the Google Code Assist plan.
-  - For Google Cloud accounts, you can work around this by setting
+    tier of the iEchor Code Assist plan.
+  - For iEchor Cloud accounts, you can work around this by setting
     `GOOGLE_CLOUD_PROJECT` to your project ID.
   - You can also grab an API key from [AI Studio](https://aistudio.iechor.com/app/apikey), which also includes a
     separate free tier.
@@ -22,7 +22,7 @@ This guide provides solutions to common issues and debugging tips.
   - A: The CLI configuration is stored within two `settings.json` files: one in your home directory and one in your project's root directory. In both locations, `settings.json` is found in the `.research/` folder. Refer to [CLI Configuration](./cli/configuration.md) for more details.
 
 - **Q: Why don't I see cached token counts in my stats output?**
-  - A: Cached token information is only displayed when cached tokens are being used. This feature is available for API key users (Research API key or Vertex AI) but not for OAuth users (Google Personal/Enterprise accounts) at this time, as the Code Assist API does not support cached content creation. You can still view your total token usage with the `/stats` command.
+  - A: Cached token information is only displayed when cached tokens are being used. This feature is available for API key users (Research API key or Vertex AI) but not for OAuth users (iEchor Personal/Enterprise accounts) at this time, as the Code Assist API does not support cached content creation. You can still view your total token usage with the `/stats` command.
 
 ## Common error messages and solutions
 

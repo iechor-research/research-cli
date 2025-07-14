@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Google LLC
+ * Copyright 2025 iEchor LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -16,9 +16,9 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     return null;
   }
 
-  if (authMethod === AuthType.USE_GEMINI) {
-    if (!process.env.GEMINI_API_KEY) {
-      return 'GEMINI_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!';
+  if (authMethod === AuthType.USE_RESEARCH) {
+    if (!process.env.RESEARCH_API_KEY) {
+      return 'RESEARCH_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!';
     }
     return null;
   }
@@ -26,8 +26,8 @@ export const validateAuthMethod = (authMethod: string): string | null => {
   if (authMethod === AuthType.USE_VERTEX_AI) {
     const hasVertexProjectLocationConfig =
       !!process.env.GOOGLE_CLOUD_PROJECT && !!process.env.GOOGLE_CLOUD_LOCATION;
-    const hasGoogleApiKey = !!process.env.GOOGLE_API_KEY;
-    if (!hasVertexProjectLocationConfig && !hasGoogleApiKey) {
+    const hasiEchorApiKey = !!process.env.GOOGLE_API_KEY;
+    if (!hasVertexProjectLocationConfig && !hasiEchorApiKey) {
       return (
         'When using Vertex AI, you must specify either:\n' +
         '• GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION environment variables.\n' +
