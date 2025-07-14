@@ -11,7 +11,7 @@ import {
   Content,
   EmbedContentResponse,
   GenerateContentResponse,
-  iEchorGenAI,
+  GoogleGenAI,
 } from '@iechor/genai';
 import { findIndexAfterFraction, ResearchClient } from './client.js';
 import { AuthType, ContentGenerator } from './contentGenerator.js';
@@ -138,9 +138,9 @@ describe('Research Client (client.ts)', () => {
     // Disable 429 simulation for tests
     setSimulate429(false);
 
-    // Set up the mock for iEchorGenAI constructor and its methods
-    const MockediEchorGenAI = vi.mocked(iEchorGenAI);
-    MockediEchorGenAI.mockImplementation(() => {
+    // Set up the mock for GoogleGenAI constructor and its methods
+    const MockedGoogleGenAI = vi.mocked(GoogleGenAI);
+    MockedGoogleGenAI.mockImplementation(() => {
       const mock = {
         chats: { create: mockChatCreateFn },
         models: {
@@ -148,7 +148,7 @@ describe('Research Client (client.ts)', () => {
           embedContent: mockEmbedContentFn,
         },
       };
-      return mock as unknown as iEchorGenAI;
+      return mock as unknown as GoogleGenAI;
     });
 
     mockChatCreateFn.mockResolvedValue({} as Chat);

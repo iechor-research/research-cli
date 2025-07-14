@@ -11,7 +11,7 @@ import {
   createContentGeneratorConfig,
 } from './contentGenerator.js';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
-import { iEchorGenAI } from '@iechor/genai';
+import { GoogleGenAI } from '@iechor/genai';
 import { Config } from '../config/config.js';
 
 vi.mock('../code_assist/codeAssist.js');
@@ -40,7 +40,7 @@ describe('createContentGenerator', () => {
     const mockGenerator = {
       models: {},
     } as unknown;
-    vi.mocked(iEchorGenAI).mockImplementation(() => mockGenerator as never);
+    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
     const generator = await createContentGenerator(
       {
         model: 'test-model',
@@ -49,7 +49,7 @@ describe('createContentGenerator', () => {
       },
       mockConfig,
     );
-    expect(iEchorGenAI).toHaveBeenCalledWith({
+    expect(GoogleGenAI).toHaveBeenCalledWith({
       apiKey: 'test-api-key',
       vertexai: undefined,
       httpOptions: {
@@ -58,7 +58,7 @@ describe('createContentGenerator', () => {
         },
       },
     });
-    expect(generator).toBe((mockGenerator as iEchorGenAI).models);
+    expect(generator).toBe((mockGenerator as GoogleGenAI).models);
   });
 });
 

@@ -11,7 +11,7 @@ import {
   CountTokensParameters,
   EmbedContentResponse,
   EmbedContentParameters,
-  iEchorGenAI,
+  GoogleGenAI,
 } from '@iechor/genai';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
 import { DEFAULT_RESEARCH_MODEL } from '../config/models.js';
@@ -128,13 +128,13 @@ export async function createContentGenerator(
     config.authType === AuthType.USE_RESEARCH ||
     config.authType === AuthType.USE_VERTEX_AI
   ) {
-    const iechorGenAI = new iEchorGenAI({
+    const googleGenAI = new GoogleGenAI({
       apiKey: config.apiKey === '' ? undefined : config.apiKey,
       vertexai: config.vertexai,
       httpOptions,
     });
 
-    return iechorGenAI.models;
+    return googleGenAI.models;
   }
 
   throw new Error(

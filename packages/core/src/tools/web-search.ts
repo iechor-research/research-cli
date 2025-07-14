@@ -119,7 +119,7 @@ export class WebSearchTool extends BaseTool<
     try {
       const response = await researchClient.generateContent(
         [{ role: 'user', parts: [{ text: params.query }] }],
-        { tools: [{ iechorSearch: {} }] },
+        { tools: [{ googleSearch: {} }] },
         signal,
       );
 

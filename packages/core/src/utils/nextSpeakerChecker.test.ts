@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
-import { Content, iEchorGenAI, Models } from '@iechor/genai';
+import { Content, GoogleGenAI, Models } from '@iechor/genai';
 import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
 import { ResearchClient } from '../core/client.js';
 import { Config } from '../config/config.js';
@@ -25,17 +25,17 @@ const mockModelsInstance = {
   batchEmbedContents: vi.fn(),
 } as unknown as Models;
 
-const mockiEchorGenAIInstance = {
+const mockGoogleGenAIInstance = {
   getGenerativeModel: vi.fn().mockReturnValue(mockModelsInstance),
-  // Add other methods of iEchorGenAI if they are directly used by ResearchChat constructor or its methods
-} as unknown as iEchorGenAI;
+  // Add other methods of GoogleGenAI if they are directly used by ResearchChat constructor or its methods
+} as unknown as GoogleGenAI;
 
 vi.mock('@iechor/genai', async () => {
   const actualGenAI =
     await vi.importActual<typeof import('@iechor/genai')>('@iechor/genai');
   return {
     ...actualGenAI,
-    iEchorGenAI: vi.fn(() => mockiEchorGenAIInstance), // Mock constructor to return the predefined instance
+    GoogleGenAI: vi.fn(() => mockGoogleGenAIInstance), // Mock constructor to return the predefined instance
     // If Models is instantiated directly in ResearchChat, mock its constructor too
     // For now, assuming Models instance is obtained via getGenerativeModel
   };
