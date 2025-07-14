@@ -180,7 +180,7 @@ export class JournalMatcher extends BaseResearchTool<JournalMatcherParams, Journ
   constructor() {
     super(
       'match_journal',
-      'Intelligent journal matching and recommendation system',
+      '智能期刊匹配器，提供期刊推荐和比较服务',
       ResearchToolCategory.SUBMISSION
     );
     
@@ -213,21 +213,21 @@ export class JournalMatcher extends BaseResearchTool<JournalMatcherParams, Journ
 
   public getHelp(): string {
     return this.formatHelp(
-      'Intelligent journal matching and recommendation system for academic publishing',
+      '智能期刊匹配器，为学术论文发表提供期刊推荐和比较服务',
       [
-        { name: 'action', type: 'string', required: true, description: 'Action to perform (match, search, compare, analyze, recommend)' },
-        { name: 'title', type: 'string', required: false, description: 'Paper title for matching' },
-        { name: 'abstract', type: 'string', required: false, description: 'Paper abstract for content analysis' },
-        { name: 'keywords', type: 'string[]', required: false, description: 'Research keywords' },
-        { name: 'researchField', type: 'ResearchField', required: false, description: 'Primary research field' },
-        { name: 'paperType', type: 'string', required: false, description: 'Type of paper (research, review, survey, etc.)' },
-        { name: 'impactFactorRange', type: 'object', required: false, description: 'Desired impact factor range {min, max}' },
-        { name: 'quartile', type: 'string[]', required: false, description: 'JCR quartiles (Q1, Q2, Q3, Q4)' },
-        { name: 'openAccess', type: 'boolean', required: false, description: 'Prefer open access journals' },
-        { name: 'publisher', type: 'string[]', required: false, description: 'Preferred publishers' },
-        { name: 'journalNames', type: 'string[]', required: false, description: 'Journal names for comparison' },
-        { name: 'sortBy', type: 'string', required: false, description: 'Sort criteria (relevance, impact_factor, acceptance_rate, review_time)' },
-        { name: 'maxResults', type: 'number', required: false, description: 'Maximum number of results' }
+        { name: 'action', type: 'string', required: true, description: '执行操作类型 (match, search, compare, analyze, recommend)' },
+        { name: 'title', type: 'string', required: false, description: '论文标题用于匹配' },
+        { name: 'abstract', type: 'string', required: false, description: '论文摘要用于内容分析' },
+        { name: 'keywords', type: 'string[]', required: false, description: '研究关键词' },
+        { name: 'researchField', type: 'ResearchField', required: false, description: '主要研究领域' },
+        { name: 'paperType', type: 'string', required: false, description: '论文类型 (research, review, survey, etc.)' },
+        { name: 'impactFactorRange', type: 'object', required: false, description: '期望的影响因子范围 {min, max}' },
+        { name: 'quartile', type: 'string[]', required: false, description: 'JCR分区要求 (Q1, Q2, Q3, Q4)' },
+        { name: 'openAccess', type: 'boolean', required: false, description: '偏好开放获取期刊' },
+        { name: 'publisher', type: 'string[]', required: false, description: '偏好的出版商' },
+        { name: 'journalNames', type: 'string[]', required: false, description: '用于比较的期刊名称' },
+        { name: 'sortBy', type: 'string', required: false, description: '排序标准 (relevance, impact_factor, acceptance_rate, review_time)' },
+        { name: 'maxResults', type: 'number', required: false, description: '最大结果数量' }
       ],
       [
         {
