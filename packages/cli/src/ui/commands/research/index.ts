@@ -8,6 +8,7 @@
 export { researchCommand } from './researchCommand.js';
 export { paperCommand } from './paperCommand.js';
 export { submitCommand } from './submitCommand.js';
+export { ArXivCommand } from './arxivCommand.js';
 
 // 导出类型定义
 export * from './types.js';
@@ -23,6 +24,7 @@ import { paperCommand } from './paperCommand.js';
 import { submitCommand } from './submitCommand.js';
 import { configCommand } from '../config/configCommand.js';
 import { SlashCommand } from '../types.js';
+import { ArXivCommand } from './arxivCommand.js';
 
 /**
  * 所有研究相关的命令

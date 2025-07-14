@@ -16,6 +16,8 @@ export interface ResearchToolResult {
   success: boolean;
   data?: unknown;
   error?: string;
+  message?: string;
+  timestamp?: Date;
   metadata?: {
     timestamp: string;
     toolName: string;
@@ -51,6 +53,16 @@ export enum CitationStyle {
   VANCOUVER = 'vancouver',
   PLOS = 'plos',
   AMS = 'ams',
+}
+
+export type CitationFormat = 'apa' | 'mla' | 'ieee';
+
+export interface SearchOptions {
+  maxResults?: number;
+  categories?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
 }
 
 export enum JournalStyle {
@@ -108,19 +120,30 @@ export enum SectionType {
 /**
  * 文献管理类型
  */
-export interface BibliographyEntry {
+export interface PaperMetadata {
   id: string;
   title: string;
   authors: string[];
-  year: number;
+  abstract: string;
+  publishedDate: string;
   journal?: string;
-  conference?: string;
   doi?: string;
-  arxivId?: string;
-  abstract?: string;
   keywords?: string[];
-  citationCount?: number;
   url?: string;
+}
+
+export interface BibliographyEntry {
+  id: string;
+  metadata: PaperMetadata;
+  source: string;
+  dateAdded: Date;
+  tags: string[];
+  notes: string;
+  citationFormats: {
+    apa: string;
+    mla: string;
+    ieee: string;
+  };
 }
 
 export interface LiteratureSearchParams {

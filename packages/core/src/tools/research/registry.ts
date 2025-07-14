@@ -5,6 +5,7 @@
  */
 
 import { ResearchTool, ResearchToolCategory, ResearchToolParams, ResearchToolResult } from './types.js';
+import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
 
 /**
  * 研究工具注册中心
@@ -65,6 +66,13 @@ export class ResearchToolRegistry {
     const categoryTools = this.toolsByCategory.get(tool.category) || [];
     categoryTools.push(tool);
     this.toolsByCategory.set(tool.category, categoryTools);
+  }
+
+  /**
+   * 注册所有默认研究工具
+   */
+  private registerDefaultTools(): void {
+    this.registerTool(new EnhancedBibliographyManager());
   }
 
   /**
