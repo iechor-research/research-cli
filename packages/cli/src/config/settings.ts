@@ -84,6 +84,9 @@ export interface Settings {
   // Setting for setting maximum number of user/model/tool turns in a session.
   maxSessionTurns?: number;
 
+  // Research-specific settings
+  research?: import('@iechor/research-cli-core').ResearchSettings;
+
   // Add other settings here.
 }
 

@@ -6,6 +6,8 @@
 
 // Export config
 export * from './config/config.js';
+export * from './config/research-config.js';
+export * from './config/research-config-manager.js';
 
 // Export Core Logic
 export * from './core/client.js';

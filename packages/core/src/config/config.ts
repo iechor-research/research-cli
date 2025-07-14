@@ -45,6 +45,8 @@ import {
   DEFAULT_RESEARCH_FLASH_MODEL,
 } from './models.js';
 import { ClearcutLogger } from '../telemetry/clearcut-logger/clearcut-logger.js';
+import { ResearchConfigManager } from './research-config-manager.js';
+import { ResearchSettings } from './research-config.js';
 
 export enum ApprovalMode {
   DEFAULT = 'default',
@@ -189,6 +191,7 @@ export class Config {
   private readonly _activeExtensions: ActiveExtension[];
   flashFallbackHandler?: FlashFallbackHandler;
   private quotaErrorOccurred: boolean = false;
+  private researchConfigManager: ResearchConfigManager;
 
   constructor(params: ConfigParameters) {
     this.sessionId = params.sessionId;
@@ -234,10 +237,9 @@ export class Config {
     this.listExtensions = params.listExtensions ?? false;
     this._activeExtensions = params.activeExtensions ?? [];
     this.noBrowser = params.noBrowser ?? false;
-
-    if (params.contextFileName) {
-      setResearchMdFilename(params.contextFileName);
-    }
+    
+    // Initialize research configuration manager
+    this.researchConfigManager = new ResearchConfigManager(this.cwd);
 
     if (this.telemetrySettings.enabled) {
       initializeTelemetry(this);
@@ -496,6 +498,10 @@ export class Config {
 
   getNoBrowser(): boolean {
     return this.noBrowser;
+  }
+
+  getResearchConfigManager(): ResearchConfigManager {
+    return this.researchConfigManager;
   }
 
   async getGitService(): Promise<GitService> {

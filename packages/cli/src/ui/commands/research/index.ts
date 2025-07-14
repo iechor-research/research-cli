@@ -21,6 +21,7 @@ export * from './utils/errorHandler.js';
 import { researchCommand } from './researchCommand.js';
 import { paperCommand } from './paperCommand.js';
 import { submitCommand } from './submitCommand.js';
+import { configCommand } from '../config/configCommand.js';
 import { SlashCommand } from '../types.js';
 
 /**
@@ -29,7 +30,8 @@ import { SlashCommand } from '../types.js';
 export const allResearchCommands: SlashCommand[] = [
   researchCommand,
   paperCommand,
-  submitCommand
+  submitCommand,
+  configCommand
 ];
 
 /**
