@@ -13,12 +13,6 @@ export interface ResearchToolParams {
 }
 
 export interface ResearchToolResult {
-  action(action: any): unknown;
-  matches(matches: any): unknown;
-  journals(journals: any): unknown;
-  comparison(comparison: any): unknown;
-  analysis(analysis: any): unknown;
-  totalFound(totalFound: any): unknown;
   success: boolean;
   data?: unknown;
   error?: string;

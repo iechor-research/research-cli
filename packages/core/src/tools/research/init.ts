@@ -10,6 +10,7 @@ import { ResearchToolRegistry } from './registry.js';
 import { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
 import { BibliographyManager } from './analysis/bibliography-manager.js';
 import { ExperimentCodeGenerator } from './analysis/experiment-code-generator.js';
+import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
 import { LaTeXManager } from './submission/latex-manager.js';
 import { JournalMatcher } from './submission/journal-matcher.js';
 
@@ -26,6 +27,7 @@ export function initializeAllResearchTools(): void {
 
   // 注册分析工具
   registry.registerTool(new ExperimentCodeGenerator());
+  registry.registerTool(new ResearchDataAnalyzer());
 
   // 注册投稿工具
   registry.registerTool(new LaTeXManager());
@@ -65,6 +67,7 @@ export function validateToolRegistration(): boolean {
     'generate_paper_outline',
     'manage_bibliography', 
     'generate_experiment_code',
+    'research_data_analyzer',
     'latex_manager',
     'match_journal'
   ];

@@ -9,4 +9,5 @@
  */
 
 export * from './bibliography-manager.js';
-export * from './experiment-code-generator.js'; 
+export * from './experiment-code-generator.js';
+export * from './research-data-analyzer.js'; 
