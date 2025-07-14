@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// DISCLAIMER: This is a copied version of https://github.com/iechorapis/js-genai/blob/main/src/chats.ts with the intention of working around a key bug
+// DISCLAIMER: This is a copied version of https://github.com/googleapis/js-genai/blob/main/src/chats.ts with the intention of working around a key bug
 // where function responses are not treated as "valid" responses: https://b.corp.iechor.com/issues/420354090
 
 import {

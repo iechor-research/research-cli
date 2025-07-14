@@ -192,7 +192,9 @@ export const useSlashCommandProcessor = (
   useEffect(() => {
     const load = async () => {
       await commandService.loadCommands();
-      setCommands(commandService.getCommands());
+      const loadedCommands = commandService.getCommands();
+      console.log('[DEBUG] SlashCommandProcessor: Loaded commands:', loadedCommands.map(c => c.name));
+      setCommands(loadedCommands);
     };
 
     load();
@@ -1050,6 +1052,8 @@ export const useSlashCommandProcessor = (
     async (
       rawQuery: PartListUnion,
     ): Promise<SlashCommandProcessorResult | false> => {
+      process.stderr.write(`[FORCE_DEBUG] handleSlashCommand called with: ${JSON.stringify(rawQuery)}\n`);
+      
       if (typeof rawQuery !== 'string') {
         return false;
       }
@@ -1058,6 +1062,9 @@ export const useSlashCommandProcessor = (
       if (!trimmed.startsWith('/') && !trimmed.startsWith('?')) {
         return false;
       }
+
+      console.log('[DEBUG] SlashCommandProcessor: Processing command:', trimmed);
+      console.log('[DEBUG] SlashCommandProcessor: Available commands:', commands.map(c => c.name));
 
       const userMessageTimestamp = Date.now();
       if (trimmed !== '/quit' && trimmed !== '/exit') {
@@ -1069,6 +1076,8 @@ export const useSlashCommandProcessor = (
 
       const parts = trimmed.substring(1).trim().split(/\s+/);
       const commandPath = parts.filter((p) => p); // The parts of the command, e.g., ['memory', 'add']
+
+      console.log('[DEBUG] SlashCommandProcessor: Command path:', commandPath);
 
       // --- Start of New Tree Traversal Logic ---
 

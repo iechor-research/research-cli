@@ -210,6 +210,8 @@ export const useResearchStream = (
       queryToSend: PartListUnion | null;
       shouldProceed: boolean;
     }> => {
+      process.stderr.write(`[FORCE_DEBUG] prepareQueryForResearch called with: ${JSON.stringify(query)}\n`);
+      
       if (turnCancelledRef.current) {
         return { queryToSend: null, shouldProceed: false };
       }
@@ -234,7 +236,9 @@ export const useResearchStream = (
         await logger?.logMessage(MessageSenderType.USER, trimmedQuery);
 
         // Handle UI-only commands first
+        console.log('[DEBUG] useResearchStream: About to call handleSlashCommand with:', trimmedQuery);
         const slashCommandResult = await handleSlashCommand(trimmedQuery);
+        console.log('[DEBUG] useResearchStream: handleSlashCommand returned:', slashCommandResult);
 
         if (slashCommandResult) {
           if (slashCommandResult.type === 'schedule_tool') {

@@ -138,7 +138,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Free tier)', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
@@ -178,7 +178,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should format a 429 API error with generic quota exceeded message for iEchor auth', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
@@ -197,7 +197,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should prioritize Pro quota message over generic quota message for iEchor auth', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
@@ -216,7 +216,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Standard tier)', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
@@ -240,7 +240,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should format a 429 API error with Pro quota exceeded message for iEchor auth (Legacy tier)', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
@@ -264,9 +264,9 @@ describe('parseAndFormatApiError', () => {
 
   it('should handle different Research 2.5 version strings in Pro quota exceeded errors', () => {
     const errorMessage25 =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5 Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const errorMessagePreview =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5-preview Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'Research 2.5-preview Pro Requests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
 
     const result25 = parseAndFormatApiError(
       errorMessage25,
@@ -337,7 +337,7 @@ describe('parseAndFormatApiError', () => {
 
   it('should format a generic quota exceeded message for iEchor auth (Standard tier)', () => {
     const errorMessage =
-      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.iechorapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
+      'got status: 429 Too Many Requests. {"error":{"code":429,"message":"Quota exceeded for quota metric \'GenerationRequests\' and limit \'RequestsPerDay\' of service \'generativelanguage.googleapis.com\' for consumer \'project_number:123456789\'.","status":"RESOURCE_EXHAUSTED"}}';
     const result = parseAndFormatApiError(
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,

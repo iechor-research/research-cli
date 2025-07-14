@@ -35,7 +35,7 @@ exporters:
   iechorcloud:
     project: "${projectId}"
     metric:
-      prefix: "custom.iechorapis.com/research_cli"
+      prefix: "custom.googleapis.com/research_cli"
     log:
       default_log_name: "research_cli"
   debug:

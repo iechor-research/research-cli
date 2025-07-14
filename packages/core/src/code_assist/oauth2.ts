@@ -42,9 +42,9 @@ const OAUTH_CLIENT_SECRET = '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';
 
 // OAuth Scopes for Cloud Code authorization.
 const OAUTH_SCOPE = [
-  'https://www.iechorapis.com/auth/cloud-platform',
-  'https://www.iechorapis.com/auth/userinfo.email',
-  'https://www.iechorapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/cloud-platform',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
 ];
 
 const HTTP_REDIRECT = 301;
@@ -339,7 +339,7 @@ async function fetchAndCacheUserInfo(client: OAuth2Client): Promise<void> {
     }
 
     const response = await fetch(
-      'https://www.iechorapis.com/oauth2/v2/userinfo',
+      'https://www.googleapis.com/oauth2/v2/userinfo',
       {
         headers: {
           Authorization: `Bearer ${token}`,

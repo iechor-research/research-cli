@@ -123,7 +123,7 @@ export class ClearcutLogger {
       ];
       const body = JSON.stringify(request);
       const options = {
-        hostname: 'play.iechorapis.com',
+        hostname: 'play.googleapis.com',
         path: '/log',
         method: 'POST',
         headers: { 'Content-Length': Buffer.byteLength(body) },
