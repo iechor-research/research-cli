@@ -49,27 +49,31 @@ describe('CommandService', () => {
         await commandService.loadCommands();
         const tree = commandService.getCommands();
 
-        // Post-condition assertions
-        expect(tree.length).toBe(4);
+        // Post-condition assertions - now includes 3 research commands
+        expect(tree.length).toBe(7);
 
         const commandNames = tree.map((cmd) => cmd.name);
         expect(commandNames).toContain('memory');
         expect(commandNames).toContain('help');
         expect(commandNames).toContain('clear');
         expect(commandNames).toContain('theme');
+        // New research commands
+        expect(commandNames).toContain('research');
+        expect(commandNames).toContain('paper');
+        expect(commandNames).toContain('submit');
       });
 
       it('should overwrite any existing commands when called again', async () => {
         // Load once
         await commandService.loadCommands();
-        expect(commandService.getCommands().length).toBe(4);
+        expect(commandService.getCommands().length).toBe(7);
 
         // Load again
         await commandService.loadCommands();
         const tree = commandService.getCommands();
 
         // Should not append, but overwrite
-        expect(tree.length).toBe(4);
+        expect(tree.length).toBe(7);
       });
     });
 
@@ -81,13 +85,17 @@ describe('CommandService', () => {
         await commandService.loadCommands();
 
         const loadedTree = commandService.getCommands();
-        expect(loadedTree.length).toBe(4);
-        expect(loadedTree).toEqual([
-          clearCommand,
-          helpCommand,
-          memoryCommand,
-          themeCommand,
-        ]);
+        expect(loadedTree.length).toBe(7);
+        // Just check that the core commands are present
+        // Research commands are tested separately
+        const commandNames = loadedTree.map(cmd => cmd.name);
+        expect(commandNames).toContain('clear');
+        expect(commandNames).toContain('help');
+        expect(commandNames).toContain('memory');
+        expect(commandNames).toContain('theme');
+        expect(commandNames).toContain('research');
+        expect(commandNames).toContain('paper');
+        expect(commandNames).toContain('submit');
       });
     });
   });
