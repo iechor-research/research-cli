@@ -192,6 +192,73 @@ function generateParameterSchema(toolName: string): Record<string, unknown> {
         required: ['research_method', 'programming_language'],
       };
 
+    case 'match_journal':
+      return {
+        ...baseSchema,
+        properties: {
+          action: {
+            type: 'string',
+            enum: ['match', 'search', 'compare', 'analyze', 'recommend'],
+            description: 'Action to perform',
+          },
+          title: {
+            type: 'string',
+            description: 'Paper title for matching',
+          },
+          abstract: {
+            type: 'string',
+            description: 'Paper abstract for content analysis',
+          },
+          keywords: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Research keywords',
+          },
+          research_field: {
+            type: 'string',
+            enum: ['computer_science', 'engineering', 'medicine', 'physics', 'chemistry', 'biology', 'mathematics', 'psychology', 'economics', 'social_sciences'],
+            description: 'Primary research field',
+          },
+          impact_factor_range: {
+            type: 'object',
+            properties: {
+              min: { type: 'number' },
+              max: { type: 'number' },
+            },
+            description: 'Desired impact factor range',
+          },
+          quartile: {
+            type: 'array',
+            items: {
+              type: 'string',
+              enum: ['Q1', 'Q2', 'Q3', 'Q4'],
+            },
+            description: 'JCR quartiles',
+          },
+          open_access: {
+            type: 'boolean',
+            description: 'Prefer open access journals',
+          },
+          publisher: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Preferred publishers',
+          },
+          journal_names: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Journal names for comparison',
+          },
+          max_results: {
+            type: 'number',
+            description: 'Maximum number of results',
+            minimum: 1,
+            maximum: 50,
+          },
+        },
+        required: ['action'],
+      };
+
     default:
       return baseSchema;
   }

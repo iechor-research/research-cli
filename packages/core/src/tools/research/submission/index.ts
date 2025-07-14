@@ -8,4 +8,5 @@
  * 投稿模块 - 论文投稿和期刊匹配相关工具
  */
 
-export * from './latex-manager.js'; 
+export * from './latex-manager.js';
+export * from './journal-matcher.js'; 

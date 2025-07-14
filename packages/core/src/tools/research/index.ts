@@ -84,15 +84,12 @@ export {
  * 3. 准备工具注册中心
  */
 export function initializeResearchTools(): void {
-  // 当具体工具实现后，这里会注册所有工具
-  console.info('Research tools module initialized');
-  
-  // 未来会添加：
-  // registerWritingTools();
-  // registerAnalysisTools();
-  // registerSubmissionTools();
-  // registerCollaborationTools();
-  // registerIntegrationTools();
+  // 导入并调用初始化函数
+  import('./init.js').then(({ initializeAllResearchTools }) => {
+    initializeAllResearchTools();
+  }).catch(error => {
+    console.error('Failed to initialize research tools:', error);
+  });
 }
 
 /**
