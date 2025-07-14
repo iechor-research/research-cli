@@ -34,6 +34,11 @@ export enum PaperType {
   CONFERENCE = 'conference',
   THESIS = 'thesis',
   TECHNICAL_REPORT = 'technical_report',
+  SURVEY = 'survey',
+  THEORETICAL = 'theoretical',
+  EXPERIMENTAL = 'experimental',
+  EMPIRICAL = 'empirical',
+  CONCEPTUAL = 'conceptual',
 }
 
 export enum CitationStyle {
@@ -44,6 +49,29 @@ export enum CitationStyle {
   CHICAGO = 'chicago',
   MLA = 'mla',
   VANCOUVER = 'vancouver',
+}
+
+export enum JournalStyle {
+  APA = 'apa',
+  IEEE = 'ieee',
+  NATURE = 'nature',
+  ACM = 'acm',
+  CHICAGO = 'chicago',
+  MLA = 'mla',
+  VANCOUVER = 'vancouver',
+}
+
+export enum ResearchField {
+  COMPUTER_SCIENCE = 'computer_science',
+  ENGINEERING = 'engineering',
+  MEDICINE = 'medicine',
+  PHYSICS = 'physics',
+  CHEMISTRY = 'chemistry',
+  BIOLOGY = 'biology',
+  MATHEMATICS = 'mathematics',
+  PSYCHOLOGY = 'psychology',
+  ECONOMICS = 'economics',
+  SOCIAL_SCIENCES = 'social_sciences',
 }
 
 export interface PaperTemplate {
@@ -286,4 +314,49 @@ export interface ResearchConfig {
     pubmed?: string;
     ieee?: string;
   };
+}
+
+/**
+ * 论文大纲相关类型
+ */
+export interface OutlineSubsection {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface OutlineSection {
+  id: string;
+  title: string;
+  description: string;
+  subsections: OutlineSubsection[];
+  estimatedPages: number;
+  keyPoints: string[];
+  required: boolean;
+}
+
+export interface PaperOutline {
+  title: string;
+  paperType: PaperType;
+  researchField: ResearchField;
+  targetJournal?: string;
+  journalStyle: JournalStyle;
+  sections: OutlineSection[];
+  abstractStructure: string[];
+  bibliographyRequirements: {
+    minReferences: number;
+    recommendedTypes: string[];
+    citationStyle: JournalStyle;
+  };
+  timeline?: Array<{
+    phase: string;
+    duration: string;
+    description: string;
+  }>;
+  estimatedLength: {
+    pages: number;
+    words: number;
+  };
+  generatedAt: string;
+  version: string;
 } 

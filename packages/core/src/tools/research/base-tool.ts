@@ -15,7 +15,7 @@ import {
  * 研究工具基础抽象类
  * 提供通用功能和模板方法模式
  */
-export abstract class BaseResearchTool implements ResearchTool {
+export abstract class BaseResearchTool<TParams extends ResearchToolParams = ResearchToolParams, TResult = unknown> implements ResearchTool {
   public readonly name: string;
   public readonly description: string;
   public readonly category: ResearchToolCategory;
@@ -42,13 +42,13 @@ export abstract class BaseResearchTool implements ResearchTool {
 
     try {
       // 1. 预处理
-      await this.preProcess(params);
+      await this.preProcess(params as TParams);
 
       // 2. 执行具体逻辑
-      const data = await this.executeImpl(params);
+      const data = await this.executeImpl(params as TParams);
 
       // 3. 后处理
-      const processedData = await this.postProcess(data, params);
+      const processedData = await this.postProcess(data, params as TParams);
 
       // 4. 返回成功结果
       return {
@@ -91,13 +91,13 @@ export abstract class BaseResearchTool implements ResearchTool {
    * 执行具体逻辑的抽象方法
    * 每个具体工具必须实现自己的核心逻辑
    */
-  protected abstract executeImpl(params: ResearchToolParams): Promise<unknown>;
+  protected abstract executeImpl(params: TParams): Promise<TResult>;
 
   /**
    * 预处理钩子方法
    * 子类可以重写此方法来执行预处理逻辑
    */
-  protected async preProcess(params: ResearchToolParams): Promise<void> {
+  protected async preProcess(params: TParams): Promise<void> {
     // 默认实现：验证参数
     if (!this.validate(params)) {
       throw new Error(`Invalid parameters for tool '${this.name}'`);
@@ -108,7 +108,7 @@ export abstract class BaseResearchTool implements ResearchTool {
    * 后处理钩子方法
    * 子类可以重写此方法来执行后处理逻辑
    */
-  protected async postProcess(data: unknown, params: ResearchToolParams): Promise<unknown> {
+  protected async postProcess(data: TResult, params: TParams): Promise<TResult> {
     // 默认实现：直接返回数据
     return data;
   }

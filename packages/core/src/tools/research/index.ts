@@ -54,6 +54,9 @@ export {
 export { BaseResearchTool } from './base-tool.js';
 export { ResearchToolRegistry, researchToolRegistry } from './registry.js';
 
+// 导出工具实例
+export { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
+
 // 导出集成功能
 export {
   ResearchToolAdapter,
