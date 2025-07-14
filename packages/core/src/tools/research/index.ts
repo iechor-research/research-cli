@@ -52,7 +52,15 @@ export {
  * 2. 设置默认配置
  * 3. 准备工具注册中心
  */
+// 添加一个全局标志防止重复初始化
+let globalInitialized = false;
+
 export function initializeResearchTools(): void {
+  if (globalInitialized) {
+    return;
+  }
+  globalInitialized = true;
+
   // 延迟初始化研究工具（避免循环依赖）
   import('./init.js').then(async (initModule) => {
     const { ResearchToolRegistry } = await import('./registry.js');

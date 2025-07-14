@@ -20,6 +20,12 @@ import { JournalMatcher } from './submission/journal-matcher.js';
  * 将已实现的工具注册到工具注册中心
  */
 export function initializeResearchTools(registry: ResearchToolRegistry): void {
+  // 检查是否已经初始化过
+  if (registry.isInitialized()) {
+    console.debug('Research tools already initialized, skipping.');
+    return;
+  }
+
   // Writing Tools
   registry.registerTool(new PaperOutlineGenerator());
   registry.registerTool(new AcademicWritingAssistant());
@@ -38,6 +44,9 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
   
   // Analysis Tools
   registry.registerTool(new ResearchDataAnalyzer());
+
+  // 标记为已初始化
+  registry.setInitialized(true);
 }
 
 /**

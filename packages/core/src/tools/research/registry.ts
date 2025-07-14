@@ -14,6 +14,7 @@ export class ResearchToolRegistry {
   private static instance: ResearchToolRegistry;
   private tools: Map<string, ResearchTool> = new Map();
   private toolsByCategory: Map<ResearchToolCategory, ResearchTool[]> = new Map();
+  private initialized: boolean = false;
 
   private constructor() {
     // 初始化分类映射
@@ -33,10 +34,29 @@ export class ResearchToolRegistry {
   }
 
   /**
+   * 检查是否已初始化
+   */
+  public isInitialized(): boolean {
+    return this.initialized;
+  }
+
+  /**
+   * 设置初始化状态
+   */
+  public setInitialized(initialized: boolean): void {
+    this.initialized = initialized;
+  }
+
+  /**
    * 注册研究工具
    */
   public registerTool(tool: ResearchTool): void {
     if (this.tools.has(tool.name)) {
+      // 如果已经初始化过，就不再抛出错误，而是跳过
+      if (this.initialized) {
+        console.debug(`Research tool '${tool.name}' already registered, skipping.`);
+        return;
+      }
       throw new Error(`Research tool '${tool.name}' is already registered`);
     }
 

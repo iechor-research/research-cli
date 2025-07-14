@@ -569,8 +569,29 @@ export class Config {
     registerCoreTool(MemoryTool);
     registerCoreTool(WebSearchTool, this);
 
+    // Register research tools
+    await this.registerResearchTools(registry);
+
     await registry.discoverTools();
     return registry;
+  }
+
+  /**
+   * Register research tools with the tool registry
+   */
+  private async registerResearchTools(registry: ToolRegistry): Promise<void> {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { registerResearchTools, initializeResearchTools } = await import('../tools/research/index.js');
+      
+      // Initialize research tools first
+      initializeResearchTools();
+      
+      // Then register them with the main tool registry
+      registerResearchTools(registry);
+    } catch (error) {
+      console.warn('Failed to register research tools:', error);
+    }
   }
 }
 // Export model constants for use in CLI
