@@ -389,3 +389,150 @@ export interface PaperOutline {
   generatedAt: string;
   version: string;
 } 
+
+// Writing Assistant Types
+export enum WritingStyle {
+  ACADEMIC = 'academic',
+  FORMAL = 'formal',
+  TECHNICAL = 'technical',
+  SCIENTIFIC = 'scientific'
+}
+
+export enum WritingOperation {
+  ANALYZE_STRUCTURE = 'analyze_structure',
+  CHECK_GRAMMAR = 'check_grammar',
+  IMPROVE_STYLE = 'improve_style',
+  VERIFY_CITATIONS = 'verify_citations',
+  CHECK_READABILITY = 'check_readability',
+  DETECT_PLAGIARISM = 'detect_plagiarism',
+  COMPREHENSIVE_REVIEW = 'comprehensive_review'
+}
+
+export enum TargetAudience {
+  EXPERTS = 'experts',
+  GENERAL_ACADEMIC = 'general_academic',
+  STUDENTS = 'students',
+  PRACTITIONERS = 'practitioners'
+}
+
+
+
+export interface WritingSuggestion {
+  type: 'grammar' | 'style' | 'structure' | 'citation' | 'readability' | 'plagiarism' | 'transitions' | 'technical_terms';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  suggestion: string;
+  location?: {
+    start: number;
+    end: number;
+    line: number;
+  };
+}
+
+export interface GrammarCheck {
+  type: 'subject_verb_agreement' | 'punctuation' | 'capitalization' | 'redundancy' | 'passive_voice';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  suggestion: string;
+  position: {
+    start: number;
+    end: number;
+    line: number;
+  };
+}
+
+export interface StyleImprovement {
+  type: 'wordiness' | 'formality' | 'clarity' | 'transitions' | 'technical_terms';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  suggestion: string;
+  originalText: string;
+  improvedText: string;
+  location: {
+    start: number;
+    end: number;
+    line: number;
+  };
+}
+
+export interface CitationIssue {
+  type: 'format' | 'missing_reference' | 'inconsistent';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  suggestion: string;
+  location: {
+    start: number;
+    end: number;
+    line: number;
+  };
+  citationText: string;
+}
+
+export interface StructureAnalysis {
+  totalSections: number;
+  totalParagraphs: number;
+  totalSentences: number;
+  averageSentencesPerParagraph: number;
+  averageWordsPerSentence: number;
+  hasAbstract: boolean;
+  hasIntroduction: boolean;
+  hasConclusion: boolean;
+  hasReferences: boolean;
+  sections: Array<{
+    title: string;
+    level: number;
+    wordCount: number;
+    position: number;
+  }>;
+  structureScore: number;
+}
+
+export interface ReadabilityMetrics {
+  fleschReadingEase: number;
+  fleschKincaidGrade: number;
+  gunningFogIndex: number;
+  averageWordsPerSentence: number;
+  averageSyllablesPerWord: number;
+  totalWords: number;
+  totalSentences: number;
+  totalParagraphs: number;
+  readabilityLevel: string;
+}
+
+export interface PlagiarismCheck {
+  overallSimilarity: number;
+  suspiciousTexts: Array<{
+    text: string;
+    similarity: number;
+    reason: string;
+    location: {
+      start: number;
+      end: number;
+      line: number;
+    };
+  }>;
+  sources: string[];
+  confidence: 'low' | 'medium' | 'high';
+}
+
+export interface WritingAssistantParams extends ResearchToolParams {
+  operation: WritingOperation | string;
+  content: string;
+  writingStyle?: WritingStyle | string;
+  documentType?: DocumentType | string;
+  targetAudience?: TargetAudience | string;
+  citationStyle?: CitationStyle | string;
+  language?: string;
+  includeStatistics?: boolean;
+}
+
+export interface WritingAssistantResult extends ResearchToolResult {
+  operation: WritingOperation | string;
+  structureAnalysis?: StructureAnalysis;
+  grammarCheck?: GrammarCheck[];
+  styleImprovements?: StyleImprovement[];
+  citationIssues?: CitationIssue[];
+  readabilityMetrics?: ReadabilityMetrics;
+  plagiarismCheck?: PlagiarismCheck;
+  suggestions?: WritingSuggestion[];
+} 

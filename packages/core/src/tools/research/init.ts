@@ -8,6 +8,7 @@ import { ResearchToolRegistry } from './registry.js';
 
 // 导入所有已实现的工具
 import { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
+import { AcademicWritingAssistant } from './writing/academic-writing-assistant.js';
 import { BibliographyManager } from './analysis/bibliography-manager.js';
 import { ExperimentCodeGenerator } from './analysis/experiment-code-generator.js';
 import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
@@ -18,22 +19,25 @@ import { JournalMatcher } from './submission/journal-matcher.js';
  * 初始化所有研究工具
  * 将已实现的工具注册到工具注册中心
  */
-export function initializeAllResearchTools(): void {
-  const registry = ResearchToolRegistry.getInstance();
-
-  // 注册写作工具
+export function initializeResearchTools(registry: ResearchToolRegistry): void {
+  // Writing Tools
   registry.registerTool(new PaperOutlineGenerator());
+  registry.registerTool(new AcademicWritingAssistant());
+  
+  // Bibliography Tools
   registry.registerTool(new BibliographyManager());
-
-  // 注册分析工具
+  
+  // Code Generation Tools
   registry.registerTool(new ExperimentCodeGenerator());
-  registry.registerTool(new ResearchDataAnalyzer());
-
-  // 注册投稿工具
+  
+  // LaTeX Tools
   registry.registerTool(new LaTeXManager());
+  
+  // Submission Tools
   registry.registerTool(new JournalMatcher());
-
-  console.info('All research tools have been initialized and registered');
+  
+  // Analysis Tools
+  registry.registerTool(new ResearchDataAnalyzer());
 }
 
 /**

@@ -16,39 +16,8 @@
  * - 集成工具
  */
 
-// 导出类型定义（接口和类型别名）
-export type {
-  ResearchTool,
-  ResearchToolParams,
-  ResearchToolResult,
-  ResearchConfig,
-  PaperTemplate,
-  PaperSection,
-  BibliographyEntry,
-  LiteratureSearchParams,
-  ExperimentConfig,
-  Journal,
-  JournalRequirements,
-  DataAnalysisConfig,
-  ResearchProject,
-  ProjectMember,
-  Milestone,
-  PaperDraft,
-} from './types.js';
-
-// 导出枚举（值导出）
-export {
-  ResearchToolCategory,
-  PaperType,
-  CitationStyle,
-  SectionType,
-  Database,
-  ProgrammingLanguage,
-  ResearchMethod,
-  DataFormat,
-  AnalysisType,
-  ProjectStatus,
-} from './types.js';
+// 重新导出所有研究相关的类型和接口
+export * from './types.js';
 
 // 导出核心类
 export { BaseResearchTool } from './base-tool.js';
@@ -84,12 +53,11 @@ export {
  * 3. 准备工具注册中心
  */
 export function initializeResearchTools(): void {
-  // 导入并调用初始化函数
-  import('./init.js').then(({ initializeAllResearchTools }) => {
-    initializeAllResearchTools();
-  }).catch(error => {
-    console.error('Failed to initialize research tools:', error);
-  });
+  // 延迟初始化研究工具（避免循环依赖）
+  import('./init.js').then(async (initModule) => {
+    const { ResearchToolRegistry } = await import('./registry.js');
+    initModule.initializeResearchTools(ResearchToolRegistry.getInstance());
+  }).catch(console.error);
 }
 
 /**
