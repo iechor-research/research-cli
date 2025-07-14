@@ -6,6 +6,9 @@
 
 import { ResearchTool, ResearchToolCategory, ResearchToolParams, ResearchToolResult } from './types.js';
 import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
+import { AcademicWritingAssistant } from './writing/academic-writing-assistant.js';
+import { ArXivMCPClient } from './bibliography/arxiv-mcp-client.js';
+import { SubmissionPreparator } from './submission/submission-preparator.js';
 
 /**
  * 研究工具注册中心
@@ -16,8 +19,12 @@ export class ResearchToolRegistry {
   private tools: Map<string, ResearchTool> = new Map();
   private toolsByCategory: Map<ResearchToolCategory, ResearchTool[]> = new Map();
   private initialized: boolean = false;
+  private arxivClient: ArXivMCPClient;
 
   private constructor() {
+    this.tools = new Map();
+    this.arxivClient = new ArXivMCPClient();
+    this.registerDefaultTools();
     // 初始化分类映射
     Object.values(ResearchToolCategory).forEach(category => {
       this.toolsByCategory.set(category, []);
@@ -72,7 +79,31 @@ export class ResearchToolRegistry {
    * 注册所有默认研究工具
    */
   private registerDefaultTools(): void {
-    this.registerTool(new EnhancedBibliographyManager());
+    // Paper management
+    this.registerTool('paper_outline', new PaperOutlineGenerator());
+    
+    // Bibliography management with arXiv integration
+    this.registerTool('bibliography', new EnhancedBibliographyManager(this.arxivClient));
+    
+    // Experiment tools
+    this.registerTool('experiment_generator', new ExperimentCodeGenerator());
+    
+    // LaTeX management
+    this.registerTool('latex_manager', new LaTeXManager());
+    
+    // Journal matching
+    this.registerTool('journal_matcher', new JournalMatcher());
+    
+    // Data analysis
+    this.registerTool('data_analyzer', new ResearchDataAnalyzer());
+    
+    // Writing assistance
+    this.registerTool('writing_assistant', new AcademicWritingAssistant());
+
+    // Submission preparation (new)
+    const latexManager = new LaTeXManager();
+    const journalMatcher = new JournalMatcher();
+    this.registerTool('submission_prep', new SubmissionPreparator(this.arxivClient, latexManager, journalMatcher));
   }
 
   /**

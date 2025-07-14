@@ -349,6 +349,7 @@ export enum ResearchToolCategory {
   SUBMISSION = 'submission',
   COLLABORATION = 'collaboration',
   INTEGRATION = 'integration',
+  PUBLISHING = "PUBLISHING",
 }
 
 /**
