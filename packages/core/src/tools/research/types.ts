@@ -153,6 +153,32 @@ export enum ProgrammingLanguage {
   TYPESCRIPT = 'typescript',
 }
 
+/**
+ * LaTeX 引擎枚举
+ */
+export enum LaTeXEngine {
+  PDFLATEX = 'pdflatex',
+  XELATEX = 'xelatex',
+  LUALATEX = 'lualatex',
+  LATEX = 'latex'
+}
+
+/**
+ * 文档类型枚举
+ */
+export enum DocumentType {
+  JOURNAL_ARTICLE = 'journal_article',
+  CONFERENCE_PAPER = 'conference_paper',
+  THESIS = 'thesis',
+  DISSERTATION = 'dissertation',
+  TECHNICAL_REPORT = 'technical_report',
+  BOOK = 'book',
+  BOOK_CHAPTER = 'book_chapter',
+  PREPRINT = 'preprint',
+  POSTER = 'poster',
+  PRESENTATION = 'presentation'
+}
+
 export enum ResearchMethod {
   MACHINE_LEARNING = 'machine_learning',
   STATISTICAL_ANALYSIS = 'statistical_analysis',
@@ -216,6 +242,7 @@ export enum AnalysisType {
   MACHINE_LEARNING = 'machine_learning',
   TIME_SERIES = 'time_series',
   VISUALIZATION = 'visualization',
+  SIMULATION = 'simulation',
 }
 
 export interface DataAnalysisConfig {
