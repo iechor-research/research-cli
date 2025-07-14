@@ -8,4 +8,5 @@
  * 分析模块 - 研究数据分析相关工具
  */
 
-export * from './bibliography-manager.js'; 
+export * from './bibliography-manager.js';
+export * from './experiment-code-generator.js'; 
