@@ -240,7 +240,7 @@ describe('retryWithBackoff', () => {
 
   describe('Flash model fallback for OAuth users', () => {
     it('should trigger fallback for OAuth personal users after persistent 429 errors', async () => {
-      const fallbackCallback = vi.fn().mockResolvedValue('research-2.5-flash');
+      const fallbackCallback = vi.fn().mockResolvedValue('gemini-2.5-flash');
 
       let fallbackOccurred = false;
       const mockFn = vi.fn().mockImplementation(async () => {
@@ -308,7 +308,7 @@ describe('retryWithBackoff', () => {
       let fallbackCalled = false;
       const fallbackCallback = vi.fn().mockImplementation(async () => {
         fallbackCalled = true;
-        return 'research-2.5-flash';
+        return 'gemini-2.5-flash';
       });
 
       const mockFn = vi.fn().mockImplementation(async () => {
@@ -364,7 +364,7 @@ describe('retryWithBackoff', () => {
     });
 
     it('should handle mixed error types (only count consecutive 429s)', async () => {
-      const fallbackCallback = vi.fn().mockResolvedValue('research-2.5-flash');
+      const fallbackCallback = vi.fn().mockResolvedValue('gemini-2.5-flash');
       let attempts = 0;
       let fallbackOccurred = false;
 

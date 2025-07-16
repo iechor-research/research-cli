@@ -83,6 +83,7 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
+    "@testing-library/dom": "^10.4.0",
     "gcp-metadata": "^7.0.1",
     "google-auth-library": "^10.1.0",
     "google-logging-utils": "^1.1.1",

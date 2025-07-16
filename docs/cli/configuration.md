@@ -261,7 +261,7 @@ The CLI automatically loads environment variables from an `.env` file. The loadi
 - **`RESEARCH_MODEL`**:
   - Specifies the default Research model to use.
   - Overrides the hardcoded default
-  - Example: `export RESEARCH_MODEL="research-2.5-flash"`
+  - Example: `export RESEARCH_MODEL="gemini-2.5-flash"`
 - **`GOOGLE_API_KEY`**:
   - Your iEchor Cloud API key.
   - Required for using Vertex AI in express mode.

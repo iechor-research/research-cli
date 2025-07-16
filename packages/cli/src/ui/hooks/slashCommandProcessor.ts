@@ -1052,7 +1052,7 @@ export const useSlashCommandProcessor = (
     async (
       rawQuery: PartListUnion,
     ): Promise<SlashCommandProcessorResult | false> => {
-      process.stderr.write(`[FORCE_DEBUG] handleSlashCommand called with: ${JSON.stringify(rawQuery)}\n`);
+      process.stderr?.write(`[FORCE_DEBUG] handleSlashCommand called with: ${JSON.stringify(rawQuery)}\n`);
       
       if (typeof rawQuery !== 'string') {
         return false;

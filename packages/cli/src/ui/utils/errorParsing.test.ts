@@ -34,12 +34,12 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       undefined,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
-      'Possible quota limitations in place or slow response times detected. Switching to the research-2.5-flash model',
+      'Possible quota limitations in place or slow response times detected. Switching to the gemini-2.5-flash model',
     );
   });
 
@@ -50,12 +50,12 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
-      'Possible quota limitations in place or slow response times detected. Switching to the research-2.5-flash model',
+      'Possible quota limitations in place or slow response times detected. Switching to the gemini-2.5-flash model',
     );
   });
 
@@ -143,14 +143,14 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
     );
     expect(result).toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
     expect(result).toContain(
       'upgrade to a Research Code Assist Standard or Enterprise plan',
@@ -164,15 +164,15 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
-      'Possible quota limitations in place or slow response times detected. Switching to the research-2.5-flash model',
+      'Possible quota limitations in place or slow response times detected. Switching to the gemini-2.5-flash model',
     );
     expect(result).not.toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
   });
 
@@ -183,7 +183,7 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
@@ -202,14 +202,14 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
     );
     expect(result).toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
     expect(result).not.toContain('You have reached your daily quota limit');
   });
@@ -221,14 +221,14 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
     );
     expect(result).toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
     expect(result).toContain(
       'We appreciate you for choosing Research Code Assist and the Research CLI',
@@ -245,14 +245,14 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.LEGACY,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
       "[API Error: Quota exceeded for quota metric 'Research 2.5 Pro Requests'",
     );
     expect(result).toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
     expect(result).toContain(
       'We appreciate you for choosing Research Code Assist and the Research CLI',
@@ -272,7 +272,7 @@ describe('parseAndFormatApiError', () => {
       errorMessage25,
       AuthType.LOGIN_WITH_GOOGLE,
       undefined,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     const resultPreview = parseAndFormatApiError(
@@ -284,7 +284,7 @@ describe('parseAndFormatApiError', () => {
     );
 
     expect(result25).toContain(
-      'You have reached your daily research-2.5-pro quota limit',
+      'You have reached your daily gemini-2.5-pro quota limit',
     );
     expect(resultPreview).toContain(
       'You have reached your daily research-2.5-preview-pro quota limit',
@@ -342,7 +342,7 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain(
@@ -364,7 +364,7 @@ describe('parseAndFormatApiError', () => {
       errorMessage,
       AuthType.LOGIN_WITH_GOOGLE,
       UserTierId.STANDARD,
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
     expect(result).toContain('[API Error: Rate limit exceeded');

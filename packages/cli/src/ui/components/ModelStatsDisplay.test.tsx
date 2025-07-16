@@ -60,7 +60,7 @@ describe('<ModelStatsDisplay />', () => {
   it('should not display conditional rows if no model has data for them', () => {
     const { lastFrame } = renderWithMockedStats({
       models: {
-        'research-2.5-pro': {
+        'gemini-2.5-pro': {
           api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
           tokens: {
             prompt: 10,
@@ -92,7 +92,7 @@ describe('<ModelStatsDisplay />', () => {
   it('should display conditional rows if at least one model has data', () => {
     const { lastFrame } = renderWithMockedStats({
       models: {
-        'research-2.5-pro': {
+        'gemini-2.5-pro': {
           api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
           tokens: {
             prompt: 10,
@@ -103,7 +103,7 @@ describe('<ModelStatsDisplay />', () => {
             tool: 0,
           },
         },
-        'research-2.5-flash': {
+        'gemini-2.5-flash': {
           api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 50 },
           tokens: {
             prompt: 5,
@@ -135,7 +135,7 @@ describe('<ModelStatsDisplay />', () => {
   it('should display stats for multiple models correctly', () => {
     const { lastFrame } = renderWithMockedStats({
       models: {
-        'research-2.5-pro': {
+        'gemini-2.5-pro': {
           api: { totalRequests: 10, totalErrors: 1, totalLatencyMs: 1000 },
           tokens: {
             prompt: 100,
@@ -146,7 +146,7 @@ describe('<ModelStatsDisplay />', () => {
             tool: 5,
           },
         },
-        'research-2.5-flash': {
+        'gemini-2.5-flash': {
           api: { totalRequests: 20, totalErrors: 2, totalLatencyMs: 500 },
           tokens: {
             prompt: 200,
@@ -169,15 +169,15 @@ describe('<ModelStatsDisplay />', () => {
     });
 
     const output = lastFrame();
-    expect(output).toContain('research-2.5-pro');
-    expect(output).toContain('research-2.5-flash');
+    expect(output).toContain('gemini-2.5-pro');
+    expect(output).toContain('gemini-2.5-flash');
     expect(output).toMatchSnapshot();
   });
 
   it('should handle large values without wrapping or overlapping', () => {
     const { lastFrame } = renderWithMockedStats({
       models: {
-        'research-2.5-pro': {
+        'gemini-2.5-pro': {
           api: {
             totalRequests: 999999999,
             totalErrors: 123456789,
@@ -209,7 +209,7 @@ describe('<ModelStatsDisplay />', () => {
   it('should display a single model correctly', () => {
     const { lastFrame } = renderWithMockedStats({
       models: {
-        'research-2.5-pro': {
+        'gemini-2.5-pro': {
           api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
           tokens: {
             prompt: 10,
@@ -232,8 +232,8 @@ describe('<ModelStatsDisplay />', () => {
     });
 
     const output = lastFrame();
-    expect(output).toContain('research-2.5-pro');
-    expect(output).not.toContain('research-2.5-flash');
+    expect(output).toContain('gemini-2.5-pro');
+    expect(output).not.toContain('gemini-2.5-flash');
     expect(output).toMatchSnapshot();
   });
 });

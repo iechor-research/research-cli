@@ -1140,7 +1140,7 @@ describe('useResearchStream', () => {
         getContentGeneratorConfig: vi.fn(() => ({
           authType: mockAuthType,
         })),
-        getModel: vi.fn(() => 'research-2.5-pro'),
+        getModel: vi.fn(() => 'gemini-2.5-pro'),
       } as unknown as Config;
 
       const { result } = renderHook(() =>
@@ -1172,8 +1172,8 @@ describe('useResearchStream', () => {
           'Rate limit exceeded',
           mockAuthType,
           undefined,
-          'research-2.5-pro',
-          'research-2.5-flash',
+          'gemini-2.5-pro',
+          'gemini-2.5-flash',
         );
       });
     });

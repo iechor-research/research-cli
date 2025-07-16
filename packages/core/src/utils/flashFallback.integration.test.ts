@@ -26,7 +26,7 @@ describe('Flash Fallback Integration', () => {
       targetDir: '/test',
       debugMode: false,
       cwd: '/test',
-      model: 'research-2.5-pro',
+      model: 'gemini-2.5-pro',
     });
 
     // Reset simulation state for each test
@@ -42,7 +42,7 @@ describe('Flash Fallback Integration', () => {
 
     // Call the handler directly to test
     const result = await config.flashFallbackHandler!(
-      'research-2.5-pro',
+      'gemini-2.5-pro',
       DEFAULT_RESEARCH_FLASH_MODEL,
     );
 

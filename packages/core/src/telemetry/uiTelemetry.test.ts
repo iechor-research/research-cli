@@ -114,7 +114,7 @@ describe('UiTelemetryService', () => {
 
     const event = {
       'event.name': EVENT_API_RESPONSE,
-      model: 'research-2.5-pro',
+      model: 'gemini-2.5-pro',
       duration_ms: 500,
       input_token_count: 10,
       output_token_count: 20,
@@ -136,7 +136,7 @@ describe('UiTelemetryService', () => {
     it('should process a single ApiResponseEvent', () => {
       const event = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 500,
         input_token_count: 10,
         output_token_count: 20,
@@ -149,7 +149,7 @@ describe('UiTelemetryService', () => {
       service.addEvent(event);
 
       const metrics = service.getMetrics();
-      expect(metrics.models['research-2.5-pro']).toEqual({
+      expect(metrics.models['gemini-2.5-pro']).toEqual({
         api: {
           totalRequests: 1,
           totalErrors: 0,
@@ -170,7 +170,7 @@ describe('UiTelemetryService', () => {
     it('should aggregate multiple ApiResponseEvents for the same model', () => {
       const event1 = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 500,
         input_token_count: 10,
         output_token_count: 20,
@@ -183,7 +183,7 @@ describe('UiTelemetryService', () => {
       };
       const event2 = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 600,
         input_token_count: 15,
         output_token_count: 25,
@@ -199,7 +199,7 @@ describe('UiTelemetryService', () => {
       service.addEvent(event2);
 
       const metrics = service.getMetrics();
-      expect(metrics.models['research-2.5-pro']).toEqual({
+      expect(metrics.models['gemini-2.5-pro']).toEqual({
         api: {
           totalRequests: 2,
           totalErrors: 0,
@@ -220,7 +220,7 @@ describe('UiTelemetryService', () => {
     it('should handle ApiResponseEvents for different models', () => {
       const event1 = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 500,
         input_token_count: 10,
         output_token_count: 20,
@@ -233,7 +233,7 @@ describe('UiTelemetryService', () => {
       };
       const event2 = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-flash',
+        model: 'gemini-2.5-flash',
         duration_ms: 1000,
         input_token_count: 100,
         output_token_count: 200,
@@ -249,10 +249,10 @@ describe('UiTelemetryService', () => {
       service.addEvent(event2);
 
       const metrics = service.getMetrics();
-      expect(metrics.models['research-2.5-pro']).toBeDefined();
-      expect(metrics.models['research-2.5-flash']).toBeDefined();
-      expect(metrics.models['research-2.5-pro'].api.totalRequests).toBe(1);
-      expect(metrics.models['research-2.5-flash'].api.totalRequests).toBe(1);
+      expect(metrics.models['gemini-2.5-pro']).toBeDefined();
+      expect(metrics.models['gemini-2.5-flash']).toBeDefined();
+      expect(metrics.models['gemini-2.5-pro'].api.totalRequests).toBe(1);
+      expect(metrics.models['gemini-2.5-flash'].api.totalRequests).toBe(1);
       expect(service.getLastPromptTokenCount()).toBe(100);
     });
   });
@@ -261,7 +261,7 @@ describe('UiTelemetryService', () => {
     it('should process a single ApiErrorEvent', () => {
       const event = {
         'event.name': EVENT_API_ERROR,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 300,
         error: 'Something went wrong',
       } as ApiErrorEvent & { 'event.name': typeof EVENT_API_ERROR };
@@ -269,7 +269,7 @@ describe('UiTelemetryService', () => {
       service.addEvent(event);
 
       const metrics = service.getMetrics();
-      expect(metrics.models['research-2.5-pro']).toEqual({
+      expect(metrics.models['gemini-2.5-pro']).toEqual({
         api: {
           totalRequests: 1,
           totalErrors: 1,
@@ -289,7 +289,7 @@ describe('UiTelemetryService', () => {
     it('should aggregate ApiErrorEvents and ApiResponseEvents', () => {
       const responseEvent = {
         'event.name': EVENT_API_RESPONSE,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 500,
         input_token_count: 10,
         output_token_count: 20,
@@ -302,7 +302,7 @@ describe('UiTelemetryService', () => {
       };
       const errorEvent = {
         'event.name': EVENT_API_ERROR,
-        model: 'research-2.5-pro',
+        model: 'gemini-2.5-pro',
         duration_ms: 300,
         error: 'Something went wrong',
       } as ApiErrorEvent & { 'event.name': typeof EVENT_API_ERROR };
@@ -311,7 +311,7 @@ describe('UiTelemetryService', () => {
       service.addEvent(errorEvent);
 
       const metrics = service.getMetrics();
-      expect(metrics.models['research-2.5-pro']).toEqual({
+      expect(metrics.models['gemini-2.5-pro']).toEqual({
         api: {
           totalRequests: 2,
           totalErrors: 1,
