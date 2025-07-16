@@ -8,6 +8,7 @@
 export * from './config/config.js';
 export * from './config/research-config.js';
 export * from './config/research-config-manager.js';
+export * from './config/model-provider-config.js';
 
 // Export Core Logic
 export * from './core/client.js';
@@ -20,6 +21,13 @@ export * from './core/turn.js';
 export * from './core/researchRequest.js';
 export * from './core/coreToolScheduler.js';
 export * from './core/nonInteractiveToolExecutor.js';
+
+// Export model providers
+export * from './core/model-providers/types.js';
+export * from './core/model-providers/base-provider.js';
+export * from './core/model-providers/llm-interface-provider.js';
+export * from './core/model-providers/model-provider-factory.js';
+export * from './core/model-providers/model-selector.js';
 
 export * from './code_assist/codeAssist.js';
 export * from './code_assist/oauth2.js';

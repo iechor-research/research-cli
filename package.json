@@ -1,6 +1,6 @@
 {
   "name": "@iechor/research-cli",
-  "version": "0.1.12",
+  "version": "0.2.0",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/iechor-research/research-cli.git"
   },
   "config": {
-    "sandboxImageUri": "us-docker.pkg.dev/research-code-dev/research-cli/sandbox:0.1.12"
+    "sandboxImageUri": "us-docker.pkg.dev/research-code-dev/research-cli/sandbox:0.2.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
