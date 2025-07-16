@@ -258,7 +258,7 @@ describe('SubmissionPreparator', () => {
       });
       
       expect(result.success).toBe(true);
-      expect(result.data?.message).toContain('Package created successfully');
+      expect((result.data as any)?.message).toContain('Package created successfully');
     });
   });
 
@@ -270,8 +270,8 @@ describe('SubmissionPreparator', () => {
       });
       
       expect(result.success).toBe(true);
-      expect(result.data?.message).toContain('Checklist generated');
-      expect(result.data?.checklist).toBeDefined();
+      expect((result.data as any)?.message).toContain('Checklist generated');
+      expect((result.data as any)?.checklist).toBeDefined();
     });
   });
 
@@ -283,7 +283,7 @@ describe('SubmissionPreparator', () => {
       });
       
       expect(result.success).toBe(true);
-      expect(result.data?.message).toContain('Cleaned');
+      expect((result.data as any)?.message).toContain('Cleaned');
     });
   });
 

@@ -609,6 +609,15 @@ export class BibliographyManager extends BaseResearchTool<
       title: entry.title || 'Untitled',
       authors: entry.authors || [],
       year: entry.year || new Date().getFullYear(),
+      source: entry.source || 'manual',
+      dateAdded: entry.dateAdded || new Date(),
+      tags: entry.tags || [],
+      notes: entry.notes || '',
+      citationFormats: entry.citationFormats || {
+        apa: '',
+        mla: '',
+        ieee: ''
+      },
       ...entry
     };
 

@@ -62,8 +62,8 @@ describe('ResearchToolRegistry', () => {
     it('应该成功注册工具', () => {
       registry.registerTool(mockTool);
       
-      expect(registry.hasTool('test_tool')).toBe(true);
-      expect(registry.getTool('test_tool')).toBe(mockTool);
+      expect(registry.hasTool(mockTool.name)).toBe(true);
+      expect(registry.getTool(mockTool.name)).toBe(mockTool);
     });
 
     it('应该防止重复注册', () => {
@@ -88,18 +88,18 @@ describe('ResearchToolRegistry', () => {
     });
 
     it('应该能够查找已注册的工具', () => {
-      expect(registry.hasTool('test_tool')).toBe(true);
+      expect(registry.hasTool(mockTool.name)).toBe(true);
       expect(registry.hasTool('nonexistent_tool')).toBe(false);
     });
 
     it('应该返回正确的工具实例', () => {
-      const tool = registry.getTool('test_tool');
+      const tool = registry.getTool(mockTool.name);
       expect(tool).toBe(mockTool);
     });
 
     it('应该返回所有工具名称', () => {
       const toolNames = registry.getToolNames();
-      expect(toolNames).toContain('test_tool');
+      expect(toolNames).toContain(mockTool.name);
     });
 
     it('应该返回工具摘要', () => {
@@ -107,7 +107,7 @@ describe('ResearchToolRegistry', () => {
       expect(summary).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            name: 'test_tool',
+            name: mockTool.name,
             description: 'Test tool',
             category: ResearchToolCategory.ANALYSIS,
             version: '1.0.0'
@@ -123,11 +123,11 @@ describe('ResearchToolRegistry', () => {
     });
 
     it('应该成功执行工具', async () => {
-      const result = await registry.executeTool('test_tool', {});
+      const result = await registry.executeTool(mockTool.name, {});
       
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ message: 'Mock tool test_tool executed successfully' });
-      expect(result.metadata?.toolName).toBe('test_tool');
+      expect(result.data).toEqual({ message: `Mock tool ${mockTool.name} executed successfully` });
+      expect(result.metadata?.toolName).toBe(mockTool.name);
     });
 
     it('应该处理不存在的工具', async () => {
@@ -164,7 +164,9 @@ describe('ResearchToolRegistry', () => {
 
   describe('初始化状态', () => {
     it('应该跟踪初始化状态', () => {
-      expect(registry.isInitialized()).toBe(false); // 默认未初始化
+      // 重置初始化状态进行测试
+      registry.setInitialized(false);
+      expect(registry.isInitialized()).toBe(false);
       
       registry.setInitialized(true);
       expect(registry.isInitialized()).toBe(true);

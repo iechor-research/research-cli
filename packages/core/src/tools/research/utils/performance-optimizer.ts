@@ -364,7 +364,7 @@ export function debounce<T extends (...args: any[]) => any>(
 ): T {
   let timeoutId: NodeJS.Timeout;
   
-  return ((...args: any[]) => {
+  return (function(this: any, ...args: any[]) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func.apply(this, args), delay);
   }) as T;
@@ -379,7 +379,7 @@ export function throttle<T extends (...args: any[]) => any>(
 ): T {
   let inThrottle: boolean;
   
-  return ((...args: any[]) => {
+  return (function(this: any, ...args: any[]) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;

@@ -355,7 +355,7 @@ Examples:
 
     for (const entry of localPapers) {
       try {
-        if (entry.source === 'arXiv' && entry.metadata.id) {
+        if (entry.source === 'arXiv' && entry.metadata?.id) {
           // Check for updates
           const updatedMetadata = await this.arxivClient.getPaperMetadata(entry.metadata.id);
           
@@ -367,7 +367,7 @@ Examples:
         }
       } catch (error) {
         syncResult.failed++;
-        syncResult.errors.push(`Failed to sync ${entry.metadata.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        syncResult.errors.push(`Failed to sync ${entry.metadata?.id || 'unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -461,6 +461,13 @@ Examples:
   private async addToBibliography(metadata: PaperMetadata): Promise<void> {
     const entry: BibliographyEntry = {
       id: metadata.id,
+      title: metadata.title,
+      authors: metadata.authors,
+      year: new Date(metadata.publishedDate).getFullYear(),
+      abstract: metadata.abstract,
+      arxivId: metadata.id,
+      url: metadata.url,
+      keywords: metadata.keywords,
       metadata,
       source: 'arXiv',
       dateAdded: new Date(),
