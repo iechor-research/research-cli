@@ -71,6 +71,8 @@ export interface GoogleScholarConfig {
   timeout?: number;
   maxResults?: number;
   language?: string;
+  serpApiKey?: string; // SERPAPI key for Google Scholar searches
+  useSerpApi?: boolean; // Whether to use SERPAPI instead of web scraping
 }
 
 /**
@@ -295,6 +297,8 @@ export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
       timeout: 30000,
       maxResults: 20,
       language: 'en',
+          useSerpApi: true,
+    serpApiKey: process.env.SERPAPI_KEY || 'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
     },
   },
 

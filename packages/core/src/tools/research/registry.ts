@@ -29,7 +29,6 @@ export class ResearchToolRegistry {
   private constructor() {
     this.tools = new Map();
     this.arxivClient = new ArXivMCPClient();
-    this.registerDefaultTools();
     // 初始化分类映射
     Object.values(ResearchToolCategory).forEach(category => {
       this.toolsByCategory.set(category, []);
@@ -65,12 +64,8 @@ export class ResearchToolRegistry {
    */
   public registerTool(tool: ResearchTool): void {
     if (this.tools.has(tool.name)) {
-      // 如果已经初始化过，就不再抛出错误，而是跳过
-      if (this.initialized) {
-        console.debug(`Research tool '${tool.name}' already registered, skipping.`);
-        return;
-      }
-      throw new Error(`Research tool '${tool.name}' is already registered`);
+      console.debug(`Research tool '${tool.name}' already registered, skipping.`);
+      return;
     }
 
     this.tools.set(tool.name, tool);
@@ -84,27 +79,10 @@ export class ResearchToolRegistry {
    * 注册所有默认研究工具
    */
   private registerDefaultTools(): void {
-    // Paper management
-    this.registerTool(new PaperOutlineGenerator());
-    
-    // Bibliography management with arXiv integration
-    this.registerTool(new EnhancedBibliographyManager());
-    
-    // Experiment tools
-    this.registerTool(new ExperimentCodeGenerator());
-    
-    // LaTeX management
-    this.registerTool(new LaTeXManager());
-    
+    // Only register tools that are not registered in init.ts
     // Journal matching
     this.registerTool(new JournalMatcher());
     
-    // Data analysis
-    this.registerTool(new ResearchDataAnalyzer());
-    
-    // Writing assistance
-    this.registerTool(new AcademicWritingAssistant());
-
     // Submission preparation (new)
     this.registerTool(new SubmissionPreparator(this.arxivClient));
   }

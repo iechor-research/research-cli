@@ -7,6 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ResearchToolRegistry } from './registry.js';
 import { ResearchTool, ResearchToolCategory, ResearchToolParams, ResearchToolResult } from './types.js';
+import { initializeResearchTools } from './init.js';
 
 // Mock tool for testing
 class MockResearchTool implements ResearchTool {
@@ -178,15 +179,18 @@ describe('ResearchToolRegistry', () => {
 
   describe('默认工具', () => {
     it('应该包含预期的默认工具', () => {
+      // 初始化默认工具
+      initializeResearchTools(registry);
+      
       const expectedTools = [
         'generate_paper_outline',
+        'academic_writing_assistant',
+        'manage_bibliography',
         'enhanced_bibliography_manager',
         'generate_experiment_code',
         'latex_manager',
         'match_journal',
-        'research_data_analyzer',
-        'academic_writing_assistant',
-        'submission_preparator'
+        'research_data_analyzer'
       ];
 
       const registeredTools = registry.getToolNames();
@@ -197,6 +201,9 @@ describe('ResearchToolRegistry', () => {
     });
 
     it('应该有各种类别的工具', () => {
+      // 初始化默认工具
+      initializeResearchTools(registry);
+      
       const categories = Object.values(ResearchToolCategory);
       
       // 检查是否有工具注册到各个类别

@@ -14,6 +14,7 @@ import { ExperimentCodeGenerator } from './analysis/experiment-code-generator.js
 import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
 import { LaTeXManager } from './submission/latex-manager.js';
 import { JournalMatcher } from './submission/journal-matcher.js';
+import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
 
 /**
  * 初始化所有研究工具
@@ -32,6 +33,7 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
   
   // Bibliography Tools
   registry.registerTool(new BibliographyManager());
+  registry.registerTool(new EnhancedBibliographyManager());
   
   // Code Generation Tools
   registry.registerTool(new ExperimentCodeGenerator());
@@ -42,7 +44,7 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
   // Submission Tools
   registry.registerTool(new JournalMatcher());
   
-  // Analysis Tools
+  // Data analysis
   registry.registerTool(new ResearchDataAnalyzer());
 
   // 标记为已初始化

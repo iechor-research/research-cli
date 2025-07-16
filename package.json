@@ -87,8 +87,9 @@
     "gcp-metadata": "^7.0.1",
     "google-auth-library": "^10.1.0",
     "google-logging-utils": "^1.1.1",
+    "llm-interface": "^2.0.1495",
     "ws": "^8.18.3",
-    "zod": "^4.0.5",
+    "zod": "^3.25.76",
     "zod-to-json-schema": "^3.24.6"
   }
 }

@@ -360,6 +360,14 @@ function _sanitizeParameters(schema: Schema | undefined, visited: Set<Schema>) {
   }
   visited.add(schema);
 
+  // Clean schema properties that are not supported by Vertex AI
+  if ('$schema' in schema) {
+    delete (schema as any).$schema;
+  }
+  if ('additionalProperties' in schema) {
+    delete (schema as any).additionalProperties;
+  }
+
   if (schema.anyOf) {
     // Vertex AI gets confused if both anyOf and default are set.
     schema.default = undefined;

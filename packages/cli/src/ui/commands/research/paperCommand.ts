@@ -194,7 +194,7 @@ export const paperCommand: SlashCommand = {
 
           return {
             type: 'tool',
-            toolName: 'bibliography_manager',
+            toolName: 'manage_bibliography',
             toolArgs
           };
         } catch (error) {

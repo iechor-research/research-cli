@@ -57,7 +57,7 @@ describe('researchCommand', () => {
         
         expect(result).toEqual({
           type: 'tool',
-          toolName: 'bibliography_manager',
+          toolName: 'manage_bibliography',
           toolArgs: {
             operation: 'search',
             query: 'machine',

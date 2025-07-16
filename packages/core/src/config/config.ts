@@ -596,12 +596,9 @@ export class Config {
   private async registerResearchTools(registry: ToolRegistry): Promise<void> {
     try {
       // Dynamic import to avoid circular dependencies
-      const { registerResearchTools, initializeResearchTools } = await import('../tools/research/index.js');
+      const { registerResearchTools } = await import('../tools/research/index.js');
       
-      // Initialize research tools first
-      initializeResearchTools();
-      
-      // Then register them with the main tool registry
+      // Register research tools with the main tool registry
       registerResearchTools(registry);
     } catch (error) {
       console.warn('Failed to register research tools:', error);

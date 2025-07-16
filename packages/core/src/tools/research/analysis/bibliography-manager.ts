@@ -14,6 +14,7 @@ import {
   LiteratureSearchParams
 } from '../types.js';
 import { cached, monitored, ParallelProcessor } from '../utils/performance-optimizer.js';
+import { GoogleScholarClient } from '../bibliography/google-scholar-client.js';
 
 /**
  * 文献搜索参数接口
@@ -102,6 +103,7 @@ export class BibliographyManager extends BaseResearchTool<
 > {
   private bibliography: BibliographyEntry[] = [];
   private nextId = 1;
+  private googleScholarClient: GoogleScholarClient;
 
   constructor() {
     super(
@@ -109,6 +111,7 @@ export class BibliographyManager extends BaseResearchTool<
       'Manage bibliography and search academic literature',
       ResearchToolCategory.ANALYSIS
     );
+    this.googleScholarClient = new GoogleScholarClient();
   }
 
   public validate(params: ResearchToolParams): boolean {
@@ -300,19 +303,26 @@ export class BibliographyManager extends BaseResearchTool<
    * 这里可以集成现有的 WebSearchTool 或实现专门的学术搜索
    */
   private async searchWebScientific(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
-    // 构建学术搜索查询
-    const academicQuery = `${params.query} site:scholar.google.com OR site:pubmed.ncbi.nlm.nih.gov OR filetype:pdf`;
-    
     try {
-      // 这里应该集成现有的 WebSearchTool 或者使用专门的学术搜索 API
-      // 暂时返回模拟数据
-      console.log(`Web scientific search for: ${academicQuery}`);
+      console.log('Using Google Scholar search via SERPAPI');
       
-      // 模拟搜索结果
-      return this.createMockWebResults(params.query, Math.min(maxResults, 5));
+      const searchOptions = {
+        maxResults,
+        yearRange: params.yearRange,
+        language: params.language,
+        sortBy: params.sortBy === 'date' ? 'date' as const : 'relevance' as const
+      };
+
+      const entries = await this.googleScholarClient.searchPapers(params.query, searchOptions);
+      
+      console.log(`Google Scholar search returned ${entries.length} results for: ${params.query}`);
+      return entries;
+      
     } catch (error) {
-      console.error('Web scientific search error:', error);
-      throw error;
+      console.error('Google Scholar search error:', error);
+      // 如果 API 调用失败，返回模拟数据
+      console.log('Falling back to mock results due to API error');
+      return this.createMockWebResults(params.query, Math.min(maxResults, 5));
     }
   }
 

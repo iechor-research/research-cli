@@ -45,7 +45,7 @@ export const researchCommand: SlashCommand = {
 
           return {
             type: 'tool',
-            toolName: 'bibliography_manager',
+            toolName: 'manage_bibliography',
             toolArgs: {
               operation: 'search',
               query,
@@ -192,6 +192,130 @@ export const researchCommand: SlashCommand = {
               outputFormat,
               includeVisualizations: getOptionValue(parsed.options, 'viz', true)
             }
+          };
+        } catch (error) {
+          const errorResult = handleResearchError(error);
+          context.ui.addItem({
+            type: MessageType.ERROR,
+            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
+          }, Date.now());
+        }
+      }
+    },
+
+    {
+      name: 'arxiv',
+      description: 'ArXiv paper search, download, and management',
+      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+        // Parse the arxiv subcommand and arguments
+        const parts = args.trim().split(/\s+/);
+        const subcommand = parts[0] || 'help';
+        const arxivArgs = parts.slice(1);
+
+        // Show help if no subcommand provided
+        if (!subcommand || subcommand === 'help') {
+          const helpText = buildHelpText({
+            name: 'research arxiv',
+            description: 'ArXiv paper search, download, and management',
+            usage: '/research arxiv <operation> [options]',
+            examples: [
+              '/research arxiv search "machine learning" --limit=5',
+              '/research arxiv download 2301.12345',
+              '/research arxiv read 2301.12345',
+              '/research arxiv cache'
+            ],
+            options: [
+              {
+                name: 'limit',
+                description: 'Maximum number of search results',
+                type: 'number'
+              },
+              {
+                name: 'categories',
+                description: 'ArXiv categories to search in',
+                type: 'string'
+              },
+              {
+                name: 'date-from',
+                description: 'Search papers from this date',
+                type: 'string'
+              },
+              {
+                name: 'date-to',
+                description: 'Search papers until this date',
+                type: 'string'
+              }
+            ]
+          });
+
+          context.ui.addItem({
+            type: MessageType.INFO,
+            text: helpText
+          }, Date.now());
+          return;
+        }
+
+        // Handle arxiv operations
+        try {
+          let toolArgs: any = {};
+
+          switch (subcommand) {
+            case 'search':
+              if (arxivArgs.length === 0) {
+                throw new Error('Search requires a query. Usage: /research arxiv search <query>');
+              }
+              const query = arxivArgs[0];
+              const parsed = parseCommandArgs(arxivArgs.slice(1).join(' '));
+              
+              toolArgs = {
+                operation: 'search',
+                query,
+                searchOptions: {
+                  maxResults: getOptionValue(parsed.options, 'limit', 10),
+                  categories: getOptionValue(parsed.options, 'categories', '')?.split(',').filter(c => c),
+                  dateFrom: getOptionValue(parsed.options, 'date-from', ''),
+                  dateTo: getOptionValue(parsed.options, 'date-to', '')
+                }
+              };
+              break;
+
+            case 'download':
+              if (arxivArgs.length === 0) {
+                throw new Error('Download requires a paper ID. Usage: /research arxiv download <paper-id>');
+              }
+              toolArgs = {
+                operation: 'download',
+                paperId: arxivArgs[0]
+              };
+              break;
+
+            case 'read':
+              if (arxivArgs.length === 0) {
+                throw new Error('Read requires a paper ID. Usage: /research arxiv read <paper-id>');
+              }
+              toolArgs = {
+                operation: 'read',
+                paperId: arxivArgs[0]
+              };
+              break;
+
+            case 'cache':
+              toolArgs = { operation: 'cache' };
+              break;
+
+            default:
+              throw new Error(`Unknown arxiv operation: ${subcommand}`);
+          }
+
+          context.ui.addItem({
+            type: MessageType.INFO,
+            text: formatInfo(`Executing arXiv ${subcommand} operation...`)
+          }, Date.now());
+
+          return {
+            type: 'tool',
+            toolName: 'enhanced_bibliography_manager',
+            toolArgs
           };
         } catch (error) {
           const errorResult = handleResearchError(error);
