@@ -48,12 +48,13 @@ export const modelCommand: SlashCommand = {
         }
         
         case 'current': {
-          const current = selector.getCurrentModel();
-          if (current) {
+          // 显示Research CLI核心配置中的当前模型
+          const currentCoreModel = context.services.config?.getModel();
+          if (currentCoreModel) {
             return {
               type: 'message',
               messageType: 'info',
-              content: `Current Model: ${current.model} (${current.provider})`,
+              content: `Current Model: ${currentCoreModel}`,
             };
           } else {
             return {
@@ -98,15 +99,39 @@ export const modelCommand: SlashCommand = {
             };
           }
           
-          // 执行模型切换
+          // 首先更新ModelSelector
           const providerEnum = core.ModelProvider[provider.toUpperCase() as keyof typeof core.ModelProvider];
           await selector.selectModel(providerEnum, modelId);
           
-          return {
-            type: 'message',
-            messageType: 'info',
-            content: `Successfully switched to ${selectedModel.name} (${provider}/${modelId})`,
-          };
+          // 然后更新Research CLI的核心Config
+          const config = context.services.config;
+          if (config) {
+            // 构建模型名称 - 根据提供商类型使用不同的格式
+            let modelName: string;
+            
+            // 对于Gemini模型，使用Gemini格式
+            if (provider.toLowerCase() === 'gemini') {
+              modelName = modelId; // 直接使用模型ID，如 'gemini-1.5-pro'
+            } else {
+              // 对于其他提供商，可能需要不同的格式
+              // 这里先使用简单的格式，后续可以根据需要调整
+              modelName = modelId;
+            }
+            
+            config.setModel(modelName);
+            
+            return {
+              type: 'message',
+              messageType: 'info',
+              content: `Successfully switched to ${selectedModel.name} (${provider}/${modelId})\nCore model updated to: ${modelName}`,
+            };
+          } else {
+            return {
+              type: 'message',
+              messageType: 'error',
+              content: 'Unable to access configuration service',
+            };
+          }
         }
         
         case 'help':
@@ -125,11 +150,13 @@ Examples:
   /model select openai gpt-4o
   /model select anthropic claude-3-5-sonnet-20241022
   /model select deepseek deepseek-chat
+  /model select gemini gemini-1.5-pro
 
 Note: Make sure to set your API keys as environment variables:
   export OPENAI_API_KEY="your-key"
   export ANTHROPIC_API_KEY="your-key"
-  export DEEPSEEK_API_KEY="your-key"`,
+  export DEEPSEEK_API_KEY="your-key"
+  export GEMINI_API_KEY="your-key"`,
           };
         }
       }
