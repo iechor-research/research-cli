@@ -43,14 +43,11 @@ It's important to always review confirmation prompts carefully before allowing a
 
 Research CLI's built-in tools can be broadly categorized as follows:
 
+- **[Research Tools](./research-tools.md):** Comprehensive academic research suite including paper writing, bibliography management, data analysis, and journal submission tools.
 - **[File System Tools](./file-system.md):** For interacting with files and directories (reading, writing, listing, searching, etc.).
 - **[Shell Tool](./shell.md) (`run_shell_command`):** For executing shell commands.
 - **[Web Fetch Tool](./web-fetch.md) (`web_fetch`):** For retrieving content from URLs.
-- **[Web Search Tool](./web-search.md) (`web_search`):** For searching the web.
-- **[Multi-File Read Tool](./multi-file.md) (`read_many_files`):** A specialized tool for reading content from multiple files or directories, often used by the `@` command.
-- **[Memory Tool](./memory.md) (`save_memory`):** For saving and recalling information across sessions.
-
-Additionally, these tools incorporate:
-
-- **[MCP servers](./mcp-server.md)**: MCP servers act as a bridge between the Research model and your local environment or other services like APIs.
-- **[Sandboxing](../sandbox.md)**: Sandboxing isolates the model and its changes from your environment to reduce potential risk.
+- **[Web Search Tool](./web-search.md) (`web_search`):** For performing web searches.
+- **[Memory Tool](./memory.md) (`save_memory`):** For saving information to the AI's memory.
+- **[Multi-file Tool](./multi-file.md) (`read_many_files`):** For reading and processing multiple files at once.
+- **[MCP Server Tools](./mcp-server.md):** For integrating with Model Context Protocol servers to extend functionality.

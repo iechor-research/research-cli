@@ -1,10 +1,20 @@
 # Welcome to Research CLI documentation
 
-This documentation provides a comprehensive guide to installing, using, and developing Research CLI. This tool lets you interact with Research models through a command-line interface.
+This documentation provides a comprehensive guide to installing, using, and developing Research CLI. This tool lets you interact with Research models through a command-line interface and includes powerful academic research capabilities.
 
 ## Overview
 
-Research CLI brings the capabilities of Research models to your terminal in an interactive Read-Eval-Print Loop (REPL) environment. Research CLI consists of a client-side application (`packages/cli`) that communicates with a local server (`packages/core`), which in turn manages requests to the Research API and its AI models. Research CLI also contains a variety of tools for tasks such as performing file system operations, running shells, and web fetching, which are managed by `packages/core`.
+Research CLI brings the capabilities of Research models to your terminal in an interactive Read-Eval-Print Loop (REPL) environment. Research CLI consists of a client-side application (`packages/cli`) that communicates with a local server (`packages/core`), which in turn manages requests to the Research API and its AI models. 
+
+**New in this version:** Research CLI now includes a comprehensive suite of academic research tools for literature search, paper writing, data analysis, and journal submission - making it a complete research workflow platform.
+
+## 🎓 Research Features
+
+- **[Research Tools](./tools/research-tools.md):** Complete academic research workflow from literature search to paper submission
+- **Paper Writing:** Outline generation, writing assistance, and LaTeX management
+- **Bibliography Management:** Multi-database search with BibTeX support
+- **Data Analysis:** Statistical analysis, machine learning, and visualization
+- **Submission Tools:** Journal matching and submission preparation
 
 ## Navigating the documentation
 
@@ -22,17 +32,45 @@ This documentation is organized into the following sections:
 - **Core Details:** Documentation for `packages/core`.
   - **[Core Introduction](./core/index.md):** Overview of the core component.
   - **[Tools API](./core/tools-api.md):** Information on how the core manages and exposes tools.
-- **Tools:**
-  - **[Tools Overview](./tools/index.md):** Overview of the available tools.
-  - **[File System Tools](./tools/file-system.md):** Documentation for the `read_file` and `write_file` tools.
-  - **[Multi-File Read Tool](./tools/multi-file.md):** Documentation for the `read_many_files` tool.
-  - **[Shell Tool](./tools/shell.md):** Documentation for the `run_shell_command` tool.
-  - **[Web Fetch Tool](./tools/web-fetch.md):** Documentation for the `web_fetch` tool.
-  - **[Web Search Tool](./tools/web-search.md):** Documentation for the `iechor_web_search` tool.
-  - **[Memory Tool](./tools/memory.md):** Documentation for the `save_memory` tool.
-- **[Contributing & Development Guide](../CONTRIBUTING.md):** Information for contributors and developers, including setup, building, testing, and coding conventions.
-- **[NPM Workspaces and Publishing](./npm.md):** Details on how the project's packages are managed and published.
-- **[Troubleshooting Guide](./troubleshooting.md):** Find solutions to common problems and FAQs.
-- **[Terms of Service and Privacy Notice](./tos-privacy.md):** Information on the terms of service and privacy notices applicable to your use of Research CLI.
+- **Tools:** Documentation for built-in tools.
+  - **[Tools Overview](./tools/index.md):** Overview of all available tools.
+  - **[Research Tools](./tools/research-tools.md):** Comprehensive academic research suite.
+  - **[File System Tools](./tools/file-system.md):** For file and directory operations.
+  - **[Shell Tool](./tools/shell.md):** For executing shell commands.
+  - **[Web Tools](./tools/web-fetch.md):** For web content retrieval.
+  - **[Memory Tool](./tools/memory.md):** For AI memory management.
+  - **[MCP Server Tools](./tools/mcp-server.md):** For external tool integration.
+- **Additional Information:**
+  - **[Quota and Pricing](./quota-and-pricing.md):** Information on usage limits and costs.
+  - **[Terms of Service and Privacy](./tos-privacy.md):** Legal and privacy information.
+  - **[Troubleshooting](./troubleshooting.md):** Common issues and solutions.
+  - **[Uninstall](./Uninstall.md):** How to remove Research CLI.
 
-We hope this documentation helps you make the most of the Research CLI!
+## Quick Start for Researchers
+
+```bash
+# Install Research CLI
+npm install -g @iechor/research-cli
+
+# Start the CLI
+research
+
+# Search for papers
+/research search "machine learning" --source=arxiv --limit=10
+
+# Generate paper outline
+/paper outline "AI in Healthcare" --type=research --format=ieee
+
+# Analyze your draft
+/research analyze draft.tex --type=all
+
+# Find suitable journals
+/submit journal --topic "artificial intelligence"
+
+# Prepare submission
+/submit prepare --project ./my-paper --journal "Nature"
+```
+
+## Getting Started
+
+For first-time users, we recommend starting with the [CLI Introduction](./cli/index.md) to understand the basic concepts and commands. Researchers should also explore the [Research Tools](./tools/research-tools.md) documentation to understand the full academic workflow capabilities.

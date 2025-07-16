@@ -4,18 +4,44 @@
 
 ![Research CLI Screenshot](./docs/assets/research-screenshot.png)
 
-This repository contains the Research CLI, a command-line AI workflow tool that connects to your
-tools, understands your code and accelerates your workflows.
+This repository contains the Research CLI, a command-line AI workflow tool that connects to your tools, understands your code, and accelerates your workflows. **Now with comprehensive academic research capabilities!**
 
-With the Research CLI you can:
+## 🎓 Academic Research Features
+
+The Research CLI has been enhanced with powerful academic research tools:
+
+### 📝 **Paper Writing & Management**
+- **Paper Outline Generator**: Create structured outlines for research papers, reviews, and case studies
+- **Academic Writing Assistant**: Grammar checking, style improvements, and citation verification
+- **LaTeX Manager**: Full LaTeX project management with compilation and template support
+- **Bibliography Manager**: Search arXiv, PubMed, IEEE, and other databases with BibTeX export
+
+### 🔬 **Research & Analysis**
+- **Experiment Code Generator**: Generate research code for Python, R, MATLAB, and Julia
+- **Data Analyzer**: Statistical analysis, machine learning, and data visualization
+- **Citation Network Analysis**: Explore research connections and paper relationships
+
+### 🚀 **Submission & Publishing**
+- **Journal Matcher**: Find suitable journals based on your research content
+- **Submission Preparator**: Package papers for journal submission with templates
+- **Template Extractor**: Extract LaTeX templates from arXiv papers
+
+### 💡 **Research Workflow Commands**
+- `/research search "machine learning"` - Search academic literature
+- `/research analyze paper.pdf` - Analyze document structure and style
+- `/research experiment python ml` - Generate experiment code
+- `/paper outline "AI Safety"` - Create paper structure
+- `/submit prepare --journal "Nature"` - Prepare submission package
+
+## 🚀 General Capabilities
+
+With the Research CLI you can also:
 
 - Query and edit large codebases in and beyond Research's 1M token context window.
 - Generate new apps from PDFs or sketches, using Research's multimodal capabilities.
 - Automate operational tasks, like querying pull requests or handling complex rebases.
-- Use tools and MCP servers to connect new capabilities, including [media generation with Imagen,
-  Veo or Lyria](https://github.com/iEchorCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
-- Ground your queries with the [iEchor Search](https://ai.iechor.dev/research-api/docs/grounding)
-  tool, built in to Research.
+- Use tools and MCP servers to connect new capabilities, including [media generation with Imagen, Veo or Lyria](https://github.com/iEchorCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
+- Ground your queries with the [iEchor Search](https://ai.iechor.dev/research-api/docs/grounding) tool, built in to Research.
 
 ## Quickstart
 
@@ -36,7 +62,32 @@ With the Research CLI you can:
 3. **Pick a color theme**
 4. **Authenticate:** When prompted, sign in with your personal iEchor account. This will grant you up to 60 model requests per minute and 1,000 model requests per day using Research.
 
-You are now ready to use the Research CLI!
+You are now ready to use the Research CLI for both development and academic research!
+
+## 🎓 Research Workflow Example
+
+```bash
+# Start the CLI
+research
+
+# Search for papers on your topic
+/research search "neural networks" --source=arxiv --limit=10
+
+# Generate a paper outline
+/paper outline "Deep Learning for Computer Vision" --type=research
+
+# Create experiment code
+/research experiment python deep-learning --output=./experiments
+
+# Analyze your draft
+/research analyze draft.tex --type=all
+
+# Find suitable journals
+/submit journal --topic "computer vision" --impact-factor=high
+
+# Prepare submission
+/submit prepare --project ./my-paper --journal "Nature Machine Intelligence"
+```
 
 ### Use a Research API key:
 
