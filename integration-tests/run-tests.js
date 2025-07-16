@@ -50,15 +50,16 @@ async function main() {
     }
   }
 
-  const testPatterns =
-    args.length > 0
-      ? args.map((arg) => `integration-tests/${arg}.test.js`)
-      : ['integration-tests/*.test.js'];
-  const testFiles = glob.sync(testPatterns, { cwd: rootDir, absolute: true });
-
-  for (const testFile of testFiles) {
-    const testFileName = basename(testFile);
-    console.log(`\tFound test file: ${testFileName}`);
+  // Find all test files
+  const testFiles = await glob('*.test.js', { cwd: __dirname });
+  
+  console.log(`Found ${testFiles.length} test files:`);
+  testFiles.forEach(file => console.log(`  - ${file}`));
+  
+  // Ensure research workflow test is included
+  if (!testFiles.includes('research-workflow.test.js')) {
+    console.log('Adding research workflow test...');
+    testFiles.push('research-workflow.test.js');
   }
 
   let allTestsPassed = true;

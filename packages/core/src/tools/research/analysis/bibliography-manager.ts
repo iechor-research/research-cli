@@ -13,6 +13,7 @@ import {
   ResearchToolCategory,
   LiteratureSearchParams
 } from '../types.js';
+import { cached, monitored, ParallelProcessor } from '../utils/performance-optimizer.js';
 
 /**
  * 文献搜索参数接口
@@ -191,14 +192,16 @@ export class BibliographyManager extends BaseResearchTool<
     const allEntries: BibliographyEntry[] = [];
     const sources: BibliographySearchResult['sources'] = {};
     
-    // 并行搜索所有数据库
-    const searchPromises = params.databases.map(async (database) => {
+    // 使用并行处理器优化数据库搜索
+    const processor = new ParallelProcessor<Database, BibliographyEntry[]>(3); // 限制并发数
+    
+    const searchTasks = params.databases.map(database => async () => {
       try {
         let entries: BibliographyEntry[] = [];
         
         switch (database) {
           case Database.ARXIV:
-            entries = await this.searchArxiv(params, maxResults);
+            entries = await this.searchArxivCached(params, maxResults);
             break;
           case Database.GOOGLE_SCHOLAR:
             entries = await this.searchWebScientific(params, maxResults);
@@ -231,13 +234,13 @@ export class BibliographyManager extends BaseResearchTool<
       }
     });
 
-    const results = await Promise.all(searchPromises);
+    // 并行执行搜索任务
+    const results = await processor.process(params.databases, (database) => searchTasks[params.databases.indexOf(database)]());
     results.forEach(entries => allEntries.push(...entries));
 
-    // 去重处理
-    const beforeDedup = allEntries.length;
-    const uniqueEntries = this.deduplicateEntries(allEntries);
-    const duplicatesRemoved = beforeDedup - uniqueEntries.length;
+    // 优化去重处理
+    const uniqueEntries = this.deduplicateEntriesOptimized(allEntries);
+    const duplicatesRemoved = allEntries.length - uniqueEntries.length;
 
     // 应用过滤器
     let filteredEntries = this.applyFilters(uniqueEntries, params);
@@ -261,6 +264,14 @@ export class BibliographyManager extends BaseResearchTool<
       },
       sources
     };
+  }
+
+  /**
+   * 缓存的 arXiv 搜索
+   */
+  private async searchArxivCached(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+    // TODO: Implement caching logic
+    return this.searchArxiv(params, maxResults);
   }
 
   /**
@@ -425,13 +436,13 @@ export class BibliographyManager extends BaseResearchTool<
   }
 
   /**
-   * 创建模拟的 PubMed 结果
+   * 创建 PubMed 模拟结果
    */
   private createMockPubmedResults(query: string, count: number): BibliographyEntry[] {
     const results: BibliographyEntry[] = [];
     
     for (let i = 1; i <= count; i++) {
-      results.push({
+      const entry = this.createBibliographyEntry({
         id: `pubmed_${i}`,
         title: `Medical Study: ${query} ${i}`,
         authors: [`Dr. ${i} Smith`, `Dr. ${i} Johnson`],
@@ -440,30 +451,34 @@ export class BibliographyManager extends BaseResearchTool<
         abstract: `Medical research on ${query}. Study ${i} examines the clinical implications and therapeutic applications.`,
         url: `https://pubmed.ncbi.nlm.nih.gov/${i}`,
         keywords: [query, 'medicine', 'clinical']
-      });
+      }, 'pubmed');
+      
+      results.push(entry);
     }
     
     return results;
   }
 
   /**
-   * 创建模拟的 IEEE 结果
+   * 创建 IEEE 模拟结果
    */
   private createMockIEEEResults(query: string, count: number): BibliographyEntry[] {
     const results: BibliographyEntry[] = [];
     
     for (let i = 1; i <= count; i++) {
-      results.push({
+      const entry = this.createBibliographyEntry({
         id: `ieee_${i}`,
-        title: `IEEE: ${query} - Technical Paper ${i}`,
-        authors: [`Engineer ${i}`, `Researcher ${i}`],
-        year: 2023,
+        title: `Engineering Research: ${query} ${i}`,
+        authors: [`Prof. ${i} Chen`, `Dr. ${i} Wang`],
+        year: 2023 - i,
         conference: `IEEE Conference ${i}`,
-        abstract: `Technical paper on ${query}. IEEE publication ${i} presents innovative approaches and engineering solutions.`,
+        abstract: `Engineering study on ${query}. Research ${i} focuses on technical innovations and practical applications.`,
         doi: `10.1109/EXAMPLE.2023.${i}`,
         url: `https://ieeexplore.ieee.org/document/${i}`,
         keywords: [query, 'engineering', 'technology']
-      });
+      }, 'ieee');
+      
+      results.push(entry);
     }
     
     return results;
@@ -487,6 +502,26 @@ export class BibliographyManager extends BaseResearchTool<
     }
 
     return unique;
+  }
+
+  /**
+   * 优化的去重处理
+   */
+  private deduplicateEntriesOptimized(entries: BibliographyEntry[]): BibliographyEntry[] {
+    const seen = new Set<string>();
+    const uniqueEntries: BibliographyEntry[] = [];
+    
+    for (const entry of entries) {
+      // 使用标题和年份的组合作为唯一标识
+      const key = `${entry.title?.toLowerCase().replace(/\s+/g, ' ').trim()}_${entry.year}`;
+      
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueEntries.push(entry);
+      }
+    }
+    
+    return uniqueEntries;
   }
 
   /**
@@ -704,5 +739,71 @@ export class BibliographyManager extends BaseResearchTool<
       default:
         return `${authors}. ${title}. ${year}.`;
     }
+  }
+
+  /**
+   * 创建标准的 BibliographyEntry
+   */
+  private createBibliographyEntry(entry: Partial<BibliographyEntry>, source: string): BibliographyEntry {
+    const now = new Date();
+    return {
+      id: entry.id || `${source}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: entry.title || 'Unknown Title',
+      authors: entry.authors || [],
+      year: entry.year || new Date().getFullYear(),
+      abstract: entry.abstract,
+      journal: entry.journal,
+      doi: entry.doi,
+      url: entry.url,
+      keywords: entry.keywords || [],
+      citationCount: entry.citationCount,
+      conference: entry.conference,
+      arxivId: entry.arxivId,
+      source,
+      dateAdded: now,
+      tags: [],
+      notes: '',
+      citationFormats: {
+        apa: this.generateAPACitation(entry),
+        mla: this.generateMLACitation(entry),
+        ieee: this.generateIEEECitation(entry)
+      }
+    };
+  }
+
+  /**
+   * 生成 APA 格式引用
+   */
+  private generateAPACitation(entry: Partial<BibliographyEntry>): string {
+    const authors = entry.authors?.join(', ') || 'Unknown Author';
+    const year = entry.year || 'n.d.';
+    const title = entry.title || 'Untitled';
+    const journal = entry.journal || entry.conference || 'Unpublished';
+    
+    return `${authors} (${year}). ${title}. ${journal}.`;
+  }
+
+  /**
+   * 生成 MLA 格式引用
+   */
+  private generateMLACitation(entry: Partial<BibliographyEntry>): string {
+    const authors = entry.authors?.join(', ') || 'Unknown Author';
+    const title = entry.title || 'Untitled';
+    const journal = entry.journal || entry.conference || 'Unpublished';
+    const year = entry.year || 'n.d.';
+    
+    return `${authors}. "${title}." ${journal}, ${year}.`;
+  }
+
+  /**
+   * 生成 IEEE 格式引用
+   */
+  private generateIEEECitation(entry: Partial<BibliographyEntry>): string {
+    const authors = entry.authors?.join(', ') || 'Unknown Author';
+    const title = entry.title || 'Untitled';
+    const journal = entry.journal || entry.conference || 'Unpublished';
+    const year = entry.year || 'n.d.';
+    
+    return `${authors}, "${title}," ${journal}, ${year}.`;
   }
 } 
