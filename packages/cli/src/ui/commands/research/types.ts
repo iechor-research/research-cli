@@ -62,6 +62,14 @@ export interface ResearchCommandConfig {
 }
 
 /**
+ * 研究命令上下文
+ */
+export interface ResearchCommandContext {
+  config: ResearchCommandConfig;
+  toolRegistry: any; // ResearchToolRegistry type
+}
+
+/**
  * 命令执行结果
  */
 export interface ResearchCommandResult {
