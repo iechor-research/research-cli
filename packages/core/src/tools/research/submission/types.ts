@@ -1,4 +1,6 @@
-export interface SubmissionPrepOptions {
+import { ResearchToolParams } from '../types.js';
+
+export interface SubmissionPrepOptions extends ResearchToolParams {
   operation: 'prepare' | 'validate' | 'package' | 'checklist' | 'clean' | 
             'init' | 'template' | 'extract';
   projectPath?: string;

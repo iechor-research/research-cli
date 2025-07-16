@@ -9,7 +9,8 @@ import {
   ResearchToolResult, 
   PaperMetadata, 
   BibliographyEntry,
-  CitationFormat 
+  CitationFormat,
+  ResearchToolCategory
 } from '../types.js';
 import { ArXivMCPClient, ArXivSearchOptions, DownloadResult, SyncResult, CitationNetwork } from './arxiv-mcp-client.js';
 
@@ -52,9 +53,10 @@ export class EnhancedBibliographyManager extends BaseResearchTool {
 
   constructor() {
     super(
-      'enhanced_bibliography_manager',
-      'Enhanced bibliography management with arXiv MCP integration for paper search, download, and content analysis',
-      'analysis'
+      'enhanced_bibliography',
+      'Enhanced bibliography management with arXiv integration',
+      ResearchToolCategory.ANALYSIS,
+      '1.0.0'
     );
     this.arxivClient = new ArXivMCPClient();
     this.initializeBibliography();

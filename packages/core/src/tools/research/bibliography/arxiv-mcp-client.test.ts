@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ArXivMCPClient } from './arxiv-mcp-client.js';
+import { ArXivMCPClient, ArXivPaper, CachedPaper } from './arxiv-mcp-client.js';
 
 // Mock the file system operations
 vi.mock('fs/promises', () => ({
@@ -24,6 +24,14 @@ describe('ArXivMCPClient', () => {
   beforeEach(() => {
     client = new ArXivMCPClient();
     vi.clearAllMocks();
+    
+    // Setup default fetch mock to simulate successful MCP server connection
+    (global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({}),
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(100)),
+      text: vi.fn().mockResolvedValue('mock response')
+    });
   });
 
   describe('Connection Management', () => {
@@ -165,7 +173,35 @@ describe('ArXivMCPClient', () => {
 
   describe('Paper Reading', () => {
     it('should read paper content', async () => {
-      // Mock getting metadata first
+      // Mock fs operations
+      const fs = await import('fs/promises');
+      (fs.writeFile as any).mockResolvedValue(undefined);
+      
+      // Pre-populate cache to avoid searchPapers call
+      const mockPaper: ArXivPaper = {
+        id: '2301.00001',
+        title: 'Test Paper',
+        authors: ['Test Author'],
+        abstract: 'Test abstract',
+        categories: ['cs.AI'],
+        publishedDate: '2023-01-01T00:00:00Z',
+        updatedDate: '2023-01-01T00:00:00Z',
+        pdfUrl: 'https://arxiv.org/pdf/2301.00001.pdf'
+      };
+      
+      const cachedPaper: CachedPaper = {
+        id: '2301.00001',
+        metadata: mockPaper,
+        cachedAt: new Date(),
+        lastAccessed: new Date(),
+        filePath: '/test/path/2301.00001.pdf',
+        accessCount: 0
+      };
+      
+      // Set cache directly
+      client['cache'].set('2301.00001', cachedPaper);
+      
+      // Mock getting metadata first - fix XML structure
       const mockArXivResponse = `
         <feed>
           <entry>
@@ -174,16 +210,21 @@ describe('ArXivMCPClient', () => {
             <summary>Test abstract</summary>
             <published>2023-01-01T00:00:00Z</published>
             <updated>2023-01-01T00:00:00Z</updated>
-            <author><name>Test Author</name></author>
+            <author><n>Test Author</n></author>
           </entry>
         </feed>
       `;
 
+      // Mock fetch calls: PDF download, then metadata search
       (global.fetch as any)
-        .mockResolvedValueOnce({ ok: true })
+        .mockResolvedValueOnce({ 
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(8))
+        })
         .mockResolvedValueOnce({ 
           ok: true, 
-          text: () => Promise.resolve(mockArXivResponse) 
+          text: () => Promise.resolve(mockArXivResponse),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(100))
         });
 
       const content = await client.readPaper('2301.00001');
@@ -199,7 +240,7 @@ describe('ArXivMCPClient', () => {
       const mockMarkdown = '# Cached Paper Content';
       const fs = await import('fs/promises');
       
-      (fs.readFile as any).mockResolvedValueOnce(mockMarkdown);
+      (fs.readFile as any).mockResolvedValue(mockMarkdown);
 
       // Set up cached paper with markdown path
       const cachedPaper = {
@@ -216,6 +257,7 @@ describe('ArXivMCPClient', () => {
       const content = await client.readPaper('2301.00001');
       
       expect(content).toBe(mockMarkdown);
+      expect(fs.readFile).toHaveBeenCalledWith('/path/to/cached.md', 'utf-8');
     });
   });
 

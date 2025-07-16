@@ -134,7 +134,21 @@ export interface PaperMetadata {
 
 export interface BibliographyEntry {
   id: string;
-  metadata: PaperMetadata;
+  // Direct fields for backward compatibility
+  title: string;
+  authors: string[];
+  year: number;
+  abstract?: string;
+  journal?: string;
+  doi?: string;
+  url?: string;
+  keywords?: string[];
+  citationCount?: number;
+  conference?: string;
+  arxivId?: string;
+  
+  // Legacy metadata structure (optional)
+  metadata?: PaperMetadata;
   source: string;
   dateAdded: Date;
   tags: string[];

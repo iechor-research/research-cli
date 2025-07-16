@@ -241,6 +241,14 @@ export class Config {
     // Initialize research configuration manager
     this.researchConfigManager = new ResearchConfigManager(this.cwd);
 
+    // Set context filename if provided
+    if (params.contextFileName) {
+      const contextFile = Array.isArray(params.contextFileName) 
+        ? params.contextFileName[0] 
+        : params.contextFileName;
+      setResearchMdFilename(contextFile);
+    }
+
     if (this.telemetrySettings.enabled) {
       initializeTelemetry(this);
     }

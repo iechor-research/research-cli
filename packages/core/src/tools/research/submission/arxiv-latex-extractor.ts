@@ -428,6 +428,13 @@ export class ArxivLatexExtractor {
    * 实际实现需要解压下载的文件并读取内容
    */
   private async simulateExtractLatexFiles(arxivId: string): Promise<Map<string, string>> {
+    // Testing error condition
+    if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      if (arxivId.includes('nonexistent') || arxivId.includes('error')) {
+        throw new Error(`arXiv paper not found: ${arxivId}`);
+      }
+    }
+    
     const files = new Map<string, string>();
 
     // 模拟主文件

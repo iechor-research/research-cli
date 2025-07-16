@@ -9,6 +9,11 @@ import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliograph
 import { AcademicWritingAssistant } from './writing/academic-writing-assistant.js';
 import { ArXivMCPClient } from './bibliography/arxiv-mcp-client.js';
 import { SubmissionPreparator } from './submission/submission-preparator.js';
+import { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
+import { ExperimentCodeGenerator } from './analysis/experiment-code-generator.js';
+import { LaTeXManager } from './submission/latex-manager.js';
+import { JournalMatcher } from './submission/journal-matcher.js';
+import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
 
 /**
  * 研究工具注册中心
@@ -80,30 +85,28 @@ export class ResearchToolRegistry {
    */
   private registerDefaultTools(): void {
     // Paper management
-    this.registerTool('paper_outline', new PaperOutlineGenerator());
+    this.registerTool(new PaperOutlineGenerator());
     
     // Bibliography management with arXiv integration
-    this.registerTool('bibliography', new EnhancedBibliographyManager(this.arxivClient));
+    this.registerTool(new EnhancedBibliographyManager());
     
     // Experiment tools
-    this.registerTool('experiment_generator', new ExperimentCodeGenerator());
+    this.registerTool(new ExperimentCodeGenerator());
     
     // LaTeX management
-    this.registerTool('latex_manager', new LaTeXManager());
+    this.registerTool(new LaTeXManager());
     
     // Journal matching
-    this.registerTool('journal_matcher', new JournalMatcher());
+    this.registerTool(new JournalMatcher());
     
     // Data analysis
-    this.registerTool('data_analyzer', new ResearchDataAnalyzer());
+    this.registerTool(new ResearchDataAnalyzer());
     
     // Writing assistance
-    this.registerTool('writing_assistant', new AcademicWritingAssistant());
+    this.registerTool(new AcademicWritingAssistant());
 
     // Submission preparation (new)
-    const latexManager = new LaTeXManager();
-    const journalMatcher = new JournalMatcher();
-    this.registerTool('submission_prep', new SubmissionPreparator(this.arxivClient, latexManager, journalMatcher));
+    this.registerTool(new SubmissionPreparator(this.arxivClient));
   }
 
   /**

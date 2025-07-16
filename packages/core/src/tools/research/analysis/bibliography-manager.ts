@@ -361,10 +361,21 @@ export class BibliographyManager extends BaseResearchTool<
             title,
             authors,
             year: new Date(published).getFullYear(),
-            abstract: summary,
+            abstract: summary || '',
+            journal: undefined,
             doi,
+            url: id,
+            keywords: [],
             arxivId,
-            url: id
+            source: 'arXiv',
+            dateAdded: new Date(),
+            tags: [],
+            notes: '',
+            citationFormats: {
+              apa: '',
+              mla: '',
+              ieee: ''
+            }
           });
         }
       } catch (error) {
@@ -397,7 +408,16 @@ export class BibliographyManager extends BaseResearchTool<
         year: 2023 - i,
         abstract: `Abstract for ${query} research paper ${i}. This paper explores various aspects of ${query} and provides insights into recent developments.`,
         url: `https://example.com/paper-${i}`,
-        keywords: query.split(' ')
+        keywords: query.split(' '),
+        source: 'Web Scientific Database',
+        dateAdded: new Date(),
+        tags: [],
+        notes: '',
+        citationFormats: {
+          apa: '',
+          mla: '',
+          ieee: ''
+        }
       });
     }
     
