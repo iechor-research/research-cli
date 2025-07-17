@@ -1,0 +1,10 @@
+{
+  "version": "0.2.6",
+  "buildTime": "2025-07-17T06:31:09.034Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "rustTarget": "aarch64-apple-darwin",
+  "binaryName": "research-cli-darwin-arm64",
+  "size": "431KB",
+  "description": "Native wrapper for Research CLI - macOS Apple Silicon"
+}

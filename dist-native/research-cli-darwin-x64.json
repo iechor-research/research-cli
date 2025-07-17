@@ -1,0 +1,10 @@
+{
+  "version": "0.2.6",
+  "buildTime": "2025-07-17T06:31:08.939Z",
+  "platform": "darwin",
+  "arch": "x64",
+  "rustTarget": "x86_64-apple-darwin",
+  "binaryName": "research-cli-darwin-x64",
+  "size": "420KB",
+  "description": "Native wrapper for Research CLI - macOS Intel"
+}
