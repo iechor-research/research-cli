@@ -4,35 +4,13 @@
   "version": "0.2.1",
   "identifier": "com.iechor.research-cli",
   "build": {
-    "frontendDist": "../tauri-web",
-    "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "npm run start",
     "beforeBuildCommand": "npm run build"
   },
   "app": {
-    "windows": [
-      {
-        "title": "Research CLI",
-        "width": 1200,
-        "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
-        "resizable": true,
-        "fullscreen": false,
-        "center": true,
-        "decorations": true,
-        "alwaysOnTop": false,
-        "maximized": false,
-        "visible": true
-      }
-    ],
+    "withGlobalTauri": false,
+    "windows": [],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: wss:"
-    },
-    "trayIcon": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": true,
-      "menuOnLeftClick": false
+      "csp": null
     }
   },
   "bundle": {
@@ -53,9 +31,5 @@
     "externalBin": [],
     "resources": []
   },
-  "plugins": {
-    "shell": {
-      "open": true
-    }
-  }
+  "plugins": {}
 }
