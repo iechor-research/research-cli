@@ -1,0 +1,7 @@
+{
+  "bin": "./packages/cli/dist/index.js",
+  "targets": [
+    "node18-macos-arm64"
+  ],
+  "outputPath": "./dist-pkg"
+} 

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Research CLI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2d2d30;
+            padding: 8px 16px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #cccccc;
+        }
+
+        .header .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .header button:hover {
+            background: #1177bb;
+        }
+
+        .terminal-container {
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .input-area {
+            border-top: 1px solid #3e3e42;
+            padding: 12px 16px;
+            background: #252526;
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .output .user-input {
+            color: #569cd6;
+        }
+
+        .output .system-output {
+            color: #d4d4d4;
+        }
+
+        .output .error-output {
+            color: #f44747;
+        }
+
+        .output .success-output {
+            color: #4ec9b0;
+        }
+
+        /* 滚动条样式 */
+        .output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        .output::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 4px;
+        }
+
+        .output::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        .status-bar {
+            background: #007acc;
+            color: white;
+            padding: 4px 16px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 Research CLI Desktop</h1>
+        <div class="controls">
+            <button onclick="clearOutput()">Clear</button>
+            <button onclick="showHelp()">Help</button>
+        </div>
+    </div>
+
+    <div class="terminal-container">
+        <div id="output" class="output">
+            <div class="success-output">🔬 Research CLI Desktop Application</div>
+            <div class="system-output">Welcome to Research CLI! Type your commands below or use slash commands.</div>
+            <div class="system-output">Examples: /help, /api providers, /model list</div>
+            <div class="system-output">═══════════════════════════════════════════════════════════════</div>
+        </div>
+
+        <div class="input-area">
+            <span class="prompt">research></span>
+            <input 
+                type="text" 
+                id="commandInput" 
+                class="input" 
+                placeholder="Enter your command..."
+                autocomplete="off"
+            />
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>Ready</span>
+        <span id="connectionStatus">Connected</span>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const output = document.getElementById('output');
+        const input = document.getElementById('commandInput');
+        const statusElement = document.getElementById('connectionStatus');
+
+        // 处理CLI输出
+        ipcRenderer.on('cli-output', (event, data) => {
+            appendOutput(data, 'system-output');
+        });
+
+        ipcRenderer.on('cli-error', (event, data) => {
+            appendOutput(data, 'error-output');
+        });
+
+        // 添加输出到终端
+        function appendOutput(text, className = 'system-output') {
+            const div = document.createElement('div');
+            div.className = className;
+            div.textContent = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // 发送命令到CLI
+        function sendCommand(command) {
+            if (command.trim()) {
+                // 显示用户输入
+                appendOutput(`research> ${command}`, 'user-input');
+                
+                // 发送到CLI进程
+                ipcRenderer.send('cli-input', command);
+                
+                // 清空输入框
+                input.value = '';
+            }
+        }
+
+        // 键盘事件处理
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendCommand(input.value);
+            }
+        });
+
+        // 工具函数
+        function clearOutput() {
+            output.innerHTML = `
+                <div class="success-output">🔬 Research CLI Desktop Application</div>
+                <div class="system-output">Welcome to Research CLI! Type your commands below or use slash commands.</div>
+                <div class="system-output">Examples: /help, /api providers, /model list</div>
+                <div class="system-output">═══════════════════════════════════════════════════════════════</div>
+            `;
+        }
+
+        function showHelp() {
+            sendCommand('/help');
+        }
+
+        // 自动聚焦输入框
+        input.focus();
+
+        // 窗口聚焦时自动聚焦输入框
+        window.addEventListener('focus', () => {
+            input.focus();
+        });
+
+        // 状态更新
+        setInterval(() => {
+            statusElement.textContent = 'Connected';
+        }, 1000);
+    </script>
+</body>
+</html> 

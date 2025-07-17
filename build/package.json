@@ -1,0 +1,23 @@
+{
+  "name": "research-cli-desktop",
+  "version": "0.2.6",
+  "description": "Research CLI Desktop Application",
+  "main": "electron.config.js",
+  "author": "iEchor Research",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/iechor-research/research-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iechor-research/research-cli.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win", 
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  }
+} 
