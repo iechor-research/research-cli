@@ -28,12 +28,7 @@
     "build:packages": "npm run build --workspaces",
     "build:sandbox": "node scripts/build_sandbox.js --skip-npm-install-build",
     "bundle": "npm run generate && node esbuild.config.js && node scripts/copy_bundle_assets.js",
-    "package": "node scripts/build-packages.js",
-    "package:standalone": "npm run build && npx pkg packages/cli/dist/index.js --targets node18-linux-x64,node18-macos-x64,node18-macos-arm64,node18-win-x64 --out-path dist-pkg",
-    "package:electron": "npm run build && npx electron-builder --config build/electron-builder.config.js",
-    "package:electron:mac": "npm run build && npx electron-builder --mac --config build/electron-builder.config.js",
-    "package:electron:win": "npm run build && npx electron-builder --win --config build/electron-builder.config.js",
-    "package:electron:linux": "npm run build && npx electron-builder --linux --config build/electron-builder.config.js",
+
     "test": "npm run test --workspaces",
     "test:ci": "npm run test:ci --workspaces --if-present && npm run test:scripts",
     "test:scripts": "vitest run --config ./scripts/tests/vitest.config.ts",
@@ -70,8 +65,7 @@
     "@vitest/coverage-v8": "^3.1.1",
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
-    "electron": "^37.2.3",
-    "electron-builder": "^26.0.12",
+
     "esbuild": "^0.25.0",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.2",
@@ -84,7 +78,7 @@
     "json": "^11.0.0",
     "lodash": "^4.17.21",
     "memfs": "^4.17.2",
-    "pkg": "^5.8.1",
+
     "prettier": "^3.5.3",
     "react-devtools-core": "^4.28.5",
     "typescript-eslint": "^8.30.1",
