@@ -39,12 +39,12 @@ jobs:
             archive: research-cli-win32-x64.exe
           - name: Linux x64
             os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
+            target: x86_64-unknown-linux-musl
             binary: research-cli
             archive: research-cli-linux-x64
           - name: Linux ARM64
             os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
+            target: aarch64-unknown-linux-musl
             binary: research-cli
             archive: research-cli-linux-arm64
 
@@ -76,17 +76,17 @@ jobs:
         if: matrix.platform.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
-          if [[ "${{ matrix.platform.target }}" == "aarch64-unknown-linux-gnu" ]]; then
+          sudo apt-get install -y build-essential musl-tools
+          if [[ "${{ matrix.platform.target }}" == "aarch64-unknown-linux-musl" ]]; then
             sudo apt-get install -y gcc-aarch64-linux-gnu
           fi
 
       - name: Configure cross-compilation for Linux ARM64
-        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
+        if: matrix.platform.target == 'aarch64-unknown-linux-musl'
         run: |
           mkdir -p src-tauri/.cargo
           cat > src-tauri/.cargo/config.toml << 'EOF'
-          [target.aarch64-unknown-linux-gnu]
+          [target.aarch64-unknown-linux-musl]
           linker = "aarch64-linux-gnu-gcc"
           EOF
 

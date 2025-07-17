@@ -3,11 +3,11 @@
 [target.x86_64-pc-windows-msvc]
 # Windows MSVC target (default)
 
-[target.x86_64-unknown-linux-gnu]
-# Linux x64 target (default)
+[target.x86_64-unknown-linux-musl]
+# Linux x64 target with musl (static linking for better compatibility)
 
-[target.aarch64-unknown-linux-gnu]
-# Linux ARM64 target - will be configured by GitHub Actions
+[target.aarch64-unknown-linux-musl]
+# Linux ARM64 target with musl - will be configured by GitHub Actions
 
 [target.x86_64-apple-darwin]
 # macOS Intel target (default)

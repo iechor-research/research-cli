@@ -21,8 +21,8 @@ const targets = [
     { rust: 'x86_64-apple-darwin', platform: 'darwin', arch: 'x64', name: 'macOS Intel' },
     { rust: 'aarch64-apple-darwin', platform: 'darwin', arch: 'arm64', name: 'macOS Apple Silicon' },
     { rust: 'x86_64-pc-windows-gnu', platform: 'win32', arch: 'x64', name: 'Windows x64', ext: '.exe' },
-    { rust: 'x86_64-unknown-linux-gnu', platform: 'linux', arch: 'x64', name: 'Linux x64' },
-    { rust: 'aarch64-unknown-linux-gnu', platform: 'linux', arch: 'arm64', name: 'Linux ARM64' }
+    { rust: 'x86_64-unknown-linux-musl', platform: 'linux', arch: 'x64', name: 'Linux x64' },
+    { rust: 'aarch64-unknown-linux-musl', platform: 'linux', arch: 'arm64', name: 'Linux ARM64' }
 ];
 
 // 读取package.json获取版本
