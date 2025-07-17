@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research CLI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="icon">🔬</span>
+                    Research CLI
+                </h1>
+                <div class="version-info" id="version-info">
+                    Loading...
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div class="terminal-controls">
+                        <span class="control-dot red"></span>
+                        <span class="control-dot yellow"></span>
+                        <span class="control-dot green"></span>
+                    </div>
+                    <div class="terminal-title">Research CLI Terminal</div>
+                </div>
+                
+                <div class="terminal-body">
+                    <div class="output-area" id="output-area">
+                        <div class="welcome-message">
+                            <p>Welcome to Research CLI Desktop!</p>
+                            <p>Type your commands below or use the quick actions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <span class="prompt">research$</span>
+                        <input 
+                            type="text" 
+                            id="command-input" 
+                            class="command-input" 
+                            placeholder="Enter your research command..."
+                            autocomplete="off"
+                        >
+                        <button id="execute-btn" class="execute-btn">Execute</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <button class="action-btn" data-command="help">
+                        <span class="action-icon">❓</span>
+                        Help
+                    </button>
+                    <button class="action-btn" data-command="config show">
+                        <span class="action-icon">⚙️</span>
+                        Show Config
+                    </button>
+                    <button class="action-btn" data-command="models list">
+                        <span class="action-icon">🤖</span>
+                        List Models
+                    </button>
+                    <button class="action-btn" data-command="research --help">
+                        <span class="action-icon">🔍</span>
+                        Research Help
+                    </button>
+                </div>
+
+                <div class="recent-commands">
+                    <h3>Recent Commands</h3>
+                    <div id="recent-list" class="recent-list">
+                        <!-- Recent commands will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="status-bar">
+                <span class="status-item">
+                    <span class="status-icon">🟢</span>
+                    Ready
+                </span>
+                <span class="status-item">
+                    Powered by Tauri
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html> 

@@ -116,7 +116,7 @@ research bib manage    # 管理文献
 - 🌐 **官网**: https://iechor.com/research-cli
 - 📦 **NPM**: https://www.npmjs.com/package/@iechor/research-cli
 - 💬 **技术支持**: support@iechor.com
-- 🐛 **问题反馈**: https://github.com/iechor/research-cli/issues
+- 🐛 **问题反馈**: https://github.com/iechor-research/research-cli/issues
 
 ---
 
