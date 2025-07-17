@@ -68,7 +68,9 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          targets: ${{ matrix.platform.target }}
+
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.platform.target }}
 
       - name: Install Linux dependencies
         if: matrix.platform.os == 'ubuntu-latest'
