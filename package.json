@@ -33,6 +33,7 @@
     "publish:native": "node scripts/gh-release.js",
     "publish:cross-platform": "node scripts/gh-release-cross-platform.js",
     "prepare:release": "node scripts/publish-available-platforms.js",
+    "github:build": "node scripts/trigger-github-build.js",
     "bundle": "npm run generate && node esbuild.config.js && node scripts/copy_bundle_assets.js",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
