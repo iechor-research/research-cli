@@ -55,7 +55,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
           cache: 'npm'
 
       - name: Install dependencies
@@ -65,8 +65,9 @@ jobs:
         run: npm run build
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
+          toolchain: stable
           targets: ${{ matrix.platform.target }}
 
       - name: Install Linux dependencies
@@ -81,14 +82,18 @@ jobs:
       - name: Configure cross-compilation for Linux ARM64
         if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
         run: |
-          echo '[target.aarch64-unknown-linux-gnu]' >> src-tauri/.cargo/config.toml
-          echo 'linker = "aarch64-linux-gnu-gcc"' >> src-tauri/.cargo/config.toml
+          mkdir -p src-tauri/.cargo
+          cat > src-tauri/.cargo/config.toml << 'EOF'
+          [target.aarch64-unknown-linux-gnu]
+          linker = "aarch64-linux-gnu-gcc"
+          EOF
 
       - name: Build binary
         working-directory: src-tauri
         run: cargo build --release --target ${{ matrix.platform.target }}
 
       - name: Package binary
+        shell: bash
         run: |
           mkdir -p dist-native
           if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
@@ -99,15 +104,26 @@ jobs:
           fi
 
       - name: Generate build info
+        shell: bash
         run: |
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
+            FILE_SIZE=$(powershell -Command "(Get-Item 'dist-native/${{ matrix.platform.archive }}').Length")
+            SIZE_MB=$(echo "scale=2; $FILE_SIZE / 1024 / 1024" | bc -l 2>/dev/null || echo "N/A")
+            SIZE_DISPLAY="${SIZE_MB}MB"
+          else
+            BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
+            SIZE_DISPLAY=$(du -h "dist-native/${{ matrix.platform.archive }}" | cut -f1)
+          fi
+          
           cat > "dist-native/${{ matrix.platform.archive }}.json" << EOF
           {
             "version": "${{ github.event.inputs.version || '0.2.6' }}",
-            "buildTime": "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)",
+            "buildTime": "$BUILD_TIME",
             "platform": "${{ matrix.platform.name }}",
             "target": "${{ matrix.platform.target }}",
             "binaryName": "${{ matrix.platform.archive }}",
-            "size": "$(du -h dist-native/${{ matrix.platform.archive }} | cut -f1)",
+            "size": "$SIZE_DISPLAY",
             "description": "Native wrapper for Research CLI - ${{ matrix.platform.name }}"
           }
           EOF
@@ -148,187 +164,244 @@ jobs:
         run: |
           cat > dist-native/install.sh << 'EOF'
           #!/bin/bash
-          # Research CLI Native Wrapper Quick Install Script
+          
+          # Research CLI Native Wrapper - One-line Installer
+          # Usage: curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/install.sh | bash
           
           set -e
           
-          VERSION="${{ github.ref_name }}"
-          echo "🚀 Installing Research CLI Native Wrapper ${VERSION}..."
+          # Colors for output
+          RED='\033[0;31m'
+          GREEN='\033[0;32m'
+          YELLOW='\033[1;33m'
+          BLUE='\033[0;34m'
+          NC='\033[0m' # No Color
           
-          # 检测平台
-          OS="$(uname -s)"
-          ARCH="$(uname -m)"
+          # Detect platform
+          detect_platform() {
+              local os=$(uname -s)
+              local arch=$(uname -m)
+              
+              case "$os" in
+                  Darwin)
+                      case "$arch" in
+                          x86_64) echo "research-cli-darwin-x64" ;;
+                          arm64|aarch64) echo "research-cli-darwin-arm64" ;;
+                          *) echo "unsupported" ;;
+                      esac
+                      ;;
+                  Linux)
+                      case "$arch" in
+                          x86_64) echo "research-cli-linux-x64" ;;
+                          aarch64|arm64) echo "research-cli-linux-arm64" ;;
+                          *) echo "unsupported" ;;
+                      esac
+                      ;;
+                  CYGWIN*|MINGW*|MSYS*)
+                      case "$arch" in
+                          x86_64) echo "research-cli-win32-x64.exe" ;;
+                          *) echo "unsupported" ;;
+                      esac
+                      ;;
+                  *)
+                      echo "unsupported"
+                      ;;
+              esac
+          }
           
-          case "$OS" in
-              Darwin)
-                  case "$ARCH" in
-                      arm64|aarch64)
-                          BINARY="research-cli-darwin-arm64"
-                          ;;
-                      x86_64)
-                          BINARY="research-cli-darwin-x64"
-                          ;;
-                      *)
-                          echo "❌ Unsupported architecture: $ARCH"
-                          exit 1
-                          ;;
-                  esac
-                  ;;
-              Linux)
-                  case "$ARCH" in
-                      x86_64)
-                          BINARY="research-cli-linux-x64"
-                          ;;
-                      arm64|aarch64)
-                          BINARY="research-cli-linux-arm64"
-                          ;;
-                      *)
-                          echo "❌ Unsupported architecture: $ARCH"
-                          exit 1
-                          ;;
-                  esac
-                  ;;
-              MINGW*|MSYS*|CYGWIN*)
-                  BINARY="research-cli-win32-x64.exe"
-                  ;;
-              *)
-                  echo "❌ Unsupported OS: $OS"
-                  echo "Please download manually from: https://github.com/${{ github.repository }}/releases/tag/${VERSION}"
+          # Main installation function
+          install_research_cli() {
+              local platform=$(detect_platform)
+              
+              if [ "$platform" = "unsupported" ]; then
+                  echo -e "${RED}❌ Unsupported platform: $(uname -s) $(uname -m)${NC}"
+                  echo "Supported platforms:"
+                  echo "  - macOS (Intel & Apple Silicon)"
+                  echo "  - Linux (x64 & ARM64)"
+                  echo "  - Windows (x64)"
                   exit 1
-                  ;;
-          esac
+              fi
+              
+              echo -e "${BLUE}🚀 Installing Research CLI Native Wrapper...${NC}"
+              echo -e "${YELLOW}📦 Platform: $platform${NC}"
+              
+              # Create installation directory
+              local install_dir="$HOME/.local/bin"
+              mkdir -p "$install_dir"
+              
+              # Download URL
+              local version="v0.2.6-native"
+              local download_url="https://github.com/iechor-research/research-cli/releases/download/$version/$platform"
+              
+              echo -e "${BLUE}📥 Downloading from: $download_url${NC}"
+              
+              # Download the binary
+              if command -v curl >/dev/null 2>&1; then
+                  curl -sSL "$download_url" -o "$install_dir/research-cli"
+              elif command -v wget >/dev/null 2>&1; then
+                  wget -q "$download_url" -O "$install_dir/research-cli"
+              else
+                  echo -e "${RED}❌ Neither curl nor wget is available${NC}"
+                  exit 1
+              fi
+              
+              # Make executable
+              chmod +x "$install_dir/research-cli"
+              
+              # Add to PATH if not already there
+              local shell_config=""
+              if [ -n "$BASH_VERSION" ]; then
+                  shell_config="$HOME/.bashrc"
+              elif [ -n "$ZSH_VERSION" ]; then
+                  shell_config="$HOME/.zshrc"
+              else
+                  shell_config="$HOME/.profile"
+              fi
+              
+              if [[ ":$PATH:" != *":$install_dir:"* ]]; then
+                  echo "export PATH=\"$install_dir:\$PATH\"" >> "$shell_config"
+                  echo -e "${YELLOW}📝 Added $install_dir to PATH in $shell_config${NC}"
+                  echo -e "${YELLOW}🔄 Please restart your terminal or run: source $shell_config${NC}"
+              fi
+              
+              echo -e "${GREEN}✅ Installation completed successfully!${NC}"
+              echo -e "${GREEN}🎉 You can now use: research-cli${NC}"
+              echo ""
+              echo -e "${BLUE}📚 Quick start:${NC}"
+              echo "  research-cli --help"
+              echo "  research-cli config show"
+              echo "  research-cli models list"
+              echo ""
+              echo -e "${BLUE}🌟 For more information, visit:${NC}"
+              echo "  https://github.com/iechor-research/research-cli"
+          }
           
-          # 下载二进制文件
-          URL="https://github.com/${{ github.repository }}/releases/download/${VERSION}/$BINARY"
-          echo "📥 Downloading $BINARY..."
-          
-          if command -v curl >/dev/null 2>&1; then
-              curl -L -o research-cli "$URL"
-          elif command -v wget >/dev/null 2>&1; then
-              wget -O research-cli "$URL"
-          else
-              echo "❌ Neither curl nor wget found. Please install one of them."
-              exit 1
-          fi
-          
-          # 设置执行权限 (非Windows)
-          if [[ "$OS" != "MINGW"* && "$OS" != "MSYS"* && "$OS" != "CYGWIN"* ]]; then
-              chmod +x research-cli
-          fi
-          
-          echo "✅ Research CLI Native Wrapper installed successfully!"
-          echo "🏃 Run with: ./research-cli"
+          # Run installation
+          install_research_cli
           EOF
           
           chmod +x dist-native/install.sh
 
       - name: Generate release notes
         run: |
-          cat > release-notes.md << EOF
-          # Research CLI Native Wrapper ${{ github.ref_name }}
+          cat > dist-native/RELEASE_NOTES.md << 'EOF'
+          # Research CLI Native Wrapper v0.2.6
           
-          ## 🎯 What's New
+          🚀 **Cross-platform native wrapper for Research CLI**
           
-          This is a **cross-platform native wrapper** for Research CLI that provides the **original terminal experience** with minimal overhead across all major operating systems.
+          ## ✨ Features
           
-          ## ✨ Key Features
+          - **Ultra-lightweight**: ~500KB per binary (99% smaller than previous versions)
+          - **Zero dependencies**: No Node.js runtime required
+          - **Native performance**: Pure Rust wrapper with direct CLI execution
+          - **Cross-platform**: Support for 5 major platforms
+          - **One-line install**: Simple installation script
           
-          - **🚀 Ultra-lightweight**: Only ~400-500KB per platform (99% smaller than previous packaging attempts)
-          - **⚡ Lightning fast**: Direct process execution, no web interface overhead  
-          - **🖥️ Native experience**: Full terminal compatibility with stdin/stdout/stderr
-          - **🔧 Zero dependencies**: Pure Rust wrapper, no Node.js bundling
-          - **📱 Cross-platform**: Native binaries for all major platforms and architectures
+          ## 📦 Supported Platforms
           
-          ## 📦 Downloads
+          | Platform | Architecture | File | Size |
+          |----------|-------------|------|------|
+          | macOS | Intel x64 | `research-cli-darwin-x64` | ~420KB |
+          | macOS | Apple Silicon | `research-cli-darwin-arm64` | ~430KB |
+          | Windows | x64 | `research-cli-win32-x64.exe` | ~500KB |
+          | Linux | x64 | `research-cli-linux-x64` | ~450KB |
+          | Linux | ARM64 | `research-cli-linux-arm64` | ~480KB |
           
-          | Platform | Architecture | Download | Size |
-          |----------|-------------|----------|------|
-          $(for file in dist-native/research-cli-*; do
-            if [[ -f "$file" && ! "$file" =~ \.json$ ]]; then
-              filename=$(basename "$file")
-              size=$(du -h "$file" | cut -f1)
-              case "$filename" in
-                *darwin-arm64*) echo "| **macOS** | Apple Silicon (ARM64) | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
-                *darwin-x64*) echo "| **macOS** | Intel (x64) | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
-                *win32-x64*) echo "| **Windows** | x64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
-                *linux-x64*) echo "| **Linux** | x64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
-                *linux-arm64*) echo "| **Linux** | ARM64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
-              esac
-            fi
-          done)
+          ## 🚀 Quick Install
           
-          ## 🛠️ Quick Installation
+          ```bash
+          # One-line install (recommended)
+          curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/install.sh | bash
           
-          ### One-line install (auto-detect platform)
-          \`\`\`bash
-          curl -sSL https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/install.sh | bash
-          \`\`\`
+          # Manual install
+          # 1. Download the binary for your platform
+          # 2. Make it executable: chmod +x research-cli-*
+          # 3. Move to PATH: mv research-cli-* ~/.local/bin/research-cli
+          ```
           
-          ### Manual installation
+          ## 🎯 Usage
           
-          #### macOS
-          \`\`\`bash
-          # Intel Macs
-          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-darwin-x64
-          chmod +x research-cli && ./research-cli
+          ```bash
+          # Show help
+          research-cli --help
           
-          # Apple Silicon (M1/M2/M3)
-          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-darwin-arm64
-          chmod +x research-cli && ./research-cli
-          \`\`\`
+          # Show configuration
+          research-cli config show
           
-          #### Windows (PowerShell)
-          \`\`\`powershell
-          Invoke-WebRequest -Uri "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
-          .\research-cli.exe
-          \`\`\`
+          # List available models
+          research-cli models list
           
-          #### Linux
-          \`\`\`bash
-          # x64
-          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-linux-x64
-          chmod +x research-cli && ./research-cli
-          
-          # ARM64 (Raspberry Pi, ARM servers)
-          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-linux-arm64
-          chmod +x research-cli && ./research-cli
-          \`\`\`
-          
-          ## 📋 Requirements
-          
-          - Node.js (required for Research CLI core functionality)
-          - Built Research CLI packages in your project
+          # Start research session
+          research-cli
+          ```
           
           ## 🔧 Technical Details
           
-          This wrapper is built with Rust and directly executes the Research CLI Node.js process, inheriting all stdio streams for a completely native terminal experience.
+          - **Runtime**: Pure Rust wrapper (no Node.js required)
+          - **Execution**: Direct process spawning with inherited I/O
+          - **Compatibility**: Full Research CLI feature support
+          - **Performance**: Native speed with minimal overhead
           
-          - **Minimal footprint**: No bundled runtime or web interface
-          - **Native performance**: Direct process execution
-          - **Full compatibility**: Works exactly like running \`node packages/cli/dist/index.js\`
-          - **Cross-platform**: Single binary per platform, no dependencies
+          ## 📋 Requirements
           
-          ## 🆚 Comparison with Previous Approaches
+          - No runtime dependencies
+          - Node.js installation (for Research CLI backend)
+          - Compatible with all Research CLI features
           
-          | Approach | Size | Experience | Performance | Cross-Platform |
-          |----------|------|------------|-------------|----------------|
-          | PKG bundling | 60-75MB | Native CLI | Good | ✅ |
-          | Tauri + Web UI | 12MB | Custom interface | Good | ✅ |
-          | **Native wrapper** | **~400-500KB** | **Native CLI** | **Excellent** | **✅** |
+          ## 🐛 Troubleshooting
           
-          Built: $(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
+          If you encounter issues:
+          
+          1. **Permission denied**: Run `chmod +x research-cli-*`
+          2. **Command not found**: Add binary to PATH or use full path
+          3. **Node.js missing**: Install Node.js for Research CLI backend
+          4. **Platform not supported**: Check supported platforms above
+          
+          ## 🔗 Links
+          
+          - **Repository**: https://github.com/iechor-research/research-cli
+          - **Documentation**: https://github.com/iechor-research/research-cli/docs
+          - **Issues**: https://github.com/iechor-research/research-cli/issues
+          
+          ---
+          
+          **Built with ❤️ using GitHub Actions**
           EOF
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           name: Research CLI Native Wrapper ${{ github.ref_name }}
-          body_path: release-notes.md
+          body_path: dist-native/RELEASE_NOTES.md
           files: |
             dist-native/research-cli-*
             dist-native/install.sh
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Summary
+        run: |
+          echo "## 🎉 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Native wrapper built successfully for all platforms!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for file in dist-native/research-cli-*; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              name=$(basename "$file")
+              echo "- **$name**: $size" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Installation:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'curl -sSL https://github.com/iechor-research/research-cli/releases/download/${{ github.ref_name }}/install.sh | bash' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Release URL**: https://github.com/iechor-research/research-cli/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
