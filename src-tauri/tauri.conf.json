@@ -55,41 +55,7 @@
   },
   "plugins": {
     "shell": {
-      "all": true,
-      "execute": true,
-      "sidecar": true,
       "open": true
-    },
-    "fs": {
-      "all": true,
-      "readFile": true,
-      "writeFile": true,
-      "readDir": true,
-      "copyFile": true,
-      "createDir": true,
-      "removeDir": true,
-      "removeFile": true,
-      "renameFile": true,
-      "exists": true
-    },
-    "dialog": {
-      "all": true,
-      "ask": true,
-      "confirm": true,
-      "message": true,
-      "open": true,
-      "save": true
-    },
-    "notification": {
-      "all": true
-    },
-    "globalShortcut": {
-      "all": true
-    },
-    "clipboard": {
-      "all": true,
-      "writeText": true,
-      "readText": true
     }
   }
 }

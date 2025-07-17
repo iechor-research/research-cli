@@ -1,13 +1,26 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
-use std::process::Command;
+use std::process::{Command, Stdio};
+use tauri::{Manager, Window};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+async fn start_research_server() -> Result<String, String> {
+    // 启动 Research CLI 的开发服务器
+    let output = Command::new("npm")
+        .arg("run")
+        .arg("start")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Failed to start server: {}", e))?;
+
+    Ok("Server starting...".to_string())
 }
 
 #[tauri::command]
@@ -41,20 +54,33 @@ async fn get_research_version() -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+async fn minimize_window(window: Window) -> Result<(), String> {
+    window.minimize().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn toggle_maximize(window: Window) -> Result<(), String> {
+    if window.is_maximized().unwrap_or(false) {
+        window.unmaximize().map_err(|e| e.to_string())
+    } else {
+        window.maximize().map_err(|e| e.to_string())
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_clipboard_manager::init())
         .invoke_handler(tauri::generate_handler![
             greet,
+            start_research_server,
             run_research_command,
-            get_research_version
+            get_research_version,
+            minimize_window,
+            toggle_maximize
         ])
         .setup(|app| {
-            #[cfg(debug_assertions)] // only include this code on debug builds
+            #[cfg(debug_assertions)]
             {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
