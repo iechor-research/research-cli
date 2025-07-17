@@ -152,15 +152,32 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist-native
+        continue-on-error: true
+
+      - name: Retry artifact download if failed
+        if: failure()
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-native
 
       - name: Organize artifacts
         run: |
           # 移动所有文件到 dist-native 根目录
-          find dist-native -name "research-cli-*" -type f -exec mv {} dist-native/ \;
+          find dist-native -name "research-cli-*" -type f -exec mv {} dist-native/ \; || true
           # 清理空目录
-          find dist-native -type d -empty -delete
+          find dist-native -type d -empty -delete || true
           # 显示文件列表
           ls -la dist-native/
+          # 确保我们有所有必需的文件
+          echo "Checking for required files..."
+          for file in research-cli-darwin-x64 research-cli-darwin-arm64 research-cli-win32-x64.exe research-cli-linux-x64 research-cli-linux-arm64; do
+            if [ ! -f "dist-native/$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
 
       - name: Create install script
         run: |
