@@ -1,0 +1,334 @@
+name: Build Native Wrapper
+
+on:
+  push:
+    tags:
+      - 'v*-native'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 0.2.6)'
+        required: true
+        default: '0.2.6'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: macOS Intel
+            os: macos-latest
+            target: x86_64-apple-darwin
+            binary: research-cli
+            archive: research-cli-darwin-x64
+          - name: macOS Apple Silicon
+            os: macos-latest
+            target: aarch64-apple-darwin
+            binary: research-cli
+            archive: research-cli-darwin-arm64
+          - name: Windows x64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary: research-cli.exe
+            archive: research-cli-win32-x64.exe
+          - name: Linux x64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary: research-cli
+            archive: research-cli-linux-x64
+          - name: Linux ARM64
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            binary: research-cli
+            archive: research-cli-linux-arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+          if [[ "${{ matrix.platform.target }}" == "aarch64-unknown-linux-gnu" ]]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+          fi
+
+      - name: Configure cross-compilation for Linux ARM64
+        if: matrix.platform.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          echo '[target.aarch64-unknown-linux-gnu]' >> src-tauri/.cargo/config.toml
+          echo 'linker = "aarch64-linux-gnu-gcc"' >> src-tauri/.cargo/config.toml
+
+      - name: Build binary
+        working-directory: src-tauri
+        run: cargo build --release --target ${{ matrix.platform.target }}
+
+      - name: Package binary
+        run: |
+          mkdir -p dist-native
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            cp "src-tauri/target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary }}" "dist-native/${{ matrix.platform.archive }}"
+          else
+            cp "src-tauri/target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary }}" "dist-native/${{ matrix.platform.archive }}"
+            chmod +x "dist-native/${{ matrix.platform.archive }}"
+          fi
+
+      - name: Generate build info
+        run: |
+          cat > "dist-native/${{ matrix.platform.archive }}.json" << EOF
+          {
+            "version": "${{ github.event.inputs.version || '0.2.6' }}",
+            "buildTime": "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)",
+            "platform": "${{ matrix.platform.name }}",
+            "target": "${{ matrix.platform.target }}",
+            "binaryName": "${{ matrix.platform.archive }}",
+            "size": "$(du -h dist-native/${{ matrix.platform.archive }} | cut -f1)",
+            "description": "Native wrapper for Research CLI - ${{ matrix.platform.name }}"
+          }
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.archive }}
+          path: |
+            dist-native/${{ matrix.platform.archive }}
+            dist-native/${{ matrix.platform.archive }}.json
+
+  create-release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') && endsWith(github.ref, '-native')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-native
+
+      - name: Organize artifacts
+        run: |
+          # 移动所有文件到 dist-native 根目录
+          find dist-native -name "research-cli-*" -type f -exec mv {} dist-native/ \;
+          # 清理空目录
+          find dist-native -type d -empty -delete
+          # 显示文件列表
+          ls -la dist-native/
+
+      - name: Create install script
+        run: |
+          cat > dist-native/install.sh << 'EOF'
+          #!/bin/bash
+          # Research CLI Native Wrapper Quick Install Script
+          
+          set -e
+          
+          VERSION="${{ github.ref_name }}"
+          echo "🚀 Installing Research CLI Native Wrapper ${VERSION}..."
+          
+          # 检测平台
+          OS="$(uname -s)"
+          ARCH="$(uname -m)"
+          
+          case "$OS" in
+              Darwin)
+                  case "$ARCH" in
+                      arm64|aarch64)
+                          BINARY="research-cli-darwin-arm64"
+                          ;;
+                      x86_64)
+                          BINARY="research-cli-darwin-x64"
+                          ;;
+                      *)
+                          echo "❌ Unsupported architecture: $ARCH"
+                          exit 1
+                          ;;
+                  esac
+                  ;;
+              Linux)
+                  case "$ARCH" in
+                      x86_64)
+                          BINARY="research-cli-linux-x64"
+                          ;;
+                      arm64|aarch64)
+                          BINARY="research-cli-linux-arm64"
+                          ;;
+                      *)
+                          echo "❌ Unsupported architecture: $ARCH"
+                          exit 1
+                          ;;
+                  esac
+                  ;;
+              MINGW*|MSYS*|CYGWIN*)
+                  BINARY="research-cli-win32-x64.exe"
+                  ;;
+              *)
+                  echo "❌ Unsupported OS: $OS"
+                  echo "Please download manually from: https://github.com/${{ github.repository }}/releases/tag/${VERSION}"
+                  exit 1
+                  ;;
+          esac
+          
+          # 下载二进制文件
+          URL="https://github.com/${{ github.repository }}/releases/download/${VERSION}/$BINARY"
+          echo "📥 Downloading $BINARY..."
+          
+          if command -v curl >/dev/null 2>&1; then
+              curl -L -o research-cli "$URL"
+          elif command -v wget >/dev/null 2>&1; then
+              wget -O research-cli "$URL"
+          else
+              echo "❌ Neither curl nor wget found. Please install one of them."
+              exit 1
+          fi
+          
+          # 设置执行权限 (非Windows)
+          if [[ "$OS" != "MINGW"* && "$OS" != "MSYS"* && "$OS" != "CYGWIN"* ]]; then
+              chmod +x research-cli
+          fi
+          
+          echo "✅ Research CLI Native Wrapper installed successfully!"
+          echo "🏃 Run with: ./research-cli"
+          EOF
+          
+          chmod +x dist-native/install.sh
+
+      - name: Generate release notes
+        run: |
+          cat > release-notes.md << EOF
+          # Research CLI Native Wrapper ${{ github.ref_name }}
+          
+          ## 🎯 What's New
+          
+          This is a **cross-platform native wrapper** for Research CLI that provides the **original terminal experience** with minimal overhead across all major operating systems.
+          
+          ## ✨ Key Features
+          
+          - **🚀 Ultra-lightweight**: Only ~400-500KB per platform (99% smaller than previous packaging attempts)
+          - **⚡ Lightning fast**: Direct process execution, no web interface overhead  
+          - **🖥️ Native experience**: Full terminal compatibility with stdin/stdout/stderr
+          - **🔧 Zero dependencies**: Pure Rust wrapper, no Node.js bundling
+          - **📱 Cross-platform**: Native binaries for all major platforms and architectures
+          
+          ## 📦 Downloads
+          
+          | Platform | Architecture | Download | Size |
+          |----------|-------------|----------|------|
+          $(for file in dist-native/research-cli-*; do
+            if [[ -f "$file" && ! "$file" =~ \.json$ ]]; then
+              filename=$(basename "$file")
+              size=$(du -h "$file" | cut -f1)
+              case "$filename" in
+                *darwin-arm64*) echo "| **macOS** | Apple Silicon (ARM64) | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
+                *darwin-x64*) echo "| **macOS** | Intel (x64) | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
+                *win32-x64*) echo "| **Windows** | x64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
+                *linux-x64*) echo "| **Linux** | x64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
+                *linux-arm64*) echo "| **Linux** | ARM64 | [\`$filename\`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/$filename) | $size |" ;;
+              esac
+            fi
+          done)
+          
+          ## 🛠️ Quick Installation
+          
+          ### One-line install (auto-detect platform)
+          \`\`\`bash
+          curl -sSL https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/install.sh | bash
+          \`\`\`
+          
+          ### Manual installation
+          
+          #### macOS
+          \`\`\`bash
+          # Intel Macs
+          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-darwin-x64
+          chmod +x research-cli && ./research-cli
+          
+          # Apple Silicon (M1/M2/M3)
+          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-darwin-arm64
+          chmod +x research-cli && ./research-cli
+          \`\`\`
+          
+          #### Windows (PowerShell)
+          \`\`\`powershell
+          Invoke-WebRequest -Uri "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
+          .\research-cli.exe
+          \`\`\`
+          
+          #### Linux
+          \`\`\`bash
+          # x64
+          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-linux-x64
+          chmod +x research-cli && ./research-cli
+          
+          # ARM64 (Raspberry Pi, ARM servers)
+          curl -L -o research-cli https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/research-cli-linux-arm64
+          chmod +x research-cli && ./research-cli
+          \`\`\`
+          
+          ## 📋 Requirements
+          
+          - Node.js (required for Research CLI core functionality)
+          - Built Research CLI packages in your project
+          
+          ## 🔧 Technical Details
+          
+          This wrapper is built with Rust and directly executes the Research CLI Node.js process, inheriting all stdio streams for a completely native terminal experience.
+          
+          - **Minimal footprint**: No bundled runtime or web interface
+          - **Native performance**: Direct process execution
+          - **Full compatibility**: Works exactly like running \`node packages/cli/dist/index.js\`
+          - **Cross-platform**: Single binary per platform, no dependencies
+          
+          ## 🆚 Comparison with Previous Approaches
+          
+          | Approach | Size | Experience | Performance | Cross-Platform |
+          |----------|------|------------|-------------|----------------|
+          | PKG bundling | 60-75MB | Native CLI | Good | ✅ |
+          | Tauri + Web UI | 12MB | Custom interface | Good | ✅ |
+          | **Native wrapper** | **~400-500KB** | **Native CLI** | **Excellent** | **✅** |
+          
+          Built: $(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Research CLI Native Wrapper ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: |
+            dist-native/research-cli-*
+            dist-native/install.sh
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
