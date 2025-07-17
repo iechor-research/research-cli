@@ -15,6 +15,28 @@ import {
 } from '../tools/research/types.js';
 
 /**
+ * Get SerpAPI key from configuration file
+ */
+function getConfiguredSerpApiKey(): string | undefined {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    
+    const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
+    
+    if (fs.existsSync(configFile)) {
+      const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+      return config.apis?.serpapi?.apiKey;
+    }
+  } catch (error) {
+    // 静默失败，回退到环境变量
+  }
+  
+  return undefined;
+}
+
+/**
  * 作者信息
  */
 export interface AuthorInfo {
@@ -298,7 +320,7 @@ export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
       maxResults: 20,
       language: 'en',
           useSerpApi: true,
-    serpApiKey: process.env.SERPAPI_KEY || 'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
+    serpApiKey: getConfiguredSerpApiKey() || process.env.SERPAPI_KEY || 'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
     },
   },
 

@@ -52,14 +52,48 @@ export type ContentGeneratorConfig = {
   authType?: AuthType | undefined;
 };
 
+/**
+ * Get API configuration from config file
+ */
+function getConfiguredAPIValues(): {
+  geminiApiKey?: string;
+  googleApiKey?: string;
+  googleCloudProject?: string;
+  googleCloudLocation?: string;
+} {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    
+    const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
+    
+    if (fs.existsSync(configFile)) {
+      const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+      return {
+        geminiApiKey: config.apis?.gemini?.apiKey,
+        googleApiKey: config.apis?.google?.apiKey,
+        googleCloudProject: config.apis?.google_project?.value,
+        googleCloudLocation: config.apis?.google_location?.value,
+      };
+    }
+  } catch (error) {
+    // 静默失败，回退到环境变量
+  }
+  
+  return {};
+}
+
 export async function createContentGeneratorConfig(
   model: string | undefined,
   authType: AuthType | undefined,
 ): Promise<ContentGeneratorConfig> {
-  const researchApiKey = process.env.GEMINI_API_KEY  || undefined;
-  const iechorApiKey = process.env.GOOGLE_API_KEY || undefined;
-  const iechorCloudProject = process.env.GOOGLE_CLOUD_PROJECT || undefined;
-  const iechorCloudLocation = process.env.GOOGLE_CLOUD_LOCATION || undefined;
+  const configuredValues = getConfiguredAPIValues();
+  
+  const researchApiKey = configuredValues.geminiApiKey || process.env.GEMINI_API_KEY  || undefined;
+  const iechorApiKey = configuredValues.googleApiKey || process.env.GOOGLE_API_KEY || undefined;
+  const iechorCloudProject = configuredValues.googleCloudProject || process.env.GOOGLE_CLOUD_PROJECT || undefined;
+  const iechorCloudLocation = configuredValues.googleCloudLocation || process.env.GOOGLE_CLOUD_LOCATION || undefined;
 
   // Use runtime model from config if available, otherwise fallback to parameter or default
   const effectiveModel = model || DEFAULT_RESEARCH_MODEL;

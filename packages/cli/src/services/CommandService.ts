@@ -10,6 +10,7 @@ import { helpCommand } from '../ui/commands/helpCommand.js';
 import { clearCommand } from '../ui/commands/clearCommand.js';
 import { themeCommand } from '../ui/commands/themeCommand.js';
 import { modelCommand } from '../ui/commands/model/index.js';
+import { apiCommand } from '../ui/commands/api/index.js';
 import { allResearchCommands } from '../ui/commands/research/index.js';
 
 const loadBuiltInCommands = async (): Promise<SlashCommand[]> => [
@@ -18,6 +19,7 @@ const loadBuiltInCommands = async (): Promise<SlashCommand[]> => [
   memoryCommand,
   themeCommand,
   modelCommand,
+  apiCommand,
   ...allResearchCommands  // 添加所有研究命令
 ];
 

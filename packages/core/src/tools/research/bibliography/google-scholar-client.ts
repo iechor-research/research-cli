@@ -73,7 +73,31 @@ export class GoogleScholarClient {
   private customSearchEngineId: string = '000000000000000000000:aaaaaaaaaaa'; // Default CSE ID for Google Scholar
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.SERPAPI_KEY || process.env.GOOGLE_API_KEY || '082111056d72a84aec957a8211707fdc072d2655d6df8050fc95a0ddb8f45497';
+    this.apiKey = apiKey || this.getConfiguredApiKey() || process.env.SERPAPI_KEY || process.env.GOOGLE_API_KEY || '082111056d72a84aec957a8211707fdc072d2655d6df8050fc95a0ddb8f45497';
+  }
+
+  /**
+   * Get API key from configuration file
+   */
+  private getConfiguredApiKey(): string | undefined {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const os = require('os');
+      
+      const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
+      
+      if (fs.existsSync(configFile)) {
+        const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+        
+        // 优先使用 SerpAPI key，然后是 Google API key
+        return config.apis?.serpapi?.apiKey || config.apis?.google?.apiKey;
+      }
+    } catch (error) {
+      // 静默失败，回退到环境变量
+    }
+    
+    return undefined;
   }
 
   /**
