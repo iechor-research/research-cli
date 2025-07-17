@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to build (e.g., 0.2.6)'
+        description: 'Version to build (e.g., 0.2.7)'
         required: true
-        default: '0.2.6'
+        default: '0.2.7'
 
 env:
   CARGO_TERM_COLOR: always
@@ -185,7 +185,7 @@ jobs:
           #!/bin/bash
           
           # Research CLI Native Wrapper - One-line Installer
-          # Usage: curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/install.sh | bash
+          # Usage: curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install.sh | bash
           
           set -e
           
@@ -249,7 +249,7 @@ jobs:
               mkdir -p "$install_dir"
               
               # Download URL
-              local version="v0.2.6-native"
+              local version="v0.2.7-native"
               local download_url="https://github.com/iechor-research/research-cli/releases/download/$version/$platform"
               
               echo -e "${BLUE}📥 Downloading from: $download_url${NC}"

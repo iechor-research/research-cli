@@ -122,7 +122,7 @@ install_research_cli() {
         exit 1
     fi
     
-    echo -e "${BLUE}🚀 Installing Research CLI Native Wrapper v0.2.6...${NC}"
+    echo -e "${BLUE}🚀 Installing Research CLI Native Wrapper v0.2.7...${NC}"
     echo -e "${YELLOW}📦 Platform: $platform${NC}"
     
     # Find installation directory
@@ -130,7 +130,7 @@ install_research_cli() {
     echo -e "${BLUE}📁 Installing to: $install_dir${NC}"
     
     # Download URL
-    local version="v0.2.6-native"
+    local version="v0.2.7-native"
     local download_url="https://github.com/iechor-research/research-cli/releases/download/$version/$platform"
     
     echo -e "${BLUE}📥 Downloading from: $download_url${NC}"
