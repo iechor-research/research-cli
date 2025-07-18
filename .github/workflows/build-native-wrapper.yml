@@ -171,40 +171,63 @@ jobs:
 
       - name: Organize artifacts
         run: |
-          echo "Current directory structure:"
-          find dist-native -type f -name "*research-cli*" | head -20
+          echo "=== Initial directory structure ==="
+          find dist-native -type f | sort
+          echo ""
           
           # 移动所有文件到 dist-native 根目录
+          echo "=== Moving files to root directory ==="
           # 处理在子目录中的文件
-          find dist-native -mindepth 2 -name "research-cli-*" -type f -exec mv {} dist-native/ \; || true
+          find dist-native -mindepth 2 -name "research-cli-*" -type f -print0 | while IFS= read -r -d '' file; do
+            echo "Moving: $file -> dist-native/$(basename "$file")"
+            mv "$file" "dist-native/$(basename "$file")" || true
+          done
           
           # 清理空目录
           find dist-native -type d -empty -delete || true
           
-          # 显示文件列表
-          echo "Files in dist-native after organization:"
+          echo ""
+          echo "=== Files in dist-native after organization ==="
           ls -la dist-native/
+          echo ""
           
           # 确保我们有所有必需的文件
-          echo "Checking for required files..."
+          echo "=== Checking for required files ==="
           missing_files=()
-          for file in research-cli-darwin-x64 research-cli-darwin-arm64 research-cli-win32-x64.exe research-cli-linux-x64 research-cli-linux-arm64; do
+          required_files=(
+            "research-cli-darwin-x64"
+            "research-cli-darwin-arm64"
+            "research-cli-win32-x64.exe"
+            "research-cli-linux-x64"
+            "research-cli-linux-arm64"
+          )
+          
+          for file in "${required_files[@]}"; do
             if [ ! -f "dist-native/$file" ]; then
-              echo "Missing required file: $file"
+              echo "❌ Missing required file: $file"
               missing_files+=("$file")
             else
-              echo "Found: $file"
+              echo "✅ Found: $file"
               # 确保文件可执行
               chmod +x "dist-native/$file" || true
             fi
           done
           
           if [ ${#missing_files[@]} -gt 0 ]; then
-            echo "Missing files: ${missing_files[*]}"
-            echo "Available files:"
+            echo ""
+            echo "=== ERROR: Missing files ==="
+            printf '%s\n' "${missing_files[@]}"
+            echo ""
+            echo "=== Available files ==="
             find dist-native -type f -name "*research-cli*" | sort
+            echo ""
+            echo "=== All files in dist-native ==="
+            find dist-native -type f | sort
             exit 1
           fi
+          
+          echo ""
+          echo "=== All required files found! ==="
 
       - name: Create install script
         run: |
