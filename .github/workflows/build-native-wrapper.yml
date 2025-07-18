@@ -182,20 +182,23 @@ jobs:
           # Windows
           if [ -f "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" ]; then
             echo "Moving Windows binary..."
-            mv "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" "dist-native/research-cli-win32-x64.exe" || true
+            mv -f "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" "dist-native/" || true
           fi
           
           # Linux x64
           if [ -f "dist-native/research-cli-linux-x64/research-cli-linux-x64" ]; then
             echo "Moving Linux x64 binary..."
-            mv "dist-native/research-cli-linux-x64/research-cli-linux-x64" "dist-native/research-cli-linux-x64" || true
+            mv -f "dist-native/research-cli-linux-x64/research-cli-linux-x64" "dist-native/" || true
           fi
           
           # Linux ARM64
           if [ -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" ]; then
             echo "Moving Linux ARM64 binary..."
-            mv "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" "dist-native/research-cli-linux-arm64" || true
+            mv -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" "dist-native/" || true
           fi
+          
+          # 移动JSON文件
+          find dist-native -mindepth 2 -name "*.json" -exec mv -f {} dist-native/ \; || true
           
           # 清理空目录
           find dist-native -type d -empty -delete || true
