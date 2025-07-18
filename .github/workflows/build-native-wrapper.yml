@@ -177,11 +177,25 @@ jobs:
           
           # 移动所有文件到 dist-native 根目录
           echo "=== Moving files to root directory ==="
-          # 处理在子目录中的文件
-          find dist-native -mindepth 2 -name "research-cli-*" -type f -print0 | while IFS= read -r -d '' file; do
-            echo "Moving: $file -> dist-native/$(basename "$file")"
-            mv "$file" "dist-native/$(basename "$file")" || true
-          done
+          
+          # 处理每个特定的文件
+          # Windows
+          if [ -f "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" ]; then
+            echo "Moving Windows binary..."
+            mv "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" "dist-native/research-cli-win32-x64.exe" || true
+          fi
+          
+          # Linux x64
+          if [ -f "dist-native/research-cli-linux-x64/research-cli-linux-x64" ]; then
+            echo "Moving Linux x64 binary..."
+            mv "dist-native/research-cli-linux-x64/research-cli-linux-x64" "dist-native/research-cli-linux-x64" || true
+          fi
+          
+          # Linux ARM64
+          if [ -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" ]; then
+            echo "Moving Linux ARM64 binary..."
+            mv "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" "dist-native/research-cli-linux-arm64" || true
+          fi
           
           # 清理空目录
           find dist-native -type d -empty -delete || true
