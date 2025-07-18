@@ -11,6 +11,10 @@ on:
         required: true
         default: '0.2.7'
 
+permissions:
+  contents: write
+  packages: write
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -495,18 +499,19 @@ jobs:
           EOF
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Research CLI Native Wrapper ${{ github.ref_name }}
-          body_path: dist-native/RELEASE_NOTES.md
-          files: |
-            dist-native/research-cli-*
+        run: |
+          echo "Creating GitHub Release..."
+          
+          # Create release using GitHub CLI
+          gh release create "${{ github.ref_name }}" \
+            --title "Research CLI Native Wrapper ${{ github.ref_name }}" \
+            --notes-file dist-native/RELEASE_NOTES.md \
+            --verify-tag \
+            dist-native/research-cli-* \
             dist-native/install.sh
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Summary
         run: |
