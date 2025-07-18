@@ -153,30 +153,58 @@ jobs:
       - name: Create dist-native directory
         run: mkdir -p dist-native
 
-      - name: Download artifacts with retry
+      - name: Download artifacts manually
         run: |
-          echo "Attempting to download artifacts..."
-          max_attempts=10
-          attempt=1
+          echo "Downloading artifacts manually..."
+          mkdir -p dist-native-temp
           
-          while [ $attempt -le $max_attempts ]; do
-            echo "Attempt $attempt of $max_attempts"
+          # Function to download individual artifact
+          download_artifact() {
+            local artifact_name=$1
+            echo "Downloading $artifact_name..."
             
-            # Try to download all artifacts
-            if gh run download ${{ github.run_id }} -D dist-native; then
-              echo "Successfully downloaded artifacts"
-              break
-            else
-              echo "Download failed, waiting before retry..."
-              sleep 10
-              attempt=$((attempt + 1))
+            # Get artifact info
+            artifact_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/iechor-research/research-cli/actions/runs/${{ github.run_id }}/artifacts" | \
+              jq -r --arg name "$artifact_name" '.artifacts[] | select(.name == $name)')
+            
+            if [ -z "$artifact_info" ]; then
+              echo "Artifact $artifact_name not found"
+              return 1
             fi
+            
+            # Get download URL
+            artifact_url=$(echo "$artifact_info" | jq -r '.archive_download_url')
+            
+            # Download artifact
+            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "$artifact_url" -o "dist-native-temp/${artifact_name}.zip"
+            
+            # Extract artifact
+            cd dist-native-temp
+            unzip -q "${artifact_name}.zip"
+            rm "${artifact_name}.zip"
+            cd ..
+            
+            return 0
+          }
+          
+          # Download each artifact
+          artifacts=(
+            "research-cli-darwin-x64"
+            "research-cli-darwin-arm64"
+            "research-cli-win32-x64.exe"
+            "research-cli-linux-x64"
+            "research-cli-linux-arm64"
+          )
+          
+          for artifact in "${artifacts[@]}"; do
+            download_artifact "$artifact" || echo "Failed to download $artifact"
           done
           
-          if [ $attempt -gt $max_attempts ]; then
-            echo "Failed to download artifacts after $max_attempts attempts"
-            exit 1
-          fi
+          # Move all files to dist-native
+          mv dist-native-temp/* dist-native/ || true
+          rmdir dist-native-temp || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
