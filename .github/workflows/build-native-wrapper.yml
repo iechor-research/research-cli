@@ -137,6 +137,8 @@ jobs:
           path: |
             dist-native/${{ matrix.platform.archive }}
             dist-native/${{ matrix.platform.archive }}.json
+          retention-days: 1
+          if-no-files-found: error
 
   create-release:
     name: Create Release
@@ -148,26 +150,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist-native
-        continue-on-error: true
+      - name: Create dist-native directory
+        run: mkdir -p dist-native
 
-      - name: Retry artifact download if failed
-        if: failure()
-        uses: actions/download-artifact@v4
-        with:
-          path: dist-native
-        continue-on-error: true
-
-      - name: List available artifacts
-        if: failure()
+      - name: Download artifacts with retry
         run: |
-          echo "Available artifacts:"
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/iechor-research/research-cli/actions/runs/${{ github.run_id }}/artifacts" | \
-            jq -r '.artifacts[] | "\(.name) - \(.size_in_bytes) bytes"'
+          echo "Attempting to download artifacts..."
+          max_attempts=10
+          attempt=1
+          
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts"
+            
+            # Try to download all artifacts
+            if gh run download ${{ github.run_id }} -D dist-native; then
+              echo "Successfully downloaded artifacts"
+              break
+            else
+              echo "Download failed, waiting before retry..."
+              sleep 10
+              attempt=$((attempt + 1))
+            fi
+          done
+          
+          if [ $attempt -gt $max_attempts ]; then
+            echo "Failed to download artifacts after $max_attempts attempts"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Organize artifacts
         run: |
