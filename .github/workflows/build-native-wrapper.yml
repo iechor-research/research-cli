@@ -144,9 +144,42 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  create-node-package:
+    name: Create Node.js Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Create package archive
+        run: |
+          mkdir -p dist-package
+          cp -r packages dist-package/
+          cp package.json dist-package/
+          cp package-lock.json dist-package/
+          cd dist-package
+          tar -czf ../research-cli-node.tar.gz .
+          cd ..
+          
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-package
+          path: research-cli-node.tar.gz
+
   create-release:
     name: Create Release
-    needs: build
+    needs: [build-macos-intel, build-macos-arm, build-windows, build-linux-x64, build-linux-arm64, create-node-package]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') && endsWith(github.ref, '-native')
     
@@ -200,6 +233,7 @@ jobs:
             "research-cli-win32-x64.exe"
             "research-cli-linux-x64"
             "research-cli-linux-arm64"
+            "node-package"
           )
           
           for artifact in "${artifacts[@]}"; do
@@ -240,6 +274,14 @@ jobs:
             mv -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" "dist-native/" || true
           fi
           
+          # Node.js package
+          if [ -f "dist-native/node-package/research-cli-node.tar.gz" ]; then
+            echo "Moving Node.js package..."
+            mv -f "dist-native/node-package/research-cli-node.tar.gz" "dist-native/" || true
+          elif [ -f "dist-native/research-cli-node.tar.gz" ]; then
+            echo "Node.js package already in place"
+          fi
+          
           # 移动JSON文件
           find dist-native -mindepth 2 -name "*.json" -exec mv -f {} dist-native/ \; || true
           
@@ -260,6 +302,7 @@ jobs:
             "research-cli-win32-x64.exe"
             "research-cli-linux-x64"
             "research-cli-linux-arm64"
+            "research-cli-node.tar.gz"
           )
           
           for file in "${required_files[@]}"; do
@@ -291,6 +334,9 @@ jobs:
 
       - name: Create install script
         run: |
+          # Copy the complete installer script
+          cp dist-native/install-complete.sh dist-native/install-complete.sh || echo "install-complete.sh not found"
+          
           cat > dist-native/install.sh << 'EOF'
           #!/bin/bash
           
@@ -508,7 +554,8 @@ jobs:
             --notes-file dist-native/RELEASE_NOTES.md \
             --verify-tag \
             dist-native/research-cli-* \
-            dist-native/install.sh
+            dist-native/install.sh \
+            dist-native/install-complete.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
