@@ -159,25 +159,51 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist-native
+        continue-on-error: true
+
+      - name: List available artifacts
+        if: failure()
+        run: |
+          echo "Available artifacts:"
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/iechor-research/research-cli/actions/runs/${{ github.run_id }}/artifacts" | \
+            jq -r '.artifacts[] | "\(.name) - \(.size_in_bytes) bytes"'
 
       - name: Organize artifacts
         run: |
+          echo "Current directory structure:"
+          find dist-native -type f -name "*research-cli*" | head -20
+          
           # 移动所有文件到 dist-native 根目录
           find dist-native -name "research-cli-*" -type f -exec mv {} dist-native/ \; || true
+          
           # 清理空目录
           find dist-native -type d -empty -delete || true
+          
           # 显示文件列表
+          echo "Files in dist-native after organization:"
           ls -la dist-native/
+          
           # 确保我们有所有必需的文件
           echo "Checking for required files..."
+          missing_files=()
           for file in research-cli-darwin-x64 research-cli-darwin-arm64 research-cli-win32-x64.exe research-cli-linux-x64 research-cli-linux-arm64; do
             if [ ! -f "dist-native/$file" ]; then
               echo "Missing required file: $file"
-              exit 1
+              missing_files+=("$file")
             else
               echo "Found: $file"
+              # 确保文件可执行
+              chmod +x "dist-native/$file" || true
             fi
           done
+          
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "Missing files: ${missing_files[*]}"
+            echo "Available files:"
+            find dist-native -type f -name "*research-cli*" | sort
+            exit 1
+          fi
 
       - name: Create install script
         run: |
