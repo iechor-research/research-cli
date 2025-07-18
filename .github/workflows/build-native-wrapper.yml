@@ -172,10 +172,10 @@ jobs:
           echo "Checking for required files..."
           for file in research-cli-darwin-x64 research-cli-darwin-arm64 research-cli-win32-x64.exe research-cli-linux-x64 research-cli-linux-arm64; do
             if [ ! -f "dist-native/$file" ]; then
-              echo "❌ Missing required file: $file"
+              echo "Missing required file: $file"
               exit 1
             else
-              echo "✅ Found: $file"
+              echo "Found: $file"
             fi
           done
 
@@ -233,7 +233,7 @@ jobs:
               local platform=$(detect_platform)
               
               if [ "$platform" = "unsupported" ]; then
-                  echo -e "${RED}❌ Unsupported platform: $(uname -s) $(uname -m)${NC}"
+                  echo -e "${RED}Unsupported platform: $(uname -s) $(uname -m)${NC}"
                   echo "Supported platforms:"
                   echo "  - macOS (Intel & Apple Silicon)"
                   echo "  - Linux (x64 & ARM64)"
@@ -241,8 +241,8 @@ jobs:
                   exit 1
               fi
               
-              echo -e "${BLUE}🚀 Installing Research CLI Native Wrapper...${NC}"
-              echo -e "${YELLOW}📦 Platform: $platform${NC}"
+              echo -e "${BLUE}Installing Research CLI Native Wrapper...${NC}"
+              echo -e "${YELLOW}Platform: $platform${NC}"
               
               # Create installation directory
               local install_dir="$HOME/.local/bin"
@@ -252,7 +252,7 @@ jobs:
               local version="v0.2.7-native"
               local download_url="https://github.com/iechor-research/research-cli/releases/download/$version/$platform"
               
-              echo -e "${BLUE}📥 Downloading from: $download_url${NC}"
+              echo -e "${BLUE}Downloading from: $download_url${NC}"
               
               # Download the binary
               if command -v curl >/dev/null 2>&1; then
@@ -260,7 +260,7 @@ jobs:
               elif command -v wget >/dev/null 2>&1; then
                   wget -q "$download_url" -O "$install_dir/research-cli"
               else
-                  echo -e "${RED}❌ Neither curl nor wget is available${NC}"
+                  echo -e "${RED}Neither curl nor wget is available${NC}"
                   exit 1
               fi
               
@@ -279,19 +279,19 @@ jobs:
               
               if [[ ":$PATH:" != *":$install_dir:"* ]]; then
                   echo "export PATH=\"$install_dir:\$PATH\"" >> "$shell_config"
-                  echo -e "${YELLOW}📝 Added $install_dir to PATH in $shell_config${NC}"
-                  echo -e "${YELLOW}🔄 Please restart your terminal or run: source $shell_config${NC}"
+                  echo -e "${YELLOW}Added $install_dir to PATH in $shell_config${NC}"
+                  echo -e "${YELLOW}Please restart your terminal or run: source $shell_config${NC}"
               fi
               
-              echo -e "${GREEN}✅ Installation completed successfully!${NC}"
-              echo -e "${GREEN}🎉 You can now use: research-cli${NC}"
+              echo -e "${GREEN}Installation completed successfully!${NC}"
+              echo -e "${GREEN}You can now use: research-cli${NC}"
               echo ""
-              echo -e "${BLUE}📚 Quick start:${NC}"
+              echo -e "${BLUE}Quick start:${NC}"
               echo "  research-cli --help"
               echo "  research-cli config show"
               echo "  research-cli models list"
               echo ""
-              echo -e "${BLUE}🌟 For more information, visit:${NC}"
+              echo -e "${BLUE}For more information, visit:${NC}"
               echo "  https://github.com/iechor-research/research-cli"
           }
           
@@ -304,19 +304,20 @@ jobs:
       - name: Generate release notes
         run: |
           cat > dist-native/RELEASE_NOTES.md << 'EOF'
-          # Research CLI Native Wrapper v0.2.6
+          # Research CLI Native Wrapper v0.2.7
           
-          🚀 **Cross-platform native wrapper for Research CLI**
+          **Cross-platform native wrapper for Research CLI**
           
-          ## ✨ Features
+          ## Features
           
           - **Ultra-lightweight**: ~500KB per binary (99% smaller than previous versions)
           - **Zero dependencies**: No Node.js runtime required
           - **Native performance**: Pure Rust wrapper with direct CLI execution
           - **Cross-platform**: Support for 5 major platforms
           - **One-line install**: Simple installation script
+          - **Linux compatibility**: Uses musl static linking for better compatibility
           
-          ## 📦 Supported Platforms
+          ## Supported Platforms
           
           | Platform | Architecture | File | Size |
           |----------|-------------|------|------|
@@ -326,11 +327,11 @@ jobs:
           | Linux | x64 | `research-cli-linux-x64` | ~450KB |
           | Linux | ARM64 | `research-cli-linux-arm64` | ~480KB |
           
-          ## 🚀 Quick Install
+          ## Quick Install
           
           ```bash
           # One-line install (recommended)
-          curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/install.sh | bash
+          curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install.sh | bash
           
           # Manual install
           # 1. Download the binary for your platform
@@ -338,7 +339,7 @@ jobs:
           # 3. Move to PATH: mv research-cli-* ~/.local/bin/research-cli
           ```
           
-          ## 🎯 Usage
+          ## Usage
           
           ```bash
           # Show help
@@ -354,20 +355,20 @@ jobs:
           research-cli
           ```
           
-          ## 🔧 Technical Details
+          ## Technical Details
           
           - **Runtime**: Pure Rust wrapper (no Node.js required)
           - **Execution**: Direct process spawning with inherited I/O
           - **Compatibility**: Full Research CLI feature support
           - **Performance**: Native speed with minimal overhead
           
-          ## 📋 Requirements
+          ## Requirements
           
           - No runtime dependencies
           - Node.js installation (for Research CLI backend)
           - Compatible with all Research CLI features
           
-          ## 🐛 Troubleshooting
+          ## Troubleshooting
           
           If you encounter issues:
           
@@ -376,7 +377,7 @@ jobs:
           3. **Node.js missing**: Install Node.js for Research CLI backend
           4. **Platform not supported**: Check supported platforms above
           
-          ## 🔗 Links
+          ## Links
           
           - **Repository**: https://github.com/iechor-research/research-cli
           - **Documentation**: https://github.com/iechor-research/research-cli/docs
@@ -403,11 +404,11 @@ jobs:
 
       - name: Build Summary
         run: |
-          echo "## 🎉 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Native wrapper built successfully for all platforms!**" >> $GITHUB_STEP_SUMMARY
+          echo "**Native wrapper built successfully for all platforms!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 Artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           for file in dist-native/research-cli-*; do
             if [ -f "$file" ]; then
@@ -417,10 +418,10 @@ jobs:
             fi
           done
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Installation:" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo 'curl -sSL https://github.com/iechor-research/research-cli/releases/download/${{ github.ref_name }}/install.sh | bash' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Release URL**: https://github.com/iechor-research/research-cli/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
+          echo "**Release URL**: https://github.com/iechor-research/research-cli/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
