@@ -769,7 +769,7 @@ Summarize your contributions and future work.
 \\usepackage{fancyhdr}
 \\usepackage{setspace}
 \\usepackage{tocloft}
-\\usepackage{hyperref}
+\\usepackage{research-cliref}
 \\usepackage[margin=1in]{geometry}
 % CUSTOM_PACKAGES
 
@@ -1365,7 +1365,7 @@ help:
     // 返回一些常见的包
     return [
       'amsmath', 'amssymb', 'amsfonts', 'graphicx', 'color', 'xcolor',
-      'hyperref', 'cite', 'natbib', 'biblatex', 'algorithm', 'algorithmic',
+      'research-cliref', 'cite', 'natbib', 'biblatex', 'algorithm', 'algorithmic',
       'listings', 'fancyhdr', 'geometry', 'setspace', 'microtype'
     ];
   }
@@ -1392,7 +1392,7 @@ help:
    * 获取推荐的包
    */
   private getRecommendedPackages(documentType?: DocumentType): string[] {
-    const base = ['amsmath', 'amssymb', 'graphicx', 'hyperref', 'cite'];
+    const base = ['amsmath', 'amssymb', 'graphicx', 'research-cliref', 'cite'];
     
     switch (documentType) {
       case DocumentType.JOURNAL_ARTICLE:
