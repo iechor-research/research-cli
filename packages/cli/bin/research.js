@@ -5,8 +5,13 @@
  * This script provides better compatibility across different Linux systems
  */
 
-const path = require('path');
-const { spawn } = require('child_process');
+import path from 'path';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+// Get current file directory in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Find the actual CLI entry point
 const cliPath = path.join(__dirname, '..', 'dist', 'index.js');
