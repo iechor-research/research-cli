@@ -9,7 +9,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "research": "dist/index.js"
+    "research": "bin/research.js"
   },
   "scripts": {
     "build": "node ../../scripts/build_package.js",
@@ -22,7 +22,8 @@
     "typecheck": "tsc --noEmit"
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "config": {
     "sandboxImageUri": "us-docker.pkg.dev/research-code-dev/research-cli/sandbox:0.2.0"
