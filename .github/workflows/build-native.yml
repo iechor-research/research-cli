@@ -1,0 +1,245 @@
+name: Build Native Cross-Platform
+
+on:
+  push:
+    tags:
+      - 'v*-native'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., v0.2.7-native)'
+        required: true
+        default: 'v0.2.7-native'
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin-x64
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            platform: darwin-arm64  
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            platform: win32-x64
+            target: x86_64-pc-windows-msvc
+            ext: .exe
+          - os: ubuntu-latest
+            platform: linux-x64
+            target: x86_64-unknown-linux-musl
+          - os: ubuntu-latest
+            platform: linux-arm64
+            target: aarch64-unknown-linux-musl
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Linux cross-compilation tools
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+          if [[ "${{ matrix.target }}" == "aarch64-unknown-linux-musl" ]]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+            echo "CC_aarch64_unknown_linux_musl=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          fi
+
+      - name: Build Rust binary
+        working-directory: src-tauri
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Prepare binary
+        shell: bash
+        run: |
+          BINARY_NAME="research-cli${{ matrix.ext }}"
+          TARGET_NAME="research-cli-${{ matrix.platform }}${{ matrix.ext }}"
+          
+          # Copy binary to dist-native
+          mkdir -p dist-native
+          cp "src-tauri/target/${{ matrix.target }}/release/${BINARY_NAME}" "dist-native/${TARGET_NAME}"
+          
+          # Make executable on Unix systems
+          if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
+            chmod +x "dist-native/${TARGET_NAME}"
+          fi
+          
+          # Get file size
+          FILE_SIZE=$(du -k "dist-native/${TARGET_NAME}" | cut -f1)
+          echo "Binary size: ${FILE_SIZE}KB"
+          
+          # Create metadata
+          cat > "dist-native/${TARGET_NAME}.json" << EOF
+          {
+            "version": "${{ github.ref_name || inputs.version }}",
+            "buildTime": "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)",
+            "platform": "${{ matrix.platform }}",
+            "target": "${{ matrix.target }}",
+            "binaryName": "${TARGET_NAME}",
+            "size": "${FILE_SIZE}KB",
+            "os": "${{ matrix.os }}",
+            "description": "Native wrapper for Research CLI - ${{ matrix.platform }}"
+          }
+          EOF
+
+      - name: Build Node.js package
+        run: |
+          npm run build
+          
+          # Create package tarball
+          mkdir -p dist-native/node-package
+          cp -r packages/cli/dist dist-native/node-package/
+          cp -r packages/core/dist dist-native/node-package/packages/
+          cp package.json dist-native/node-package/
+          
+          # Create simplified package structure
+          cd dist-native/node-package
+          tar -czf ../research-cli-node.tar.gz .
+          cd ../..
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-cli-${{ matrix.platform }}
+          path: |
+            dist-native/research-cli-${{ matrix.platform }}*
+            dist-native/research-cli-node.tar.gz
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          
+          # Copy all binaries and metadata
+          find artifacts -name "research-cli-*" -type f | while read file; do
+            cp "$file" release-assets/
+          done
+          
+          # Copy Node.js package (only need one copy)
+          cp artifacts/research-cli-darwin-x64/research-cli-node.tar.gz release-assets/ || \
+          cp artifacts/research-cli-*/research-cli-node.tar.gz release-assets/
+          
+          # List assets
+          echo "Release assets:"
+          ls -la release-assets/
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ github.ref_name || inputs.version }}"
+          cat > release-notes.md << 'EOF'
+          # Research CLI Native Wrapper ${VERSION}
+          
+          ## 🎯 Cross-Platform Native Binaries
+          
+          This release provides native binaries for all major platforms that work independently without requiring a separate Node.js installation of Research CLI.
+          
+          ## ✨ Key Features
+          
+          - **🚀 Ultra-lightweight**: ~400-500KB per platform
+          - **⚡ Lightning fast**: Direct process execution
+          - **🖥️ Native experience**: Full terminal compatibility
+          - **🔧 Zero dependencies**: Pure Rust wrapper
+          - **📱 Cross-platform**: Native binaries for all platforms
+          - **🎯 Independent**: Works without separate Research CLI installation
+          
+          ## 📦 Quick Installation
+          
+          ### One-line installer (all platforms)
+          ```bash
+          curl -sSL https://github.com/iechor-research/research-cli/releases/download/${VERSION}/install-complete.sh | bash
+          ```
+          
+          ### Manual Installation
+          
+          #### macOS
+          ```bash
+          # Intel Macs
+          curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${VERSION}/research-cli-darwin-x64
+          chmod +x research-cli && ./research-cli
+          
+          # Apple Silicon (M1/M2/M3)
+          curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${VERSION}/research-cli-darwin-arm64
+          chmod +x research-cli && ./research-cli
+          ```
+          
+          #### Windows (PowerShell)
+          ```powershell
+          Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/${VERSION}/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
+          .\research-cli.exe
+          ```
+          
+          #### Linux
+          ```bash
+          # x64
+          curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${VERSION}/research-cli-linux-x64
+          chmod +x research-cli && ./research-cli
+          
+          # ARM64
+          curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${VERSION}/research-cli-linux-arm64
+          chmod +x research-cli && ./research-cli
+          ```
+          
+          ## 📋 Requirements
+          
+          - Node.js (automatically detected and used by the wrapper)
+          - The wrapper includes the complete Research CLI package
+          
+          ## 🔧 Technical Details
+          
+          Each binary is a lightweight Rust wrapper that:
+          - Includes the complete Research CLI Node.js package
+          - Automatically finds and uses your system's Node.js installation
+          - Provides full terminal compatibility with stdin/stdout/stderr
+          - Works exactly like running the Research CLI directly
+          
+          Built: $(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name || inputs.version }}
+          name: Research CLI Native Wrapper ${{ github.ref_name || inputs.version }}
+          body_path: release-notes.md
+          files: |
+            release-assets/*
+            dist-native/install-complete.sh
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

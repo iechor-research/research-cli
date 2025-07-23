@@ -4,40 +4,47 @@
 
 | Platform | Architecture | Download | Size | Status |
 |----------|-------------|----------|------|--------|
-| macOS Intel | | `research-cli-darwin-x64` | 420KB | ✅ Ready |
-| macOS Apple Silicon | | `research-cli-darwin-arm64` | 431KB | ✅ Ready |
+| macOS Intel | | `research-cli-darwin-x64` | 456KB | ✅ Ready |
+| macOS Apple Silicon | | `research-cli-darwin-arm64` | 470KB | ✅ Ready |
 | Windows x64 | | `research-cli-win32-x64.exe` | N/A | ❌ Failed |
-| Linux x64 | | `research-cli-linux-x64` | N/A | ❌ Failed |
-| Linux ARM64 | | `research-cli-linux-arm64` | N/A | ❌ Failed |
+| Linux x64 | | `research-cli-linux-x64` | N/A | ⏭️ Skipped |
+| Linux ARM64 | | `research-cli-linux-arm64` | N/A | ⏭️ Skipped |
 
 ## 🛠️ Installation Instructions
 
-### macOS
+### One-line installer (all platforms)
+```bash
+curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install-complete.sh | bash
+```
+
+### Manual Installation
+
+#### macOS
 ```bash
 # Intel Macs
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/research-cli-darwin-x64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-x64
 chmod +x research-cli
 
 # Apple Silicon (M1/M2/M3)
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/research-cli-darwin-arm64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-arm64
 chmod +x research-cli
 ```
 
-### Windows
+#### Windows
 ```powershell
 # Download and run
-Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
+Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
 .\research-cli.exe
 ```
 
-### Linux
+#### Linux
 ```bash
 # x64
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/research-cli-linux-x64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-linux-x64
 chmod +x research-cli
 
 # ARM64
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.6-native/research-cli-linux-arm64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-linux-arm64
 chmod +x research-cli
 ```
 
@@ -54,5 +61,25 @@ chmod +x research-cli
 - **🔧 Zero dependencies**: Pure Rust wrapper
 - **📱 Cross-platform**: Works on all major platforms
 
-Built: 2025-07-17T06:31:10.203Z
-Version: 0.2.6
+## 🔧 Build Information
+
+Built: 2025-07-23T13:44:12.218Z
+Version: 0.2.7
+
+### Build Results
+- ✅ Successful builds: 2
+- ❌ Failed builds: 1
+- ⏭️ Skipped builds: 2
+
+
+### Failed Builds
+- **Windows x64**: Command failed: cargo build --release --target x86_64-pc-windows-msvc
+
+💡 **Note**: Failed builds are normal when cross-compilation tools aren't available.
+For complete cross-platform builds, use GitHub Actions or build on each target platform.
+
+
+### Recommendations
+- For production releases, use GitHub Actions to build on native platforms
+- For local development, the available builds should be sufficient
+- Users can always use the complete installer which handles platform detection
