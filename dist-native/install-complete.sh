@@ -243,11 +243,11 @@ main() {
     # Install binary
     echo -e "${BLUE}📦 Installing native binary...${NC}"
     chmod +x "$binary_path"
-    cp "$binary_path" "$bin_dir/research-cli$binary_ext"
+    cp "$binary_path" "$bin_dir/research$binary_ext"
     
     # Create symlinks (Unix only)
     if [ "$platform" != "win32-x64" ]; then
-        ln -sf "$bin_dir/research-cli" "$bin_dir/research"
+        ln -sf "$bin_dir/research" "$bin_dir/research-cli"
     fi
     
     # Install Node.js package
@@ -265,23 +265,23 @@ main() {
     echo -e "${GREEN}✅ Installation completed successfully!${NC}"
     echo ""
     echo -e "${BLUE}📋 Installation summary:${NC}"
-    echo -e "  Binary: $bin_dir/research-cli$binary_ext"
+    echo -e "  Binary: $bin_dir/research$binary_ext"
     if [ "$platform" != "win32-x64" ]; then
-        echo -e "  Symlink: $bin_dir/research"
+        echo -e "  Symlink: $bin_dir/research-cli"
     fi
     echo -e "  Library: $lib_dir"
     echo -e "  Environment: RESEARCH_CLI_HOME=$lib_dir"
     echo ""
     
     # Test installation
-    if [ -x "$bin_dir/research-cli$binary_ext" ]; then
+    if [ -x "$bin_dir/research$binary_ext" ]; then
         echo -e "${GREEN}✅ Binary is executable${NC}"
         
         # Try to run version command
         if command -v node >/dev/null 2>&1; then
             echo -e "${BLUE}🧪 Testing installation...${NC}"
             export RESEARCH_CLI_HOME="$lib_dir"
-            if "$bin_dir/research-cli$binary_ext" --version 2>/dev/null; then
+            if "$bin_dir/research$binary_ext" --version 2>/dev/null; then
                 echo -e "${GREEN}✅ Research CLI is working perfectly!${NC}"
             else
                 echo -e "${YELLOW}⚠️  Could not verify installation${NC}"
@@ -295,10 +295,10 @@ main() {
     
     echo ""
     echo -e "${BLUE}🎉 You can now use:${NC}"
+    echo -e "  ${GREEN}research${NC} - Main command"
     if [ "$platform" != "win32-x64" ]; then
-        echo -e "  ${GREEN}research${NC} - Main command"
+        echo -e "  ${GREEN}research-cli${NC} - Alternative command"
     fi
-    echo -e "  ${GREEN}research-cli${NC} - Alternative command"
     echo ""
     echo -e "${BLUE}📚 Quick start:${NC}"
     echo "  research --help"
