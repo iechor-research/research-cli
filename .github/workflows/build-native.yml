@@ -103,13 +103,33 @@ jobs:
           EOF
 
       - name: Build Node.js package
+        shell: bash
         run: |
           npm run build
           
           # Create package tarball
           mkdir -p dist-native/node-package
-          cp -r packages/cli/dist dist-native/node-package/
-          cp -r packages/core/dist dist-native/node-package/packages/
+          
+          # Remove existing directory if it exists (Windows compatibility)
+          if [ -d "dist-native/node-package" ]; then
+            rm -rf dist-native/node-package
+          fi
+          mkdir -p dist-native/node-package
+          
+          # Create packages directory structure
+          mkdir -p dist-native/node-package/packages
+          
+          # Copy CLI package
+          if [ -d "packages/cli/dist" ]; then
+            cp -r packages/cli/dist dist-native/node-package/
+          fi
+          
+          # Copy Core package
+          if [ -d "packages/core/dist" ]; then
+            cp -r packages/core/dist dist-native/node-package/packages/
+          fi
+          
+          # Copy package.json
           cp package.json dist-native/node-package/
           
           # Create simplified package structure
