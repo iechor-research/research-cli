@@ -198,33 +198,29 @@ try {
     }
     fs.mkdirSync(nodePackageDir, { recursive: true });
     
-    // 复制必要文件
-    const packagesDir = path.join(nodePackageDir, 'packages');
-    fs.mkdirSync(packagesDir, { recursive: true });
+    // 复制整个构建好的项目（包括node_modules）
+    const projectRoot = path.join(__dirname, '..');
     
-    // 复制CLI包
-    if (fs.existsSync(path.join(__dirname, '..', 'packages', 'cli', 'dist'))) {
-        fs.cpSync(
-            path.join(__dirname, '..', 'packages', 'cli', 'dist'),
-            path.join(packagesDir, 'cli', 'dist'),
-            { recursive: true }
-        );
+    // 复制必要的文件和目录
+    const itemsToCopy = [
+        'dist',
+        'packages',
+        'node_modules',
+        'package.json',
+        'package-lock.json'
+    ];
+    
+    for (const item of itemsToCopy) {
+        const srcPath = path.join(projectRoot, item);
+        const destPath = path.join(nodePackageDir, item);
+        
+        if (fs.existsSync(srcPath)) {
+            console.log(`📁 Copying ${item}...`);
+            fs.cpSync(srcPath, destPath, { recursive: true });
+        } else {
+            console.log(`⚠️  ${item} not found, skipping...`);
+        }
     }
-    
-    // 复制Core包
-    if (fs.existsSync(path.join(__dirname, '..', 'packages', 'core', 'dist'))) {
-        fs.cpSync(
-            path.join(__dirname, '..', 'packages', 'core', 'dist'),
-            path.join(packagesDir, 'core', 'dist'),
-            { recursive: true }
-        );
-    }
-    
-    // 复制package.json
-    fs.copyFileSync(
-        path.join(__dirname, '..', 'package.json'),
-        path.join(nodePackageDir, 'package.json')
-    );
     
     // 创建tarball
     execSync('tar -czf research-cli-node.tar.gz -C node-package .', {

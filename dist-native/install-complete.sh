@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-VERSION="v0.2.7-native"
+VERSION="v0.2.8-native"
 GITHUB_REPO="iechor-research/research-cli"
 INSTALL_BASE="/usr/local"
 USER_INSTALL_BASE="$HOME/.local"
@@ -281,7 +281,7 @@ main() {
         if command -v node >/dev/null 2>&1; then
             echo -e "${BLUE}🧪 Testing installation...${NC}"
             export RESEARCH_CLI_HOME="$lib_dir"
-            if "$bin_dir/research$binary_ext" --version 2>/dev/null; then
+            if "$bin_dir/research$binary_ext" --version >/dev/null 2>&1; then
                 echo -e "${GREEN}✅ Research CLI is working perfectly!${NC}"
             else
                 echo -e "${YELLOW}⚠️  Could not verify installation${NC}"
