@@ -63,7 +63,7 @@ chmod +x research-cli
 
 ## 🔧 Build Information
 
-Built: 2025-07-23T13:44:12.218Z
+Built: 2025-07-23T21:52:08.534Z
 Version: 0.2.7
 
 ### Build Results
