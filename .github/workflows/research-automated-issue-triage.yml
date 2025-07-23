@@ -17,17 +17,10 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - name: Generate GitHub App Token
-        id: generate_token
-        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
       - name: Run Research Issue Triage
         uses: iechor-research/research-cli-action@df3f890f003d28c60a2a09d2c29e0126e4d1e2ff
         env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: 0.1.8-rc.0
           GEMINI_API_KEY : ${{ secrets.GEMINI_API_KEY  }}

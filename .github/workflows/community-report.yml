@@ -23,17 +23,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Generate GitHub App Token 🔑
-        id: generate_token
-        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
       - name: Generate Report 📜
         id: report
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           DAYS: ${{ github.event.inputs.days || '7' }}
         run: |
