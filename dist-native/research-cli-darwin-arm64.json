@@ -1,6 +1,6 @@
 {
-  "version": "0.2.7",
-  "buildTime": "2025-07-23T22:44:19.070Z",
+  "version": "0.2.8",
+  "buildTime": "2025-07-23T23:03:44.152Z",
   "platform": "darwin",
   "arch": "arm64",
   "rustTarget": "aarch64-apple-darwin",

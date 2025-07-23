@@ -1,4 +1,4 @@
-# Research CLI Native Wrapper v0.2.7-native
+# Research CLI Native Wrapper v0.2.8-native
 
 ## 🎯 跨平台原生二进制文件
 
@@ -17,20 +17,20 @@
 
 ### 一键安装器（所有平台）
 ```bash
-curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install-complete.sh | bash
+curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/install-complete.sh | bash
 ```
 
 ### 手动安装
 
 #### macOS Intel
 ```bash
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-x64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-x64
 chmod +x research-cli && ./research-cli
 ```
 
 #### macOS Apple Silicon (M1/M2/M3)
 ```bash
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-arm64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-arm64
 chmod +x research-cli && ./research-cli
 ```
 

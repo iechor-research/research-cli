@@ -14,7 +14,7 @@
 
 ### One-line installer (all platforms)
 ```bash
-curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install-complete.sh | bash
+curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/install-complete.sh | bash
 ```
 
 ### Manual Installation
@@ -22,29 +22,29 @@ curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2
 #### macOS
 ```bash
 # Intel Macs
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-x64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-x64
 chmod +x research-cli
 
 # Apple Silicon (M1/M2/M3)
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-darwin-arm64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-arm64
 chmod +x research-cli
 ```
 
 #### Windows
 ```powershell
 # Download and run
-Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
+Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-win32-x64.exe" -OutFile "research-cli.exe"
 .\research-cli.exe
 ```
 
 #### Linux
 ```bash
 # x64
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-linux-x64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-linux-x64
 chmod +x research-cli
 
 # ARM64
-curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/research-cli-linux-arm64
+curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-linux-arm64
 chmod +x research-cli
 ```
 
@@ -63,8 +63,8 @@ chmod +x research-cli
 
 ## 🔧 Build Information
 
-Built: 2025-07-23T22:44:50.417Z
-Version: 0.2.7
+Built: 2025-07-23T23:04:21.267Z
+Version: 0.2.8
 
 ### Build Results
 - ✅ Successful builds: 2
