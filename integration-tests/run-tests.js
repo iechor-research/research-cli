@@ -77,7 +77,7 @@ async function main() {
     if (verbose) {
       nodeArgs.push('--test-reporter=spec');
     }
-    nodeArgs.push(testFile);
+    nodeArgs.push(join(__dirname, testFile));
 
     const child = spawn('node', nodeArgs, {
       stdio: 'pipe',
