@@ -30,20 +30,20 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
   // Writing Tools
   registry.registerTool(new PaperOutlineGenerator());
   registry.registerTool(new AcademicWritingAssistant());
-  
+
   // Bibliography Tools
   registry.registerTool(new BibliographyManager());
   registry.registerTool(new EnhancedBibliographyManager());
-  
+
   // Code Generation Tools
   registry.registerTool(new ExperimentCodeGenerator());
-  
+
   // LaTeX Tools
   registry.registerTool(new LaTeXManager());
-  
+
   // Submission Tools
   registry.registerTool(new JournalMatcher());
-  
+
   // Data analysis
   registry.registerTool(new ResearchDataAnalyzer());
 
@@ -57,16 +57,17 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
 export function getRegisteredToolsInfo() {
   const registry = ResearchToolRegistry.getInstance();
   const tools = registry.getAllTools();
-  
+
   const summary = {
     totalTools: tools.length,
-    toolNames: tools.map(t => t.name),
-    byCategory: {} as Record<string, number>
+    toolNames: tools.map((t) => t.name),
+    byCategory: {} as Record<string, number>,
   };
 
   // 按分类统计
   for (const tool of tools) {
-    summary.byCategory[tool.category] = (summary.byCategory[tool.category] || 0) + 1;
+    summary.byCategory[tool.category] =
+      (summary.byCategory[tool.category] || 0) + 1;
   }
 
   return summary;
@@ -77,19 +78,21 @@ export function getRegisteredToolsInfo() {
  */
 export function validateToolRegistration(): boolean {
   const registry = ResearchToolRegistry.getInstance();
-  
+
   const expectedTools = [
     'generate_paper_outline',
-    'manage_bibliography', 
+    'manage_bibliography',
     'generate_experiment_code',
     'research_data_analyzer',
     'latex_manager',
-    'match_journal'
+    'match_journal',
   ];
 
   const registeredTools = registry.getToolNames();
-  const missingTools = expectedTools.filter(tool => !registeredTools.includes(tool));
-  
+  const missingTools = expectedTools.filter(
+    (tool) => !registeredTools.includes(tool),
+  );
+
   if (missingTools.length > 0) {
     console.error('Missing tools:', missingTools);
     return false;
@@ -97,4 +100,4 @@ export function validateToolRegistration(): boolean {
 
   console.info('All expected tools are properly registered');
   return true;
-} 
+}

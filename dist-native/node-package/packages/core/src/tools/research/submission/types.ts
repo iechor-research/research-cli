@@ -1,8 +1,15 @@
 import { ResearchToolParams } from '../types.js';
 
 export interface SubmissionPrepOptions extends ResearchToolParams {
-  operation: 'prepare' | 'validate' | 'package' | 'checklist' | 'clean' | 
-            'init' | 'template' | 'extract';
+  operation:
+    | 'prepare'
+    | 'validate'
+    | 'package'
+    | 'checklist'
+    | 'clean'
+    | 'init'
+    | 'template'
+    | 'extract';
   projectPath?: string;
   journalName?: string;
   templateSource?: 'overleaf' | 'arxiv' | 'local';
@@ -236,4 +243,4 @@ export interface BibliographyInfo {
   style: string;
   file?: string;
   entries: number;
-} 
+}

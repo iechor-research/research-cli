@@ -6,7 +6,7 @@
 
 /**
  * 解析命令行参数
- * 
+ *
  * 支持格式：
  * - 位置参数：command arg1 arg2
  * - 选项参数：command --option=value --flag
@@ -21,7 +21,10 @@ export interface ParsedArgs {
  * 解析命令行参数字符串
  */
 export function parseCommandArgs(argsString: string): ParsedArgs {
-  const args = argsString.trim().split(/\s+/).filter(arg => arg.length > 0);
+  const args = argsString
+    .trim()
+    .split(/\s+/)
+    .filter((arg) => arg.length > 0);
   const positional: string[] = [];
   const options: Record<string, string | boolean> = {};
 
@@ -65,9 +68,9 @@ export function parseCommandArgs(argsString: string): ParsedArgs {
  * 验证必需的位置参数
  */
 export function validateRequiredArgs(
-  args: string[], 
-  required: number, 
-  commandName: string
+  args: string[],
+  required: number,
+  commandName: string,
 ): string | null {
   if (args.length < required) {
     return `Command ${commandName} requires at least ${required} arguments, got ${args.length}`;
@@ -79,28 +82,28 @@ export function validateRequiredArgs(
  * 获取选项值，支持默认值
  */
 export function getOptionValue<T>(
-  options: Record<string, string | boolean>, 
-  key: string, 
-  defaultValue: T
+  options: Record<string, string | boolean>,
+  key: string,
+  defaultValue: T,
 ): T {
   const value = options[key];
   if (value === undefined) {
     return defaultValue;
   }
-  
+
   // 尝试类型转换
   if (typeof defaultValue === 'number') {
     const numValue = Number(value);
     return (isNaN(numValue) ? defaultValue : numValue) as T;
   }
-  
+
   if (typeof defaultValue === 'boolean') {
     if (typeof value === 'boolean') {
       return value as T;
     }
     return (value === 'true' || value === '1') as T;
   }
-  
+
   return value as T;
 }
 
@@ -108,9 +111,9 @@ export function getOptionValue<T>(
  * 验证选项值是否在允许的值列表中
  */
 export function validateChoice(
-  value: string | undefined, 
-  choices: string[], 
-  optionName: string
+  value: string | undefined,
+  choices: string[],
+  optionName: string,
 ): string | null {
   if (value && !choices.includes(value)) {
     return `Invalid value '${value}' for option ${optionName}. Valid choices: ${choices.join(', ')}`;
@@ -138,7 +141,7 @@ export interface CommandHelp {
 export function buildHelpText(help: CommandHelp): string {
   let text = `\n${help.description}\n\n`;
   text += `Usage: ${help.usage}\n\n`;
-  
+
   if (help.options.length > 0) {
     text += 'Options:\n';
     for (const option of help.options) {
@@ -148,13 +151,13 @@ export function buildHelpText(help: CommandHelp): string {
     }
     text += '\n';
   }
-  
+
   if (help.examples.length > 0) {
     text += 'Examples:\n';
     for (const example of help.examples) {
       text += `  ${example}\n`;
     }
   }
-  
+
   return text;
-} 
+}

@@ -9,7 +9,7 @@ import {
   ResearchToolParams,
   DocumentType,
   LaTeXEngine,
-  ResearchToolCategory
+  ResearchToolCategory,
 } from '../types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -111,18 +111,21 @@ export interface LaTeXManagerResult {
  * LaTeX 管理器工具
  * 提供完整的 LaTeX 项目管理、编译和诊断功能
  */
-export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXManagerResult> {
+export class LaTeXManager extends BaseResearchTool<
+  LaTeXManagerParams,
+  LaTeXManagerResult
+> {
   constructor() {
     super(
       'latex_manager',
       'Comprehensive LaTeX project management and compilation tool',
-      ResearchToolCategory.SUBMISSION
+      ResearchToolCategory.SUBMISSION,
     );
   }
 
   public validate(params: ResearchToolParams): boolean {
     const latexParams = params as LaTeXManagerParams;
-    
+
     if (!latexParams.action) {
       return false;
     }
@@ -149,18 +152,79 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
     return this.formatHelp(
       'Comprehensive LaTeX project management, compilation, and diagnostic tool',
       [
-        { name: 'action', type: 'string', required: true, description: 'Action to perform (create, compile, clean, template, diagnose, package)' },
-        { name: 'projectName', type: 'string', required: false, description: 'Name for new LaTeX project' },
-        { name: 'projectPath', type: 'string', required: false, description: 'Path to existing LaTeX project' },
-        { name: 'documentType', type: 'DocumentType', required: false, description: 'Type of document (article, book, thesis, etc.)' },
-        { name: 'templateName', type: 'string', required: false, description: 'Specific template name to use' },
-        { name: 'engine', type: 'LaTeXEngine', required: false, description: 'LaTeX engine (pdflatex, xelatex, lualatex)' },
-        { name: 'outputFormat', type: 'string', required: false, description: 'Output format (pdf, dvi, ps)' },
-        { name: 'includeBibliography', type: 'boolean', required: false, description: 'Include bibliography setup' },
-        { name: 'customPackages', type: 'string[]', required: false, description: 'Additional LaTeX packages to include' },
-        { name: 'compileOptions', type: 'string[]', required: false, description: 'Custom compilation options' },
-        { name: 'journalStyle', type: 'string', required: false, description: 'Journal-specific style (ieee, acm, springer, etc.)' },
-        { name: 'authorInfo', type: 'object', required: false, description: 'Author information (name, email, affiliation)' }
+        {
+          name: 'action',
+          type: 'string',
+          required: true,
+          description:
+            'Action to perform (create, compile, clean, template, diagnose, package)',
+        },
+        {
+          name: 'projectName',
+          type: 'string',
+          required: false,
+          description: 'Name for new LaTeX project',
+        },
+        {
+          name: 'projectPath',
+          type: 'string',
+          required: false,
+          description: 'Path to existing LaTeX project',
+        },
+        {
+          name: 'documentType',
+          type: 'DocumentType',
+          required: false,
+          description: 'Type of document (article, book, thesis, etc.)',
+        },
+        {
+          name: 'templateName',
+          type: 'string',
+          required: false,
+          description: 'Specific template name to use',
+        },
+        {
+          name: 'engine',
+          type: 'LaTeXEngine',
+          required: false,
+          description: 'LaTeX engine (pdflatex, xelatex, lualatex)',
+        },
+        {
+          name: 'outputFormat',
+          type: 'string',
+          required: false,
+          description: 'Output format (pdf, dvi, ps)',
+        },
+        {
+          name: 'includeBibliography',
+          type: 'boolean',
+          required: false,
+          description: 'Include bibliography setup',
+        },
+        {
+          name: 'customPackages',
+          type: 'string[]',
+          required: false,
+          description: 'Additional LaTeX packages to include',
+        },
+        {
+          name: 'compileOptions',
+          type: 'string[]',
+          required: false,
+          description: 'Custom compilation options',
+        },
+        {
+          name: 'journalStyle',
+          type: 'string',
+          required: false,
+          description: 'Journal-specific style (ieee, acm, springer, etc.)',
+        },
+        {
+          name: 'authorInfo',
+          type: 'object',
+          required: false,
+          description: 'Author information (name, email, affiliation)',
+        },
       ],
       [
         {
@@ -174,9 +238,9 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
             authorInfo: {
               name: 'John Doe',
               email: 'john@university.edu',
-              affiliation: 'University of Research'
-            }
-          }
+              affiliation: 'University of Research',
+            },
+          },
         },
         {
           description: 'Compile LaTeX project with XeLaTeX',
@@ -184,21 +248,23 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
             action: 'compile',
             projectPath: './my-paper/',
             engine: 'xelatex',
-            outputFormat: 'pdf'
-          }
+            outputFormat: 'pdf',
+          },
         },
         {
           description: 'Diagnose compilation errors',
           params: {
             action: 'diagnose',
-            projectPath: './my-paper/'
-          }
-        }
-      ]
+            projectPath: './my-paper/',
+          },
+        },
+      ],
     );
   }
 
-  protected async executeImpl(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  protected async executeImpl(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     switch (params.action) {
       case 'create':
         return this.createProject(params);
@@ -220,18 +286,20 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
   /**
    * 创建新的 LaTeX 项目
    */
-  private async createProject(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async createProject(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     const projectPath = params.projectPath || `./${params.projectName}`;
-    
+
     // 创建项目目录结构
     await this.createProjectStructure(projectPath);
-    
+
     // 选择和生成模板
     const template = await this.selectTemplate(params);
-    
+
     // 生成项目文件
     const files = await this.generateProjectFiles(template, params);
-    
+
     // 写入文件到磁盘
     for (const file of files) {
       const filePath = path.join(projectPath, file.filename);
@@ -242,154 +310,201 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
     return {
       action: 'create',
       projectPath,
-      files: files.map(f => ({ filename: f.filename, content: f.content }))
+      files: files.map((f) => ({ filename: f.filename, content: f.content })),
     };
   }
 
   /**
    * 编译 LaTeX 项目
    */
-  private async compileProject(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async compileProject(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     const projectPath = params.projectPath!;
     const engine = params.engine || LaTeXEngine.PDFLATEX;
     const outputFormat = params.outputFormat || 'pdf';
-    
+
     const startTime = Date.now();
-    
+
     try {
       // 查找主 .tex 文件
       const mainFile = await this.findMainTexFile(projectPath);
-      
+
       // 构建编译命令
-      const compileCommand = this.buildCompileCommand(engine, mainFile, outputFormat, params.compileOptions);
-      
+      const compileCommand = this.buildCompileCommand(
+        engine,
+        mainFile,
+        outputFormat,
+        params.compileOptions,
+      );
+
       // 执行编译
-      const compileResult = await this.executeCompilation(compileCommand, projectPath);
-      
+      const compileResult = await this.executeCompilation(
+        compileCommand,
+        projectPath,
+      );
+
       // 处理编译结果
-      const result = await this.processCompileResult(compileResult, projectPath);
-      
+      const result = await this.processCompileResult(
+        compileResult,
+        projectPath,
+      );
+
       result.compilationTime = Date.now() - startTime;
-      
+
       return {
         action: 'compile',
         projectPath,
-        compileResult: result
+        compileResult: result,
       };
     } catch (error) {
-      throw new Error(`Compilation failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Compilation failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * 清理项目临时文件
    */
-  private async cleanProject(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async cleanProject(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     const projectPath = params.projectPath!;
-    
+
     // 定义要清理的文件扩展名
-    const cleanExtensions = ['.aux', '.log', '.bbl', '.blg', '.toc', '.lof', '.lot', 
-                           '.fls', '.fdb_latexmk', '.synctex.gz', '.out', '.bcf', 
-                           '.run.xml', '.figlist', '.makefile', '.fls'];
-    
+    const cleanExtensions = [
+      '.aux',
+      '.log',
+      '.bbl',
+      '.blg',
+      '.toc',
+      '.lof',
+      '.lot',
+      '.fls',
+      '.fdb_latexmk',
+      '.synctex.gz',
+      '.out',
+      '.bcf',
+      '.run.xml',
+      '.figlist',
+      '.makefile',
+      '.fls',
+    ];
+
     const cleanedFiles: string[] = [];
-    
+
     try {
       const files = await fs.readdir(projectPath);
-      
+
       for (const file of files) {
         const filePath = path.join(projectPath, file);
         const ext = path.extname(file);
-        
+
         if (cleanExtensions.includes(ext)) {
           await fs.unlink(filePath);
           cleanedFiles.push(file);
         }
       }
-      
+
       return {
         action: 'clean',
         projectPath,
-        files: cleanedFiles.map(f => ({ filename: f, content: 'deleted' }))
+        files: cleanedFiles.map((f) => ({ filename: f, content: 'deleted' })),
       };
     } catch (error) {
-      throw new Error(`Clean failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Clean failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * 列出可用模板
    */
-  private async listTemplates(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async listTemplates(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     const templates = this.getBuiltInTemplates();
-    
+
     return {
       action: 'template',
-      templates
+      templates,
     };
   }
 
   /**
    * 诊断项目问题
    */
-  private async diagnoseProject(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async diagnoseProject(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     const projectPath = params.projectPath!;
-    
+
     const errors: LaTeXError[] = [];
     const warnings: LaTeXWarning[] = [];
     const suggestions: string[] = [];
-    
+
     try {
       // 检查项目结构
-      await this.checkProjectStructure(projectPath, errors, warnings, suggestions);
-      
+      await this.checkProjectStructure(
+        projectPath,
+        errors,
+        warnings,
+        suggestions,
+      );
+
       // 检查 .tex 文件语法
       await this.checkTexSyntax(projectPath, errors, warnings);
-      
+
       // 检查包依赖
       await this.checkPackageDependencies(projectPath, warnings, suggestions);
-      
+
       // 检查引用
       await this.checkReferences(projectPath, warnings, suggestions);
-      
+
       return {
         action: 'diagnose',
         projectPath,
         diagnostics: {
           errors,
           warnings,
-          suggestions
-        }
+          suggestions,
+        },
       };
     } catch (error) {
-      throw new Error(`Diagnosis failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Diagnosis failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * 管理 LaTeX 包
    */
-  private async managePackages(params: LaTeXManagerParams): Promise<LaTeXManagerResult> {
+  private async managePackages(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXManagerResult> {
     // 检查已安装的包
     const installed = await this.getInstalledPackages();
-    
+
     // 检查缺失的包（如果提供了项目路径）
     const missing: string[] = [];
     if (params.projectPath) {
       const required = await this.getRequiredPackages(params.projectPath);
-      missing.push(...required.filter(pkg => !installed.includes(pkg)));
+      missing.push(...required.filter((pkg) => !installed.includes(pkg)));
     }
-    
+
     // 生成推荐包列表
     const recommendations = this.getRecommendedPackages(params.documentType);
-    
+
     return {
       action: 'package',
       packageInfo: {
         installed,
         missing,
-        recommendations
-      }
+        recommendations,
+      },
     };
   }
 
@@ -404,9 +519,9 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
       'tables',
       'bibliography',
       'appendix',
-      'build'
+      'build',
     ];
-    
+
     for (const dir of directories) {
       const fullPath = path.join(projectPath, dir);
       await fs.mkdir(fullPath, { recursive: true });
@@ -416,85 +531,112 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
   /**
    * 选择模板
    */
-  private async selectTemplate(params: LaTeXManagerParams): Promise<LaTeXTemplate> {
+  private async selectTemplate(
+    params: LaTeXManagerParams,
+  ): Promise<LaTeXTemplate> {
     const templates = this.getBuiltInTemplates();
-    
+
     if (params.templateName) {
-      const template = templates.find(t => t.name === params.templateName);
+      const template = templates.find((t) => t.name === params.templateName);
       if (!template) {
         throw new Error(`Template not found: ${params.templateName}`);
       }
       return template;
     }
-    
+
     // 根据文档类型选择默认模板
-    const template = templates.find(t => t.documentType === params.documentType);
+    const template = templates.find(
+      (t) => t.documentType === params.documentType,
+    );
     if (!template) {
-      throw new Error(`No template available for document type: ${params.documentType}`);
+      throw new Error(
+        `No template available for document type: ${params.documentType}`,
+      );
     }
-    
+
     return template;
   }
 
   /**
    * 生成项目文件
    */
-  private async generateProjectFiles(template: LaTeXTemplate, params: LaTeXManagerParams): Promise<{ filename: string; content: string; type: string }[]> {
+  private async generateProjectFiles(
+    template: LaTeXTemplate,
+    params: LaTeXManagerParams,
+  ): Promise<{ filename: string; content: string; type: string }[]> {
     const files = [];
-    
+
     for (const templateFile of template.files) {
       let content = templateFile.content;
-      
+
       // 替换模板变量
       if (params.authorInfo) {
-        content = content.replace(/\{\{AUTHOR_NAME\}\}/g, params.authorInfo.name);
-        content = content.replace(/\{\{AUTHOR_EMAIL\}\}/g, params.authorInfo.email);
-        content = content.replace(/\{\{AUTHOR_AFFILIATION\}\}/g, params.authorInfo.affiliation);
+        content = content.replace(
+          /\{\{AUTHOR_NAME\}\}/g,
+          params.authorInfo.name,
+        );
+        content = content.replace(
+          /\{\{AUTHOR_EMAIL\}\}/g,
+          params.authorInfo.email,
+        );
+        content = content.replace(
+          /\{\{AUTHOR_AFFILIATION\}\}/g,
+          params.authorInfo.affiliation,
+        );
       }
-      
-      content = content.replace(/\{\{PROJECT_NAME\}\}/g, params.projectName || 'Untitled');
-      content = content.replace(/\{\{DATE\}\}/g, new Date().toISOString().split('T')[0]);
-      
+
+      content = content.replace(
+        /\{\{PROJECT_NAME\}\}/g,
+        params.projectName || 'Untitled',
+      );
+      content = content.replace(
+        /\{\{DATE\}\}/g,
+        new Date().toISOString().split('T')[0],
+      );
+
       // 添加自定义包
       if (params.customPackages && templateFile.type === 'main') {
         const packageIncludes = params.customPackages
-          .map(pkg => `\\usepackage{${pkg}}`)
+          .map((pkg) => `\\usepackage{${pkg}}`)
           .join('\n');
         // 如果找到占位符就替换，否则在文档类后添加
         if (content.includes('% CUSTOM_PACKAGES')) {
           content = content.replace(/(%\s*CUSTOM_PACKAGES)/, packageIncludes);
         } else {
           // 在 \begin{document} 前添加自定义包
-          content = content.replace(/\\begin\{document\}/, `${packageIncludes}\n\n\\begin{document}`);
+          content = content.replace(
+            /\\begin\{document\}/,
+            `${packageIncludes}\n\n\\begin{document}`,
+          );
         }
       }
-      
+
       // 处理期刊样式
       if (params.journalStyle && templateFile.type === 'main') {
         content = this.applyJournalStyle(content, params.journalStyle);
       }
-      
+
       files.push({
         filename: templateFile.filename,
         content,
-        type: templateFile.type
+        type: templateFile.type,
       });
     }
-    
+
     // 添加 .gitignore 文件
     files.push({
       filename: '.gitignore',
       content: this.generateGitIgnore(),
-      type: 'config'
+      type: 'config',
     });
-    
+
     // 添加 Makefile
     files.push({
       filename: 'Makefile',
       content: this.generateMakefile(params),
-      type: 'config'
+      type: 'config',
     });
-    
+
     return files;
   }
 
@@ -511,17 +653,26 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
           {
             filename: 'main.tex',
             content: this.getIEEEConferenceTemplate(),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'bibliography/references.bib',
             content: this.getDefaultBibliography(),
-            type: 'bibliography'
-          }
+            type: 'bibliography',
+          },
         ],
         packages: ['cite', 'amsmath', 'algorithmic', 'array'],
-        compileInstructions: ['pdflatex main.tex', 'bibtex main', 'pdflatex main.tex', 'pdflatex main.tex'],
-        features: ['IEEE format', 'Bibliography support', 'Figure/table templates']
+        compileInstructions: [
+          'pdflatex main.tex',
+          'bibtex main',
+          'pdflatex main.tex',
+          'pdflatex main.tex',
+        ],
+        features: [
+          'IEEE format',
+          'Bibliography support',
+          'Figure/table templates',
+        ],
       },
       {
         name: 'acm-article',
@@ -531,17 +682,22 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
           {
             filename: 'main.tex',
             content: this.getACMArticleTemplate(),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'bibliography/references.bib',
             content: this.getDefaultBibliography(),
-            type: 'bibliography'
-          }
+            type: 'bibliography',
+          },
         ],
         packages: ['acmart', 'booktabs', 'ccicons'],
-        compileInstructions: ['pdflatex main.tex', 'bibtex main', 'pdflatex main.tex', 'pdflatex main.tex'],
-        features: ['ACM format', 'Modern layout', 'Accessibility features']
+        compileInstructions: [
+          'pdflatex main.tex',
+          'bibtex main',
+          'pdflatex main.tex',
+          'pdflatex main.tex',
+        ],
+        features: ['ACM format', 'Modern layout', 'Accessibility features'],
       },
       {
         name: 'thesis',
@@ -551,27 +707,36 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
           {
             filename: 'main.tex',
             content: this.getThesisTemplate(),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'chapters/introduction.tex',
             content: this.getChapterTemplate('Introduction'),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'chapters/conclusion.tex',
             content: this.getChapterTemplate('Conclusion'),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'bibliography/references.bib',
             content: this.getDefaultBibliography(),
-            type: 'bibliography'
-          }
+            type: 'bibliography',
+          },
         ],
         packages: ['book', 'fancyhdr', 'setspace', 'tocloft'],
-        compileInstructions: ['pdflatex main.tex', 'bibtex main', 'pdflatex main.tex', 'pdflatex main.tex'],
-        features: ['Multi-chapter structure', 'Table of contents', 'Bibliography']
+        compileInstructions: [
+          'pdflatex main.tex',
+          'bibtex main',
+          'pdflatex main.tex',
+          'pdflatex main.tex',
+        ],
+        features: [
+          'Multi-chapter structure',
+          'Table of contents',
+          'Bibliography',
+        ],
       },
       {
         name: 'springer-article',
@@ -581,18 +746,23 @@ export class LaTeXManager extends BaseResearchTool<LaTeXManagerParams, LaTeXMana
           {
             filename: 'main.tex',
             content: this.getSpringerTemplate(),
-            type: 'main'
+            type: 'main',
           },
           {
             filename: 'bibliography/references.bib',
             content: this.getDefaultBibliography(),
-            type: 'bibliography'
-          }
+            type: 'bibliography',
+          },
         ],
         packages: ['svjour3', 'graphicx', 'mathptmx'],
-        compileInstructions: ['pdflatex main.tex', 'bibtex main', 'pdflatex main.tex', 'pdflatex main.tex'],
-        features: ['Springer format', 'Professional layout', 'Math support']
-      }
+        compileInstructions: [
+          'pdflatex main.tex',
+          'bibtex main',
+          'pdflatex main.tex',
+          'pdflatex main.tex',
+        ],
+        features: ['Springer format', 'Professional layout', 'Math support'],
+      },
     ];
   }
 
@@ -1052,7 +1222,7 @@ Thumbs.db
   private generateMakefile(params: LaTeXManagerParams): string {
     const engine = params.engine || LaTeXEngine.PDFLATEX;
     const engineCmd = engine.toLowerCase();
-    
+
     return `# LaTeX Makefile
 LATEX = ${engineCmd}
 BIBTEX = bibtex
@@ -1106,13 +1276,25 @@ help:
     // 根据期刊添加特定的包和设置
     switch (journalStyle.toLowerCase()) {
       case 'ieee':
-        return content.replace(/\\documentclass\{[^}]+\}/, '\\documentclass[conference]{IEEEtran}');
+        return content.replace(
+          /\\documentclass\{[^}]+\}/,
+          '\\documentclass[conference]{IEEEtran}',
+        );
       case 'acm':
-        return content.replace(/\\documentclass\{[^}]+\}/, '\\documentclass[acmsmall]{acmart}');
+        return content.replace(
+          /\\documentclass\{[^}]+\}/,
+          '\\documentclass[acmsmall]{acmart}',
+        );
       case 'springer':
-        return content.replace(/\\documentclass\{[^}]+\}/, '\\documentclass{svjour3}');
+        return content.replace(
+          /\\documentclass\{[^}]+\}/,
+          '\\documentclass{svjour3}',
+        );
       case 'elsevier':
-        return content.replace(/\\documentclass\{[^}]+\}/, '\\documentclass[review]{elsarticle}');
+        return content.replace(
+          /\\documentclass\{[^}]+\}/,
+          '\\documentclass[review]{elsarticle}',
+        );
       default:
         return content;
     }
@@ -1123,114 +1305,137 @@ help:
    */
   private async findMainTexFile(projectPath: string): Promise<string> {
     const files = await fs.readdir(projectPath);
-    
+
     // 优先查找 main.tex
     if (files.includes('main.tex')) {
       return path.join(projectPath, 'main.tex');
     }
-    
+
     // 查找任何 .tex 文件
-    const texFiles = files.filter(f => f.endsWith('.tex'));
+    const texFiles = files.filter((f) => f.endsWith('.tex'));
     if (texFiles.length === 0) {
       throw new Error('No .tex files found in project');
     }
-    
+
     return path.join(projectPath, texFiles[0]);
   }
 
   /**
    * 构建编译命令
    */
-  private buildCompileCommand(engine: LaTeXEngine, mainFile: string, outputFormat: string, customOptions?: string[]): string[] {
+  private buildCompileCommand(
+    engine: LaTeXEngine,
+    mainFile: string,
+    outputFormat: string,
+    customOptions?: string[],
+  ): string[] {
     const engineCmd = engine.toLowerCase();
     const filename = path.basename(mainFile, '.tex');
-    
+
     const baseCmd = [engineCmd];
-    
+
     // 添加标准选项
     baseCmd.push('-interaction=nonstopmode');
-    
+
     if (outputFormat !== 'pdf' && engine === LaTeXEngine.PDFLATEX) {
       baseCmd.push('-output-format=dvi');
     }
-    
+
     // 添加自定义选项
     if (customOptions) {
       baseCmd.push(...customOptions);
     }
-    
+
     baseCmd.push(filename);
-    
+
     return baseCmd;
   }
 
   /**
    * 执行编译命令（模拟）
    */
-  private async executeCompilation(command: string[], cwd: string): Promise<any> {
+  private async executeCompilation(
+    command: string[],
+    cwd: string,
+  ): Promise<any> {
     // 这里应该实际执行编译命令，现在返回模拟结果
     return {
       success: true,
       stdout: 'LaTeX compilation successful',
       stderr: '',
-      code: 0
+      code: 0,
     };
   }
 
   /**
    * 处理编译结果
    */
-  private async processCompileResult(result: any, projectPath: string): Promise<LaTeXCompileResult> {
+  private async processCompileResult(
+    result: any,
+    projectPath: string,
+  ): Promise<LaTeXCompileResult> {
     const outputFiles = ['main.pdf']; // 模拟输出文件
     const errors: LaTeXError[] = [];
     const warnings: LaTeXWarning[] = [];
-    
+
     // 这里应该解析真实的 LaTeX 日志文件
     // 现在返回模拟结果
-    
+
     return {
       success: result.success,
       outputFiles,
       errors,
       warnings,
       compilationTime: 0,
-      logFile: 'main.log'
+      logFile: 'main.log',
     };
   }
 
   /**
    * 检查项目结构
    */
-  private async checkProjectStructure(projectPath: string, errors: LaTeXError[], warnings: LaTeXWarning[], suggestions: string[]): Promise<void> {
+  private async checkProjectStructure(
+    projectPath: string,
+    errors: LaTeXError[],
+    warnings: LaTeXWarning[],
+    suggestions: string[],
+  ): Promise<void> {
     try {
       const files = await fs.readdir(projectPath);
-      
+
       // 检查是否有 .tex 文件
-      const texFiles = files.filter(f => f.endsWith('.tex'));
+      const texFiles = files.filter((f) => f.endsWith('.tex'));
       if (texFiles.length === 0) {
         errors.push({
           line: 0,
           file: projectPath,
           message: 'No .tex files found in project',
-          severity: 'fatal'
+          severity: 'fatal',
         });
       }
-      
+
       // 检查是否有 bibliography 目录
-      if (!files.includes('bibliography') && !files.some(f => f.endsWith('.bib'))) {
-        suggestions.push('Consider adding a bibliography directory or .bib file for references');
+      if (
+        !files.includes('bibliography') &&
+        !files.some((f) => f.endsWith('.bib'))
+      ) {
+        suggestions.push(
+          'Consider adding a bibliography directory or .bib file for references',
+        );
       }
-      
+
       // 检查是否有 figures 目录
       if (!files.includes('figures')) {
-        suggestions.push('Consider creating a figures directory for organizing images');
+        suggestions.push(
+          'Consider creating a figures directory for organizing images',
+        );
       }
     } catch (error) {
       errors.push({
         line: 0,
         file: projectPath,
         message: `Cannot read project directory: ${error instanceof Error ? error.message : String(error)}`,
-        severity: 'fatal'
+        severity: 'fatal',
       });
       // 重新抛出错误以便上层捕获
       throw error;
@@ -1240,20 +1445,24 @@ help:
   /**
    * 检查 .tex 文件语法
    */
-  private async checkTexSyntax(projectPath: string, errors: LaTeXError[], warnings: LaTeXWarning[]): Promise<void> {
+  private async checkTexSyntax(
+    projectPath: string,
+    errors: LaTeXError[],
+    warnings: LaTeXWarning[],
+  ): Promise<void> {
     try {
       const files = await fs.readdir(projectPath);
-      const texFiles = files.filter(f => f.endsWith('.tex'));
-      
+      const texFiles = files.filter((f) => f.endsWith('.tex'));
+
       for (const texFile of texFiles) {
         const filePath = path.join(projectPath, texFile);
         const content = await fs.readFile(filePath, 'utf-8');
-        
+
         // 简单的语法检查
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          
+
           // 检查未配对的括号
           const openBraces = (line.match(/\{/g) || []).length;
           const closeBraces = (line.match(/\}/g) || []).length;
@@ -1262,18 +1471,19 @@ help:
               line: i + 1,
               file: texFile,
               message: 'Unmatched braces in line',
-              type: 'reference'
+              type: 'reference',
             });
           }
-          
+
           // 检查未定义的引用
           const citeMatch = line.match(/\\cite\{([^}]+)\}/g);
           if (citeMatch) {
             warnings.push({
               line: i + 1,
               file: texFile,
-              message: 'Citation found - ensure bibliography is properly configured',
-              type: 'citation'
+              message:
+                'Citation found - ensure bibliography is properly configured',
+              type: 'citation',
             });
           }
         }
@@ -1283,7 +1493,7 @@ help:
         line: 0,
         file: 'syntax check',
         message: `Syntax check failed: ${error instanceof Error ? error.message : String(error)}`,
-        severity: 'error'
+        severity: 'error',
       });
     }
   }
@@ -1291,25 +1501,36 @@ help:
   /**
    * 检查包依赖
    */
-  private async checkPackageDependencies(projectPath: string, warnings: LaTeXWarning[], suggestions: string[]): Promise<void> {
+  private async checkPackageDependencies(
+    projectPath: string,
+    warnings: LaTeXWarning[],
+    suggestions: string[],
+  ): Promise<void> {
     try {
       const mainFile = await this.findMainTexFile(projectPath);
       const content = await fs.readFile(mainFile, 'utf-8');
-      
+
       // 提取使用的包
-      const packageMatches = content.match(/\\usepackage(\[[^\]]*\])?\{([^}]+)\}/g) || [];
-      const packages = packageMatches.map(match => {
-        const pkgMatch = match.match(/\{([^}]+)\}/);
-        return pkgMatch ? pkgMatch[1] : '';
-      }).filter(pkg => pkg);
-      
+      const packageMatches =
+        content.match(/\\usepackage(\[[^\]]*\])?\{([^}]+)\}/g) || [];
+      const packages = packageMatches
+        .map((match) => {
+          const pkgMatch = match.match(/\{([^}]+)\}/);
+          return pkgMatch ? pkgMatch[1] : '';
+        })
+        .filter((pkg) => pkg);
+
       // 检查常见的包组合
       if (packages.includes('graphicx') && !packages.includes('float')) {
-        suggestions.push('Consider adding \\usepackage{float} for better figure placement control');
+        suggestions.push(
+          'Consider adding \\usepackage{float} for better figure placement control',
+        );
       }
-      
+
       if (packages.includes('amsmath') && !packages.includes('amssymb')) {
-        suggestions.push('Consider adding \\usepackage{amssymb} for additional math symbols');
+        suggestions.push(
+          'Consider adding \\usepackage{amssymb} for additional math symbols',
+        );
       }
     } catch (error) {
       // 忽略错误，这只是建议性检查
@@ -1319,38 +1540,51 @@ help:
   /**
    * 检查引用
    */
-  private async checkReferences(projectPath: string, warnings: LaTeXWarning[], suggestions: string[]): Promise<void> {
+  private async checkReferences(
+    projectPath: string,
+    warnings: LaTeXWarning[],
+    suggestions: string[],
+  ): Promise<void> {
     try {
       const files = await fs.readdir(projectPath);
-      const texFiles = files.filter(f => f.endsWith('.tex'));
-      
+      const texFiles = files.filter((f) => f.endsWith('.tex'));
+
       let hasCitations = false;
       let hasBibliography = false;
-      
+
       for (const texFile of texFiles) {
         const filePath = path.join(projectPath, texFile);
         const content = await fs.readFile(filePath, 'utf-8');
-        
-        if (content.includes('\\cite{') || content.includes('\\citep{') || content.includes('\\citet{')) {
+
+        if (
+          content.includes('\\cite{') ||
+          content.includes('\\citep{') ||
+          content.includes('\\citet{')
+        ) {
           hasCitations = true;
         }
-        
-        if (content.includes('\\bibliography{') || content.includes('\\bibliographystyle{')) {
+
+        if (
+          content.includes('\\bibliography{') ||
+          content.includes('\\bibliographystyle{')
+        ) {
           hasBibliography = true;
         }
       }
-      
+
       if (hasCitations && !hasBibliography) {
         warnings.push({
           line: 0,
           file: 'main.tex',
           message: 'Citations found but no bibliography configuration detected',
-          type: 'citation'
+          type: 'citation',
         });
       }
-      
+
       if (!hasCitations && hasBibliography) {
-        suggestions.push('Bibliography is configured but no citations found in text');
+        suggestions.push(
+          'Bibliography is configured but no citations found in text',
+        );
       }
     } catch (error) {
       // 忽略错误
@@ -1364,9 +1598,23 @@ help:
     // 这里应该检查实际的 LaTeX 安装
     // 返回一些常见的包
     return [
-      'amsmath', 'amssymb', 'amsfonts', 'graphicx', 'color', 'xcolor',
-      'research-cliref', 'cite', 'natbib', 'biblatex', 'algorithm', 'algorithmic',
-      'listings', 'fancyhdr', 'geometry', 'setspace', 'microtype'
+      'amsmath',
+      'amssymb',
+      'amsfonts',
+      'graphicx',
+      'color',
+      'xcolor',
+      'research-cliref',
+      'cite',
+      'natbib',
+      'biblatex',
+      'algorithm',
+      'algorithmic',
+      'listings',
+      'fancyhdr',
+      'geometry',
+      'setspace',
+      'microtype',
     ];
   }
 
@@ -1377,12 +1625,15 @@ help:
     try {
       const mainFile = await this.findMainTexFile(projectPath);
       const content = await fs.readFile(mainFile, 'utf-8');
-      
-      const packageMatches = content.match(/\\usepackage(\[[^\]]*\])?\{([^}]+)\}/g) || [];
-      return packageMatches.map(match => {
-        const pkgMatch = match.match(/\{([^}]+)\}/);
-        return pkgMatch ? pkgMatch[1] : '';
-      }).filter(pkg => pkg);
+
+      const packageMatches =
+        content.match(/\\usepackage(\[[^\]]*\])?\{([^}]+)\}/g) || [];
+      return packageMatches
+        .map((match) => {
+          const pkgMatch = match.match(/\{([^}]+)\}/);
+          return pkgMatch ? pkgMatch[1] : '';
+        })
+        .filter((pkg) => pkg);
     } catch (error) {
       return [];
     }
@@ -1393,7 +1644,7 @@ help:
    */
   private getRecommendedPackages(documentType?: DocumentType): string[] {
     const base = ['amsmath', 'amssymb', 'graphicx', 'research-cliref', 'cite'];
-    
+
     switch (documentType) {
       case DocumentType.JOURNAL_ARTICLE:
       case DocumentType.CONFERENCE_PAPER:
@@ -1406,4 +1657,4 @@ help:
         return base;
     }
   }
-} 
+}

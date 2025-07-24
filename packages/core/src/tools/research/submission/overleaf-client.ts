@@ -1,8 +1,13 @@
-import { TemplateData, TemplateSearchOptions, TemplateFile, TemplateMetadata } from './types.js';
+import {
+  TemplateData,
+  TemplateSearchOptions,
+  TemplateFile,
+  TemplateMetadata,
+} from './types.js';
 
 /**
  * Overleaf 客户端 - 用于获取期刊模板
- * 
+ *
  * 注意：由于 Overleaf 没有公开的 API，这个实现模拟了模板获取功能
  * 在实际生产环境中，可能需要通过网页抓取或其他方式实现
  */
@@ -17,7 +22,9 @@ export class OverleafClient {
   /**
    * 搜索 Overleaf 模板
    */
-  async searchTemplates(options: TemplateSearchOptions): Promise<TemplateData[]> {
+  async searchTemplates(
+    options: TemplateSearchOptions,
+  ): Promise<TemplateData[]> {
     try {
       // 从缓存中搜索匹配的模板
       const allTemplates = Array.from(this.templateCache.values());
@@ -25,31 +32,41 @@ export class OverleafClient {
 
       // 按期刊名称筛选
       if (options.journal) {
-        filteredTemplates = filteredTemplates.filter(template =>
-          template.journalName?.toLowerCase().includes(options.journal!.toLowerCase()) ||
-          template.name.toLowerCase().includes(options.journal!.toLowerCase())
+        filteredTemplates = filteredTemplates.filter(
+          (template) =>
+            template.journalName
+              ?.toLowerCase()
+              .includes(options.journal!.toLowerCase()) ||
+            template.name
+              .toLowerCase()
+              .includes(options.journal!.toLowerCase()),
         );
       }
 
       // 按出版商筛选
       if (options.publisher) {
-        filteredTemplates = filteredTemplates.filter(template =>
-          template.publisher?.toLowerCase().includes(options.publisher!.toLowerCase())
+        filteredTemplates = filteredTemplates.filter((template) =>
+          template.publisher
+            ?.toLowerCase()
+            .includes(options.publisher!.toLowerCase()),
         );
       }
 
       // 按类别筛选
       if (options.category && options.category.length > 0) {
-        filteredTemplates = filteredTemplates.filter(template =>
-          options.category!.some(cat => template.category.includes(cat))
+        filteredTemplates = filteredTemplates.filter((template) =>
+          options.category!.some((cat) => template.category.includes(cat)),
         );
       }
 
       // 按关键词筛选
       if (options.keywords && options.keywords.length > 0) {
-        filteredTemplates = filteredTemplates.filter(template => {
-          const searchText = `${template.name} ${template.description} ${template.metadata.tags?.join(' ') || ''}`.toLowerCase();
-          return options.keywords!.some(keyword => searchText.includes(keyword.toLowerCase()));
+        filteredTemplates = filteredTemplates.filter((template) => {
+          const searchText =
+            `${template.name} ${template.description} ${template.metadata.tags?.join(' ') || ''}`.toLowerCase();
+          return options.keywords!.some((keyword) =>
+            searchText.includes(keyword.toLowerCase()),
+          );
         });
       }
 
@@ -60,7 +77,10 @@ export class OverleafClient {
             case 'date':
               return b.lastUpdated.getTime() - a.lastUpdated.getTime();
             case 'popularity':
-              return (b.metadata.downloadCount || 0) - (a.metadata.downloadCount || 0);
+              return (
+                (b.metadata.downloadCount || 0) -
+                (a.metadata.downloadCount || 0)
+              );
             case 'relevance':
             default:
               return (b.metadata.rating || 0) - (a.metadata.rating || 0);
@@ -75,7 +95,9 @@ export class OverleafClient {
 
       return filteredTemplates;
     } catch (error) {
-      throw new Error(`Failed to search Overleaf templates: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to search Overleaf templates: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -100,7 +122,9 @@ export class OverleafClient {
       this.templateCache.set(id, template);
       return template;
     } catch (error) {
-      throw new Error(`Failed to fetch template ${templateId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to fetch template ${templateId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -128,12 +152,12 @@ export class OverleafClient {
       const match = templateId.match(/\/latex\/templates\/([^\/]+)/);
       return match ? match[1] : templateId;
     }
-    
+
     // 处理 overleaf: 前缀
     if (templateId.startsWith('overleaf:')) {
       return templateId.replace('overleaf:', '');
     }
-    
+
     return templateId;
   }
 
@@ -141,9 +165,11 @@ export class OverleafClient {
    * 模拟从 Overleaf 获取模板
    * 实际实现需要网页抓取或 API 调用
    */
-  private async simulateFetchFromOverleaf(templateId: string): Promise<TemplateData> {
+  private async simulateFetchFromOverleaf(
+    templateId: string,
+  ): Promise<TemplateData> {
     // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // 返回模拟的模板数据
     return {
@@ -157,14 +183,14 @@ export class OverleafClient {
           path: 'main.tex',
           content: this.generateBasicLatexTemplate(),
           type: 'tex',
-          required: true
+          required: true,
         },
         {
           path: 'references.bib',
           content: this.generateBasicBibliography(),
           type: 'bib',
-          required: false
-        }
+          required: false,
+        },
       ],
       metadata: {
         version: '1.0',
@@ -173,9 +199,9 @@ export class OverleafClient {
         tags: ['academic', 'article', 'research'],
         lastModified: new Date(),
         downloadCount: Math.floor(Math.random() * 1000),
-        rating: 4 + Math.random()
+        rating: 4 + Math.random(),
       },
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     };
   }
 
@@ -197,14 +223,14 @@ export class OverleafClient {
             path: 'main.tex',
             content: this.generateNatureTemplate(),
             type: 'tex',
-            required: true
+            required: true,
           },
           {
             path: 'naturemag.bst',
             content: '% Nature bibliography style',
             type: 'other',
-            required: true
-          }
+            required: true,
+          },
         ],
         metadata: {
           version: '2.0',
@@ -212,9 +238,9 @@ export class OverleafClient {
           license: 'Custom',
           tags: ['nature', 'biology', 'multidisciplinary', 'high-impact'],
           downloadCount: 15000,
-          rating: 4.8
+          rating: 4.8,
         },
-        lastUpdated: new Date('2024-01-15')
+        lastUpdated: new Date('2024-01-15'),
       },
       {
         id: 'ieee-template',
@@ -228,14 +254,14 @@ export class OverleafClient {
             path: 'main.tex',
             content: this.generateIEEETemplate(),
             type: 'tex',
-            required: true
+            required: true,
           },
           {
             path: 'IEEEtran.cls',
             content: '% IEEE document class',
             type: 'cls',
-            required: true
-          }
+            required: true,
+          },
         ],
         metadata: {
           version: '1.8',
@@ -243,9 +269,9 @@ export class OverleafClient {
           license: 'LPPL',
           tags: ['ieee', 'conference', 'engineering', 'computer-science'],
           downloadCount: 25000,
-          rating: 4.6
+          rating: 4.6,
         },
-        lastUpdated: new Date('2024-02-01')
+        lastUpdated: new Date('2024-02-01'),
       },
       {
         id: 'acs-template',
@@ -259,8 +285,8 @@ export class OverleafClient {
             path: 'main.tex',
             content: this.generateACSTemplate(),
             type: 'tex',
-            required: true
-          }
+            required: true,
+          },
         ],
         metadata: {
           version: '3.1',
@@ -268,13 +294,13 @@ export class OverleafClient {
           license: 'Custom',
           tags: ['acs', 'chemistry', 'organic', 'inorganic'],
           downloadCount: 8000,
-          rating: 4.4
+          rating: 4.4,
         },
-        lastUpdated: new Date('2024-01-20')
-      }
+        lastUpdated: new Date('2024-01-20'),
+      },
     ];
 
-    templates.forEach(template => {
+    templates.forEach((template) => {
       this.templateCache.set(template.id, template);
     });
   }
@@ -494,4 +520,4 @@ Your conclusion.
 
 \\end{document}`;
   }
-} 
+}

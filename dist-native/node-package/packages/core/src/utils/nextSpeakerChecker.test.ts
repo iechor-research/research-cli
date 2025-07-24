@@ -116,7 +116,9 @@ describe('checkNextSpeaker', () => {
       reasoning: 'Model stated it will do something.',
       next_speaker: 'model',
     };
-    (mockResearchClient.generateJson as Mock).mockResolvedValue(mockApiResponse);
+    (mockResearchClient.generateJson as Mock).mockResolvedValue(
+      mockApiResponse,
+    );
 
     const result = await checkNextSpeaker(
       chatInstance,
@@ -135,7 +137,9 @@ describe('checkNextSpeaker', () => {
       reasoning: 'Model asked a question.',
       next_speaker: 'user',
     };
-    (mockResearchClient.generateJson as Mock).mockResolvedValue(mockApiResponse);
+    (mockResearchClient.generateJson as Mock).mockResolvedValue(
+      mockApiResponse,
+    );
 
     const result = await checkNextSpeaker(
       chatInstance,
@@ -153,7 +157,9 @@ describe('checkNextSpeaker', () => {
       reasoning: 'Model made a statement, awaiting user input.',
       next_speaker: 'user',
     };
-    (mockResearchClient.generateJson as Mock).mockResolvedValue(mockApiResponse);
+    (mockResearchClient.generateJson as Mock).mockResolvedValue(
+      mockApiResponse,
+    );
 
     const result = await checkNextSpeaker(
       chatInstance,
@@ -241,7 +247,9 @@ describe('checkNextSpeaker', () => {
       reasoning: 'Model made a statement, awaiting user input.',
       next_speaker: 'user',
     };
-    (mockResearchClient.generateJson as Mock).mockResolvedValue(mockApiResponse);
+    (mockResearchClient.generateJson as Mock).mockResolvedValue(
+      mockApiResponse,
+    );
 
     await checkNextSpeaker(chatInstance, mockResearchClient, abortSignal);
 

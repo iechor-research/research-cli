@@ -12,7 +12,7 @@ import {
   DEFAULT_RESEARCH_CONFIG,
   ConfigValidationError,
   ConfigValidationResult,
-  AuthorInfo
+  AuthorInfo,
 } from './research-config.js';
 import {
   CitationStyle,
@@ -21,7 +21,7 @@ import {
   LaTeXEngine,
   WritingStyle,
   TargetAudience,
-  ProjectMember
+  ProjectMember,
 } from '../tools/research/types.js';
 
 /**
@@ -30,7 +30,7 @@ import {
 export enum ResearchConfigScope {
   SYSTEM = 'system',
   USER = 'user',
-  WORKSPACE = 'workspace'
+  WORKSPACE = 'workspace',
 }
 
 /**
@@ -55,7 +55,10 @@ export class ResearchConfigPaths {
     return path.join(workspaceRoot, '.research', 'research-config.json');
   }
 
-  public static getConfigPath(scope: ResearchConfigScope, workspaceRoot?: string): string {
+  public static getConfigPath(
+    scope: ResearchConfigScope,
+    workspaceRoot?: string,
+  ): string {
     switch (scope) {
       case ResearchConfigScope.SYSTEM:
         return this.getSystemConfigPath();
@@ -95,13 +98,15 @@ export class ResearchConfigManager {
     // 加载并合并配置：系统 < 用户 < 工作空间
     const systemConfig = await this.loadConfig(ResearchConfigScope.SYSTEM);
     const userConfig = await this.loadConfig(ResearchConfigScope.USER);
-    const workspaceConfig = await this.loadConfig(ResearchConfigScope.WORKSPACE);
+    const workspaceConfig = await this.loadConfig(
+      ResearchConfigScope.WORKSPACE,
+    );
 
     this.cachedConfig = this.mergeConfigs([
       DEFAULT_RESEARCH_CONFIG,
       systemConfig,
       userConfig,
-      workspaceConfig
+      workspaceConfig,
     ]);
 
     return this.cachedConfig;
@@ -113,7 +118,7 @@ export class ResearchConfigManager {
   public async setResearchConfig(
     scope: ResearchConfigScope,
     keyPath: string,
-    value: unknown
+    value: unknown,
   ): Promise<void> {
     const config = await this.loadConfig(scope);
     this.setNestedValue(config, keyPath, value);
@@ -141,7 +146,7 @@ export class ResearchConfigManager {
       errors.push({
         path: 'version',
         message: 'Invalid configuration version format',
-        severity: 'error'
+        severity: 'error',
       });
     }
 
@@ -168,7 +173,7 @@ export class ResearchConfigManager {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -177,13 +182,15 @@ export class ResearchConfigManager {
    */
   public async exportConfig(includeDefaults: boolean = false): Promise<string> {
     let config: ResearchSettings;
-    
+
     if (includeDefaults) {
       config = await this.getResearchConfig();
     } else {
       // 只导出用户自定义配置
       const userConfig = await this.loadConfig(ResearchConfigScope.USER);
-      const workspaceConfig = await this.loadConfig(ResearchConfigScope.WORKSPACE);
+      const workspaceConfig = await this.loadConfig(
+        ResearchConfigScope.WORKSPACE,
+      );
       config = this.mergeConfigs([userConfig, workspaceConfig]);
     }
 
@@ -195,10 +202,10 @@ export class ResearchConfigManager {
    */
   public async importConfig(
     configJson: string,
-    scope: ResearchConfigScope = ResearchConfigScope.USER
+    scope: ResearchConfigScope = ResearchConfigScope.USER,
   ): Promise<void> {
     let config: ResearchSettings;
-    
+
     try {
       config = JSON.parse(configJson);
     } catch (error) {
@@ -208,8 +215,12 @@ export class ResearchConfigManager {
     // 验证配置
     const validation = this.validateConfig(config);
     if (!validation.isValid) {
-      const errorMessages = validation.errors.map(e => `${e.path}: ${e.message}`);
-      throw new Error(`Configuration validation failed:\n${errorMessages.join('\n')}`);
+      const errorMessages = validation.errors.map(
+        (e) => `${e.path}: ${e.message}`,
+      );
+      throw new Error(
+        `Configuration validation failed:\n${errorMessages.join('\n')}`,
+      );
     }
 
     await this.saveConfig(scope, config);
@@ -234,9 +245,14 @@ export class ResearchConfigManager {
   /**
    * 加载指定作用域的配置
    */
-  private async loadConfig(scope: ResearchConfigScope): Promise<ResearchSettings> {
+  private async loadConfig(
+    scope: ResearchConfigScope,
+  ): Promise<ResearchSettings> {
     try {
-      const configPath = ResearchConfigPaths.getConfigPath(scope, this.workspaceRoot);
+      const configPath = ResearchConfigPaths.getConfigPath(
+        scope,
+        this.workspaceRoot,
+      );
       const content = await fs.readFile(configPath, 'utf-8');
       return JSON.parse(content);
     } catch (error) {
@@ -248,8 +264,14 @@ export class ResearchConfigManager {
   /**
    * 保存配置
    */
-  private async saveConfig(scope: ResearchConfigScope, config: ResearchSettings): Promise<void> {
-    const configPath = ResearchConfigPaths.getConfigPath(scope, this.workspaceRoot);
+  private async saveConfig(
+    scope: ResearchConfigScope,
+    config: ResearchSettings,
+  ): Promise<void> {
+    const configPath = ResearchConfigPaths.getConfigPath(
+      scope,
+      this.workspaceRoot,
+    );
     const configDir = path.dirname(configPath);
 
     // 确保目录存在
@@ -275,7 +297,11 @@ export class ResearchConfigManager {
     const result = { ...target };
 
     for (const key in source) {
-      if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (
+        source[key] !== null &&
+        typeof source[key] === 'object' &&
+        !Array.isArray(source[key])
+      ) {
         result[key] = this.deepMerge(target[key] || {}, source[key]);
       } else {
         result[key] = source[key];
@@ -335,13 +361,14 @@ export class ResearchConfigManager {
   private validateAPIs(
     apis: any,
     errors: ConfigValidationError[],
-    warnings: ConfigValidationError[]
+    warnings: ConfigValidationError[],
   ): void {
     if (apis.arxiv && apis.arxiv.maxResults && apis.arxiv.maxResults > 100) {
       warnings.push({
         path: 'apis.arxiv.maxResults',
-        message: 'ArXiv max results should not exceed 100 for optimal performance',
-        severity: 'warning'
+        message:
+          'ArXiv max results should not exceed 100 for optimal performance',
+        severity: 'warning',
       });
     }
 
@@ -349,7 +376,7 @@ export class ResearchConfigManager {
       errors.push({
         path: 'apis.pubmed.email',
         message: 'Email is required for PubMed API',
-        severity: 'error'
+        severity: 'error',
       });
     }
 
@@ -357,7 +384,7 @@ export class ResearchConfigManager {
       warnings.push({
         path: 'apis.ieee.apiKey',
         message: 'IEEE API key is recommended for extended access',
-        severity: 'warning'
+        severity: 'warning',
       });
     }
   }
@@ -368,29 +395,38 @@ export class ResearchConfigManager {
   private validateLaTeX(
     latex: any,
     errors: ConfigValidationError[],
-    warnings: ConfigValidationError[]
+    warnings: ConfigValidationError[],
   ): void {
     if (latex.authorInfo && !latex.authorInfo.name) {
       errors.push({
         path: 'latex.authorInfo.name',
         message: 'Author name is required',
-        severity: 'error'
+        severity: 'error',
       });
     }
 
-    if (latex.authorInfo && latex.authorInfo.email && !this.isValidEmail(latex.authorInfo.email)) {
+    if (
+      latex.authorInfo &&
+      latex.authorInfo.email &&
+      !this.isValidEmail(latex.authorInfo.email)
+    ) {
       errors.push({
         path: 'latex.authorInfo.email',
         message: 'Invalid email format',
-        severity: 'error'
+        severity: 'error',
       });
     }
 
-    if (latex.templateDirectory && !path.isAbsolute(latex.templateDirectory) && !latex.templateDirectory.startsWith('./')) {
+    if (
+      latex.templateDirectory &&
+      !path.isAbsolute(latex.templateDirectory) &&
+      !latex.templateDirectory.startsWith('./')
+    ) {
       warnings.push({
         path: 'latex.templateDirectory',
-        message: 'Template directory path should be absolute or relative to workspace',
-        severity: 'warning'
+        message:
+          'Template directory path should be absolute or relative to workspace',
+        severity: 'warning',
       });
     }
   }
@@ -401,7 +437,7 @@ export class ResearchConfigManager {
   private validateProjects(
     projects: any,
     errors: ConfigValidationError[],
-    warnings: ConfigValidationError[]
+    warnings: ConfigValidationError[],
   ): void {
     if (projects.collaborators && Array.isArray(projects.collaborators)) {
       projects.collaborators.forEach((collaborator: any, index: number) => {
@@ -409,7 +445,7 @@ export class ResearchConfigManager {
           errors.push({
             path: `projects.collaborators[${index}].name`,
             message: 'Collaborator name is required',
-            severity: 'error'
+            severity: 'error',
           });
         }
 
@@ -417,7 +453,7 @@ export class ResearchConfigManager {
           errors.push({
             path: `projects.collaborators[${index}].email`,
             message: 'Valid collaborator email is required',
-            severity: 'error'
+            severity: 'error',
           });
         }
       });
@@ -427,7 +463,7 @@ export class ResearchConfigManager {
       errors.push({
         path: 'projects.backupInterval',
         message: 'Backup interval must be at least 1 hour',
-        severity: 'error'
+        severity: 'error',
       });
     }
   }
@@ -438,13 +474,16 @@ export class ResearchConfigManager {
   private validateAnalysis(
     analysis: any,
     errors: ConfigValidationError[],
-    warnings: ConfigValidationError[]
+    warnings: ConfigValidationError[],
   ): void {
-    if (analysis.significanceLevel && (analysis.significanceLevel <= 0 || analysis.significanceLevel >= 1)) {
+    if (
+      analysis.significanceLevel &&
+      (analysis.significanceLevel <= 0 || analysis.significanceLevel >= 1)
+    ) {
       errors.push({
         path: 'analysis.significanceLevel',
         message: 'Significance level must be between 0 and 1',
-        severity: 'error'
+        severity: 'error',
       });
     }
 
@@ -452,7 +491,7 @@ export class ResearchConfigManager {
       errors.push({
         path: 'analysis.maxDataSize',
         message: 'Max data size must be at least 1 MB',
-        severity: 'error'
+        severity: 'error',
       });
     }
   }
@@ -464,4 +503,4 @@ export class ResearchConfigManager {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-} 
+}

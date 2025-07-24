@@ -31,9 +31,9 @@ const ieeeParams: LaTeXManagerParams = {
   authorInfo: {
     name: 'Dr. Jane Smith',
     email: 'jane.smith@university.edu',
-    affiliation: 'Department of Computer Science, University of Research'
+    affiliation: 'Department of Computer Science, University of Research',
   },
-  customPackages: ['algorithm2e', 'tikz']
+  customPackages: ['algorithm2e', 'tikz'],
 };
 
 const result = await latexManager.execute(ieeeParams);
@@ -41,6 +41,7 @@ const result = await latexManager.execute(ieeeParams);
 ```
 
 生成的项目结构：
+
 ```
 my-ieee-paper/
 ├── main.tex                    # 主文档文件
@@ -66,9 +67,9 @@ const acmParams: LaTeXManagerParams = {
   authorInfo: {
     name: 'Prof. John Doe',
     email: 'john.doe@research-inst.org',
-    affiliation: 'Institute of Advanced Research'
+    affiliation: 'Institute of Advanced Research',
   },
-  customPackages: ['booktabs', 'subcaption', 'listings']
+  customPackages: ['booktabs', 'subcaption', 'listings'],
 };
 
 const result = await latexManager.execute(acmParams);
@@ -85,9 +86,9 @@ const thesisParams: LaTeXManagerParams = {
   authorInfo: {
     name: 'Alice Johnson',
     email: 'alice.johnson@university.edu',
-    affiliation: 'Graduate School of Engineering'
+    affiliation: 'Graduate School of Engineering',
   },
-  customPackages: ['nomencl', 'glossaries', 'appendix']
+  customPackages: ['nomencl', 'glossaries', 'appendix'],
 };
 
 const result = await latexManager.execute(thesisParams);
@@ -102,7 +103,7 @@ const compileParams: LaTeXManagerParams = {
   action: 'compile',
   projectPath: './my-ieee-paper/',
   engine: LaTeXEngine.PDFLATEX,
-  outputFormat: 'pdf'
+  outputFormat: 'pdf',
 };
 
 const result = await latexManager.execute(compileParams);
@@ -124,7 +125,7 @@ const xelatexParams: LaTeXManagerParams = {
   projectPath: './my-paper/',
   engine: LaTeXEngine.XELATEX,
   compileOptions: ['-shell-escape', '-synctex=1'],
-  outputFormat: 'pdf'
+  outputFormat: 'pdf',
 };
 
 const result = await latexManager.execute(xelatexParams);
@@ -133,19 +134,15 @@ const result = await latexManager.execute(xelatexParams);
 #### 批量编译多个项目
 
 ```typescript
-const projects = [
-  './ieee-paper/',
-  './acm-article/',
-  './springer-paper/'
-];
+const projects = ['./ieee-paper/', './acm-article/', './springer-paper/'];
 
 for (const projectPath of projects) {
   const params: LaTeXManagerParams = {
     action: 'compile',
     projectPath,
-    engine: LaTeXEngine.PDFLATEX
+    engine: LaTeXEngine.PDFLATEX,
   };
-  
+
   const result = await latexManager.execute(params);
   console.log(`${projectPath}: ${result.success ? '✓' : '✗'}`);
 }
@@ -156,37 +153,37 @@ for (const projectPath of projects) {
 ```typescript
 const diagnoseParams: LaTeXManagerParams = {
   action: 'diagnose',
-  projectPath: './problematic-paper/'
+  projectPath: './problematic-paper/',
 };
 
 const result = await latexManager.execute(diagnoseParams);
 
 if (result.success) {
   const diagnostics = result.data.diagnostics;
-  
+
   // 显示错误
   if (diagnostics.errors.length > 0) {
     console.log('发现错误:');
-    diagnostics.errors.forEach(error => {
+    diagnostics.errors.forEach((error) => {
       console.log(`  ${error.file}:${error.line} - ${error.message}`);
       if (error.suggestion) {
         console.log(`    建议: ${error.suggestion}`);
       }
     });
   }
-  
+
   // 显示警告
   if (diagnostics.warnings.length > 0) {
     console.log('警告信息:');
-    diagnostics.warnings.forEach(warning => {
+    diagnostics.warnings.forEach((warning) => {
       console.log(`  ${warning.file}:${warning.line} - ${warning.message}`);
     });
   }
-  
+
   // 显示建议
   if (diagnostics.suggestions.length > 0) {
     console.log('优化建议:');
-    diagnostics.suggestions.forEach(suggestion => {
+    diagnostics.suggestions.forEach((suggestion) => {
       console.log(`  • ${suggestion}`);
     });
   }
@@ -198,7 +195,7 @@ if (result.success) {
 ```typescript
 const cleanParams: LaTeXManagerParams = {
   action: 'clean',
-  projectPath: './my-paper/'
+  projectPath: './my-paper/',
 };
 
 const result = await latexManager.execute(cleanParams);
@@ -206,7 +203,7 @@ const result = await latexManager.execute(cleanParams);
 if (result.success) {
   const cleanedFiles = result.data.files;
   console.log(`清理完成，删除了 ${cleanedFiles.length} 个临时文件:`);
-  cleanedFiles.forEach(file => {
+  cleanedFiles.forEach((file) => {
     console.log(`  - ${file.filename}`);
   });
 }
@@ -216,16 +213,16 @@ if (result.success) {
 
 ```typescript
 const templateParams: LaTeXManagerParams = {
-  action: 'template'
+  action: 'template',
 };
 
 const result = await latexManager.execute(templateParams);
 
 if (result.success) {
   const templates = result.data.templates;
-  
+
   console.log('可用模板:');
-  templates.forEach(template => {
+  templates.forEach((template) => {
     console.log(`\n${template.name}:`);
     console.log(`  描述: ${template.description}`);
     console.log(`  文档类型: ${template.documentType}`);
@@ -241,24 +238,30 @@ if (result.success) {
 const packageParams: LaTeXManagerParams = {
   action: 'package',
   projectPath: './my-paper/',
-  documentType: DocumentType.JOURNAL_ARTICLE
+  documentType: DocumentType.JOURNAL_ARTICLE,
 };
 
 const result = await latexManager.execute(packageParams);
 
 if (result.success) {
   const packageInfo = result.data.packageInfo;
-  
-  console.log(`已安装包 (${packageInfo.installed.length}):`, 
-    packageInfo.installed.join(', '));
-  
+
+  console.log(
+    `已安装包 (${packageInfo.installed.length}):`,
+    packageInfo.installed.join(', '),
+  );
+
   if (packageInfo.missing.length > 0) {
-    console.log(`缺失包 (${packageInfo.missing.length}):`, 
-      packageInfo.missing.join(', '));
+    console.log(
+      `缺失包 (${packageInfo.missing.length}):`,
+      packageInfo.missing.join(', '),
+    );
   }
-  
-  console.log(`推荐包 (${packageInfo.recommendations.length}):`, 
-    packageInfo.recommendations.join(', '));
+
+  console.log(
+    `推荐包 (${packageInfo.recommendations.length}):`,
+    packageInfo.recommendations.join(', '),
+  );
 }
 ```
 
@@ -274,17 +277,17 @@ const customParams: LaTeXManagerParams = {
   authorInfo: {
     name: 'Dr. Multi Author',
     email: 'multi@authors.edu',
-    affiliation: 'Collaborative Research Center'
+    affiliation: 'Collaborative Research Center',
   },
   // 自定义包用于特殊需求
   customPackages: [
-    'tikz',           // 绘图
-    'pgfplots',       // 图表
-    'algorithm2e',    // 算法
-    'listings',       // 代码
-    'siunitx',        // 单位
-    'subcaption'      // 子图
-  ]
+    'tikz', // 绘图
+    'pgfplots', // 图表
+    'algorithm2e', // 算法
+    'listings', // 代码
+    'siunitx', // 单位
+    'subcaption', // 子图
+  ],
 };
 ```
 
@@ -292,36 +295,39 @@ const customParams: LaTeXManagerParams = {
 
 ```typescript
 class LaTeXProject {
-  constructor(private manager: LaTeXManager, private projectPath: string) {}
-  
+  constructor(
+    private manager: LaTeXManager,
+    private projectPath: string,
+  ) {}
+
   async build(): Promise<boolean> {
     // 1. 清理旧文件
     await this.manager.execute({
       action: 'clean',
-      projectPath: this.projectPath
+      projectPath: this.projectPath,
     });
-    
+
     // 2. 编译项目
     const compileResult = await this.manager.execute({
       action: 'compile',
       projectPath: this.projectPath,
-      engine: LaTeXEngine.PDFLATEX
+      engine: LaTeXEngine.PDFLATEX,
     });
-    
+
     if (!compileResult.success) {
       // 3. 如果编译失败，运行诊断
       const diagnoseResult = await this.manager.execute({
         action: 'diagnose',
-        projectPath: this.projectPath
+        projectPath: this.projectPath,
       });
-      
+
       if (diagnoseResult.success) {
         console.log('诊断结果:', diagnoseResult.data.diagnostics);
       }
-      
+
       return false;
     }
-    
+
     return true;
   }
 }
@@ -338,30 +344,30 @@ async function compareEngines(projectPath: string): Promise<void> {
   const engines = [
     LaTeXEngine.PDFLATEX,
     LaTeXEngine.XELATEX,
-    LaTeXEngine.LUALATEX
+    LaTeXEngine.LUALATEX,
   ];
-  
+
   const results = [];
-  
+
   for (const engine of engines) {
     const startTime = Date.now();
-    
+
     const result = await latexManager.execute({
       action: 'compile',
       projectPath,
-      engine
+      engine,
     });
-    
+
     const duration = Date.now() - startTime;
-    
+
     results.push({
       engine,
       success: result.success,
       duration,
-      errors: result.success ? [] : [result.error]
+      errors: result.success ? [] : [result.error],
     });
   }
-  
+
   // 输出比较结果
   console.table(results);
 }
@@ -377,24 +383,24 @@ import { BibliographyManager } from '../analysis/bibliography-manager.js';
 async function createPaperWithReferences(): Promise<void> {
   const bibManager = new BibliographyManager();
   const latexManager = new LaTeXManager();
-  
+
   // 1. 搜索相关文献
   const searchResult = await bibManager.execute({
     action: 'search',
     query: 'machine learning neural networks',
     databases: ['arxiv', 'ieee'],
-    maxResults: 20
+    maxResults: 20,
   });
-  
+
   // 2. 创建 LaTeX 项目
   const createResult = await latexManager.execute({
     action: 'create',
     projectName: 'ml-survey-paper',
     documentType: DocumentType.JOURNAL_ARTICLE,
     templateName: 'ieee-journal',
-    includeBibliography: true
+    includeBibliography: true,
   });
-  
+
   // 3. 将搜索到的文献添加到项目
   if (searchResult.success && createResult.success) {
     const references = searchResult.data.references;
@@ -407,37 +413,42 @@ async function createPaperWithReferences(): Promise<void> {
 ### 自动化投稿准备
 
 ```typescript
-async function prepareSubmission(projectPath: string, targetJournal: string): Promise<void> {
+async function prepareSubmission(
+  projectPath: string,
+  targetJournal: string,
+): Promise<void> {
   // 1. 诊断项目
   const diagnoseResult = await latexManager.execute({
     action: 'diagnose',
-    projectPath
+    projectPath,
   });
-  
-  if (!diagnoseResult.success || 
-      diagnoseResult.data.diagnostics.errors.length > 0) {
+
+  if (
+    !diagnoseResult.success ||
+    diagnoseResult.data.diagnostics.errors.length > 0
+  ) {
     console.error('项目存在错误，无法准备投稿');
     return;
   }
-  
+
   // 2. 编译最终版本
   const compileResult = await latexManager.execute({
     action: 'compile',
     projectPath,
-    engine: LaTeXEngine.PDFLATEX
+    engine: LaTeXEngine.PDFLATEX,
   });
-  
+
   if (!compileResult.success) {
     console.error('编译失败');
     return;
   }
-  
+
   // 3. 清理项目
   await latexManager.execute({
     action: 'clean',
-    projectPath
+    projectPath,
   });
-  
+
   console.log(`${targetJournal} 投稿包准备完成`);
 }
 ```
@@ -451,21 +462,22 @@ async function robustCompilation(projectPath: string): Promise<void> {
   try {
     const result = await latexManager.execute({
       action: 'compile',
-      projectPath
+      projectPath,
     });
-    
+
     if (!result.success) {
       console.error('编译失败:', result.error);
-      
+
       // 运行诊断获取详细信息
       const diagnoseResult = await latexManager.execute({
         action: 'diagnose',
-        projectPath
+        projectPath,
       });
-      
+
       if (diagnoseResult.success) {
-        const { errors, warnings, suggestions } = diagnoseResult.data.diagnostics;
-        
+        const { errors, warnings, suggestions } =
+          diagnoseResult.data.diagnostics;
+
         // 输出详细诊断信息
         if (errors.length > 0) {
           console.log('\n错误详情:');
@@ -477,7 +489,7 @@ async function robustCompilation(projectPath: string): Promise<void> {
             }
           });
         }
-        
+
         if (suggestions.length > 0) {
           console.log('\n优化建议:');
           suggestions.forEach((suggestion, index) => {
@@ -499,34 +511,34 @@ async function validateProject(projectPath: string): Promise<boolean> {
   // 1. 检查项目结构
   const diagnoseResult = await latexManager.execute({
     action: 'diagnose',
-    projectPath
+    projectPath,
   });
-  
+
   if (!diagnoseResult.success) {
     console.error('无法诊断项目');
     return false;
   }
-  
+
   const { errors, warnings } = diagnoseResult.data.diagnostics;
-  
+
   // 2. 检查致命错误
-  const fatalErrors = errors.filter(e => e.severity === 'fatal');
+  const fatalErrors = errors.filter((e) => e.severity === 'fatal');
   if (fatalErrors.length > 0) {
     console.error(`发现 ${fatalErrors.length} 个致命错误`);
     return false;
   }
-  
+
   // 3. 警告数量检查
   if (warnings.length > 10) {
     console.warn(`警告数量较多 (${warnings.length})，建议优化`);
   }
-  
+
   // 4. 尝试编译
   const compileResult = await latexManager.execute({
     action: 'compile',
-    projectPath
+    projectPath,
   });
-  
+
   return compileResult.success;
 }
 ```
@@ -548,31 +560,31 @@ const configs: Record<string, ProjectConfig> = {
     template: 'ieee-conference',
     engine: LaTeXEngine.PDFLATEX,
     packages: ['cite', 'algorithmic', 'array'],
-    journalStyle: 'ieee'
+    journalStyle: 'ieee',
   },
   'acm-journal': {
     template: 'acm-article',
     engine: LaTeXEngine.PDFLATEX,
     packages: ['booktabs', 'ccicons'],
-    journalStyle: 'acm'
+    journalStyle: 'acm',
   },
-  'thesis': {
+  thesis: {
     template: 'thesis',
     engine: LaTeXEngine.XELATEX,
-    packages: ['fancyhdr', 'setspace', 'tocloft', 'nomencl']
-  }
+    packages: ['fancyhdr', 'setspace', 'tocloft', 'nomencl'],
+  },
 };
 
 async function createProjectFromConfig(
-  projectName: string, 
+  projectName: string,
   configName: string,
-  authorInfo: any
+  authorInfo: any,
 ): Promise<void> {
   const config = configs[configName];
   if (!config) {
     throw new Error(`Unknown config: ${configName}`);
   }
-  
+
   const result = await latexManager.execute({
     action: 'create',
     projectName,
@@ -580,9 +592,9 @@ async function createProjectFromConfig(
     templateName: config.template,
     customPackages: config.packages,
     journalStyle: config.journalStyle,
-    authorInfo
+    authorInfo,
   });
-  
+
   if (result.success) {
     console.log(`项目 "${projectName}" 创建成功，使用配置 "${configName}"`);
   }
@@ -594,31 +606,33 @@ async function createProjectFromConfig(
 ### 常见问题及解决方案
 
 1. **编译失败 - 包未找到**
+
    ```typescript
    // 检查包依赖
    const packageResult = await latexManager.execute({
      action: 'package',
-     projectPath: './my-paper/'
+     projectPath: './my-paper/',
    });
-   
+
    // 安装缺失的包（需要系统级操作）
    ```
 
 2. **中文支持问题**
+
    ```typescript
    // 使用 XeLaTeX 引擎处理中文
    const params: LaTeXManagerParams = {
      action: 'create',
      projectName: 'chinese-paper',
      documentType: DocumentType.JOURNAL_ARTICLE,
-     customPackages: ['xeCJK', 'fontspec']
+     customPackages: ['xeCJK', 'fontspec'],
    };
-   
+
    // 编译时使用 XeLaTeX
    const compileParams: LaTeXManagerParams = {
      action: 'compile',
      projectPath: './chinese-paper/',
-     engine: LaTeXEngine.XELATEX
+     engine: LaTeXEngine.XELATEX,
    };
    ```
 
@@ -629,7 +643,7 @@ async function createProjectFromConfig(
      action: 'compile',
      projectPath: './large-thesis/',
      engine: LaTeXEngine.PDFLATEX,
-     compileOptions: ['-interaction=nonstopmode', '-file-line-error']
+     compileOptions: ['-interaction=nonstopmode', '-file-line-error'],
    };
    ```
 
@@ -639,4 +653,4 @@ async function createProjectFromConfig(
 - **文献管理器**: 与 LaTeX 项目的参考文献系统集成
 - **实验代码生成器**: 生成的实验代码可以集成到 LaTeX 论文中
 
-LaTeX 管理器是学术写作工作流中的核心工具，提供了从项目创建到最终发布的完整支持。 
+LaTeX 管理器是学术写作工作流中的核心工具，提供了从项目创建到最终发布的完整支持。

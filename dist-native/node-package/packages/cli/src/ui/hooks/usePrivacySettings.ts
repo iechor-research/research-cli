@@ -6,7 +6,11 @@
 
 import { GaxiosError } from 'gaxios';
 import { useState, useEffect, useCallback } from 'react';
-import { Config, CodeAssistServer, UserTierId } from '@iechor/research-cli-core';
+import {
+  Config,
+  CodeAssistServer,
+  UserTierId,
+} from '@iechor/research-cli-core';
 
 export interface PrivacyState {
   isLoading: boolean;

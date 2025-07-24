@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { 
-  PaperType, 
-  ResearchField, 
-  CitationStyle, 
+import type {
+  PaperType,
+  ResearchField,
+  CitationStyle,
   LaTeXEngine,
-  JournalStyle 
+  JournalStyle,
 } from '@iechor/research-cli-core';
 
 /**
@@ -105,4 +105,4 @@ export interface ProgressConfig {
   showPercentage: boolean;
   showSpinner: boolean;
   message?: string;
-} 
+}

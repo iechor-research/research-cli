@@ -29,7 +29,7 @@ const mlParams: ExperimentCodeParams = {
   includeVisualization: true,
   includeTesting: true,
   dataPath: './data/',
-  description: 'Predict customer churn using machine learning models'
+  description: 'Predict customer churn using machine learning models',
 };
 
 const result = await generator.execute(mlParams);
@@ -42,6 +42,7 @@ const result = await generator.execute(mlParams);
 ```
 
 生成的 Python 代码包含：
+
 - 完整的机器学习管道
 - 数据预处理和清洗
 - 多种模型比较（随机森林、逻辑回归等）
@@ -60,7 +61,7 @@ const statsParams: ExperimentCodeParams = {
   outputFormats: ['pdf', 'html'],
   includeVisualization: true,
   dataPath: './survey_data/',
-  description: 'Comprehensive statistical analysis of survey responses'
+  description: 'Comprehensive statistical analysis of survey responses',
 };
 
 const result = await generator.execute(statsParams);
@@ -72,6 +73,7 @@ const result = await generator.execute(statsParams);
 ```
 
 生成的 R 代码包含：
+
 - Tidyverse 生态系统的最佳实践
 - 描述性统计分析
 - 推断统计检验
@@ -90,7 +92,7 @@ const numericParams: ExperimentCodeParams = {
   outputFormats: ['html', 'pdf'],
   includeVisualization: true,
   customRequirements: ['Distributions.jl', 'Plots.jl'],
-  description: 'Monte Carlo simulation for financial risk assessment'
+  description: 'Monte Carlo simulation for financial risk assessment',
 };
 
 const result = await generator.execute(numericParams);
@@ -107,7 +109,7 @@ const jsParams: ExperimentCodeParams = {
   analysisTypes: [AnalysisType.DESCRIPTIVE, AnalysisType.VISUALIZATION],
   outputFormats: ['html'],
   includeVisualization: true,
-  description: 'Interactive web analytics dashboard'
+  description: 'Interactive web analytics dashboard',
 };
 ```
 
@@ -141,7 +143,7 @@ const jsParams: ExperimentCodeParams = {
 
 ## 支持的编程语言
 
-- `PYTHON`: Python 3.8+ 
+- `PYTHON`: Python 3.8+
 - `R`: R 4.0+
 - `MATLAB`: MATLAB 2020a+
 - `JULIA`: Julia 1.6+
@@ -203,8 +205,8 @@ const advancedParams: ExperimentCodeParams = {
   // ... 基础参数
   customRequirements: [
     'custom-ml-library>=1.0.0',
-    'special-visualization-tool'
-  ]
+    'special-visualization-tool',
+  ],
 };
 ```
 
@@ -213,7 +215,7 @@ const advancedParams: ExperimentCodeParams = {
 ```typescript
 const experiments = [
   { name: 'Experiment_A', method: ResearchMethod.MACHINE_LEARNING },
-  { name: 'Experiment_B', method: ResearchMethod.STATISTICAL_ANALYSIS }
+  { name: 'Experiment_B', method: ResearchMethod.STATISTICAL_ANALYSIS },
 ];
 
 for (const exp of experiments) {
@@ -222,7 +224,7 @@ for (const exp of experiments) {
     researchMethod: exp.method,
     // ... 其他参数
   };
-  
+
   const result = await generator.execute(params);
   // 处理每个实验的结果
 }
@@ -252,4 +254,4 @@ for (const exp of experiments) {
 
 ## 技术支持
 
-如需技术支持或功能建议，请参考项目文档或提交问题报告。 
+如需技术支持或功能建议，请参考项目文档或提交问题报告。

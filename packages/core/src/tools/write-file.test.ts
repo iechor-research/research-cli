@@ -96,7 +96,9 @@ describe('WriteFileTool', () => {
     mockResearchClientInstance = new (vi.mocked(ResearchClient))(
       mockConfig,
     ) as Mocked<ResearchClient>;
-    vi.mocked(ResearchClient).mockImplementation(() => mockResearchClientInstance);
+    vi.mocked(ResearchClient).mockImplementation(
+      () => mockResearchClientInstance,
+    );
 
     // Now that mockResearchClientInstance is initialized, set the mock implementation for getResearchClient
     mockConfigInternal.getResearchClient.mockReturnValue(

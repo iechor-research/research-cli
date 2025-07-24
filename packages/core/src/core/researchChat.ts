@@ -281,7 +281,8 @@ export class ResearchChat {
 
     try {
       const apiCall = () => {
-        const modelToUse = this.config.getModel() || DEFAULT_RESEARCH_FLASH_MODEL;
+        const modelToUse =
+          this.config.getModel() || DEFAULT_RESEARCH_FLASH_MODEL;
 
         // Prevent Flash model calls immediately after quota error
         if (

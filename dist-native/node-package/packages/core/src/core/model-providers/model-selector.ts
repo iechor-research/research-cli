@@ -56,24 +56,30 @@ export class ModelSelector implements IModelSelector {
   async selectModel(provider: ModelProvider, model: string): Promise<void> {
     const config = this.providerConfigs.get(provider);
     if (!config) {
-      throw new ConfigurationError(`No configuration found for provider: ${provider}`, provider);
+      throw new ConfigurationError(
+        `No configuration found for provider: ${provider}`,
+        provider,
+      );
     }
 
     // 创建新的提供商实例
     const providerInstance = modelProviderFactory.createProvider(provider);
-    
+
     // 使用指定的模型更新配置
     const modelConfig = { ...config, model };
-    
+
     // 初始化提供商
     await providerInstance.initialize(modelConfig);
-    
+
     // 验证模型是否存在
     const availableModels = await providerInstance.getModels();
-    const modelExists = availableModels.some(m => m.id === model);
-    
+    const modelExists = availableModels.some((m) => m.id === model);
+
     if (!modelExists) {
-      throw new ConfigurationError(`Model ${model} not found for provider ${provider}`, provider);
+      throw new ConfigurationError(
+        `Model ${model} not found for provider ${provider}`,
+        provider,
+      );
     }
 
     this.currentProvider = providerInstance;
@@ -98,7 +104,7 @@ export class ModelSelector implements IModelSelector {
    */
   async getAvailableModels(): Promise<ModelInfo[]> {
     const allModels: ModelInfo[] = [];
-    
+
     for (const [provider, config] of this.providerConfigs.entries()) {
       try {
         const providerInstance = modelProviderFactory.createProvider(provider);
@@ -109,7 +115,7 @@ export class ModelSelector implements IModelSelector {
         console.warn(`Failed to get models for provider ${provider}:`, error);
       }
     }
-    
+
     return allModels;
   }
 
@@ -119,7 +125,10 @@ export class ModelSelector implements IModelSelector {
   async getModelsForProvider(provider: ModelProvider): Promise<ModelInfo[]> {
     const config = this.providerConfigs.get(provider);
     if (!config) {
-      throw new ConfigurationError(`No configuration found for provider: ${provider}`, provider);
+      throw new ConfigurationError(
+        `No configuration found for provider: ${provider}`,
+        provider,
+      );
     }
 
     const providerInstance = modelProviderFactory.createProvider(provider);
@@ -134,7 +143,7 @@ export class ModelSelector implements IModelSelector {
     if (!this.currentProvider) {
       throw new ConfigurationError('No model selected', ModelProvider.OPENAI);
     }
-    
+
     return this.currentProvider.chat(request);
   }
 
@@ -145,7 +154,7 @@ export class ModelSelector implements IModelSelector {
     if (!this.currentProvider) {
       throw new ConfigurationError('No model selected', ModelProvider.OPENAI);
     }
-    
+
     yield* this.currentProvider.streamChat(request);
   }
 
@@ -185,4 +194,4 @@ export class ModelSelector implements IModelSelector {
     });
     return newSelector;
   }
-} 
+}

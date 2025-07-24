@@ -78,7 +78,7 @@ describe('createContentGeneratorConfig', () => {
   });
 
   it('should configure for Research using GEMINI_API_KEY  when set', async () => {
-    process.env.GEMINI_API_KEY  = 'env-research-key';
+    process.env.GEMINI_API_KEY = 'env-research-key';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,
@@ -88,7 +88,7 @@ describe('createContentGeneratorConfig', () => {
   });
 
   it('should not configure for Research if GEMINI_API_KEY  is empty', async () => {
-    process.env.GEMINI_API_KEY  = '';
+    process.env.GEMINI_API_KEY = '';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,

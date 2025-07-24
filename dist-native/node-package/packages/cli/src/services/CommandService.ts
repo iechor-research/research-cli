@@ -20,7 +20,7 @@ const loadBuiltInCommands = async (): Promise<SlashCommand[]> => [
   themeCommand,
   modelCommand,
   apiCommand,
-  ...allResearchCommands  // 添加所有研究命令
+  ...allResearchCommands, // 添加所有研究命令
 ];
 
 export class CommandService {
@@ -37,11 +37,15 @@ export class CommandService {
     // File-based and remote commands will be added later.
     process.stderr.write('[FORCE_DEBUG] CommandService.loadCommands called\n');
     this.commands = await this.commandLoader();
-    process.stderr.write(`[FORCE_DEBUG] CommandService.loadCommands completed, loaded: ${this.commands.map(c => c.name).join(', ')}\n`);
+    process.stderr.write(
+      `[FORCE_DEBUG] CommandService.loadCommands completed, loaded: ${this.commands.map((c) => c.name).join(', ')}\n`,
+    );
   }
 
   getCommands(): SlashCommand[] {
-    process.stderr.write(`[FORCE_DEBUG] CommandService.getCommands called, returning: ${this.commands.map(c => c.name).join(', ')}\n`);
+    process.stderr.write(
+      `[FORCE_DEBUG] CommandService.getCommands called, returning: ${this.commands.map((c) => c.name).join(', ')}\n`,
+    );
     return this.commands;
   }
 }

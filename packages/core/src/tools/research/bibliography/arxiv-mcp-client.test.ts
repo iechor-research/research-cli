@@ -24,13 +24,13 @@ describe('ArXivMCPClient', () => {
   beforeEach(() => {
     client = new ArXivMCPClient();
     vi.clearAllMocks();
-    
+
     // Setup default fetch mock to simulate successful MCP server connection
     (global.fetch as any).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
       arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(100)),
-      text: vi.fn().mockResolvedValue('mock response')
+      text: vi.fn().mockResolvedValue('mock response'),
     });
   });
 
@@ -73,13 +73,13 @@ describe('ArXivMCPClient', () => {
       // Mock fetch responses
       (global.fetch as any)
         .mockResolvedValueOnce({ ok: true }) // Connection check
-        .mockResolvedValueOnce({ 
-          ok: true, 
-          text: () => Promise.resolve(mockArXivResponse) 
+        .mockResolvedValueOnce({
+          ok: true,
+          text: () => Promise.resolve(mockArXivResponse),
         }); // Search request
 
       const papers = await client.searchPapers('machine learning');
-      
+
       expect(papers).toHaveLength(1);
       expect(papers[0]).toMatchObject({
         id: '2301.00001',
@@ -92,31 +92,31 @@ describe('ArXivMCPClient', () => {
     it('should handle search with options', async () => {
       (global.fetch as any)
         .mockResolvedValueOnce({ ok: true })
-        .mockResolvedValueOnce({ 
-          ok: true, 
-          text: () => Promise.resolve('<feed></feed>') 
+        .mockResolvedValueOnce({
+          ok: true,
+          text: () => Promise.resolve('<feed></feed>'),
         });
 
       const options = {
         maxResults: 5,
         categories: ['cs.AI'],
-        sortBy: 'lastUpdatedDate' as const
+        sortBy: 'lastUpdatedDate' as const,
       };
 
       await client.searchPapers('test query', options);
-      
+
       // Verify the search URL was constructed with options
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('max_results=5')
+        expect.stringContaining('max_results=5'),
       );
     });
 
     it('should throw error when not connected', async () => {
       (global.fetch as any).mockResolvedValueOnce({ ok: false });
 
-      await expect(client.searchPapers('test'))
-        .rejects
-        .toThrow('ArXiv MCP server is not available');
+      await expect(client.searchPapers('test')).rejects.toThrow(
+        'ArXiv MCP server is not available',
+      );
     });
   });
 
@@ -124,16 +124,16 @@ describe('ArXivMCPClient', () => {
     it('should download paper successfully', async () => {
       // Mock successful download
       const mockPdfData = new ArrayBuffer(1024);
-      
+
       (global.fetch as any)
         .mockResolvedValueOnce({ ok: true }) // Connection check
-        .mockResolvedValueOnce({ 
-          ok: true, 
-          arrayBuffer: () => Promise.resolve(mockPdfData)
+        .mockResolvedValueOnce({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(mockPdfData),
         }); // Download request
 
       const result = await client.downloadPaper('2301.00001');
-      
+
       expect(result.status).toBe('success');
       expect(result.paperId).toBe('2301.00001');
       expect(result.fileSize).toBe(1024);
@@ -145,7 +145,7 @@ describe('ArXivMCPClient', () => {
         .mockResolvedValueOnce({ ok: false, statusText: 'Not Found' });
 
       const result = await client.downloadPaper('invalid-id');
-      
+
       expect(result.status).toBe('failed');
       expect(result.error).toContain('Not Found');
     });
@@ -158,14 +158,14 @@ describe('ArXivMCPClient', () => {
         cachedAt: new Date(),
         lastAccessed: new Date(),
         filePath: '/path/to/cached.pdf',
-        accessCount: 1
+        accessCount: 1,
       };
 
       // Mock the cache to contain our paper
       client['cache'].set('2301.00001', cachedPaper);
 
       const result = await client.downloadPaper('2301.00001');
-      
+
       expect(result.status).toBe('success');
       expect(result.filePath).toBe('/path/to/cached.pdf');
     });
@@ -176,7 +176,7 @@ describe('ArXivMCPClient', () => {
       // Mock fs operations
       const fs = await import('fs/promises');
       (fs.writeFile as any).mockResolvedValue(undefined);
-      
+
       // Pre-populate cache to avoid searchPapers call
       const mockPaper: ArXivPaper = {
         id: '2301.00001',
@@ -186,21 +186,21 @@ describe('ArXivMCPClient', () => {
         categories: ['cs.AI'],
         publishedDate: '2023-01-01T00:00:00Z',
         updatedDate: '2023-01-01T00:00:00Z',
-        pdfUrl: 'https://arxiv.org/pdf/2301.00001.pdf'
+        pdfUrl: 'https://arxiv.org/pdf/2301.00001.pdf',
       };
-      
+
       const cachedPaper: CachedPaper = {
         id: '2301.00001',
         metadata: mockPaper,
         cachedAt: new Date(),
         lastAccessed: new Date(),
         filePath: '/test/path/2301.00001.pdf',
-        accessCount: 0
+        accessCount: 0,
       };
-      
+
       // Set cache directly
       client['cache'].set('2301.00001', cachedPaper);
-      
+
       // Mock getting metadata first - fix XML structure
       const mockArXivResponse = `
         <feed>
@@ -217,18 +217,18 @@ describe('ArXivMCPClient', () => {
 
       // Mock fetch calls: PDF download, then metadata search
       (global.fetch as any)
-        .mockResolvedValueOnce({ 
+        .mockResolvedValueOnce({
           ok: true,
-          arrayBuffer: () => Promise.resolve(new ArrayBuffer(8))
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
         })
-        .mockResolvedValueOnce({ 
-          ok: true, 
+        .mockResolvedValueOnce({
+          ok: true,
           text: () => Promise.resolve(mockArXivResponse),
-          arrayBuffer: () => Promise.resolve(new ArrayBuffer(100))
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(100)),
         });
 
       const content = await client.readPaper('2301.00001');
-      
+
       expect(content).toContain('# Test Paper');
       expect(content).toContain('## Authors');
       expect(content).toContain('Test Author');
@@ -239,7 +239,7 @@ describe('ArXivMCPClient', () => {
     it('should return cached markdown if available', async () => {
       const mockMarkdown = '# Cached Paper Content';
       const fs = await import('fs/promises');
-      
+
       (fs.readFile as any).mockResolvedValue(mockMarkdown);
 
       // Set up cached paper with markdown path
@@ -249,13 +249,13 @@ describe('ArXivMCPClient', () => {
         cachedAt: new Date(),
         lastAccessed: new Date(),
         markdownPath: '/path/to/cached.md',
-        accessCount: 1
+        accessCount: 1,
       };
-      
+
       client['cache'].set('2301.00001', cachedPaper);
 
       const content = await client.readPaper('2301.00001');
-      
+
       expect(content).toBe(mockMarkdown);
       expect(fs.readFile).toHaveBeenCalledWith('/path/to/cached.md', 'utf-8');
     });
@@ -268,13 +268,13 @@ describe('ArXivMCPClient', () => {
         metadata: { title: 'Test Paper' } as any,
         cachedAt: new Date(),
         lastAccessed: new Date(),
-        accessCount: 1
+        accessCount: 1,
       };
 
       client['cache'].set('2301.00001', cachedPaper);
 
       const papers = await client.listCachedPapers();
-      
+
       expect(papers).toHaveLength(1);
       expect(papers[0].id).toBe('2301.00001');
     });
@@ -288,7 +288,7 @@ describe('ArXivMCPClient', () => {
         metadata: {} as any,
         cachedAt: oldDate,
         lastAccessed: oldDate,
-        accessCount: 1
+        accessCount: 1,
       };
 
       const newPaper = {
@@ -296,7 +296,7 @@ describe('ArXivMCPClient', () => {
         metadata: {} as any,
         cachedAt: newDate,
         lastAccessed: newDate,
-        accessCount: 1
+        accessCount: 1,
       };
 
       client['cache'].set('old-paper', oldPaper);
@@ -315,13 +315,13 @@ describe('ArXivMCPClient', () => {
         metadata: {} as any,
         cachedAt: new Date(),
         lastAccessed: new Date(),
-        accessCount: 1
+        accessCount: 1,
       };
 
       client['cache'].set('2301.00001', cachedPaper);
 
       const exportData = await client.exportCache();
-      
+
       expect(exportData.version).toBe('1.0.0');
       expect(exportData.totalSize).toBe(1);
       expect(exportData.papers).toHaveLength(1);
@@ -331,18 +331,20 @@ describe('ArXivMCPClient', () => {
       const importData = {
         version: '1.0.0',
         exportedAt: new Date(),
-        papers: [{
-          id: 'imported-paper',
-          metadata: {} as any,
-          cachedAt: new Date(),
-          lastAccessed: new Date(),
-          accessCount: 1
-        }],
-        totalSize: 1
+        papers: [
+          {
+            id: 'imported-paper',
+            metadata: {} as any,
+            cachedAt: new Date(),
+            lastAccessed: new Date(),
+            accessCount: 1,
+          },
+        ],
+        totalSize: 1,
       };
 
       await client.importCache(importData);
-      
+
       expect(client['cache'].has('imported-paper')).toBe(true);
     });
   });
@@ -357,4 +359,4 @@ describe('ArXivMCPClient', () => {
       expect(client.getCacheSize()).toBe(2);
     });
   });
-}); 
+});

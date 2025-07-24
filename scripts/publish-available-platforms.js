@@ -9,48 +9,59 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 读取package.json获取版本
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'),
+);
 const version = packageJson.version;
 const tagName = `v${version}-native`;
 
-console.log(`🚀 Publishing Research CLI Native Wrapper v${version} (Available Platforms)\n`);
+console.log(
+  `🚀 Publishing Research CLI Native Wrapper v${version} (Available Platforms)\n`,
+);
 
 try {
-    // 1. 构建可用平台
-    console.log('📦 Building available platforms...');
-    execSync('npm run build:cross-platform', { stdio: 'inherit' });
+  // 1. 构建可用平台
+  console.log('📦 Building available platforms...');
+  execSync('npm run build:cross-platform', { stdio: 'inherit' });
 
-    // 2. 获取成功构建的文件
-    const distDir = path.join(__dirname, '..', 'dist-native');
-    const binaryFiles = fs.readdirSync(distDir).filter(f => 
-        f.startsWith('research-cli-') && 
-        !f.endsWith('.json') && 
-        !f.endsWith('.md')
+  // 2. 获取成功构建的文件
+  const distDir = path.join(__dirname, '..', 'dist-native');
+  const binaryFiles = fs
+    .readdirSync(distDir)
+    .filter(
+      (f) =>
+        f.startsWith('research-cli-') &&
+        !f.endsWith('.json') &&
+        !f.endsWith('.md'),
     );
 
-    if (binaryFiles.length === 0) {
-        console.error('❌ No binary files found to upload');
-        process.exit(1);
-    }
+  if (binaryFiles.length === 0) {
+    console.error('❌ No binary files found to upload');
+    process.exit(1);
+  }
 
-    console.log(`\n📁 Found ${binaryFiles.length} binaries to upload:`);
-    binaryFiles.forEach(file => {
-        const stats = fs.statSync(path.join(distDir, file));
-        const sizeKB = Math.round(stats.size / 1024);
-        console.log(`   📦 ${file} (${sizeKB}KB)`);
-    });
+  console.log(`\n📁 Found ${binaryFiles.length} binaries to upload:`);
+  binaryFiles.forEach((file) => {
+    const stats = fs.statSync(path.join(distDir, file));
+    const sizeKB = Math.round(stats.size / 1024);
+    console.log(`   📦 ${file} (${sizeKB}KB)`);
+  });
 
-    // 3. 创建发布说明
-    const platforms = binaryFiles.map(f => {
-        if (f.includes('darwin-arm64')) return { name: 'macOS Apple Silicon', file: f, arch: 'ARM64' };
-        if (f.includes('darwin-x64')) return { name: 'macOS Intel', file: f, arch: 'x64' };
-        if (f.includes('win32-x64')) return { name: 'Windows', file: f, arch: 'x64' };
-        if (f.includes('linux-x64')) return { name: 'Linux', file: f, arch: 'x64' };
-        if (f.includes('linux-arm64')) return { name: 'Linux ARM64', file: f, arch: 'ARM64' };
-        return { name: 'Unknown', file: f, arch: 'Unknown' };
-    });
+  // 3. 创建发布说明
+  const platforms = binaryFiles.map((f) => {
+    if (f.includes('darwin-arm64'))
+      return { name: 'macOS Apple Silicon', file: f, arch: 'ARM64' };
+    if (f.includes('darwin-x64'))
+      return { name: 'macOS Intel', file: f, arch: 'x64' };
+    if (f.includes('win32-x64'))
+      return { name: 'Windows', file: f, arch: 'x64' };
+    if (f.includes('linux-x64')) return { name: 'Linux', file: f, arch: 'x64' };
+    if (f.includes('linux-arm64'))
+      return { name: 'Linux ARM64', file: f, arch: 'ARM64' };
+    return { name: 'Unknown', file: f, arch: 'Unknown' };
+  });
 
-    const releaseNotes = `# Research CLI Native Wrapper v${version}
+  const releaseNotes = `# Research CLI Native Wrapper v${version}
 
 ## 🎯 What's New
 
@@ -67,38 +78,45 @@ This is a **native wrapper** for Research CLI that provides the **original termi
 
 | Platform | Architecture | Download | Size |
 |----------|-------------|----------|------|
-${platforms.map(p => {
+${platforms
+  .map((p) => {
     const stats = fs.statSync(path.join(distDir, p.file));
     const sizeKB = Math.round(stats.size / 1024);
     return `| **${p.name}** | ${p.arch} | [\`${p.file}\`](https://github.com/iechor-research/research-cli/releases/download/${tagName}/${p.file}) | ${sizeKB}KB |`;
-}).join('\n')}
+  })
+  .join('\n')}
 
 ## 🛠️ Quick Installation
 
-${platforms.map(p => {
+${platforms
+  .map((p) => {
     if (p.file.includes('darwin')) {
-        const arch = p.file.includes('arm64') ? 'Apple Silicon (M1/M2/M3)' : 'Intel';
-        return `### macOS ${arch}
+      const arch = p.file.includes('arm64')
+        ? 'Apple Silicon (M1/M2/M3)'
+        : 'Intel';
+      return `### macOS ${arch}
 \`\`\`bash
 curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${tagName}/${p.file}
 chmod +x research-cli && ./research-cli
 \`\`\``;
     } else if (p.file.includes('win32')) {
-        return `### Windows
+      return `### Windows
 \`\`\`powershell
 Invoke-WebRequest -Uri "https://github.com/iechor-research/research-cli/releases/download/${tagName}/${p.file}" -OutFile "research-cli.exe"
 .\\research-cli.exe
 \`\`\``;
     } else if (p.file.includes('linux')) {
-        const arch = p.file.includes('arm64') ? 'ARM64' : 'x64';
-        return `### Linux ${arch}
+      const arch = p.file.includes('arm64') ? 'ARM64' : 'x64';
+      return `### Linux ${arch}
 \`\`\`bash
 curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/${tagName}/${p.file}
 chmod +x research-cli && ./research-cli
 \`\`\``;
     }
     return '';
-}).filter(s => s).join('\n\n')}
+  })
+  .filter((s) => s)
+  .join('\n\n')}
 
 ## 📋 Requirements
 
@@ -123,20 +141,22 @@ This wrapper is built with Rust and directly executes the Research CLI Node.js p
 
 Built: ${new Date().toISOString()}`;
 
-    // 4. 保存发布说明
-    const releaseNotesFile = path.join(distDir, 'release-notes-available.md');
-    fs.writeFileSync(releaseNotesFile, releaseNotes);
+  // 4. 保存发布说明
+  const releaseNotesFile = path.join(distDir, 'release-notes-available.md');
+  fs.writeFileSync(releaseNotesFile, releaseNotes);
 
-    console.log(`\n📄 Generated release notes: release-notes-available.md`);
-    console.log(`\n📋 Manual Release Steps:`);
-    console.log(`   1. Go to: https://github.com/iechor-research/research-cli/releases/new`);
-    console.log(`   2. Tag: ${tagName}`);
-    console.log(`   3. Title: Research CLI Native Wrapper v${version}`);
-    console.log(`   4. Upload files: ${binaryFiles.join(', ')}`);
-    console.log(`   5. Copy release notes from: ${releaseNotesFile}`);
+  console.log(`\n📄 Generated release notes: release-notes-available.md`);
+  console.log(`\n📋 Manual Release Steps:`);
+  console.log(
+    `   1. Go to: https://github.com/iechor-research/research-cli/releases/new`,
+  );
+  console.log(`   2. Tag: ${tagName}`);
+  console.log(`   3. Title: Research CLI Native Wrapper v${version}`);
+  console.log(`   4. Upload files: ${binaryFiles.join(', ')}`);
+  console.log(`   5. Copy release notes from: ${releaseNotesFile}`);
 
-    // 5. 创建快速安装脚本
-    const installScript = `#!/bin/bash
+  // 5. 创建快速安装脚本
+  const installScript = `#!/bin/bash
 # Research CLI Native Wrapper Quick Install Script
 
 set -e
@@ -203,13 +223,12 @@ echo "✅ Research CLI Native Wrapper installed successfully!"
 echo "🏃 Run with: ./research-cli"
 `;
 
-    fs.writeFileSync(path.join(distDir, 'install.sh'), installScript);
-    console.log(`   6. Optional: Upload install.sh for easy installation`);
+  fs.writeFileSync(path.join(distDir, 'install.sh'), installScript);
+  console.log(`   6. Optional: Upload install.sh for easy installation`);
 
-    console.log(`\n🎉 Release preparation completed!`);
-    console.log(`📁 Files ready in: ${distDir}`);
-
+  console.log(`\n🎉 Release preparation completed!`);
+  console.log(`📁 Files ready in: ${distDir}`);
 } catch (error) {
-    console.error('❌ Release preparation failed:', error.message);
-    process.exit(1);
-} 
+  console.error('❌ Release preparation failed:', error.message);
+  process.exit(1);
+}

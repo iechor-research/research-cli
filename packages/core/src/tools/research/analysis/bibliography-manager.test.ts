@@ -5,7 +5,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BibliographyManager, BibliographySearchParams, BibliographyManageParams } from './bibliography-manager.js';
+import {
+  BibliographyManager,
+  BibliographySearchParams,
+  BibliographyManageParams,
+} from './bibliography-manager.js';
 import { Database, CitationStyle, ResearchToolCategory } from '../types.js';
 
 // Mock fetch globally
@@ -22,7 +26,9 @@ describe('BibliographyManager', () => {
   describe('基本属性', () => {
     it('应该有正确的工具属性', () => {
       expect(manager.name).toBe('manage_bibliography');
-      expect(manager.description).toBe('Manage bibliography and search academic literature');
+      expect(manager.description).toBe(
+        'Manage bibliography and search academic literature',
+      );
       expect(manager.category).toBe(ResearchToolCategory.ANALYSIS);
       expect(manager.version).toBe('1.0.0');
     });
@@ -34,7 +40,7 @@ describe('BibliographyManager', () => {
         const validParams: BibliographySearchParams = {
           query: 'machine learning',
           databases: [Database.ARXIV, Database.IEEE],
-          maxResults: 10
+          maxResults: 10,
         };
 
         expect(manager.validate(validParams)).toBe(true);
@@ -43,7 +49,7 @@ describe('BibliographyManager', () => {
       it('应该拒绝空查询', () => {
         const invalidParams = {
           query: '',
-          databases: [Database.ARXIV]
+          databases: [Database.ARXIV],
         };
 
         expect(manager.validate(invalidParams)).toBe(false);
@@ -52,7 +58,7 @@ describe('BibliographyManager', () => {
       it('应该拒绝空数据库列表', () => {
         const invalidParams = {
           query: 'machine learning',
-          databases: []
+          databases: [],
         };
 
         expect(manager.validate(invalidParams)).toBe(false);
@@ -62,7 +68,7 @@ describe('BibliographyManager', () => {
         const invalidParams = {
           query: 'machine learning',
           databases: [Database.ARXIV],
-          yearRange: { start: 2024, end: 2020 }
+          yearRange: { start: 2024, end: 2020 },
         };
 
         expect(manager.validate(invalidParams)).toBe(false);
@@ -72,7 +78,7 @@ describe('BibliographyManager', () => {
         const validParams = {
           query: 'machine learning',
           databases: [Database.ARXIV],
-          yearRange: { start: 2020, end: 2024 }
+          yearRange: { start: 2020, end: 2024 },
         };
 
         expect(manager.validate(validParams)).toBe(true);
@@ -81,9 +87,16 @@ describe('BibliographyManager', () => {
 
     describe('管理参数验证', () => {
       it('应该验证有效的管理操作', () => {
-        const validActions = ['add', 'remove', 'update', 'list', 'export', 'import'];
-        
-        validActions.forEach(action => {
+        const validActions = [
+          'add',
+          'remove',
+          'update',
+          'list',
+          'export',
+          'import',
+        ];
+
+        validActions.forEach((action) => {
           const params: BibliographyManageParams = { action: action as any };
           expect(manager.validate(params)).toBe(true);
         });
@@ -118,13 +131,13 @@ describe('BibliographyManager', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        text: () => Promise.resolve(mockXmlResponse)
+        text: () => Promise.resolve(mockXmlResponse),
       });
 
       const params: BibliographySearchParams = {
         query: 'machine learning',
         databases: [Database.ARXIV],
-        maxResults: 10
+        maxResults: 10,
       };
 
       const result = await manager.execute(params);
@@ -132,8 +145,13 @@ describe('BibliographyManager', () => {
       expect(result.success).toBe(true);
       const searchResult = result.data as any;
       expect(searchResult.entries).toHaveLength(1);
-      expect(searchResult.entries[0].title).toBe('Machine Learning in Computer Vision');
-      expect(searchResult.entries[0].authors).toEqual(['John Doe', 'Jane Smith']);
+      expect(searchResult.entries[0].title).toBe(
+        'Machine Learning in Computer Vision',
+      );
+      expect(searchResult.entries[0].authors).toEqual([
+        'John Doe',
+        'Jane Smith',
+      ]);
       expect(searchResult.entries[0].year).toBe(2023);
       expect(searchResult.sources.arxiv?.status).toBe('success');
     });
@@ -141,13 +159,13 @@ describe('BibliographyManager', () => {
     it('应该处理 arXiv API 错误', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
-        status: 500
+        status: 500,
       });
 
       const params: BibliographySearchParams = {
         query: 'machine learning',
         databases: [Database.ARXIV],
-        maxResults: 10
+        maxResults: 10,
       };
 
       const result = await manager.execute(params);
@@ -172,12 +190,12 @@ describe('BibliographyManager', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        text: () => Promise.resolve(`<feed>${mockXmlWithDoi}</feed>`)
+        text: () => Promise.resolve(`<feed>${mockXmlWithDoi}</feed>`),
       });
 
       const params: BibliographySearchParams = {
         query: 'test',
-        databases: [Database.ARXIV]
+        databases: [Database.ARXIV],
       };
 
       const result = await manager.execute(params);
@@ -190,13 +208,13 @@ describe('BibliographyManager', () => {
     it('应该并行搜索多个数据库', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('<feed></feed>')
+        text: () => Promise.resolve('<feed></feed>'),
       });
 
       const params: BibliographySearchParams = {
         query: 'machine learning',
         databases: [Database.ARXIV, Database.PUBMED, Database.IEEE],
-        maxResults: 5
+        maxResults: 5,
       };
 
       const result = await manager.execute(params);
@@ -212,19 +230,21 @@ describe('BibliographyManager', () => {
       // Mock 返回包含重复条目的结果
       (global.fetch as any).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('<feed></feed>')
+        text: () => Promise.resolve('<feed></feed>'),
       });
 
       const params: BibliographySearchParams = {
         query: 'test',
-        databases: [Database.ARXIV, Database.GOOGLE_SCHOLAR]
+        databases: [Database.ARXIV, Database.GOOGLE_SCHOLAR],
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const searchResult = result.data as any;
-      expect(searchResult.searchMetadata.duplicatesRemoved).toBeGreaterThanOrEqual(0);
+      expect(
+        searchResult.searchMetadata.duplicatesRemoved,
+      ).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -236,8 +256,8 @@ describe('BibliographyManager', () => {
           title: 'Test Paper',
           authors: ['Test Author'],
           year: 2023,
-          abstract: 'Test abstract'
-        }
+          abstract: 'Test abstract',
+        },
       };
 
       const result = await manager.execute(params);
@@ -253,16 +273,16 @@ describe('BibliographyManager', () => {
       // 先添加一些条目
       await manager.execute({
         action: 'add',
-        entry: { title: 'Paper 1', authors: ['Author 1'], year: 2023 }
+        entry: { title: 'Paper 1', authors: ['Author 1'], year: 2023 },
       } as BibliographyManageParams);
 
       await manager.execute({
         action: 'add',
-        entry: { title: 'Paper 2', authors: ['Author 2'], year: 2022 }
+        entry: { title: 'Paper 2', authors: ['Author 2'], year: 2022 },
       } as BibliographyManageParams);
 
       const result = await manager.execute({
-        action: 'list'
+        action: 'list',
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -276,13 +296,13 @@ describe('BibliographyManager', () => {
       // 先添加条目
       await manager.execute({
         action: 'add',
-        entry: { title: 'Paper to Delete', authors: ['Author'], year: 2023 }
+        entry: { title: 'Paper to Delete', authors: ['Author'], year: 2023 },
       } as BibliographyManageParams);
 
       // 删除条目
       const result = await manager.execute({
         action: 'remove',
-        entryId: 'entry_1'
+        entryId: 'entry_1',
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -294,7 +314,7 @@ describe('BibliographyManager', () => {
     it('应该处理删除不存在的条目', async () => {
       const result = await manager.execute({
         action: 'remove',
-        entryId: 'nonexistent'
+        entryId: 'nonexistent',
       } as BibliographyManageParams);
 
       expect(result.success).toBe(false);
@@ -305,14 +325,14 @@ describe('BibliographyManager', () => {
       // 先添加条目
       await manager.execute({
         action: 'add',
-        entry: { title: 'Original Title', authors: ['Author'], year: 2023 }
+        entry: { title: 'Original Title', authors: ['Author'], year: 2023 },
       } as BibliographyManageParams);
 
       // 更新条目
       const result = await manager.execute({
         action: 'update',
         entryId: 'entry_1',
-        entry: { title: 'Updated Title' }
+        entry: { title: 'Updated Title' },
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -332,15 +352,15 @@ describe('BibliographyManager', () => {
           authors: ['John Doe', 'Jane Smith'],
           year: 2023,
           journal: 'Test Journal',
-          doi: '10.1000/test.doi'
-        }
+          doi: '10.1000/test.doi',
+        },
       } as BibliographyManageParams);
     });
 
     it('应该以 APA 格式导出', async () => {
       const result = await manager.execute({
         action: 'export',
-        format: CitationStyle.APA
+        format: CitationStyle.APA,
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -353,7 +373,7 @@ describe('BibliographyManager', () => {
     it('应该以 IEEE 格式导出', async () => {
       const result = await manager.execute({
         action: 'export',
-        format: CitationStyle.IEEE
+        format: CitationStyle.IEEE,
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -366,7 +386,7 @@ describe('BibliographyManager', () => {
     it('应该以 MLA 格式导出', async () => {
       const result = await manager.execute({
         action: 'export',
-        format: CitationStyle.MLA
+        format: CitationStyle.MLA,
       } as BibliographyManageParams);
 
       expect(result.success).toBe(true);
@@ -380,13 +400,13 @@ describe('BibliographyManager', () => {
     it('应该应用年份范围过滤', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('<feed></feed>')
+        text: () => Promise.resolve('<feed></feed>'),
       });
 
       const params: BibliographySearchParams = {
         query: 'test',
         databases: [Database.GOOGLE_SCHOLAR],
-        yearRange: { start: 2022, end: 2023 }
+        yearRange: { start: 2022, end: 2023 },
       };
 
       const result = await manager.execute(params);
@@ -403,13 +423,13 @@ describe('BibliographyManager', () => {
     it('应该按日期排序', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('<feed></feed>')
+        text: () => Promise.resolve('<feed></feed>'),
       });
 
       const params: BibliographySearchParams = {
         query: 'test',
         databases: [Database.GOOGLE_SCHOLAR],
-        sortBy: 'date'
+        sortBy: 'date',
       };
 
       const result = await manager.execute(params);
@@ -418,7 +438,9 @@ describe('BibliographyManager', () => {
       const searchResult = result.data as any;
       // 验证按年份降序排列
       for (let i = 1; i < searchResult.entries.length; i++) {
-        expect(searchResult.entries[i-1].year).toBeGreaterThanOrEqual(searchResult.entries[i].year);
+        expect(searchResult.entries[i - 1].year).toBeGreaterThanOrEqual(
+          searchResult.entries[i].year,
+        );
       }
     });
   });
@@ -426,7 +448,7 @@ describe('BibliographyManager', () => {
   describe('帮助信息', () => {
     it('应该提供详细的帮助信息', () => {
       const help = manager.getHelp();
-      
+
       expect(help).toContain('Search academic literature');
       expect(help).toContain('query');
       expect(help).toContain('databases');
@@ -441,7 +463,7 @@ describe('BibliographyManager', () => {
 
       const params: BibliographySearchParams = {
         query: 'test',
-        databases: [Database.ARXIV]
+        databases: [Database.ARXIV],
       };
 
       const result = await manager.execute(params);
@@ -453,7 +475,7 @@ describe('BibliographyManager', () => {
 
     it('应该处理无效的管理操作', async () => {
       const params = {
-        action: 'unknown'
+        action: 'unknown',
       };
 
       const result = await manager.execute(params as any);
@@ -462,4 +484,4 @@ describe('BibliographyManager', () => {
       expect(result.error).toBeDefined();
     });
   });
-}); 
+});

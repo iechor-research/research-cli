@@ -82,12 +82,12 @@ cat > /root/label-studio-deploy/nginx/conf.d/freeme.pub.conf << 'EOF'
 server {
     listen 80;
     server_name freeme.pub www.freeme.pub research-cli.com www.research-cli.com;
-    
+
     # Let's Encrypt 验证路径
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
-    
+
     # 其他请求重定向到 HTTPS
     location / {
         return 301 https://$host$request_uri;
@@ -98,24 +98,24 @@ server {
 server {
     listen 443 ssl http2;
     server_name freeme.pub www.freeme.pub research-cli.com www.research-cli.com;
-    
+
     # SSL 证书配置
     ssl_certificate /etc/letsencrypt/live/freeme.pub/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/freeme.pub/privkey.pem;
-    
+
     # SSL 安全配置
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384;
     ssl_prefer_server_ciphers off;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
-    
+
     # 安全头
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header X-Frame-Options DENY;
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
-    
+
     # 代理到 Next.js 应用
     location / {
         proxy_pass http://localhost:3001;
@@ -129,14 +129,14 @@ server {
         proxy_cache_bypass $http_upgrade;
         proxy_read_timeout 86400;
     }
-    
+
     # 处理 Next.js 静态文件
     location /_next/static/ {
         proxy_pass http://localhost:3001;
         proxy_cache_valid 200 1y;
         add_header Cache-Control 'public, immutable';
     }
-    
+
     # 处理其他静态资源
     location /static/ {
         proxy_pass http://localhost:3001;
@@ -219,6 +219,7 @@ chmod +x /var/www/deploy-research-cli.sh
 ### 问题说明
 
 本地开发环境存在以下问题：
+
 1. **React 版本冲突**: 根目录和 packages/web 存在不同版本的 React
 2. **依赖缺失**: 缺少 @next/mdx 和 hast-to-hyperscript 等依赖
 3. **文件缺失**: packages/web 目录已被删除
@@ -241,6 +242,7 @@ npm run dev
 ### 常见问题解决
 
 1. **端口冲突**
+
    ```bash
    # Next.js 会自动尝试其他端口 (3001, 3002, 3003...)
    # 或手动指定端口
@@ -248,10 +250,11 @@ npm run dev
    ```
 
 2. **依赖缺失**
+
    ```bash
    # 安装缺失的 MDX 依赖
    npm install @next/mdx --legacy-peer-deps
-   
+
    # 修复包名错误
    sed -i 's/hast-to-research-cliscript/hast-to-hyperscript/g' package.json
    ```
@@ -340,6 +343,7 @@ docker exec labelstudio-nginx nginx -s reload
 ### 联系信息
 
 如有问题，请查看：
+
 - 项目仓库: https://github.com/iechor-research/research-site
 - 主项目: https://github.com/iechor-research/research-cli
-- 服务器日志: `/var/log/research-cli.log` 
+- 服务器日志: `/var/log/research-cli.log`

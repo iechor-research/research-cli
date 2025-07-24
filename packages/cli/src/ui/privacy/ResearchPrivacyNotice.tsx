@@ -11,7 +11,9 @@ interface ResearchPrivacyNoticeProps {
   onExit: () => void;
 }
 
-export const ResearchPrivacyNotice = ({ onExit }: ResearchPrivacyNoticeProps) => {
+export const ResearchPrivacyNotice = ({
+  onExit,
+}: ResearchPrivacyNoticeProps) => {
   useInput((input, key) => {
     if (key.escape) {
       onExit();

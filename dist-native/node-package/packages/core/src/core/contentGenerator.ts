@@ -65,9 +65,13 @@ function getConfiguredAPIValues(): {
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
-    
-    const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
-    
+
+    const configFile = path.join(
+      os.homedir(),
+      '.research-cli',
+      'api-config.json',
+    );
+
     if (fs.existsSync(configFile)) {
       const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
       return {
@@ -80,7 +84,7 @@ function getConfiguredAPIValues(): {
   } catch (error) {
     // 静默失败，回退到环境变量
   }
-  
+
   return {};
 }
 
@@ -89,11 +93,19 @@ export async function createContentGeneratorConfig(
   authType: AuthType | undefined,
 ): Promise<ContentGeneratorConfig> {
   const configuredValues = getConfiguredAPIValues();
-  
-  const researchApiKey = configuredValues.geminiApiKey || process.env.GEMINI_API_KEY  || undefined;
-  const iechorApiKey = configuredValues.googleApiKey || process.env.GOOGLE_API_KEY || undefined;
-  const iechorCloudProject = configuredValues.googleCloudProject || process.env.GOOGLE_CLOUD_PROJECT || undefined;
-  const iechorCloudLocation = configuredValues.googleCloudLocation || process.env.GOOGLE_CLOUD_LOCATION || undefined;
+
+  const researchApiKey =
+    configuredValues.geminiApiKey || process.env.GEMINI_API_KEY || undefined;
+  const iechorApiKey =
+    configuredValues.googleApiKey || process.env.GOOGLE_API_KEY || undefined;
+  const iechorCloudProject =
+    configuredValues.googleCloudProject ||
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    undefined;
+  const iechorCloudLocation =
+    configuredValues.googleCloudLocation ||
+    process.env.GOOGLE_CLOUD_LOCATION ||
+    undefined;
 
   // Use runtime model from config if available, otherwise fallback to parameter or default
   const effectiveModel = model || DEFAULT_RESEARCH_MODEL;

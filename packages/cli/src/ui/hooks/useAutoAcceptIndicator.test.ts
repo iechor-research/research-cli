@@ -98,7 +98,9 @@ describe('useAutoAcceptIndicator', () => {
           () => string
         >,
         getUserMemory: vi.fn().mockReturnValue('') as Mock<() => string>,
-        getResearchMdFileCount: vi.fn().mockReturnValue(0) as Mock<() => number>,
+        getResearchMdFileCount: vi.fn().mockReturnValue(0) as Mock<
+          () => number
+        >,
         getToolRegistry: vi
           .fn()
           .mockReturnValue({ discoverTools: vi.fn() }) as Mock<

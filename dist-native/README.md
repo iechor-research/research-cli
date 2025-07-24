@@ -6,6 +6,7 @@
    - `research-cli-darwin-arm64` for darwin-arm64
 
 2. Make it executable (Unix/Linux/macOS):
+
    ```bash
    chmod +x research-cli-darwin-arm64
    ```

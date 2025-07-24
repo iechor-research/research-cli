@@ -27,7 +27,7 @@ describe('AcademicWritingAssistant', () => {
     it('should reject empty content', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: ''
+        content: '',
       };
 
       const result = await tool.execute(params);
@@ -38,7 +38,7 @@ describe('AcademicWritingAssistant', () => {
     it('should reject content that is too long', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: 'a'.repeat(50001)
+        content: 'a'.repeat(50001),
       };
 
       const result = await tool.execute(params);
@@ -49,7 +49,7 @@ describe('AcademicWritingAssistant', () => {
     it('should require citation style for citation verification', async () => {
       const params: WritingAssistantParams = {
         operation: 'verify_citations',
-        content: 'Some text with citations (Smith, 2023).'
+        content: 'Some text with citations (Smith, 2023).',
       };
 
       const result = await tool.execute(params);
@@ -60,7 +60,7 @@ describe('AcademicWritingAssistant', () => {
     it('should reject unsupported operations', async () => {
       const params = {
         operation: 'unsupported_operation',
-        content: 'Some test content'
+        content: 'Some test content',
       } as any;
 
       const result = await tool.execute(params);
@@ -91,10 +91,10 @@ Final conclusions.
 
 # References
 [1] Smith, J. (2023). Some research paper.
-        `
+        `,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.structureAnalysis).toBeDefined();
@@ -111,10 +111,10 @@ Final conclusions.
 # Some Title
 This is just some basic content without proper structure.
         `,
-        documentType: 'journal_article'
+        documentType: 'journal_article',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.suggestions).toBeDefined();
@@ -148,10 +148,10 @@ Summary...
 
 # References
 Bibliography...
-        `
+        `,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.structureAnalysis!.structureScore).toBeGreaterThan(80);
@@ -162,10 +162,11 @@ Bibliography...
     it('should detect grammar issues', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: 'The data shows that there is significant differences in the results. This are important findings.'
+        content:
+          'The data shows that there is significant differences in the results. This are important findings.',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.grammarCheck).toBeDefined();
@@ -175,10 +176,11 @@ Bibliography...
     it('should detect punctuation errors', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: 'This is a sentence without proper punctuation Another sentence that follows'
+        content:
+          'This is a sentence without proper punctuation Another sentence that follows',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.grammarCheck).toBeDefined();
@@ -187,10 +189,11 @@ Bibliography...
     it('should detect capitalization errors', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: 'this sentence should start with a capital letter. another sentence with issues.'
+        content:
+          'this sentence should start with a capital letter. another sentence with issues.',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.grammarCheck).toBeDefined();
@@ -201,11 +204,12 @@ Bibliography...
     it('should detect style issues', async () => {
       const params: WritingAssistantParams = {
         operation: 'improve_style',
-        content: 'This is a really, really long sentence that goes on and on and probably should be broken up into smaller, more manageable pieces for better readability.',
-        writingStyle: 'academic'
+        content:
+          'This is a really, really long sentence that goes on and on and probably should be broken up into smaller, more manageable pieces for better readability.',
+        writingStyle: 'academic',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.styleImprovements).toBeDefined();
@@ -214,11 +218,12 @@ Bibliography...
     it('should detect informal contractions in academic writing', async () => {
       const params: WritingAssistantParams = {
         operation: 'improve_style',
-        content: "We can't determine the exact cause. It's likely that there's more research needed.",
-        writingStyle: 'academic'
+        content:
+          "We can't determine the exact cause. It's likely that there's more research needed.",
+        writingStyle: 'academic',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.styleImprovements).toBeDefined();
@@ -236,10 +241,10 @@ References:
 Smith, J. (2023). Research Methods. Journal of Science.
 Jones, A., Brown, B., & Davis, C. (2022). Statistical Analysis. Academic Press.
         `,
-        citationStyle: 'apa'
+        citationStyle: 'apa',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.citationIssues).toBeDefined();
@@ -254,14 +259,16 @@ Jones, A., Brown, B., & Davis, C. (2022). Statistical Analysis. Academic Press.
 This research investigates the relationship between variables. The methodology involves collecting data from multiple sources. 
 Statistical analysis reveals significant patterns. The findings contribute to our understanding of the phenomenon.
 Complex technical terminology may affect readability scores.
-        `
+        `,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.readabilityMetrics).toBeDefined();
-      expect(data.readabilityMetrics!.fleschReadingEase).toBeGreaterThanOrEqual(-100); // Flesch score can be negative
+      expect(data.readabilityMetrics!.fleschReadingEase).toBeGreaterThanOrEqual(
+        -100,
+      ); // Flesch score can be negative
       expect(data.readabilityMetrics!.totalWords).toBeGreaterThan(0);
     });
   });
@@ -273,10 +280,10 @@ Complex technical terminology may affect readability scores.
         content: `
 This is a common phrase used in many research papers. The methodology follows standard procedures.
 This exact sentence appears in multiple publications without attribution.
-        `
+        `,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.plagiarismCheck).toBeDefined();
@@ -311,10 +318,10 @@ Our findings suggest that ML can improve healthcare outcomes.
 Smith, J. (2023). AI in Healthcare. Medical Journal.
         `,
         writingStyle: 'academic',
-        citationStyle: 'apa'
+        citationStyle: 'apa',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
       const data = result.data as WritingAssistantResult;
       expect(data.structureAnalysis).toBeDefined();
@@ -334,29 +341,30 @@ Smith, J. (2023). AI in Healthcare. Medical Journal.
     it('should handle very short content', async () => {
       const params: WritingAssistantParams = {
         operation: 'analyze_structure',
-        content: 'Short text.'
+        content: 'Short text.',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
     });
 
     it('should handle content with special characters', async () => {
-      const content = 'Text with émojis 🎓, spéciàl châractérs, and números 123.';
+      const content =
+        'Text with émojis 🎓, spéciàl châractérs, and números 123.';
 
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content
+        content,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
     });
 
     it('should handle content with only whitespace', async () => {
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content: '   \n\t   '
+        content: '   \n\t   ',
       };
 
       const result = await tool.execute(params);
@@ -369,10 +377,10 @@ Smith, J. (2023). AI in Healthcare. Medical Journal.
     it('should use default values when parameters are not provided', async () => {
       const params: WritingAssistantParams = {
         operation: 'analyze_structure',
-        content: 'Test content for analysis.'
+        content: 'Test content for analysis.',
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
     });
   });
@@ -383,10 +391,10 @@ Smith, J. (2023). AI in Healthcare. Medical Journal.
 
       const params: WritingAssistantParams = {
         operation: 'check_grammar',
-        content
+        content,
       };
 
-      const result = await tool.execute(params) as WritingAssistantResult;
+      const result = (await tool.execute(params)) as WritingAssistantResult;
       expect(result.success).toBe(true);
     });
 
@@ -402,4 +410,4 @@ Smith, J. (2023). AI in Healthcare. Medical Journal.
       expect(result.error).toContain('Citation style is required');
     });
   });
-}); 
+});

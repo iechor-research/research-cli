@@ -952,7 +952,9 @@ describe('useSlashCommandProcessor', () => {
         }),
         expect.any(Number),
       );
-      expect(open).toHaveBeenCalledWith('https://goo.gle/research-cli-docs-mcp');
+      expect(open).toHaveBeenCalledWith(
+        'https://goo.gle/research-cli-docs-mcp',
+      );
       expect(commandResult).toEqual({ type: 'handled' });
     });
 

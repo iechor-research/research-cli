@@ -4,7 +4,7 @@ This documentation provides a comprehensive guide to installing, using, and deve
 
 ## Overview
 
-Research CLI brings the capabilities of Research models to your terminal in an interactive Read-Eval-Print Loop (REPL) environment. Research CLI consists of a client-side application (`packages/cli`) that communicates with a local server (`packages/core`), which in turn manages requests to the Research API and its AI models. 
+Research CLI brings the capabilities of Research models to your terminal in an interactive Read-Eval-Print Loop (REPL) environment. Research CLI consists of a client-side application (`packages/cli`) that communicates with a local server (`packages/core`), which in turn manages requests to the Research API and its AI models.
 
 **New in this version:** Research CLI now includes a comprehensive suite of academic research tools for literature search, paper writing, data analysis, and journal submission - making it a complete research workflow platform.
 

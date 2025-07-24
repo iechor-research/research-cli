@@ -7,19 +7,19 @@ This is a **native wrapper** for Research CLI that provides the **original termi
 ## ✨ Key Features
 
 - **🚀 Ultra-lightweight**: Only 431KB (99% smaller than previous packaging attempts)
-- **⚡ Lightning fast**: Direct process execution, no web interface overhead  
+- **⚡ Lightning fast**: Direct process execution, no web interface overhead
 - **🖥️ Native experience**: Full terminal compatibility with stdin/stdout/stderr
 - **🔧 Zero dependencies**: Pure Rust wrapper, no Node.js bundling
 - **📱 Cross-platform**: Supports macOS, Windows, and Linux
 
 ## 📦 Downloads
 
-| Platform | Architecture | Download | Size |
-|----------|-------------|----------|------|
-| macOS | ARM64 (M1/M2) | `research-cli-darwin-arm64` | 431KB |
-| macOS | x64 (Intel) | `research-cli-darwin-x64` | ~450KB |
-| Windows | x64 | `research-cli-win32-x64.exe` | ~400KB |
-| Linux | x64 | `research-cli-linux-x64` | ~420KB |
+| Platform | Architecture  | Download                     | Size   |
+| -------- | ------------- | ---------------------------- | ------ |
+| macOS    | ARM64 (M1/M2) | `research-cli-darwin-arm64`  | 431KB  |
+| macOS    | x64 (Intel)   | `research-cli-darwin-x64`    | ~450KB |
+| Windows  | x64           | `research-cli-win32-x64.exe` | ~400KB |
+| Linux    | x64           | `research-cli-linux-x64`     | ~420KB |
 
 ## 🛠️ Installation
 
@@ -48,10 +48,10 @@ This wrapper is built with Rust and directly executes the Research CLI Node.js p
 
 ## 🆚 Comparison with Previous Approaches
 
-| Approach | Size | Experience | Performance |
-|----------|------|------------|-------------|
-| PKG bundling | 60-75MB | Native CLI | Good |
-| Tauri + Web UI | 12MB | Custom interface | Good |
-| **Native wrapper** | **431KB** | **Native CLI** | **Excellent** |
+| Approach           | Size      | Experience       | Performance   |
+| ------------------ | --------- | ---------------- | ------------- |
+| PKG bundling       | 60-75MB   | Native CLI       | Good          |
+| Tauri + Web UI     | 12MB      | Custom interface | Good          |
+| **Native wrapper** | **431KB** | **Native CLI**   | **Excellent** |
 
 Built: 2025-07-17T06:13:30.844Z

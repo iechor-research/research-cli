@@ -10,7 +10,7 @@
 
 - **arXiv**: 直接调用 arXiv API
 - **Google Scholar**: 通过网络搜索集成
-- **PubMed**: 医学文献数据库 
+- **PubMed**: 医学文献数据库
 - **IEEE**: 工程技术文献
 
 ### 2. 文献库管理
@@ -36,13 +36,14 @@ const searchParams = {
   maxResults: 10,
   yearRange: { start: 2020, end: 2024 },
   includeAbstracts: true,
-  sortBy: 'date'
+  sortBy: 'date',
 };
 
 const result = await bibliographyManager.execute(searchParams);
 ```
 
 **结果示例**:
+
 ```json
 {
   "success": true,
@@ -82,20 +83,20 @@ await bibliographyManager.execute({
     authors: ['Alice Johnson', 'Bob Wilson'],
     year: 2023,
     journal: 'Nature Machine Intelligence',
-    doi: '10.1038/s42256-023-00123-4'
-  }
+    doi: '10.1038/s42256-023-00123-4',
+  },
 });
 
 // 列出所有文献
 const listResult = await bibliographyManager.execute({
-  action: 'list'
+  action: 'list',
 });
 
 // 导出 APA 格式引用
 const exportResult = await bibliographyManager.execute({
   action: 'export',
   format: 'apa',
-  filename: 'my-bibliography.txt'
+  filename: 'my-bibliography.txt',
 });
 ```
 
@@ -109,34 +110,37 @@ const advancedSearch = {
   fields: ['computer science', 'machine learning'],
   yearRange: { start: 2022, end: 2024 },
   sortBy: 'citations',
-  maxResults: 20
+  maxResults: 20,
 };
 ```
 
 ## 支持的数据源
 
-| 数据源 | 类型 | 实现状态 | 描述 |
-|--------|------|----------|------|
-| arXiv | 预印本 | ✅ 完整实现 | 物理、数学、计算机科学等领域 |
-| Google Scholar | 综合 | ✅ 网络搜索集成 | 跨学科学术搜索 |
-| PubMed | 医学 | 🔄 模拟实现 | 生物医学文献数据库 |
-| IEEE Xplore | 工程 | 🔄 模拟实现 | 电气工程和计算机科学 |
-| ACM Digital Library | 计算机 | ⏳ 计划中 | 计算机科学专业数据库 |
-| Springer | 综合 | ⏳ 计划中 | 科学技术期刊数据库 |
+| 数据源              | 类型   | 实现状态        | 描述                         |
+| ------------------- | ------ | --------------- | ---------------------------- |
+| arXiv               | 预印本 | ✅ 完整实现     | 物理、数学、计算机科学等领域 |
+| Google Scholar      | 综合   | ✅ 网络搜索集成 | 跨学科学术搜索               |
+| PubMed              | 医学   | 🔄 模拟实现     | 生物医学文献数据库           |
+| IEEE Xplore         | 工程   | 🔄 模拟实现     | 电气工程和计算机科学         |
+| ACM Digital Library | 计算机 | ⏳ 计划中       | 计算机科学专业数据库         |
+| Springer            | 综合   | ⏳ 计划中       | 科学技术期刊数据库           |
 
 ## 引用格式支持
 
 ### APA 格式
+
 ```
 Doe, J., & Smith, J. (2023). Advanced Neural Networks. Nature AI. https://doi.org/10.1038/example
 ```
 
 ### IEEE 格式
+
 ```
 J. Doe and J. Smith, "Advanced Neural Networks," Nature AI, 2023. DOI: 10.1038/example.
 ```
 
 ### MLA 格式
+
 ```
 Doe, John, and Jane Smith. "Advanced Neural Networks." Nature AI 2023. Web.
 ```
@@ -187,4 +191,4 @@ case Database.NEW_SOURCE:
 3. **语义搜索**: 基于内容相似性的智能搜索
 4. **协同过滤**: 基于用户行为的推荐系统
 5. **导入格式**: 支持 BibTeX、EndNote、Zotero 格式
-6. **云端同步**: 跨设备文献库同步功能 
+6. **云端同步**: 跨设备文献库同步功能

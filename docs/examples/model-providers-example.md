@@ -51,10 +51,10 @@ export COHERE_API_KEY="..."
 ### 1. 基本用法
 
 ```typescript
-import { 
-  ModelSelector, 
-  ModelProvider, 
-  ModelProviderConfigManager 
+import {
+  ModelSelector,
+  ModelProvider,
+  ModelProviderConfigManager,
 } from '@iechor/research-cli-core';
 
 // 创建配置管理器
@@ -78,9 +78,7 @@ await modelSelector.selectModel(ModelProvider.OPENAI, 'gpt-4o-mini');
 
 // 发送消息
 const response = await modelSelector.sendMessage({
-  messages: [
-    { role: 'user', content: '你好，请介绍一下你自己' }
-  ]
+  messages: [{ role: 'user', content: '你好，请介绍一下你自己' }],
 });
 
 console.log(response.content);
@@ -91,9 +89,7 @@ console.log(response.content);
 ```typescript
 // 发送流式消息
 const stream = modelSelector.streamMessage({
-  messages: [
-    { role: 'user', content: '请写一首关于春天的诗' }
-  ]
+  messages: [{ role: 'user', content: '请写一首关于春天的诗' }],
 });
 
 for await (const chunk of stream) {
@@ -110,14 +106,16 @@ for await (const chunk of stream) {
 // 获取所有可用模型
 const allModels = await modelSelector.getAvailableModels();
 console.log('可用模型：');
-allModels.forEach(model => {
+allModels.forEach((model) => {
   console.log(`- ${model.provider}/${model.id}: ${model.description}`);
 });
 
 // 获取特定提供商的模型
-const openaiModels = await modelSelector.getModelsForProvider(ModelProvider.OPENAI);
+const openaiModels = await modelSelector.getModelsForProvider(
+  ModelProvider.OPENAI,
+);
 console.log('OpenAI 模型：');
-openaiModels.forEach(model => {
+openaiModels.forEach((model) => {
   console.log(`- ${model.id}: ${model.description}`);
 });
 ```
@@ -128,14 +126,14 @@ openaiModels.forEach(model => {
 // 动态添加提供商配置
 configManager.setProviderConfig(ModelProvider.DEEPSEEK, {
   apiKey: 'your-deepseek-api-key',
-  defaultModel: 'deepseek-chat'
+  defaultModel: 'deepseek-chat',
 });
 
 // 设置全局配置
 configManager.setGlobalConfig({
   temperature: 0.8,
   maxTokens: 4096,
-  topP: 0.9
+  topP: 0.9,
 });
 
 // 验证配置
@@ -218,17 +216,17 @@ research model providers
 ## 错误处理
 
 ```typescript
-import { 
-  ModelProviderError, 
-  AuthenticationError, 
-  RateLimitError, 
-  ConfigurationError 
+import {
+  ModelProviderError,
+  AuthenticationError,
+  RateLimitError,
+  ConfigurationError,
 } from '@iechor/research-cli-core';
 
 try {
   await modelSelector.selectModel(ModelProvider.OPENAI, 'gpt-4o');
   const response = await modelSelector.sendMessage({
-    messages: [{ role: 'user', content: 'Hello' }]
+    messages: [{ role: 'user', content: 'Hello' }],
   });
 } catch (error) {
   if (error instanceof AuthenticationError) {
@@ -272,10 +270,10 @@ console.log('配置的提供商:', configManager.getConfiguredProviders());
 console.log('默认提供商:', configManager.getDefaultProvider());
 
 // 验证每个提供商的配置
-configManager.getConfiguredProviders().forEach(provider => {
+configManager.getConfiguredProviders().forEach((provider) => {
   const isValid = configManager.validateProviderConfig(provider);
   console.log(`${provider}: ${isValid ? '✓' : '✗'}`);
 });
 ```
 
-通过这个统一的模型提供商系统，你可以轻松地在不同的大模型之间切换，享受最佳的AI体验！ 
+通过这个统一的模型提供商系统，你可以轻松地在不同的大模型之间切换，享受最佳的AI体验！

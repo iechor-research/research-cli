@@ -73,7 +73,12 @@ export class GoogleScholarClient {
   private customSearchEngineId: string = '000000000000000000000:aaaaaaaaaaa'; // Default CSE ID for Google Scholar
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || this.getConfiguredApiKey() || process.env.SERPAPI_KEY || process.env.GOOGLE_API_KEY || '082111056d72a84aec957a8211707fdc072d2655d6df8050fc95a0ddb8f45497';
+    this.apiKey =
+      apiKey ||
+      this.getConfiguredApiKey() ||
+      process.env.SERPAPI_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      '082111056d72a84aec957a8211707fdc072d2655d6df8050fc95a0ddb8f45497';
   }
 
   /**
@@ -84,19 +89,23 @@ export class GoogleScholarClient {
       const fs = require('fs');
       const path = require('path');
       const os = require('os');
-      
-      const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
-      
+
+      const configFile = path.join(
+        os.homedir(),
+        '.research-cli',
+        'api-config.json',
+      );
+
       if (fs.existsSync(configFile)) {
         const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-        
+
         // 优先使用 SerpAPI key，然后是 Google API key
         return config.apis?.serpapi?.apiKey || config.apis?.google?.apiKey;
       }
     } catch (error) {
       // 静默失败，回退到环境变量
     }
-    
+
     return undefined;
   }
 
@@ -111,51 +120,66 @@ export class GoogleScholarClient {
   /**
    * Search using Google Custom Search API
    */
-  private async searchWithGoogleCustomSearch(query: string, options: GoogleScholarSearchOptions = {}): Promise<BibliographyEntry[]> {
+  private async searchWithGoogleCustomSearch(
+    query: string,
+    options: GoogleScholarSearchOptions = {},
+  ): Promise<BibliographyEntry[]> {
     const searchParams = new URLSearchParams({
       key: this.apiKey,
       cx: this.customSearchEngineId,
       q: `site:scholar.google.com ${query}`,
       num: Math.min(options.maxResults || 10, 10).toString(), // Google CSE max is 10
-      hl: options.language || 'en'
+      hl: options.language || 'en',
     });
 
     // Add date range if specified
     if (options.yearRange) {
-      searchParams.append('dateRestrict', `y${new Date().getFullYear() - options.yearRange.start}`);
+      searchParams.append(
+        'dateRestrict',
+        `y${new Date().getFullYear() - options.yearRange.start}`,
+      );
     }
 
     const url = `https://www.googleapis.com/customsearch/v1?${searchParams.toString()}`;
-    
+
     try {
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(`Google Custom Search API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Google Custom Search API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       if (data.error) {
-        throw new Error(`Google Custom Search API error: ${data.error.message}`);
+        throw new Error(
+          `Google Custom Search API error: ${data.error.message}`,
+        );
       }
 
       return this.parseGoogleCustomSearchResults(data.items || []);
     } catch (error) {
       console.error('Google Custom Search error:', error);
-      throw new Error(`Failed to search Google Scholar via Custom Search: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to search Google Scholar via Custom Search: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Search using SERPAPI
    */
-  private async searchWithSerpApi(query: string, options: GoogleScholarSearchOptions = {}): Promise<BibliographyEntry[]> {
+  private async searchWithSerpApi(
+    query: string,
+    options: GoogleScholarSearchOptions = {},
+  ): Promise<BibliographyEntry[]> {
     const searchParams = new URLSearchParams({
       engine: 'google_scholar',
       q: query,
       api_key: this.apiKey,
       num: (options.maxResults || 20).toString(),
-      hl: options.language || 'en'
+      hl: options.language || 'en',
     });
 
     // Add year range filter
@@ -179,13 +203,15 @@ export class GoogleScholarClient {
     }
 
     const url = `${this.baseUrl}?${searchParams.toString()}`;
-    
+
     try {
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(`SERPAPI error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `SERPAPI error: ${response.status} ${response.statusText}`,
+        );
       }
 
       if (data.error) {
@@ -195,14 +221,19 @@ export class GoogleScholarClient {
       return this.parseSerpApiResults(data.organic_results || []);
     } catch (error) {
       console.error('SERPAPI search error:', error);
-      throw new Error(`Failed to search Google Scholar via SERPAPI: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to search Google Scholar via SERPAPI: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Search Google Scholar for academic papers
    */
-  async searchPapers(query: string, options: GoogleScholarSearchOptions = {}): Promise<BibliographyEntry[]> {
+  async searchPapers(
+    query: string,
+    options: GoogleScholarSearchOptions = {},
+  ): Promise<BibliographyEntry[]> {
     if (!this.apiKey) {
       throw new Error('API key is required for Google Scholar search');
     }
@@ -216,19 +247,29 @@ export class GoogleScholarClient {
       }
     } catch (error) {
       console.error('Google Scholar search error:', error);
-      throw new Error(`Failed to search Google Scholar: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to search Google Scholar: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Parse Google Custom Search results into BibliographyEntry format
    */
-  private parseGoogleCustomSearchResults(results: GoogleCustomSearchResult[]): BibliographyEntry[] {
+  private parseGoogleCustomSearchResults(
+    results: GoogleCustomSearchResult[],
+  ): BibliographyEntry[] {
     return results.map((result, index) => {
       // Extract author and year from snippet or title
-      const authorYearMatch = result.snippet.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*-\s*(\d{4})/);
-      const authors = authorYearMatch ? [authorYearMatch[1]] : ['Unknown Author'];
-      const year = authorYearMatch ? parseInt(authorYearMatch[2]) : new Date().getFullYear();
+      const authorYearMatch = result.snippet.match(
+        /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*-\s*(\d{4})/,
+      );
+      const authors = authorYearMatch
+        ? [authorYearMatch[1]]
+        : ['Unknown Author'];
+      const year = authorYearMatch
+        ? parseInt(authorYearMatch[2])
+        : new Date().getFullYear();
 
       const entry: BibliographyEntry = {
         id: `google_scholar_${index}`,
@@ -244,12 +285,12 @@ export class GoogleScholarClient {
         notes: JSON.stringify({
           displayLink: result.displayLink,
           formattedUrl: result.formattedUrl,
-          searchEngine: 'Google Custom Search'
+          searchEngine: 'Google Custom Search',
         }),
         citationFormats: {
           apa: '',
           mla: '',
-          ieee: ''
+          ieee: '',
         },
         metadata: {
           id: `google_scholar_${index}`,
@@ -258,8 +299,8 @@ export class GoogleScholarClient {
           abstract: result.snippet.replace(/<[^>]*>/g, ''),
           publishedDate: `${year}-01-01`,
           keywords: [],
-          url: result.link
-        }
+          url: result.link,
+        },
       };
 
       // Generate citation formats
@@ -274,14 +315,19 @@ export class GoogleScholarClient {
   /**
    * Parse SERPAPI results into BibliographyEntry format
    */
-  private parseSerpApiResults(results: GoogleScholarPaper[]): BibliographyEntry[] {
+  private parseSerpApiResults(
+    results: GoogleScholarPaper[],
+  ): BibliographyEntry[] {
     return results.map((result, index) => {
       // Extract authors from publication info
-      const authors = result.publication_info?.authors?.map(author => author.name) || 
-                     this.extractAuthorsFromSummary(result.publication_info?.summary || '');
+      const authors =
+        result.publication_info?.authors?.map((author) => author.name) ||
+        this.extractAuthorsFromSummary(result.publication_info?.summary || '');
 
       // Extract year from publication info
-      const year = this.extractYearFromSummary(result.publication_info?.summary || '');
+      const year = this.extractYearFromSummary(
+        result.publication_info?.summary || '',
+      );
 
       // Extract citation count
       const citationCount = result.inline_links?.cited_by?.total || 0;
@@ -301,12 +347,12 @@ export class GoogleScholarClient {
           publicationInfo: result.publication_info?.summary,
           resources: result.resources,
           versionsCount: result.inline_links?.versions?.total,
-          searchEngine: 'SERPAPI'
+          searchEngine: 'SERPAPI',
         }),
         citationFormats: {
           apa: '',
           mla: '',
-          ieee: ''
+          ieee: '',
         },
         metadata: {
           id: result.result_id || `serpapi_${index}`,
@@ -315,8 +361,8 @@ export class GoogleScholarClient {
           abstract: result.snippet || '',
           publishedDate: `${year}-01-01`,
           keywords: [],
-          url: result.link
-        }
+          url: result.link,
+        },
       };
 
       // Generate citation formats
@@ -334,7 +380,7 @@ export class GoogleScholarClient {
   private extractAuthorsFromSummary(summary: string): string[] {
     const authorMatch = summary.match(/^([^-]+)-/);
     if (authorMatch) {
-      return authorMatch[1].split(',').map(author => author.trim());
+      return authorMatch[1].split(',').map((author) => author.trim());
     }
     return ['Unknown Author'];
   }
@@ -350,7 +396,10 @@ export class GoogleScholarClient {
   /**
    * Generate citation in various formats
    */
-  generateCitation(entry: BibliographyEntry, format: 'APA' | 'MLA' | 'IEEE' = 'APA'): string {
+  generateCitation(
+    entry: BibliographyEntry,
+    format: 'APA' | 'MLA' | 'IEEE' = 'APA',
+  ): string {
     const authorsStr = entry.authors.join(', ');
     const title = entry.title;
     const year = entry.year;
@@ -359,13 +408,13 @@ export class GoogleScholarClient {
     switch (format) {
       case 'APA':
         return `${authorsStr} (${year}). ${title}. Retrieved from ${url}`;
-      
+
       case 'MLA':
         return `${authorsStr}. "${title}." Web. ${new Date().toLocaleDateString()}.`;
-      
+
       case 'IEEE':
         return `${authorsStr}, "${title}," [Online]. Available: ${url}. [Accessed: ${new Date().toLocaleDateString()}].`;
-      
+
       default:
         return `${authorsStr} (${year}). ${title}. ${url}`;
     }
@@ -377,13 +426,15 @@ export class GoogleScholarClient {
   async getPaperDetails(resultId: string): Promise<any> {
     if (!this.isGoogleApiKey(this.apiKey)) {
       const url = `https://serpapi.com/search?engine=google_scholar_cite&q=${resultId}&api_key=${this.apiKey}`;
-      
+
       try {
         const response = await fetch(url);
         const data = await response.json();
-        
+
         if (!response.ok) {
-          throw new Error(`SERPAPI error: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `SERPAPI error: ${response.status} ${response.statusText}`,
+          );
         }
 
         return data;
@@ -392,7 +443,7 @@ export class GoogleScholarClient {
         return null;
       }
     }
-    
+
     return null;
   }
-} 
+}

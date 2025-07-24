@@ -30,13 +30,14 @@ In conclusion, we found that...
 # References
 Smith, J. (2021). Research paper. Journal of Science.
   `,
-  documentType: 'paper'
+  documentType: 'paper',
 };
 
 const result = await tool.execute(params);
 ```
 
 **Output includes:**
+
 - Section count and structure analysis
 - Paragraph and sentence statistics
 - Presence of required sections (abstract, introduction, conclusion, references)
@@ -49,13 +50,15 @@ Detects and suggests corrections for various grammar issues.
 ```typescript
 const params = {
   operation: 'check_grammar',
-  content: 'He are going to the store.Without proper spacing.this sentence starts lowercase.'
+  content:
+    'He are going to the store.Without proper spacing.this sentence starts lowercase.',
 };
 
 const result = await tool.execute(params);
 ```
 
 **Detects:**
+
 - Subject-verb agreement errors
 - Punctuation issues (missing spaces, double spaces)
 - Capitalization errors
@@ -69,15 +72,17 @@ Analyzes writing style and suggests improvements for academic writing.
 ```typescript
 const params = {
   operation: 'improve_style',
-  content: "This research doesn't show significant results. A large number of participants were included.",
+  content:
+    "This research doesn't show significant results. A large number of participants were included.",
   writingStyle: 'academic',
-  targetAudience: 'experts'
+  targetAudience: 'experts',
 };
 
 const result = await tool.execute(params);
 ```
 
 **Analyzes:**
+
 - Wordiness and verbose phrases
 - Informal contractions in academic writing
 - Sentence clarity and length
@@ -99,20 +104,22 @@ References
 Smith, J. (2021). Research paper. Journal of Science.
 Jones, A., Brown, B., & Davis, C. (2020). Another study. Science Journal.
   `,
-  citationStyle: 'apa'
+  citationStyle: 'apa',
 };
 
 const result = await tool.execute(params);
 ```
 
 **Supported citation styles:**
+
 - APA
-- IEEE  
+- IEEE
 - MLA
 - Chicago
 - Harvard
 
 **Checks:**
+
 - Citation format compliance
 - Missing references in bibliography
 - Inconsistent citation styles
@@ -129,13 +136,14 @@ This is a simple sentence. This is another simple sentence.
 Here we have a more complex sentence with multiple clauses and longer words.
 The text contains various sentence structures to test readability calculations.
   `,
-  targetAudience: 'general_academic'
+  targetAudience: 'general_academic',
 };
 
 const result = await tool.execute(params);
 ```
 
 **Metrics calculated:**
+
 - Flesch Reading Ease Score
 - Flesch-Kincaid Grade Level
 - Gunning Fog Index
@@ -154,13 +162,14 @@ const params = {
 According to the literature, this study aims to investigate the relationship between variables.
 The results show that there is a significant correlation.
 In conclusion, future research should continue this investigation.
-  `
+  `,
 };
 
 const result = await tool.execute(params);
 ```
 
 **Features:**
+
 - Overall similarity score
 - Identification of suspicious text passages
 - Confidence level assessment
@@ -196,13 +205,14 @@ Smith, J. (2021). Research paper. Journal of Science.
   documentType: 'paper',
   targetAudience: 'experts',
   citationStyle: 'apa',
-  includeStatistics: true
+  includeStatistics: true,
 };
 
 const result = await tool.execute(params);
 ```
 
 **Includes all analyses:**
+
 - Structure analysis
 - Grammar checking
 - Style improvements
@@ -214,12 +224,14 @@ const result = await tool.execute(params);
 ## Configuration Options
 
 ### Writing Styles
+
 - `academic`: Formal academic writing style
 - `formal`: General formal writing
 - `technical`: Technical documentation style
 - `scientific`: Scientific paper style
 
 ### Document Types
+
 - `paper`: Research paper
 - `thesis`: Thesis document
 - `dissertation`: Dissertation
@@ -227,12 +239,14 @@ const result = await tool.execute(params);
 - `review`: Literature review
 
 ### Target Audiences
+
 - `experts`: Subject matter experts
 - `general_academic`: General academic audience
 - `students`: Student audience
 - `practitioners`: Industry practitioners
 
 ### Citation Styles
+
 - `apa`: APA Style
 - `ieee`: IEEE Style
 - `mla`: MLA Style
@@ -275,7 +289,15 @@ All suggestions follow a common format:
 
 ```typescript
 interface WritingSuggestion {
-  type: 'grammar' | 'style' | 'structure' | 'citation' | 'readability' | 'plagiarism' | 'transitions' | 'technical_terms';
+  type:
+    | 'grammar'
+    | 'style'
+    | 'structure'
+    | 'citation'
+    | 'readability'
+    | 'plagiarism'
+    | 'transitions'
+    | 'technical_terms';
   severity: 'low' | 'medium' | 'high';
   message: string;
   suggestion: string;
@@ -306,7 +328,7 @@ const assistant = new AcademicWritingAssistant();
 // Quick grammar check
 const grammarResult = await assistant.execute({
   operation: 'check_grammar',
-  content: documentText
+  content: documentText,
 });
 
 // Full document review
@@ -316,14 +338,14 @@ const fullReview = await assistant.execute({
   writingStyle: 'academic',
   documentType: 'paper',
   targetAudience: 'experts',
-  citationStyle: 'apa'
+  citationStyle: 'apa',
 });
 
 // Process suggestions
 if (fullReview.success && fullReview.suggestions) {
-  fullReview.suggestions.forEach(suggestion => {
+  fullReview.suggestions.forEach((suggestion) => {
     console.log(`${suggestion.severity}: ${suggestion.message}`);
     console.log(`Suggestion: ${suggestion.suggestion}`);
   });
 }
-``` 
+```

@@ -9,4 +9,4 @@
  */
 
 export * from './latex-manager.js';
-export * from './journal-matcher.js'; 
+export * from './journal-matcher.js';

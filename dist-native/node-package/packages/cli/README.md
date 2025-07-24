@@ -11,22 +11,26 @@ This repository contains the Research CLI, a command-line AI workflow tool that 
 The Research CLI has been enhanced with powerful academic research tools:
 
 ### 📝 **Paper Writing & Management**
+
 - **Paper Outline Generator**: Create structured outlines for research papers, reviews, and case studies
 - **Academic Writing Assistant**: Grammar checking, style improvements, and citation verification
 - **LaTeX Manager**: Full LaTeX project management with compilation and template support
 - **Bibliography Manager**: Search arXiv, PubMed, IEEE, and other databases with BibTeX export
 
 ### 🔬 **Research & Analysis**
+
 - **Experiment Code Generator**: Generate research code for Python, R, MATLAB, and Julia
 - **Data Analyzer**: Statistical analysis, machine learning, and data visualization
 - **Citation Network Analysis**: Explore research connections and paper relationships
 
 ### 🚀 **Submission & Publishing**
+
 - **Journal Matcher**: Find suitable journals based on your research content
 - **Submission Preparator**: Package papers for journal submission with templates
 - **Template Extractor**: Extract LaTeX templates from arXiv papers
 
 ### 💡 **Research Workflow Commands**
+
 - `/research search "machine learning"` - Search academic literature
 - `/research analyze paper.pdf` - Analyze document structure and style
 - `/research experiment python ml` - Generate experiment code

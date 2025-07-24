@@ -11,7 +11,7 @@ import {
   LaTeXEngine,
   WritingStyle,
   TargetAudience,
-  ProjectMember
+  ProjectMember,
 } from '../tools/research/types.js';
 
 /**
@@ -22,9 +22,13 @@ function getConfiguredSerpApiKey(): string | undefined {
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
-    
-    const configFile = path.join(os.homedir(), '.research-cli', 'api-config.json');
-    
+
+    const configFile = path.join(
+      os.homedir(),
+      '.research-cli',
+      'api-config.json',
+    );
+
     if (fs.existsSync(configFile)) {
       const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
       return config.apis?.serpapi?.apiKey;
@@ -32,7 +36,7 @@ function getConfiguredSerpApiKey(): string | undefined {
   } catch (error) {
     // 静默失败，回退到环境变量
   }
-  
+
   return undefined;
 }
 
@@ -228,7 +232,7 @@ export interface ResearchNotifications {
 export interface ResearchSettings {
   // 配置文件版本
   version?: string;
-  
+
   // 默认偏好设置
   defaults?: ResearchDefaults;
 
@@ -280,7 +284,7 @@ export interface ConfigValidationResult {
  */
 export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
   version: '1.0.0',
-  
+
   defaults: {
     citationStyle: CitationStyle.APA,
     paperType: PaperType.RESEARCH_PAPER,
@@ -319,8 +323,11 @@ export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
       timeout: 30000,
       maxResults: 20,
       language: 'en',
-          useSerpApi: true,
-    serpApiKey: getConfiguredSerpApiKey() || process.env.SERPAPI_KEY || 'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
+      useSerpApi: true,
+      serpApiKey:
+        getConfiguredSerpApiKey() ||
+        process.env.SERPAPI_KEY ||
+        'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
     },
   },
 
@@ -395,4 +402,4 @@ export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
     methods: ['desktop'],
     frequency: 'weekly',
   },
-}; 
+};

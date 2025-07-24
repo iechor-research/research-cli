@@ -33,7 +33,7 @@ export const allResearchCommands: SlashCommand[] = [
   researchCommand,
   paperCommand,
   submitCommand,
-  configCommand
+  configCommand,
 ];
 
 /**
@@ -42,4 +42,4 @@ export const allResearchCommands: SlashCommand[] = [
  */
 export function getResearchCommands(): SlashCommand[] {
   return allResearchCommands;
-} 
+}

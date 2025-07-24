@@ -193,7 +193,10 @@ export const useSlashCommandProcessor = (
     const load = async () => {
       await commandService.loadCommands();
       const loadedCommands = commandService.getCommands();
-      console.log('[DEBUG] SlashCommandProcessor: Loaded commands:', loadedCommands.map(c => c.name));
+      console.log(
+        '[DEBUG] SlashCommandProcessor: Loaded commands:',
+        loadedCommands.map((c) => c.name),
+      );
       setCommands(loadedCommands);
     };
 
@@ -638,7 +641,10 @@ export const useSlashCommandProcessor = (
           const osVersion = `${process.platform} ${process.version}`;
           let sandboxEnv = 'no sandbox';
           if (process.env.SANDBOX && process.env.SANDBOX !== 'sandbox-exec') {
-            sandboxEnv = process.env.SANDBOX.replace(/^research-(?:code-)?/, '');
+            sandboxEnv = process.env.SANDBOX.replace(
+              /^research-(?:code-)?/,
+              '',
+            );
           } else if (process.env.SANDBOX === 'sandbox-exec') {
             sandboxEnv = `sandbox-exec (${
               process.env.SEATBELT_PROFILE || 'unknown'
@@ -791,7 +797,8 @@ export const useSlashCommandProcessor = (
                   addItem(
                     {
                       type:
-                        (item.role && rolemap[item.role]) || MessageType.RESEARCH,
+                        (item.role && rolemap[item.role]) ||
+                        MessageType.RESEARCH,
                       text,
                     } as HistoryItemWithoutId,
                     i,
@@ -1052,8 +1059,10 @@ export const useSlashCommandProcessor = (
     async (
       rawQuery: PartListUnion,
     ): Promise<SlashCommandProcessorResult | false> => {
-      process.stderr?.write(`[FORCE_DEBUG] handleSlashCommand called with: ${JSON.stringify(rawQuery)}\n`);
-      
+      process.stderr?.write(
+        `[FORCE_DEBUG] handleSlashCommand called with: ${JSON.stringify(rawQuery)}\n`,
+      );
+
       if (typeof rawQuery !== 'string') {
         return false;
       }
@@ -1063,8 +1072,14 @@ export const useSlashCommandProcessor = (
         return false;
       }
 
-      console.log('[DEBUG] SlashCommandProcessor: Processing command:', trimmed);
-      console.log('[DEBUG] SlashCommandProcessor: Available commands:', commands.map(c => c.name));
+      console.log(
+        '[DEBUG] SlashCommandProcessor: Processing command:',
+        trimmed,
+      );
+      console.log(
+        '[DEBUG] SlashCommandProcessor: Available commands:',
+        commands.map((c) => c.name),
+      );
 
       const userMessageTimestamp = Date.now();
       if (trimmed !== '/quit' && trimmed !== '/exit') {

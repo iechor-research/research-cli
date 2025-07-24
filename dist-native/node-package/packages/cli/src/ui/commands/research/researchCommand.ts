@@ -4,30 +4,53 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { SlashCommand, SlashCommandActionReturn, CommandContext } from '../types.js';
+import {
+  SlashCommand,
+  SlashCommandActionReturn,
+  CommandContext,
+} from '../types.js';
 import { MessageType } from '../../types.js';
-import { parseCommandArgs, getOptionValue, buildHelpText } from './utils/commandParser.js';
-import { formatTable, formatSuccess, formatError, formatInfo, TableColumn } from './utils/outputFormatter.js';
-import { handleResearchError, validateArguments, validateOption, executeWithErrorHandling } from './utils/errorHandler.js';
+import {
+  parseCommandArgs,
+  getOptionValue,
+  buildHelpText,
+} from './utils/commandParser.js';
+import {
+  formatTable,
+  formatSuccess,
+  formatError,
+  formatInfo,
+  TableColumn,
+} from './utils/outputFormatter.js';
+import {
+  handleResearchError,
+  validateArguments,
+  validateOption,
+  executeWithErrorHandling,
+} from './utils/errorHandler.js';
 import type { ResearchToolRegistry } from '@iechor/research-cli-core';
 
 /**
  * /research 命令实现
- * 
+ *
  * 子命令：
  * - search <query> [--source=arxiv|scholar] [--limit=10] - 文献搜索
- * - analyze <file> [--type=structure|grammar|style] - 文档分析  
+ * - analyze <file> [--type=structure|grammar|style] - 文档分析
  * - experiment <language> <method> - 生成实验代码
  * - data <operation> <file> - 数据分析
  */
 export const researchCommand: SlashCommand = {
   name: 'research',
-  description: 'Research tools for literature search, document analysis, and experiment generation',
+  description:
+    'Research tools for literature search, document analysis, and experiment generation',
   subCommands: [
     {
       name: 'search',
       description: 'Search academic literature from multiple sources',
-      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
         try {
           const parsed = parseCommandArgs(args);
           validateArguments(parsed.positional, 1, 'research search');
@@ -36,12 +59,21 @@ export const researchCommand: SlashCommand = {
           const source = getOptionValue(parsed.options, 'source', 'arxiv');
           const limit = getOptionValue(parsed.options, 'limit', 10);
 
-          validateOption(source, ['arxiv', 'scholar', 'pubmed', 'ieee'], 'source');
+          validateOption(
+            source,
+            ['arxiv', 'scholar', 'pubmed', 'ieee'],
+            'source',
+          );
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: formatInfo(`Searching ${source} for: "${query}" (limit: ${limit})`)
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: formatInfo(
+                `Searching ${source} for: "${query}" (limit: ${limit})`,
+              ),
+            },
+            Date.now(),
+          );
 
           return {
             type: 'tool',
@@ -50,36 +82,63 @@ export const researchCommand: SlashCommand = {
               operation: 'search',
               query,
               sources: [source],
-              maxResults: limit
-            }
+              maxResults: limit,
+            },
           };
         } catch (error) {
           const errorResult = handleResearchError(error);
-          context.ui.addItem({
-            type: MessageType.ERROR,
-            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
         }
-      }
+      },
     },
 
     {
       name: 'analyze',
       description: 'Analyze document structure, grammar, or style',
-      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
         try {
           const parsed = parseCommandArgs(args);
           validateArguments(parsed.positional, 1, 'research analyze');
 
           const file = parsed.positional[0];
-          const analysisType = getOptionValue(parsed.options, 'type', 'structure') as string;
+          const analysisType = getOptionValue(
+            parsed.options,
+            'type',
+            'structure',
+          ) as string;
 
-          validateOption(analysisType, ['structure', 'grammar', 'style', 'citations', 'readability', 'all'], 'type');
+          validateOption(
+            analysisType,
+            [
+              'structure',
+              'grammar',
+              'style',
+              'citations',
+              'readability',
+              'all',
+            ],
+            'type',
+          );
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: formatInfo(`Analyzing ${file} (type: ${analysisType})`)
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: formatInfo(`Analyzing ${file} (type: ${analysisType})`),
+            },
+            Date.now(),
+          );
 
           // 根据分析类型调用不同的写作助手功能
           let operation: string;
@@ -109,38 +168,63 @@ export const researchCommand: SlashCommand = {
           return {
             type: 'tool',
             toolName: 'read_file',
-            toolArgs: { path: file }
+            toolArgs: { path: file },
           };
-
         } catch (error) {
           const errorResult = handleResearchError(error);
-          context.ui.addItem({
-            type: MessageType.ERROR,
-            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
         }
-      }
+      },
     },
 
     {
       name: 'experiment',
       description: 'Generate experiment code for research',
-      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
         try {
           const parsed = parseCommandArgs(args);
           validateArguments(parsed.positional, 2, 'research experiment');
 
           const language = parsed.positional[0];
           const method = parsed.positional[1];
-          const outputDir = getOptionValue(parsed.options, 'output', './experiments');
+          const outputDir = getOptionValue(
+            parsed.options,
+            'output',
+            './experiments',
+          );
 
-          validateOption(language, ['python', 'r', 'matlab', 'julia', 'javascript'], 'language');
-          validateOption(method, ['ml', 'stats', 'numerical', 'simulation', 'data_mining'], 'method');
+          validateOption(
+            language,
+            ['python', 'r', 'matlab', 'julia', 'javascript'],
+            'language',
+          );
+          validateOption(
+            method,
+            ['ml', 'stats', 'numerical', 'simulation', 'data_mining'],
+            'method',
+          );
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: formatInfo(`Generating ${language} experiment code for ${method} method`)
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: formatInfo(
+                `Generating ${language} experiment code for ${method} method`,
+              ),
+            },
+            Date.now(),
+          );
 
           return {
             type: 'tool',
@@ -150,38 +234,58 @@ export const researchCommand: SlashCommand = {
               researchMethod: method,
               outputDirectory: outputDir,
               includeTests: getOptionValue(parsed.options, 'tests', true),
-              includeDocs: getOptionValue(parsed.options, 'docs', true)
-            }
+              includeDocs: getOptionValue(parsed.options, 'docs', true),
+            },
           };
         } catch (error) {
           const errorResult = handleResearchError(error);
-          context.ui.addItem({
-            type: MessageType.ERROR,
-            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
         }
-      }
+      },
     },
 
     {
       name: 'data',
       description: 'Analyze research data',
-      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
         try {
           const parsed = parseCommandArgs(args);
           validateArguments(parsed.positional, 2, 'research data');
 
           const operation = parsed.positional[0];
           const file = parsed.positional[1];
-          const outputFormat = getOptionValue(parsed.options, 'format', 'table');
+          const outputFormat = getOptionValue(
+            parsed.options,
+            'format',
+            'table',
+          );
 
-          validateOption(operation, ['describe', 'correlate', 'visualize', 'test'], 'operation');
+          validateOption(
+            operation,
+            ['describe', 'correlate', 'visualize', 'test'],
+            'operation',
+          );
           validateOption(outputFormat, ['table', 'chart', 'report'], 'format');
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: formatInfo(`Performing ${operation} analysis on ${file}`)
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: formatInfo(`Performing ${operation} analysis on ${file}`),
+            },
+            Date.now(),
+          );
 
           return {
             type: 'tool',
@@ -190,23 +294,36 @@ export const researchCommand: SlashCommand = {
               operation,
               dataFile: file,
               outputFormat,
-              includeVisualizations: getOptionValue(parsed.options, 'viz', true)
-            }
+              includeVisualizations: getOptionValue(
+                parsed.options,
+                'viz',
+                true,
+              ),
+            },
           };
         } catch (error) {
           const errorResult = handleResearchError(error);
-          context.ui.addItem({
-            type: MessageType.ERROR,
-            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
         }
-      }
+      },
     },
 
     {
       name: 'arxiv',
       description: 'ArXiv paper search, download, and management',
-      action: async (context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> => {
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
         // Parse the arxiv subcommand and arguments
         const parts = args.trim().split(/\s+/);
         const subcommand = parts[0] || 'help';
@@ -222,36 +339,39 @@ export const researchCommand: SlashCommand = {
               '/research arxiv search "machine learning" --limit=5',
               '/research arxiv download 2301.12345',
               '/research arxiv read 2301.12345',
-              '/research arxiv cache'
+              '/research arxiv cache',
             ],
             options: [
               {
                 name: 'limit',
                 description: 'Maximum number of search results',
-                type: 'number'
+                type: 'number',
               },
               {
                 name: 'categories',
                 description: 'ArXiv categories to search in',
-                type: 'string'
+                type: 'string',
               },
               {
                 name: 'date-from',
                 description: 'Search papers from this date',
-                type: 'string'
+                type: 'string',
               },
               {
                 name: 'date-to',
                 description: 'Search papers until this date',
-                type: 'string'
-              }
-            ]
+                type: 'string',
+              },
+            ],
           });
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: helpText
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: helpText,
+            },
+            Date.now(),
+          );
           return;
         }
 
@@ -262,40 +382,48 @@ export const researchCommand: SlashCommand = {
           switch (subcommand) {
             case 'search':
               if (arxivArgs.length === 0) {
-                throw new Error('Search requires a query. Usage: /research arxiv search <query>');
+                throw new Error(
+                  'Search requires a query. Usage: /research arxiv search <query>',
+                );
               }
               const query = arxivArgs[0];
               const parsed = parseCommandArgs(arxivArgs.slice(1).join(' '));
-              
+
               toolArgs = {
                 operation: 'search',
                 query,
                 searchOptions: {
                   maxResults: getOptionValue(parsed.options, 'limit', 10),
-                  categories: getOptionValue(parsed.options, 'categories', '')?.split(',').filter(c => c),
+                  categories: getOptionValue(parsed.options, 'categories', '')
+                    ?.split(',')
+                    .filter((c) => c),
                   dateFrom: getOptionValue(parsed.options, 'date-from', ''),
-                  dateTo: getOptionValue(parsed.options, 'date-to', '')
-                }
+                  dateTo: getOptionValue(parsed.options, 'date-to', ''),
+                },
               };
               break;
 
             case 'download':
               if (arxivArgs.length === 0) {
-                throw new Error('Download requires a paper ID. Usage: /research arxiv download <paper-id>');
+                throw new Error(
+                  'Download requires a paper ID. Usage: /research arxiv download <paper-id>',
+                );
               }
               toolArgs = {
                 operation: 'download',
-                paperId: arxivArgs[0]
+                paperId: arxivArgs[0],
               };
               break;
 
             case 'read':
               if (arxivArgs.length === 0) {
-                throw new Error('Read requires a paper ID. Usage: /research arxiv read <paper-id>');
+                throw new Error(
+                  'Read requires a paper ID. Usage: /research arxiv read <paper-id>',
+                );
               }
               toolArgs = {
                 operation: 'read',
-                paperId: arxivArgs[0]
+                paperId: arxivArgs[0],
               };
               break;
 
@@ -307,24 +435,33 @@ export const researchCommand: SlashCommand = {
               throw new Error(`Unknown arxiv operation: ${subcommand}`);
           }
 
-          context.ui.addItem({
-            type: MessageType.INFO,
-            text: formatInfo(`Executing arXiv ${subcommand} operation...`)
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.INFO,
+              text: formatInfo(`Executing arXiv ${subcommand} operation...`),
+            },
+            Date.now(),
+          );
 
           return {
             type: 'tool',
             toolName: 'enhanced_bibliography_manager',
-            toolArgs
+            toolArgs,
           };
         } catch (error) {
           const errorResult = handleResearchError(error);
-          context.ui.addItem({
-            type: MessageType.ERROR,
-            text: errorResult.message + '\n\nSuggestions:\n' + errorResult.suggestions.map(s => `  • ${s}`).join('\n')
-          }, Date.now());
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
         }
-      }
+      },
     },
 
     {
@@ -333,51 +470,62 @@ export const researchCommand: SlashCommand = {
       action: (context: CommandContext, args: string): void => {
         const helpText = buildHelpText({
           name: 'research',
-          description: 'Research tools for literature search, document analysis, and experiment generation',
+          description:
+            'Research tools for literature search, document analysis, and experiment generation',
           usage: '/research <subcommand> [options]',
           examples: [
             '/research search "machine learning" --source=arxiv --limit=5',
             '/research analyze paper.pdf --type=structure',
             '/research experiment python ml --output=./my-experiments',
-            '/research data describe dataset.csv --format=report'
+            '/research data describe dataset.csv --format=report',
           ],
           options: [
             {
               name: 'source',
               description: 'Literature search source',
               type: 'string',
-              choices: ['arxiv', 'scholar', 'pubmed', 'ieee']
+              choices: ['arxiv', 'scholar', 'pubmed', 'ieee'],
             },
             {
               name: 'limit',
               description: 'Maximum number of search results',
-              type: 'number'
+              type: 'number',
             },
             {
               name: 'type',
               description: 'Analysis type',
               type: 'string',
-              choices: ['structure', 'grammar', 'style', 'citations', 'readability', 'all']
+              choices: [
+                'structure',
+                'grammar',
+                'style',
+                'citations',
+                'readability',
+                'all',
+              ],
             },
             {
               name: 'output',
               description: 'Output directory',
-              type: 'string'
+              type: 'string',
             },
             {
               name: 'format',
               description: 'Output format',
               type: 'string',
-              choices: ['table', 'chart', 'report']
-            }
-          ]
+              choices: ['table', 'chart', 'report'],
+            },
+          ],
         });
 
-        context.ui.addItem({
-          type: MessageType.INFO,
-          text: helpText
-        }, Date.now());
-      }
-    }
-  ]
-}; 
+        context.ui.addItem(
+          {
+            type: MessageType.INFO,
+            text: helpText,
+          },
+          Date.now(),
+        );
+      },
+    },
+  ],
+};

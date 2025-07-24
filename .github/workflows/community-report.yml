@@ -161,7 +161,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
           version: 0.1.8-rc.0
-          GEMINI_API_KEY : ${{ secrets.GEMINI_API_KEY  }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY  }}
           OTLP_GCP_WIF_PROVIDER: ${{ secrets.OTLP_GCP_WIF_PROVIDER }}
           OTLP_GOOGLE_CLOUD_PROJECT: ${{ secrets.OTLP_GOOGLE_CLOUD_PROJECT }}
           settings_json: |

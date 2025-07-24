@@ -1,4 +1,14 @@
-import { LatexTemplate, DocumentStructure, SectionInfo, FigureInfo, TableInfo, BibliographyInfo, TemplateMetadata, TemplateData, TemplateFile } from './types.js';
+import {
+  LatexTemplate,
+  DocumentStructure,
+  SectionInfo,
+  FigureInfo,
+  TableInfo,
+  BibliographyInfo,
+  TemplateMetadata,
+  TemplateData,
+  TemplateFile,
+} from './types.js';
 import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
 
 /**
@@ -18,18 +28,23 @@ export class ArxivLatexExtractor {
     try {
       // 首先尝试下载 LaTeX 源码
       const downloadResult = await this.arxivClient.downloadPaper(arxivId);
-      
+
       if (downloadResult.status === 'failed') {
-        throw new Error(`Failed to download arXiv paper ${arxivId}: ${downloadResult.error}`);
+        throw new Error(
+          `Failed to download arXiv paper ${arxivId}: ${downloadResult.error}`,
+        );
       }
 
       // 获取论文元数据
-      const searchResults = await this.arxivClient.searchPapers(`id:${arxivId}`, { maxResults: 1 });
+      const searchResults = await this.arxivClient.searchPapers(
+        `id:${arxivId}`,
+        { maxResults: 1 },
+      );
       const paperMetadata = searchResults.length > 0 ? searchResults[0] : null;
 
       // 模拟读取 LaTeX 文件（实际实现需要解压和读取文件）
       const latexFiles = await this.simulateExtractLatexFiles(arxivId);
-      
+
       // 找到主文件
       const mainFile = this.findMainTexFile(latexFiles);
       if (!mainFile) {
@@ -37,7 +52,9 @@ export class ArxivLatexExtractor {
       }
 
       // 分析文档结构
-      const structure = this.extractDocumentStructure(latexFiles.get(mainFile) || '');
+      const structure = this.extractDocumentStructure(
+        latexFiles.get(mainFile) || '',
+      );
 
       // 创建模板元数据
       const templateMetadata: TemplateMetadata = {
@@ -47,7 +64,7 @@ export class ArxivLatexExtractor {
         tags: this.extractTagsFromStructure(structure),
         lastModified: new Date(),
         downloadCount: 1,
-        rating: 4.0
+        rating: 4.0,
       };
 
       return {
@@ -55,59 +72,73 @@ export class ArxivLatexExtractor {
         files: latexFiles,
         structure,
         dependencies: this.extractDependencies(latexFiles),
-        metadata: templateMetadata
+        metadata: templateMetadata,
       };
     } catch (error) {
-      throw new Error(`Failed to extract LaTeX from arXiv ${arxivId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to extract LaTeX from arXiv ${arxivId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * 将 arXiv LaTeX 转换为通用模板
    */
-  async convertToTemplate(arxivId: string, options?: { removePersonalInfo?: boolean, generalizePaths?: boolean }): Promise<TemplateData> {
+  async convertToTemplate(
+    arxivId: string,
+    options?: { removePersonalInfo?: boolean; generalizePaths?: boolean },
+  ): Promise<TemplateData> {
     const latexTemplate = await this.extractLatexSource(arxivId);
-    
+
     const templateFiles: TemplateFile[] = [];
-    
+
     // 处理每个文件
     for (const [filePath, content] of latexTemplate.files.entries()) {
       let processedContent = content;
-      
+
       // 可选：移除个人信息
       if (options?.removePersonalInfo !== false) {
         processedContent = this.removePersonalInfo(processedContent);
       }
-      
+
       // 可选：泛化路径
       if (options?.generalizePaths !== false) {
         processedContent = this.generalizePaths(processedContent);
       }
-      
+
       templateFiles.push({
         path: filePath,
         content: processedContent,
         type: this.determineFileType(filePath),
-        required: filePath === latexTemplate.mainFile
+        required: filePath === latexTemplate.mainFile,
       });
     }
 
     // 获取论文元数据以生成模板名称和描述
-    const searchResults = await this.arxivClient.searchPapers(`id:${arxivId}`, { maxResults: 1 });
+    const searchResults = await this.arxivClient.searchPapers(`id:${arxivId}`, {
+      maxResults: 1,
+    });
     const paperMetadata = searchResults.length > 0 ? searchResults[0] : null;
 
     return {
       id: `arxiv-${arxivId}`,
-      name: paperMetadata?.title ? `Template from: ${paperMetadata.title}` : `arXiv Template ${arxivId}`,
+      name: paperMetadata?.title
+        ? `Template from: ${paperMetadata.title}`
+        : `arXiv Template ${arxivId}`,
       description: `LaTeX template extracted from arXiv paper ${arxivId}${paperMetadata?.abstract ? `. Abstract: ${paperMetadata.abstract.substring(0, 200)}...` : ''}`,
       source: 'arxiv',
       category: this.categorizePaper(latexTemplate.structure, paperMetadata),
       files: templateFiles,
       metadata: {
         ...latexTemplate.metadata,
-        tags: [...(latexTemplate.metadata.tags || []), 'arxiv', 'extracted', arxivId]
+        tags: [
+          ...(latexTemplate.metadata.tags || []),
+          'arxiv',
+          'extracted',
+          arxivId,
+        ],
       },
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     };
   }
 
@@ -119,22 +150,34 @@ export class ArxivLatexExtractor {
 
     // 替换具体的作者信息为占位符
     cleaned = cleaned.replace(/\\author\{[^}]+\}/g, '\\author{Your Name}');
-    
+
     // 替换具体的邮箱
-    cleaned = cleaned.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, 'your.email@university.edu');
-    
+    cleaned = cleaned.replace(
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+      'your.email@university.edu',
+    );
+
     // 替换具体的机构信息
-    cleaned = cleaned.replace(/\\affiliation\{[^}]+\}/g, '\\affiliation{Your Institution}');
+    cleaned = cleaned.replace(
+      /\\affiliation\{[^}]+\}/g,
+      '\\affiliation{Your Institution}',
+    );
     cleaned = cleaned.replace(/\\address\{[^}]+\}/g, '\\address{Your Address}');
-    
+
     // 替换具体的标题为占位符（保留结构）
     const titleMatch = cleaned.match(/\\title\{([^}]+)\}/);
     if (titleMatch) {
-      cleaned = cleaned.replace(/\\title\{[^}]+\}/, '\\title{Your Paper Title}');
+      cleaned = cleaned.replace(
+        /\\title\{[^}]+\}/,
+        '\\title{Your Paper Title}',
+      );
     }
 
     // 替换具体的致谢信息
-    cleaned = cleaned.replace(/\\thanks\{[^}]+\}/g, '\\thanks{Corresponding author}');
+    cleaned = cleaned.replace(
+      /\\thanks\{[^}]+\}/g,
+      '\\thanks{Corresponding author}',
+    );
 
     return cleaned;
   }
@@ -146,13 +189,22 @@ export class ArxivLatexExtractor {
     let generalized = latex;
 
     // 泛化图片路径
-    generalized = generalized.replace(/\\includegraphics(?:\[[^\]]*\])?\{[^}]*\/([^}\/]+)\}/g, '\\includegraphics{figures/$1}');
-    
+    generalized = generalized.replace(
+      /\\includegraphics(?:\[[^\]]*\])?\{[^}]*\/([^}\/]+)\}/g,
+      '\\includegraphics{figures/$1}',
+    );
+
     // 泛化输入文件路径
-    generalized = generalized.replace(/\\input\{[^}]*\/([^}\/]+)\}/g, '\\input{$1}');
-    
+    generalized = generalized.replace(
+      /\\input\{[^}]*\/([^}\/]+)\}/g,
+      '\\input{$1}',
+    );
+
     // 泛化包含文件路径
-    generalized = generalized.replace(/\\include\{[^}]*\/([^}\/]+)\}/g, '\\include{$1}');
+    generalized = generalized.replace(
+      /\\include\{[^}]*\/([^}\/]+)\}/g,
+      '\\include{$1}',
+    );
 
     return generalized;
   }
@@ -162,10 +214,14 @@ export class ArxivLatexExtractor {
    */
   private extractDocumentStructure(latex: string): DocumentStructure {
     const lines = latex.split('\n');
-    
+
     // 提取文档类
-    const documentClassMatch = latex.match(/\\documentclass(?:\[[^\]]*\])?\{([^}]+)\}/);
-    const documentClass = documentClassMatch ? documentClassMatch[1] : 'article';
+    const documentClassMatch = latex.match(
+      /\\documentclass(?:\[[^\]]*\])?\{([^}]+)\}/,
+    );
+    const documentClass = documentClassMatch
+      ? documentClassMatch[1]
+      : 'article';
 
     // 提取包
     const packages: string[] = [];
@@ -177,13 +233,13 @@ export class ArxivLatexExtractor {
 
     // 提取章节
     const sections = this.extractSections(lines);
-    
+
     // 提取图片
     const figures = this.extractFigures(latex);
-    
+
     // 提取表格
     const tables = this.extractTables(latex);
-    
+
     // 提取参考文献信息
     const bibliography = this.extractBibliographyInfo(latex);
 
@@ -193,7 +249,7 @@ export class ArxivLatexExtractor {
       sections,
       figures,
       tables,
-      bibliography
+      bibliography,
     };
   }
 
@@ -202,7 +258,8 @@ export class ArxivLatexExtractor {
    */
   private extractSections(lines: string[]): SectionInfo[] {
     const sections: SectionInfo[] = [];
-    const sectionRegex = /\\(chapter|section|subsection|subsubsection)\*?\{([^}]+)\}/;
+    const sectionRegex =
+      /\\(chapter|section|subsection|subsubsection)\*?\{([^}]+)\}/;
 
     lines.forEach((line, index) => {
       const match = line.match(sectionRegex);
@@ -211,7 +268,7 @@ export class ArxivLatexExtractor {
         sections.push({
           level,
           title: match[2],
-          startLine: index + 1
+          startLine: index + 1,
         });
       }
     });
@@ -224,10 +281,10 @@ export class ArxivLatexExtractor {
    */
   private getSectionLevel(sectionType: string): number {
     const levels: { [key: string]: number } = {
-      'chapter': 0,
-      'section': 1,
-      'subsection': 2,
-      'subsubsection': 3
+      chapter: 0,
+      section: 1,
+      subsection: 2,
+      subsubsection: 3,
     };
     return levels[sectionType] || 1;
   }
@@ -237,14 +294,15 @@ export class ArxivLatexExtractor {
    */
   private extractFigures(latex: string): FigureInfo[] {
     const figures: FigureInfo[] = [];
-    const figureRegex = /\\begin\{figure\}[\s\S]*?\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}[\s\S]*?\\caption\{([^}]+)\}[\s\S]*?\\label\{([^}]+)\}[\s\S]*?\\end\{figure\}/g;
-    
+    const figureRegex =
+      /\\begin\{figure\}[\s\S]*?\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}[\s\S]*?\\caption\{([^}]+)\}[\s\S]*?\\label\{([^}]+)\}[\s\S]*?\\end\{figure\}/g;
+
     let match;
     while ((match = figureRegex.exec(latex)) !== null) {
       figures.push({
         fileName: match[1],
         caption: match[2],
-        label: match[3]
+        label: match[3],
       });
     }
 
@@ -256,18 +314,19 @@ export class ArxivLatexExtractor {
    */
   private extractTables(latex: string): TableInfo[] {
     const tables: TableInfo[] = [];
-    const tableRegex = /\\begin\{table\}[\s\S]*?\\caption\{([^}]+)\}[\s\S]*?\\label\{([^}]+)\}[\s\S]*?\\begin\{tabular\}\{([^}]+)\}[\s\S]*?\\end\{tabular\}[\s\S]*?\\end\{table\}/g;
-    
+    const tableRegex =
+      /\\begin\{table\}[\s\S]*?\\caption\{([^}]+)\}[\s\S]*?\\label\{([^}]+)\}[\s\S]*?\\begin\{tabular\}\{([^}]+)\}[\s\S]*?\\end\{tabular\}[\s\S]*?\\end\{table\}/g;
+
     let match;
     while ((match = tableRegex.exec(latex)) !== null) {
       const columnSpec = match[3];
       const columns = columnSpec.replace(/[^clr]/g, '').length;
-      
+
       tables.push({
         caption: match[1],
         label: match[2],
         columns,
-        rows: 0 // 实际实现中可以进一步解析行数
+        rows: 0, // 实际实现中可以进一步解析行数
       });
     }
 
@@ -280,11 +339,11 @@ export class ArxivLatexExtractor {
   private extractBibliographyInfo(latex: string): BibliographyInfo {
     const styleMatch = latex.match(/\\bibliographystyle\{([^}]+)\}/);
     const fileMatch = latex.match(/\\bibliography\{([^}]+)\}/);
-    
+
     return {
       style: styleMatch ? styleMatch[1] : 'plain',
       file: fileMatch ? fileMatch[1] + '.bib' : undefined,
-      entries: 0 // 实际实现中需要解析 .bib 文件
+      entries: 0, // 实际实现中需要解析 .bib 文件
     };
   }
 
@@ -293,7 +352,7 @@ export class ArxivLatexExtractor {
    */
   private extractDependencies(files: Map<string, string>): string[] {
     const dependencies = new Set<string>();
-    
+
     files.forEach((content) => {
       // 提取包依赖
       const packageRegex = /\\usepackage(?:\[[^\]]*\])?\{([^}]+)\}/g;
@@ -311,7 +370,7 @@ export class ArxivLatexExtractor {
    */
   private extractTagsFromStructure(structure: DocumentStructure): string[] {
     const tags = ['latex', 'academic'];
-    
+
     // 根据文档类添加标签
     switch (structure.documentClass) {
       case 'article':
@@ -345,9 +404,12 @@ export class ArxivLatexExtractor {
   /**
    * 对论文进行分类
    */
-  private categorizePaper(structure: DocumentStructure, metadata: any): string[] {
+  private categorizePaper(
+    structure: DocumentStructure,
+    metadata: any,
+  ): string[] {
     const categories = ['academic'];
-    
+
     // 根据元数据分类
     if (metadata?.subject) {
       const subject = metadata.subject.toLowerCase();
@@ -379,9 +441,11 @@ export class ArxivLatexExtractor {
   /**
    * 确定文件类型
    */
-  private determineFileType(filePath: string): 'tex' | 'cls' | 'sty' | 'bib' | 'figure' | 'other' {
+  private determineFileType(
+    filePath: string,
+  ): 'tex' | 'cls' | 'sty' | 'bib' | 'figure' | 'other' {
     const extension = filePath.split('.').pop()?.toLowerCase();
-    
+
     switch (extension) {
       case 'tex':
         return 'tex';
@@ -427,22 +491,24 @@ export class ArxivLatexExtractor {
    * 模拟从 arXiv 提取 LaTeX 文件
    * 实际实现需要解压下载的文件并读取内容
    */
-  private async simulateExtractLatexFiles(arxivId: string): Promise<Map<string, string>> {
+  private async simulateExtractLatexFiles(
+    arxivId: string,
+  ): Promise<Map<string, string>> {
     // Testing error condition
     if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
       if (arxivId.includes('nonexistent') || arxivId.includes('error')) {
         throw new Error(`arXiv paper not found: ${arxivId}`);
       }
     }
-    
+
     const files = new Map<string, string>();
 
     // 模拟主文件
     files.set('main.tex', this.generateSampleArxivLatex(arxivId));
-    
+
     // 模拟参考文献文件
     files.set('references.bib', this.generateSampleBibliography());
-    
+
     // 模拟样式文件
     if (Math.random() > 0.5) {
       files.set('custom.sty', '% Custom style file');
@@ -555,4 +621,4 @@ The authors thank the anonymous reviewers for their valuable comments.
   publisher={Example Press}
 }`;
   }
-} 
+}

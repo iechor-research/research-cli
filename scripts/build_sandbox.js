@@ -79,7 +79,9 @@ if (!argv.s) {
 
 console.log('packing @iechor/research-cli ...');
 const cliPackageDir = join('packages', 'cli');
-rmSync(join(cliPackageDir, 'dist', 'iechor-research-cli-*.tgz'), { force: true });
+rmSync(join(cliPackageDir, 'dist', 'iechor-research-cli-*.tgz'), {
+  force: true,
+});
 execSync(
   `npm pack -w @iechor/research-cli --pack-destination ./packages/cli/dist`,
   {
@@ -106,7 +108,11 @@ chmodSync(
   0o755,
 );
 chmodSync(
-  join(corePackageDir, 'dist', `iechor-research-cli-core-${packageVersion}.tgz`),
+  join(
+    corePackageDir,
+    'dist',
+    `iechor-research-cli-core-${packageVersion}.tgz`,
+  ),
   0o755,
 );
 

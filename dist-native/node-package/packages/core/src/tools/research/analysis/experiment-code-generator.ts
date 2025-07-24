@@ -11,7 +11,7 @@ import {
   ResearchMethod,
   DataFormat,
   AnalysisType,
-  ResearchToolCategory
+  ResearchToolCategory,
 } from '../types.js';
 
 /**
@@ -42,7 +42,13 @@ export interface ExperimentCodeResult {
     filename: string;
     content: string;
     description: string;
-    type: 'main' | 'config' | 'utils' | 'test' | 'requirements' | 'documentation';
+    type:
+      | 'main'
+      | 'config'
+      | 'utils'
+      | 'test'
+      | 'requirements'
+      | 'documentation';
   }[];
   dependencies: string[];
   instructions: string[];
@@ -72,12 +78,15 @@ interface CodeTemplate {
  * 实验代码生成器工具
  * 根据研究方法、编程语言和分析需求自动生成完整的实验代码框架
  */
-export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodeParams, ExperimentCodeResult> {
+export class ExperimentCodeGenerator extends BaseResearchTool<
+  ExperimentCodeParams,
+  ExperimentCodeResult
+> {
   constructor() {
     super(
       'generate_experiment_code',
       'Generate experiment code frameworks',
-      ResearchToolCategory.ANALYSIS
+      ResearchToolCategory.ANALYSIS,
     );
   }
 
@@ -97,18 +106,81 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
     return this.formatHelp(
       'Generate complete experiment code frameworks based on research methods and requirements',
       [
-        { name: 'experimentName', type: 'string', required: true, description: 'Name of the experiment' },
-        { name: 'researchMethod', type: 'ResearchMethod', required: true, description: 'Research methodology (machine_learning, statistical_analysis, etc.)' },
-        { name: 'language', type: 'ProgrammingLanguage', required: true, description: 'Programming language (python, r, matlab, julia, javascript)' },
-        { name: 'dataTypes', type: 'DataFormat[]', required: true, description: 'Input data formats (csv, json, excel, etc.)' },
-        { name: 'analysisTypes', type: 'AnalysisType[]', required: true, description: 'Types of analysis (descriptive, inferential, ml, visualization)' },
-        { name: 'outputFormats', type: 'string[]', required: true, description: 'Output formats (html, pdf, markdown, jupyter)' },
-        { name: 'includeVisualization', type: 'boolean', required: false, description: 'Include data visualization code' },
-        { name: 'includeStatistics', type: 'boolean', required: false, description: 'Include statistical analysis code' },
-        { name: 'includeTesting', type: 'boolean', required: false, description: 'Include unit testing code' },
-        { name: 'customRequirements', type: 'string[]', required: false, description: 'Additional custom requirements' },
-        { name: 'dataPath', type: 'string', required: false, description: 'Path to data files' },
-        { name: 'description', type: 'string', required: false, description: 'Experiment description' }
+        {
+          name: 'experimentName',
+          type: 'string',
+          required: true,
+          description: 'Name of the experiment',
+        },
+        {
+          name: 'researchMethod',
+          type: 'ResearchMethod',
+          required: true,
+          description:
+            'Research methodology (machine_learning, statistical_analysis, etc.)',
+        },
+        {
+          name: 'language',
+          type: 'ProgrammingLanguage',
+          required: true,
+          description:
+            'Programming language (python, r, matlab, julia, javascript)',
+        },
+        {
+          name: 'dataTypes',
+          type: 'DataFormat[]',
+          required: true,
+          description: 'Input data formats (csv, json, excel, etc.)',
+        },
+        {
+          name: 'analysisTypes',
+          type: 'AnalysisType[]',
+          required: true,
+          description:
+            'Types of analysis (descriptive, inferential, ml, visualization)',
+        },
+        {
+          name: 'outputFormats',
+          type: 'string[]',
+          required: true,
+          description: 'Output formats (html, pdf, markdown, jupyter)',
+        },
+        {
+          name: 'includeVisualization',
+          type: 'boolean',
+          required: false,
+          description: 'Include data visualization code',
+        },
+        {
+          name: 'includeStatistics',
+          type: 'boolean',
+          required: false,
+          description: 'Include statistical analysis code',
+        },
+        {
+          name: 'includeTesting',
+          type: 'boolean',
+          required: false,
+          description: 'Include unit testing code',
+        },
+        {
+          name: 'customRequirements',
+          type: 'string[]',
+          required: false,
+          description: 'Additional custom requirements',
+        },
+        {
+          name: 'dataPath',
+          type: 'string',
+          required: false,
+          description: 'Path to data files',
+        },
+        {
+          name: 'description',
+          type: 'string',
+          required: false,
+          description: 'Experiment description',
+        },
       ],
       [
         {
@@ -121,8 +193,8 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             analysisTypes: ['machine_learning', 'visualization'],
             outputFormats: ['html', 'jupyter'],
             includeVisualization: true,
-            includeTesting: true
-          }
+            includeTesting: true,
+          },
         },
         {
           description: 'Generate R statistical analysis',
@@ -132,29 +204,31 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             language: 'r',
             dataTypes: ['csv', 'excel'],
             analysisTypes: ['descriptive', 'inferential'],
-            outputFormats: ['pdf', 'html']
-          }
-        }
-      ]
+            outputFormats: ['pdf', 'html'],
+          },
+        },
+      ],
     );
   }
 
-  protected async executeImpl(params: ExperimentCodeParams): Promise<ExperimentCodeResult> {
+  protected async executeImpl(
+    params: ExperimentCodeParams,
+  ): Promise<ExperimentCodeResult> {
     // 生成代码模板
     const template = this.generateCodeTemplate(params);
-    
+
     // 生成文件列表
     const files = this.generateFiles(params, template);
-    
+
     // 获取依赖列表
     const dependencies = this.getDependencies(params);
-    
+
     // 生成使用说明
     const instructions = this.generateInstructions(params);
-    
+
     // 估算运行时间
     const estimatedRuntime = this.estimateRuntime(params);
-    
+
     // 生成学习资源
     const resources = this.generateResources(params);
 
@@ -165,7 +239,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       dependencies,
       instructions,
       estimatedRuntime,
-      resources
+      resources,
     };
   }
 
@@ -200,7 +274,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'import seaborn as sns',
       'from pathlib import Path',
       'import warnings',
-      'warnings.filterwarnings("ignore")'
+      'warnings.filterwarnings("ignore")',
     ];
 
     // 根据研究方法添加特定导入
@@ -210,7 +284,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         'from sklearn.preprocessing import StandardScaler, LabelEncoder',
         'from sklearn.metrics import classification_report, confusion_matrix',
         'from sklearn.ensemble import RandomForestClassifier',
-        'from sklearn.linear_model import LogisticRegression'
+        'from sklearn.linear_model import LogisticRegression',
       );
     }
 
@@ -218,7 +292,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       imports.push(
         'import scipy.stats as stats',
         'from scipy.stats import ttest_ind, chi2_contingency, pearsonr',
-        'import statsmodels.api as sm'
+        'import statsmodels.api as sm',
       );
     }
 
@@ -226,7 +300,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       imports.push(
         'import plotly.express as px',
         'import plotly.graph_objects as go',
-        'from plotly.subplots import make_subplots'
+        'from plotly.subplots import make_subplots',
       );
     }
 
@@ -244,7 +318,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '',
       '# Configure plotting',
       'plt.style.use("seaborn-v0_8")',
-      'sns.set_palette("husl")'
+      'sns.set_palette("husl")',
     ];
 
     const dataLoading = this.generatePythonDataLoading(params);
@@ -252,7 +326,9 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
     const analysis = this.generatePythonAnalysis(params);
     const visualization = this.generatePythonVisualization(params);
     const output = this.generatePythonOutput(params);
-    const testing = params.includeTesting ? this.generatePythonTesting(params) : undefined;
+    const testing = params.includeTesting
+      ? this.generatePythonTesting(params)
+      : undefined;
 
     return {
       imports,
@@ -262,7 +338,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       analysis,
       visualization,
       output,
-      testing
+      testing,
     };
   }
 
@@ -274,10 +350,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'def load_data():',
       '    """Load and combine data from multiple sources"""',
       '    data_frames = []',
-      '    '
+      '    ',
     ];
 
-    params.dataTypes.forEach(dataType => {
+    params.dataTypes.forEach((dataType) => {
       switch (dataType) {
         case DataFormat.CSV:
           code.push(
@@ -286,7 +362,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '        df = pd.read_csv(csv_file)',
             '        df["source_file"] = csv_file.name',
             '        data_frames.append(df)',
-            '    '
+            '    ',
           );
           break;
         case DataFormat.JSON:
@@ -296,7 +372,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '        df = pd.read_json(json_file)',
             '        df["source_file"] = json_file.name',
             '        data_frames.append(df)',
-            '    '
+            '    ',
           );
           break;
         case DataFormat.EXCEL:
@@ -306,7 +382,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '        df = pd.read_excel(excel_file)',
             '        df["source_file"] = excel_file.name',
             '        data_frames.append(df)',
-            '    '
+            '    ',
           );
           break;
       }
@@ -323,7 +399,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '    print(f"Data shape: {combined_data.shape}")',
       '    print(f"Columns: {list(combined_data.columns)}")',
       '    ',
-      '    return combined_data'
+      '    return combined_data',
     );
 
     return code;
@@ -370,7 +446,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '                pass',
       '    ',
       '    print(f"Processed data shape: {processed_df.shape}")',
-      '    return processed_df'
+      '    return processed_df',
     ];
   }
 
@@ -383,10 +459,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '    """Perform the main analysis"""',
       '    print("\\n=== Analysis Results ===")',
       '    results = {}',
-      '    '
+      '    ',
     ];
 
-    params.analysisTypes.forEach(analysisType => {
+    params.analysisTypes.forEach((analysisType) => {
       switch (analysisType) {
         case AnalysisType.DESCRIPTIVE:
           code.push(
@@ -395,7 +471,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    desc_stats = df.describe(include="all")',
             '    print(desc_stats)',
             '    results["descriptive_stats"] = desc_stats',
-            '    '
+            '    ',
           );
           break;
         case AnalysisType.MACHINE_LEARNING:
@@ -439,7 +515,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
               '            print(f"{name}: CV Score = {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f})")',
               '        ',
               '        results["ml_models"] = model_results',
-              '    '
+              '    ',
             );
           }
           break;
@@ -462,7 +538,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
               '            for col2 in numeric_cols[i+1:]:',
               '                corr, p_value = pearsonr(df[col1].dropna(), df[col2].dropna())',
               '                print(f"Correlation {col1} vs {col2}: r={corr:.3f}, p={p_value:.3f}")',
-              '    '
+              '    ',
             );
           }
           break;
@@ -524,7 +600,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '        numeric_cols = df.select_dtypes(include=[np.number]).columns',
       '        fig = px.scatter_matrix(df[numeric_cols], title="Interactive Scatter Matrix")',
       '        fig.write_html(f"{output_path}/interactive_plots.html")',
-      '        print("Interactive plots saved to interactive_plots.html")'
+      '        print("Interactive plots saved to interactive_plots.html")',
     ];
   }
 
@@ -536,10 +612,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'def generate_report(df, results):',
       '    """Generate comprehensive analysis report"""',
       '    print("\\n=== Generating Report ===")',
-      '    '
+      '    ',
     ];
 
-    params.outputFormats.forEach(format => {
+    params.outputFormats.forEach((format) => {
       switch (format) {
         case 'html':
           code.push(
@@ -573,7 +649,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    with open(f"{output_path}/report.html", "w") as f:',
             '        f.write(html_content)',
             '    print("HTML report saved to report.html")',
-            '    '
+            '    ',
           );
           break;
         case 'markdown':
@@ -592,7 +668,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    with open(f"{output_path}/report.md", "w") as f:',
             '        f.write(md_content)',
             '    print("Markdown report saved to report.md")',
-            '    '
+            '    ',
           );
           break;
       }
@@ -636,7 +712,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '    print("\\n=== Running Tests ===")',
       '    test_data_loading()',
       '    test_preprocessing()',
-      '    print("Tests completed")'
+      '    print("Tests completed")',
     ];
   }
 
@@ -653,7 +729,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'library(corrplot)',
       'library(psych)',
       'library(knitr)',
-      'library(rmarkdown)'
+      'library(rmarkdown)',
     ];
 
     if (params.researchMethod === ResearchMethod.STATISTICAL_ANALYSIS) {
@@ -661,7 +737,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         'library(stats)',
         'library(car)',
         'library(lmtest)',
-        'library(nortest)'
+        'library(nortest)',
       );
     }
 
@@ -678,7 +754,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'set.seed(42)',
       '',
       '# Configure plotting',
-      'theme_set(theme_minimal())'
+      'theme_set(theme_minimal())',
     ];
 
     return {
@@ -688,7 +764,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       processing: this.generateRProcessing(params),
       analysis: this.generateRAnalysis(params),
       visualization: this.generateRVisualization(params),
-      output: this.generateROutput(params)
+      output: this.generateROutput(params),
     };
   }
 
@@ -700,10 +776,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'load_data <- function() {',
       '  cat("Loading data...\\n")',
       '  data_frames <- list()',
-      '  '
+      '  ',
     ];
 
-    params.dataTypes.forEach(dataType => {
+    params.dataTypes.forEach((dataType) => {
       switch (dataType) {
         case DataFormat.CSV:
           code.push(
@@ -714,7 +790,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    df$source_file <- basename(file)',
             '    data_frames <- append(data_frames, list(df))',
             '  }',
-            '  '
+            '  ',
           );
           break;
         case DataFormat.EXCEL:
@@ -726,7 +802,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    df$source_file <- basename(file)',
             '    data_frames <- append(data_frames, list(df))',
             '  }',
-            '  '
+            '  ',
           );
           break;
       }
@@ -745,7 +821,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '  cat("Columns:", paste(names(combined_data), collapse = ", "), "\\n")',
       '  ',
       '  return(combined_data)',
-      '}'
+      '}',
     );
 
     return code;
@@ -783,7 +859,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '  ',
       '  cat("Processed data dimensions:", dim(df), "\\n")',
       '  return(df)',
-      '}'
+      '}',
     ];
   }
 
@@ -795,10 +871,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       'perform_analysis <- function(df) {',
       '  cat("\\n=== Analysis Results ===\\n")',
       '  results <- list()',
-      '  '
+      '  ',
     ];
 
-    params.analysisTypes.forEach(analysisType => {
+    params.analysisTypes.forEach((analysisType) => {
       switch (analysisType) {
         case AnalysisType.DESCRIPTIVE:
           code.push(
@@ -807,7 +883,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '  desc_stats <- describe(df)',
             '  print(desc_stats)',
             '  results$descriptive_stats <- desc_stats',
-            '  '
+            '  ',
           );
           break;
         case AnalysisType.INFERENTIAL:
@@ -821,7 +897,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
             '    print(correlation_matrix)',
             '    results$correlation_matrix <- correlation_matrix',
             '  }',
-            '  '
+            '  ',
           );
           break;
       }
@@ -864,7 +940,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '             order = "hclust", tl.cex = 0.8, tl.col = "black")',
       '    dev.off()',
       '  }',
-      '}'
+      '}',
     ];
   }
 
@@ -892,7 +968,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '  ',
       '  writeLines(rmd_content, paste0(output_path, "report.Rmd"))',
       '  cat("R Markdown report saved to report.Rmd\\n")',
-      '}'
+      '}',
     ];
   }
 
@@ -902,72 +978,94 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
   private generateMatlabTemplate(params: ExperimentCodeParams): CodeTemplate {
     return {
       imports: ['% MATLAB Experiment Framework'],
-      setup: [`experimentName = '${params.experimentName}';`, `dataPath = '${params.dataPath || './data/'}';`],
+      setup: [
+        `experimentName = '${params.experimentName}';`,
+        `dataPath = '${params.dataPath || './data/'}';`,
+      ],
       dataLoading: ['% Data loading code would be here'],
       processing: ['% Data processing code would be here'],
       analysis: ['% Analysis code would be here'],
       visualization: ['% Visualization code would be here'],
-      output: ['% Output generation code would be here']
+      output: ['% Output generation code would be here'],
     };
   }
 
   private generateJuliaTemplate(params: ExperimentCodeParams): CodeTemplate {
     return {
       imports: ['using DataFrames, CSV, Plots, Statistics'],
-      setup: [`experiment_name = "${params.experimentName}"`, `data_path = "${params.dataPath || "./data/"}"`],
+      setup: [
+        `experiment_name = "${params.experimentName}"`,
+        `data_path = "${params.dataPath || './data/'}"`,
+      ],
       dataLoading: ['# Data loading code would be here'],
       processing: ['# Data processing code would be here'],
       analysis: ['# Analysis code would be here'],
       visualization: ['# Visualization code would be here'],
-      output: ['# Output generation code would be here']
+      output: ['# Output generation code would be here'],
     };
   }
 
-  private generateJavaScriptTemplate(params: ExperimentCodeParams): CodeTemplate {
+  private generateJavaScriptTemplate(
+    params: ExperimentCodeParams,
+  ): CodeTemplate {
     return {
-      imports: ['// JavaScript/Node.js Experiment Framework', 'const fs = require("fs");', 'const path = require("path");'],
-      setup: [`const experimentName = "${params.experimentName}";`, `const dataPath = "${params.dataPath || "./data/"}";`],
+      imports: [
+        '// JavaScript/Node.js Experiment Framework',
+        'const fs = require("fs");',
+        'const path = require("path");',
+      ],
+      setup: [
+        `const experimentName = "${params.experimentName}";`,
+        `const dataPath = "${params.dataPath || './data/'}";`,
+      ],
       dataLoading: ['// Data loading code would be here'],
       processing: ['// Data processing code would be here'],
       analysis: ['// Analysis code would be here'],
       visualization: ['// Visualization code would be here'],
-      output: ['// Output generation code would be here']
+      output: ['// Output generation code would be here'],
     };
   }
 
   /**
    * 生成文件列表
    */
-  private generateFiles(params: ExperimentCodeParams, template: CodeTemplate): ExperimentCodeResult['files'] {
+  private generateFiles(
+    params: ExperimentCodeParams,
+    template: CodeTemplate,
+  ): ExperimentCodeResult['files'] {
     const files: ExperimentCodeResult['files'] = [];
 
     // 主实验文件
     const mainContent = this.generateMainFile(params, template);
     const extension = this.getFileExtension(params.language);
-    
+
     files.push({
       filename: `${params.experimentName.toLowerCase().replace(/\s+/g, '_')}_experiment.${extension}`,
       content: mainContent,
       description: 'Main experiment script',
-      type: 'main'
+      type: 'main',
     });
 
     // 配置文件
     files.push({
       filename: 'config.json',
-      content: JSON.stringify({
-        experimentName: params.experimentName,
-        researchMethod: params.researchMethod,
-        language: params.language,
-        dataTypes: params.dataTypes,
-        analysisTypes: params.analysisTypes,
-        outputFormats: params.outputFormats,
-        dataPath: params.dataPath || './data/',
-        outputPath: './results/',
-        createdAt: new Date().toISOString()
-      }, null, 2),
+      content: JSON.stringify(
+        {
+          experimentName: params.experimentName,
+          researchMethod: params.researchMethod,
+          language: params.language,
+          dataTypes: params.dataTypes,
+          analysisTypes: params.analysisTypes,
+          outputFormats: params.outputFormats,
+          dataPath: params.dataPath || './data/',
+          outputPath: './results/',
+          createdAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
       description: 'Experiment configuration file',
-      type: 'config'
+      type: 'config',
     });
 
     // 依赖文件
@@ -976,7 +1074,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         filename: 'requirements.txt',
         content: this.getDependencies(params).join('\n'),
         description: 'Python dependencies',
-        type: 'requirements'
+        type: 'requirements',
       });
     }
 
@@ -985,7 +1083,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       filename: 'README.md',
       content: this.generateReadme(params),
       description: 'Project documentation',
-      type: 'documentation'
+      type: 'documentation',
     });
 
     return files;
@@ -994,7 +1092,10 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
   /**
    * 生成主文件内容
    */
-  private generateMainFile(params: ExperimentCodeParams, template: CodeTemplate): string {
+  private generateMainFile(
+    params: ExperimentCodeParams,
+    template: CodeTemplate,
+  ): string {
     const sections = [
       template.imports.join('\n'),
       '',
@@ -1008,7 +1109,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '',
       template.visualization.join('\n'),
       '',
-      template.output.join('\n')
+      template.output.join('\n'),
     ];
 
     if (template.testing) {
@@ -1044,7 +1145,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         '    print("Experiment completed successfully!")',
         '',
         'if __name__ == "__main__":',
-        '    main()'
+        '    main()',
       );
     } else if (params.language === ProgrammingLanguage.R) {
       sections.push(
@@ -1072,11 +1173,11 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         '}',
         '',
         '# Run the experiment',
-        'main()'
+        'main()',
       );
     }
 
-    return sections.filter(section => section !== undefined).join('\n');
+    return sections.filter((section) => section !== undefined).join('\n');
   }
 
   /**
@@ -1112,27 +1213,19 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         'numpy>=1.24.0',
         'matplotlib>=3.7.0',
         'seaborn>=0.12.0',
-        'pathlib'
+        'pathlib',
       );
 
       if (params.researchMethod === ResearchMethod.MACHINE_LEARNING) {
-        dependencies.push(
-          'scikit-learn>=1.3.0',
-          'scipy>=1.10.0'
-        );
+        dependencies.push('scikit-learn>=1.3.0', 'scipy>=1.10.0');
       }
 
       if (params.researchMethod === ResearchMethod.STATISTICAL_ANALYSIS) {
-        dependencies.push(
-          'scipy>=1.10.0',
-          'statsmodels>=0.14.0'
-        );
+        dependencies.push('scipy>=1.10.0', 'statsmodels>=0.14.0');
       }
 
       if (params.includeVisualization) {
-        dependencies.push(
-          'plotly>=5.15.0'
-        );
+        dependencies.push('plotly>=5.15.0');
       }
 
       if (params.dataTypes.includes(DataFormat.EXCEL)) {
@@ -1168,7 +1261,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       '',
       'Output:',
       `- Formats: ${params.outputFormats.join(', ')}`,
-      '- Results will be saved in the results/ directory'
+      '- Results will be saved in the results/ directory',
     ];
 
     if (params.language === ProgrammingLanguage.PYTHON) {
@@ -1176,14 +1269,14 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         '',
         'Python-specific instructions:',
         '1. Install dependencies: pip install -r requirements.txt',
-        '2. Run: python experiment_script.py'
+        '2. Run: python experiment_script.py',
       );
     } else if (params.language === ProgrammingLanguage.R) {
       instructions.push(
         '',
         'R-specific instructions:',
         '1. Install required packages using install.packages()',
-        '2. Run: source("experiment_script.R")'
+        '2. Run: source("experiment_script.R")',
       );
     }
 
@@ -1218,14 +1311,16 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
   /**
    * 生成学习资源
    */
-  private generateResources(params: ExperimentCodeParams): ExperimentCodeResult['resources'] {
+  private generateResources(
+    params: ExperimentCodeParams,
+  ): ExperimentCodeResult['resources'] {
     const resources: ExperimentCodeResult['resources'] = [];
 
     // 通用资源
     resources.push({
       name: 'Best Practices in Reproducible Research',
       url: 'https://www.nature.com/articles/s41597-022-01143-6',
-      description: 'Guidelines for reproducible computational research'
+      description: 'Guidelines for reproducible computational research',
     });
 
     // 语言特定资源
@@ -1234,26 +1329,26 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
         {
           name: 'Pandas Documentation',
           url: 'https://pandas.pydata.org/docs/',
-          description: 'Comprehensive guide to data manipulation with pandas'
+          description: 'Comprehensive guide to data manipulation with pandas',
         },
         {
           name: 'Scikit-learn User Guide',
           url: 'https://scikit-learn.org/stable/user_guide.html',
-          description: 'Machine learning in Python'
-        }
+          description: 'Machine learning in Python',
+        },
       );
     } else if (params.language === ProgrammingLanguage.R) {
       resources.push(
         {
           name: 'R for Data Science',
           url: 'https://r4ds.had.co.nz/',
-          description: 'Complete guide to data science with R'
+          description: 'Complete guide to data science with R',
         },
         {
           name: 'Tidyverse Documentation',
           url: 'https://www.tidyverse.org/',
-          description: 'Collection of R packages for data science'
-        }
+          description: 'Collection of R packages for data science',
+        },
       );
     }
 
@@ -1262,7 +1357,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<ExperimentCodePara
       resources.push({
         name: 'Elements of Statistical Learning',
         url: 'https://web.stanford.edu/~hastie/ElemStatLearn/',
-        description: 'Comprehensive reference for statistical learning methods'
+        description: 'Comprehensive reference for statistical learning methods',
       });
     }
 
@@ -1282,13 +1377,13 @@ ${params.description || 'Automated experiment framework generated by Research CL
 This experiment uses **${params.language}** to perform **${params.researchMethod}** analysis.
 
 ### Analysis Types
-${params.analysisTypes.map(type => `- ${type}`).join('\n')}
+${params.analysisTypes.map((type) => `- ${type}`).join('\n')}
 
 ### Data Formats
-${params.dataTypes.map(type => `- ${type}`).join('\n')}
+${params.dataTypes.map((type) => `- ${type}`).join('\n')}
 
 ### Output Formats  
-${params.outputFormats.map(format => `- ${format}`).join('\n')}
+${params.outputFormats.map((format) => `- ${format}`).join('\n')}
 
 ## Setup
 
@@ -1331,4 +1426,4 @@ Research CLI - Academic Research Workflow Tool
 Generated on: ${new Date().toISOString()}
 `;
   }
-} 
+}

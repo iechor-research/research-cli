@@ -131,37 +131,37 @@ export interface IModelProvider {
    * 提供商名称
    */
   readonly name: ModelProvider;
-  
+
   /**
    * 初始化提供商
    */
   initialize(config: ModelConfig): Promise<void>;
-  
+
   /**
    * 发送聊天请求
    */
   chat(request: ChatRequest): Promise<ChatResponse>;
-  
+
   /**
    * 发送流式聊天请求
    */
   streamChat(request: ChatRequest): AsyncGenerator<StreamResponse>;
-  
+
   /**
    * 获取可用模型列表
    */
   getModels(): Promise<ModelInfo[]>;
-  
+
   /**
    * 验证配置
    */
   validateConfig(config: ModelConfig): boolean;
-  
+
   /**
    * 获取默认配置
    */
   getDefaultConfig(): Partial<ModelConfig>;
-  
+
   /**
    * 检查是否支持特定功能
    */
@@ -176,16 +176,19 @@ export interface IModelProviderFactory {
    * 创建模型提供商实例
    */
   createProvider(provider: ModelProvider): IModelProvider;
-  
+
   /**
    * 获取支持的提供商列表
    */
   getSupportedProviders(): ModelProvider[];
-  
+
   /**
    * 注册新的提供商
    */
-  registerProvider(provider: ModelProvider, factory: () => IModelProvider): void;
+  registerProvider(
+    provider: ModelProvider,
+    factory: () => IModelProvider,
+  ): void;
 }
 
 /**
@@ -196,22 +199,22 @@ export interface IModelSelector {
    * 选择模型
    */
   selectModel(provider: ModelProvider, model: string): Promise<void>;
-  
+
   /**
    * 获取当前选择的模型
    */
   getCurrentModel(): { provider: ModelProvider; model: string } | null;
-  
+
   /**
    * 获取所有可用模型
    */
   getAvailableModels(): Promise<ModelInfo[]>;
-  
+
   /**
    * 发送消息
    */
   sendMessage(request: ChatRequest): Promise<ChatResponse>;
-  
+
   /**
    * 发送流式消息
    */
@@ -226,7 +229,7 @@ export class ModelProviderError extends Error {
     message: string,
     public provider: ModelProvider,
     public code?: string,
-    public cause?: Error
+    public cause?: Error,
   ) {
     super(message);
     this.name = 'ModelProviderError';
@@ -251,7 +254,7 @@ export class APIError extends ModelProviderError {
     message: string,
     provider: ModelProvider,
     public statusCode?: number,
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, provider, 'API_ERROR', cause);
     this.name = 'APIError';
@@ -276,9 +279,9 @@ export class RateLimitError extends ModelProviderError {
     message: string,
     provider: ModelProvider,
     public retryAfter?: number,
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, provider, 'RATE_LIMIT_ERROR', cause);
     this.name = 'RateLimitError';
   }
-} 
+}

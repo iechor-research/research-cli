@@ -309,7 +309,11 @@ export const useShellCommandProcessor = (
             );
 
             // Add the same complete, contextual result to the LLM's history.
-            addShellCommandToResearchHistory(researchClient, rawQuery, finalOutput);
+            addShellCommandToResearchHistory(
+              researchClient,
+              rawQuery,
+              finalOutput,
+            );
           })
           .catch((err) => {
             setPendingHistoryItem(null);

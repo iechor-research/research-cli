@@ -33,7 +33,7 @@ const CACHE_CONFIGS = {
   latex_compilation: {
     max: 20,
     ttl: 1000 * 60 * 10, // 10 minutes
-  }
+  },
 };
 
 /**
@@ -55,14 +55,18 @@ function getCache(type: keyof typeof CACHE_CONFIGS): LRUCache<string, any> {
  * Cache decorator for expensive operations
  */
 export function cached(cacheType: keyof typeof CACHE_CONFIGS) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
     const originalMethod = descriptor.value;
     const cache = getCache(cacheType);
 
     descriptor.value = async function (...args: any[]) {
       // Create cache key from method name and arguments
       const cacheKey = `${propertyKey}:${JSON.stringify(args)}`;
-      
+
       // Check cache first
       const cached = cache.get(cacheKey);
       if (cached) {
@@ -72,11 +76,11 @@ export function cached(cacheType: keyof typeof CACHE_CONFIGS) {
 
       // Execute original method
       const result = await originalMethod.apply(this, args);
-      
+
       // Cache the result
       cache.set(cacheKey, result);
       console.debug(`Cached result for ${propertyKey}`);
-      
+
       return result;
     };
 
@@ -93,7 +97,7 @@ export class BatchProcessor<T, R> {
     resolve: (value: R) => void;
     reject: (error: Error) => void;
   }> = [];
-  
+
   private processing = false;
   private batchSize: number;
   private delay: number;
@@ -101,7 +105,7 @@ export class BatchProcessor<T, R> {
   constructor(
     private processor: (items: T[]) => Promise<R[]>,
     batchSize = 10,
-    delay = 100
+    delay = 100,
   ) {
     this.batchSize = batchSize;
     this.delay = delay;
@@ -116,7 +120,7 @@ export class BatchProcessor<T, R> {
 
   private scheduleProcessing() {
     if (this.processing) return;
-    
+
     this.processing = true;
     setTimeout(() => this.processBatch(), this.delay);
   }
@@ -128,16 +132,16 @@ export class BatchProcessor<T, R> {
     }
 
     const batch = this.queue.splice(0, this.batchSize);
-    const items = batch.map(b => b.item);
+    const items = batch.map((b) => b.item);
 
     try {
       const results = await this.processor(items);
-      
+
       batch.forEach((b, index) => {
         b.resolve(results[index]);
       });
     } catch (error) {
-      batch.forEach(b => {
+      batch.forEach((b) => {
         b.reject(error as Error);
       });
     }
@@ -159,17 +163,14 @@ export class DataStreamer<T> {
   private bufferSize: number;
   private onChunk: (chunk: T[]) => Promise<void>;
 
-  constructor(
-    onChunk: (chunk: T[]) => Promise<void>,
-    bufferSize = 1000
-  ) {
+  constructor(onChunk: (chunk: T[]) => Promise<void>, bufferSize = 1000) {
     this.onChunk = onChunk;
     this.bufferSize = bufferSize;
   }
 
   async add(item: T): Promise<void> {
     this.buffer.push(item);
-    
+
     if (this.buffer.length >= this.bufferSize) {
       await this.flush();
     }
@@ -198,7 +199,7 @@ export class ParallelProcessor<T, R> {
 
   async process(items: T[], processor: (item: T) => Promise<R>): Promise<R[]> {
     this.results = [];
-    this.queue = items.map(item => () => processor(item));
+    this.queue = items.map((item) => () => processor(item));
 
     const promises: Promise<void>[] = [];
     for (let i = 0; i < Math.min(this.concurrency, this.queue.length); i++) {
@@ -232,13 +233,16 @@ export class ParallelProcessor<T, R> {
  */
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;
-  private metrics: Map<string, {
-    count: number;
-    totalTime: number;
-    avgTime: number;
-    minTime: number;
-    maxTime: number;
-  }> = new Map();
+  private metrics: Map<
+    string,
+    {
+      count: number;
+      totalTime: number;
+      avgTime: number;
+      minTime: number;
+      maxTime: number;
+    }
+  > = new Map();
 
   static getInstance(): PerformanceMonitor {
     if (!PerformanceMonitor.instance) {
@@ -249,7 +253,7 @@ export class PerformanceMonitor {
 
   startTimer(operation: string): () => void {
     const startTime = Date.now();
-    
+
     return () => {
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -259,7 +263,7 @@ export class PerformanceMonitor {
 
   private recordMetric(operation: string, duration: number): void {
     const existing = this.metrics.get(operation);
-    
+
     if (existing) {
       existing.count++;
       existing.totalTime += duration;
@@ -272,7 +276,7 @@ export class PerformanceMonitor {
         totalTime: duration,
         avgTime: duration,
         minTime: duration,
-        maxTime: duration
+        maxTime: duration,
       });
     }
   }
@@ -294,14 +298,19 @@ export class PerformanceMonitor {
  * Performance monitoring decorator
  */
 export function monitored(operation?: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
     const originalMethod = descriptor.value;
     const monitor = PerformanceMonitor.getInstance();
-    const operationName = operation || `${target.constructor.name}.${propertyKey}`;
+    const operationName =
+      operation || `${target.constructor.name}.${propertyKey}`;
 
     descriptor.value = async function (...args: any[]) {
       const stopTimer = monitor.startTimer(operationName);
-      
+
       try {
         const result = await originalMethod.apply(this, args);
         return result;
@@ -328,13 +337,15 @@ export class MemoryOptimizer {
 
     this.gcTimer = setInterval(() => {
       const memUsage = process.memoryUsage();
-      
+
       if (memUsage.heapUsed > this.MEMORY_THRESHOLD) {
-        console.warn('High memory usage detected, suggesting garbage collection');
-        
+        console.warn(
+          'High memory usage detected, suggesting garbage collection',
+        );
+
         // Clear caches
-        caches.forEach(cache => cache.clear());
-        
+        caches.forEach((cache) => cache.clear());
+
         // Force garbage collection if available
         if (global.gc) {
           global.gc();
@@ -360,14 +371,14 @@ export class MemoryOptimizer {
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  delay: number
+  delay: number,
 ): T {
   let timeoutId: NodeJS.Timeout;
-  
-  return (function(this: any, ...args: any[]) {
+
+  return function (this: any, ...args: any[]) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func.apply(this, args), delay);
-  }) as T;
+  } as T;
 }
 
 /**
@@ -375,23 +386,20 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): T {
   let inThrottle: boolean;
-  
-  return (function(this: any, ...args: any[]) {
+
+  return function (this: any, ...args: any[]) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
-  }) as T;
+  } as T;
 }
 
 /**
  * Export utility functions
  */
-export {
-  getCache,
-  CACHE_CONFIGS
-}; 
+export { getCache, CACHE_CONFIGS };

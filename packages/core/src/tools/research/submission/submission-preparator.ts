@@ -1,14 +1,18 @@
 import { BaseResearchTool } from '../base-tool.js';
-import { ResearchToolResult, ResearchToolCategory, ResearchToolParams } from '../types.js';
-import { 
-  SubmissionPrepOptions, 
-  SubmissionResult, 
+import {
+  ResearchToolResult,
+  ResearchToolCategory,
+  ResearchToolParams,
+} from '../types.js';
+import {
+  SubmissionPrepOptions,
+  SubmissionResult,
   ValidationReport,
   ChecklistItem,
   CompilationResult,
   ComplianceCheck,
   FileStructureCheck,
-  SupplementaryCheck
+  SupplementaryCheck,
 } from './types.js';
 import { TemplateManager } from './template-manager.js';
 import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
@@ -19,16 +23,19 @@ import * as path from 'path';
  * 投稿包准备器 - 完整的学术投稿准备工具
  * 支持项目初始化、模板获取、验证和打包功能
  */
-export class SubmissionPreparator extends BaseResearchTool<SubmissionPrepOptions, SubmissionResult> {
+export class SubmissionPreparator extends BaseResearchTool<
+  SubmissionPrepOptions,
+  SubmissionResult
+> {
   private templateManager: TemplateManager;
-    latexManager: any;
-    journalMatcher: any;
+  latexManager: any;
+  journalMatcher: any;
 
   constructor(arxivClient: ArXivMCPClient) {
     super(
       'submission_preparator',
       'Academic submission preparation tool with template management and project initialization',
-      ResearchToolCategory.PUBLISHING
+      ResearchToolCategory.PUBLISHING,
     );
     this.templateManager = new TemplateManager(arxivClient);
   }
@@ -60,9 +67,20 @@ export class SubmissionPreparator extends BaseResearchTool<SubmissionPrepOptions
       throw new Error('Operation is required');
     }
 
-    const validOperations = ['prepare', 'validate', 'package', 'checklist', 'clean', 'init', 'template', 'extract'];
+    const validOperations = [
+      'prepare',
+      'validate',
+      'package',
+      'checklist',
+      'clean',
+      'init',
+      'template',
+      'extract',
+    ];
     if (!validOperations.includes(options.operation)) {
-      throw new Error(`Invalid operation: ${options.operation}. Must be one of: ${validOperations.join(', ')}`);
+      throw new Error(
+        `Invalid operation: ${options.operation}. Must be one of: ${validOperations.join(', ')}`,
+      );
     }
 
     // 操作特定验证
@@ -86,7 +104,9 @@ export class SubmissionPreparator extends BaseResearchTool<SubmissionPrepOptions
       case 'checklist':
       case 'clean':
         if (!options.projectPath) {
-          throw new Error(`Project path is required for ${options.operation} operation`);
+          throw new Error(
+            `Project path is required for ${options.operation} operation`,
+          );
         }
         break;
     }
@@ -142,7 +162,9 @@ OPTIONS:
   /**
    * 执行投稿准备操作
    */
-  protected async executeImpl(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  protected async executeImpl(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     let result: SubmissionResult;
 
     switch (options.operation) {
@@ -180,7 +202,9 @@ OPTIONS:
   /**
    * 初始化项目
    */
-  private async initializeProject(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async initializeProject(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectName) {
         throw new Error('Project name is required');
@@ -189,21 +213,27 @@ OPTIONS:
       // 获取模板
       let template;
       if (options.templateId) {
-        template = await this.templateManager.fetchTemplate(options.templateId, options.templateSource);
+        template = await this.templateManager.fetchTemplate(
+          options.templateId,
+          options.templateSource,
+        );
       } else {
         // 如果没有指定模板，搜索合适的模板
-        const searchOptions = options.journalName ? { journal: options.journalName, limit: 1 } : { limit: 1 };
-        const templates = await this.templateManager.searchTemplates(searchOptions);
-        
+        const searchOptions = options.journalName
+          ? { journal: options.journalName, limit: 1 }
+          : { limit: 1 };
+        const templates =
+          await this.templateManager.searchTemplates(searchOptions);
+
         if (templates.length === 0) {
           throw new Error('No suitable template found');
         }
-        
+
         template = templates[0];
       }
 
       // 确定项目路径
-      const projectPath = options.outputDir 
+      const projectPath = options.outputDir
         ? path.join(options.outputDir, options.projectName)
         : path.join(process.cwd(), options.projectName);
 
@@ -212,7 +242,7 @@ OPTIONS:
         name: options.projectName,
         path: projectPath,
         template,
-        journalTarget: options.journalName
+        journalTarget: options.journalName,
       });
 
       return {
@@ -220,15 +250,15 @@ OPTIONS:
         packagePath: projectResult.success ? projectPath : undefined,
         errors: projectResult.errors,
         warnings: projectResult.warnings,
-        message: projectResult.success 
+        message: projectResult.success
           ? `Project "${options.projectName}" initialized successfully at ${projectPath}`
-          : 'Failed to initialize project'
+          : 'Failed to initialize project',
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -236,38 +266,44 @@ OPTIONS:
   /**
    * 管理模板
    */
-  private async manageTemplates(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async manageTemplates(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (options.templateId) {
         // 获取特定模板
-        const template = await this.templateManager.fetchTemplate(options.templateId, options.templateSource);
+        const template = await this.templateManager.fetchTemplate(
+          options.templateId,
+          options.templateSource,
+        );
         return {
           success: true,
           errors: [],
           warnings: [],
-          message: `Template "${template.name}" fetched successfully`
+          message: `Template "${template.name}" fetched successfully`,
         };
       } else {
         // 搜索模板
         const searchOptions = {
           journal: options.journalName,
-          limit: 10
+          limit: 10,
         };
-        
-        const templates = await this.templateManager.searchTemplates(searchOptions);
-        
+
+        const templates =
+          await this.templateManager.searchTemplates(searchOptions);
+
         return {
           success: true,
           errors: [],
           warnings: [],
-          message: `Found ${templates.length} templates${options.journalName ? ` for journal "${options.journalName}"` : ''}`
+          message: `Found ${templates.length} templates${options.journalName ? ` for journal "${options.journalName}"` : ''}`,
         };
       }
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -275,28 +311,33 @@ OPTIONS:
   /**
    * 从 arXiv 提取模板
    */
-  private async extractFromArxiv(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async extractFromArxiv(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.arxivId) {
         throw new Error('arXiv ID is required');
       }
 
-      const template = await this.templateManager.extractFromArxiv(options.arxivId, {
-        removePersonalInfo: true,
-        generalizePaths: true
-      });
+      const template = await this.templateManager.extractFromArxiv(
+        options.arxivId,
+        {
+          removePersonalInfo: true,
+          generalizePaths: true,
+        },
+      );
 
       return {
         success: true,
         errors: [],
         warnings: [],
-        message: `Template extracted from arXiv:${options.arxivId} - "${template.name}"`
+        message: `Template extracted from arXiv:${options.arxivId} - "${template.name}"`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -304,13 +345,18 @@ OPTIONS:
   /**
    * 验证项目
    */
-  private async validateProject(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async validateProject(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectPath) {
         throw new Error('Project path is required');
       }
 
-      const validationReport = await this.performValidation(options.projectPath, options.journalName);
+      const validationReport = await this.performValidation(
+        options.projectPath,
+        options.journalName,
+      );
 
       const allChecks = [
         validationReport.latexCompilation.success,
@@ -318,10 +364,10 @@ OPTIONS:
         validationReport.journalCompliance.wordLimit,
         validationReport.journalCompliance.referenceStyle,
         validationReport.fileStructure.mainTexFile,
-        validationReport.fileStructure.bibliographyPresent
+        validationReport.fileStructure.bibliographyPresent,
       ];
 
-      const passedChecks = allChecks.filter(check => check).length;
+      const passedChecks = allChecks.filter((check) => check).length;
       const totalChecks = allChecks.length;
 
       return {
@@ -329,13 +375,13 @@ OPTIONS:
         validationReport,
         errors: validationReport.latexCompilation.errors,
         warnings: validationReport.latexCompilation.warnings,
-        message: `Validation completed: ${passedChecks}/${totalChecks} checks passed`
+        message: `Validation completed: ${passedChecks}/${totalChecks} checks passed`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -343,26 +389,36 @@ OPTIONS:
   /**
    * 准备投稿包
    */
-  private async prepareSubmission(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async prepareSubmission(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectPath) {
         throw new Error('Project path is required');
       }
 
       // 首先验证项目
-      const validationReport = await this.performValidation(options.projectPath, options.journalName);
-      
+      const validationReport = await this.performValidation(
+        options.projectPath,
+        options.journalName,
+      );
+
       if (!validationReport.latexCompilation.success) {
         return {
           success: false,
           validationReport,
-          errors: ['LaTeX compilation failed. Please fix errors before preparing submission.'],
-          warnings: []
+          errors: [
+            'LaTeX compilation failed. Please fix errors before preparing submission.',
+          ],
+          warnings: [],
         };
       }
 
       // 创建投稿包
-      const packagePath = await this.createSubmissionPackage(options.projectPath, options);
+      const packagePath = await this.createSubmissionPackage(
+        options.projectPath,
+        options,
+      );
 
       return {
         success: true,
@@ -370,13 +426,13 @@ OPTIONS:
         validationReport,
         errors: [],
         warnings: validationReport.latexCompilation.warnings,
-        message: `Submission package prepared successfully at ${packagePath}`
+        message: `Submission package prepared successfully at ${packagePath}`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -384,26 +440,31 @@ OPTIONS:
   /**
    * 创建包
    */
-  private async createPackage(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async createPackage(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectPath) {
         throw new Error('Project path is required');
       }
 
-      const packagePath = await this.createSubmissionPackage(options.projectPath, options);
+      const packagePath = await this.createSubmissionPackage(
+        options.projectPath,
+        options,
+      );
 
       return {
         success: true,
         packagePath,
         errors: [],
         warnings: [],
-        message: `Package created successfully at ${packagePath}`
+        message: `Package created successfully at ${packagePath}`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -411,26 +472,31 @@ OPTIONS:
   /**
    * 生成检查清单
    */
-  private async generateChecklist(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async generateChecklist(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectPath) {
         throw new Error('Project path is required');
       }
 
-      const checklist = await this.createSubmissionChecklist(options.projectPath, options.journalName);
+      const checklist = await this.createSubmissionChecklist(
+        options.projectPath,
+        options.journalName,
+      );
 
       return {
         success: true,
         checklist,
         errors: [],
         warnings: [],
-        message: `Checklist generated with ${checklist.length} items`
+        message: `Checklist generated with ${checklist.length} items`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -438,7 +504,9 @@ OPTIONS:
   /**
    * 清理项目
    */
-  private async cleanProject(options: SubmissionPrepOptions): Promise<SubmissionResult> {
+  private async cleanProject(
+    options: SubmissionPrepOptions,
+  ): Promise<SubmissionResult> {
     try {
       if (!options.projectPath) {
         throw new Error('Project path is required');
@@ -450,13 +518,13 @@ OPTIONS:
         success: true,
         errors: [],
         warnings: [],
-        message: `Cleaned ${cleanedFiles.length} temporary files`
+        message: `Cleaned ${cleanedFiles.length} temporary files`,
       };
     } catch (error) {
       return {
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -464,31 +532,40 @@ OPTIONS:
   /**
    * 执行验证
    */
-  private async performValidation(projectPath: string, journalName?: string): Promise<ValidationReport> {
+  private async performValidation(
+    projectPath: string,
+    journalName?: string,
+  ): Promise<ValidationReport> {
     // LaTeX 编译验证
     const compilationResult = await this.validateLatexCompilation(projectPath);
-    
+
     // 期刊合规性检查
-    const complianceCheck = await this.validateJournalCompliance(projectPath, journalName);
-    
+    const complianceCheck = await this.validateJournalCompliance(
+      projectPath,
+      journalName,
+    );
+
     // 文件结构检查
     const fileStructureCheck = await this.validateFileStructure(projectPath);
-    
+
     // 补充材料检查
-    const supplementaryCheck = await this.validateSupplementaryMaterials(projectPath);
+    const supplementaryCheck =
+      await this.validateSupplementaryMaterials(projectPath);
 
     return {
       latexCompilation: compilationResult,
       journalCompliance: complianceCheck,
       fileStructure: fileStructureCheck,
-      supplementaryMaterials: supplementaryCheck
+      supplementaryMaterials: supplementaryCheck,
     };
   }
 
   /**
    * 验证 LaTeX 编译
    */
-  private async validateLatexCompilation(projectPath: string): Promise<CompilationResult> {
+  private async validateLatexCompilation(
+    projectPath: string,
+  ): Promise<CompilationResult> {
     try {
       const result = await this.latexManager.compile(projectPath);
       return {
@@ -496,14 +573,14 @@ OPTIONS:
         pdfGenerated: result.success,
         errors: result.errors || [],
         warnings: result.warnings || [],
-        logPath: result.logPath
+        logPath: result.logPath,
       };
     } catch (error) {
       return {
         success: false,
         pdfGenerated: false,
         errors: [error instanceof Error ? error.message : 'Compilation failed'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -511,7 +588,10 @@ OPTIONS:
   /**
    * 验证期刊合规性
    */
-  private async validateJournalCompliance(projectPath: string, journalName?: string): Promise<ComplianceCheck> {
+  private async validateJournalCompliance(
+    projectPath: string,
+    journalName?: string,
+  ): Promise<ComplianceCheck> {
     // 基础检查结果
     const check: ComplianceCheck = {
       pageLimit: true,
@@ -520,7 +600,7 @@ OPTIONS:
       referenceStyle: true,
       fontRequirements: true,
       marginRequirements: true,
-      issues: []
+      issues: [],
     };
 
     if (journalName) {
@@ -529,7 +609,9 @@ OPTIONS:
         // 这里可以实现具体的期刊要求检查
         // 现在返回基础检查结果
       } catch {
-        check.issues.push(`Could not find requirements for journal: ${journalName}`);
+        check.issues.push(
+          `Could not find requirements for journal: ${journalName}`,
+        );
       }
     }
 
@@ -539,24 +621,26 @@ OPTIONS:
   /**
    * 验证文件结构
    */
-  private async validateFileStructure(projectPath: string): Promise<FileStructureCheck> {
+  private async validateFileStructure(
+    projectPath: string,
+  ): Promise<FileStructureCheck> {
     const check: FileStructureCheck = {
       mainTexFile: false,
       figuresPresent: false,
       bibliographyPresent: false,
       supplementaryOrganized: false,
-      missingFiles: []
+      missingFiles: [],
     };
 
     try {
       const files = await fs.readdir(projectPath);
-      
+
       // 检查主 LaTeX 文件
-      check.mainTexFile = files.some(f => f.endsWith('.tex'));
-      
+      check.mainTexFile = files.some((f) => f.endsWith('.tex'));
+
       // 检查参考文献文件
-      check.bibliographyPresent = files.some(f => f.endsWith('.bib'));
-      
+      check.bibliographyPresent = files.some((f) => f.endsWith('.bib'));
+
       // 检查图片目录
       try {
         await fs.access(path.join(projectPath, 'figures'));
@@ -567,7 +651,6 @@ OPTIONS:
 
       // 检查补充材料组织
       check.supplementaryOrganized = true; // 简化检查
-      
     } catch (error) {
       check.missingFiles.push('Could not access project directory');
     }
@@ -578,22 +661,28 @@ OPTIONS:
   /**
    * 验证补充材料
    */
-  private async validateSupplementaryMaterials(projectPath: string): Promise<SupplementaryCheck> {
+  private async validateSupplementaryMaterials(
+    projectPath: string,
+  ): Promise<SupplementaryCheck> {
     return {
       dataFiles: false,
       codeFiles: false,
       additionalFigures: false,
       videoFiles: false,
-      organizationScore: 0.5
+      organizationScore: 0.5,
     };
   }
 
   /**
    * 创建投稿包
    */
-  private async createSubmissionPackage(projectPath: string, options: SubmissionPrepOptions): Promise<string> {
+  private async createSubmissionPackage(
+    projectPath: string,
+    options: SubmissionPrepOptions,
+  ): Promise<string> {
     try {
-      const outputDir = options.outputDir || path.join(projectPath, 'submission-package');
+      const outputDir =
+        options.outputDir || path.join(projectPath, 'submission-package');
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const packageDir = path.join(outputDir, `submission-${timestamp}`);
 
@@ -601,12 +690,13 @@ OPTIONS:
 
       // 复制必要文件
       const files = await fs.readdir(projectPath);
-      const essentialFiles = files.filter(f => 
-        f.endsWith('.tex') || 
-        f.endsWith('.bib') || 
-        f.endsWith('.pdf') ||
-        f.endsWith('.cls') ||
-        f.endsWith('.sty')
+      const essentialFiles = files.filter(
+        (f) =>
+          f.endsWith('.tex') ||
+          f.endsWith('.bib') ||
+          f.endsWith('.pdf') ||
+          f.endsWith('.cls') ||
+          f.endsWith('.sty'),
       );
 
       for (const file of essentialFiles) {
@@ -620,12 +710,12 @@ OPTIONS:
         const figuresDir = path.join(projectPath, 'figures');
         const destFiguresDir = path.join(packageDir, 'figures');
         await fs.mkdir(destFiguresDir, { recursive: true });
-        
+
         const figureFiles = await fs.readdir(figuresDir);
         for (const file of figureFiles) {
           await fs.copyFile(
             path.join(figuresDir, file),
-            path.join(destFiguresDir, file)
+            path.join(destFiguresDir, file),
           );
         }
       } catch {
@@ -646,7 +736,10 @@ OPTIONS:
   /**
    * 创建投稿检查清单
    */
-  private async createSubmissionChecklist(projectPath: string, journalName?: string): Promise<ChecklistItem[]> {
+  private async createSubmissionChecklist(
+    projectPath: string,
+    journalName?: string,
+  ): Promise<ChecklistItem[]> {
     const checklist: ChecklistItem[] = [
       {
         id: 'compilation',
@@ -654,7 +747,7 @@ OPTIONS:
         description: 'Document compiles without errors',
         completed: false,
         required: true,
-        category: 'content'
+        category: 'content',
       },
       {
         id: 'bibliography',
@@ -662,7 +755,7 @@ OPTIONS:
         description: 'References follow journal style',
         completed: false,
         required: true,
-        category: 'formatting'
+        category: 'formatting',
       },
       {
         id: 'figures',
@@ -670,7 +763,7 @@ OPTIONS:
         description: 'All figures are high resolution and properly labeled',
         completed: false,
         required: true,
-        category: 'content'
+        category: 'content',
       },
       {
         id: 'abstract',
@@ -678,7 +771,7 @@ OPTIONS:
         description: 'Abstract meets word limit requirements',
         completed: false,
         required: true,
-        category: 'content'
+        category: 'content',
       },
       {
         id: 'keywords',
@@ -686,7 +779,7 @@ OPTIONS:
         description: 'Appropriate keywords provided',
         completed: false,
         required: true,
-        category: 'content'
+        category: 'content',
       },
       {
         id: 'cover-letter',
@@ -694,8 +787,8 @@ OPTIONS:
         description: 'Cover letter prepared',
         completed: false,
         required: false,
-        category: 'submission'
-      }
+        category: 'submission',
+      },
     ];
 
     // 检查实际完成状态
@@ -712,11 +805,20 @@ OPTIONS:
    */
   private async performCleanup(projectPath: string): Promise<string[]> {
     const cleanedFiles: string[] = [];
-    
+
     try {
       const files = await fs.readdir(projectPath);
-      const tempExtensions = ['.aux', '.log', '.bbl', '.blg', '.toc', '.out', '.fls', '.fdb_latexmk'];
-      
+      const tempExtensions = [
+        '.aux',
+        '.log',
+        '.bbl',
+        '.blg',
+        '.toc',
+        '.out',
+        '.fls',
+        '.fdb_latexmk',
+      ];
+
       for (const file of files) {
         const extension = path.extname(file);
         if (tempExtensions.includes(extension)) {
@@ -730,4 +832,4 @@ OPTIONS:
 
     return cleanedFiles;
   }
-} 
+}

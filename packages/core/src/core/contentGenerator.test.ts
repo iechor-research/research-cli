@@ -33,7 +33,9 @@ describe('createContentGenerator', () => {
       mockConfig,
     );
     expect(createCodeAssistContentGenerator).toHaveBeenCalled();
-    expect(generator).toBe(mockGenerator);
+    // 现在返回的是 MultiProviderContentGenerator，它包装了基础的 generator
+    expect(generator).toBeInstanceOf(Object);
+    expect(generator).toHaveProperty('geminiGenerator');
   });
 
   it('should create a iEchorGenAI content generator', async () => {
@@ -58,7 +60,9 @@ describe('createContentGenerator', () => {
         },
       },
     });
-    expect(generator).toBe((mockGenerator as GoogleGenAI).models);
+    // 现在返回的是 MultiProviderContentGenerator，它包装了 GoogleGenAI.models
+    expect(generator).toBeInstanceOf(Object);
+    expect(generator).toHaveProperty('geminiGenerator');
   });
 });
 
@@ -78,7 +82,7 @@ describe('createContentGeneratorConfig', () => {
   });
 
   it('should configure for Research using GEMINI_API_KEY  when set', async () => {
-    process.env.GEMINI_API_KEY  = 'env-research-key';
+    process.env.GEMINI_API_KEY = 'env-research-key';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,
@@ -88,7 +92,7 @@ describe('createContentGeneratorConfig', () => {
   });
 
   it('should not configure for Research if GEMINI_API_KEY  is empty', async () => {
-    process.env.GEMINI_API_KEY  = '';
+    process.env.GEMINI_API_KEY = '';
     const config = await createContentGeneratorConfig(
       undefined,
       AuthType.USE_RESEARCH,

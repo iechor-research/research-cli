@@ -52,10 +52,10 @@ async function main() {
 
   // Find all test files
   const testFiles = await glob('*.test.js', { cwd: __dirname });
-  
+
   console.log(`Found ${testFiles.length} test files:`);
-  testFiles.forEach(file => console.log(`  - ${file}`));
-  
+  testFiles.forEach((file) => console.log(`  - ${file}`));
+
   // Ensure research workflow test is included
   if (!testFiles.includes('research-workflow.test.js')) {
     console.log('Adding research workflow test...');

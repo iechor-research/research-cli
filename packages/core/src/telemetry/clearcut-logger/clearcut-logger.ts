@@ -217,11 +217,13 @@ export class ClearcutLogger {
         value: event.sandbox_enabled.toString(),
       },
       {
-        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_CORE_TOOLS,
+        research_cli_key:
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_CORE_TOOLS,
         value: event.core_tools_enabled,
       },
       {
-        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_APPROVAL_MODE,
+        research_cli_key:
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_APPROVAL_MODE,
         value: event.approval_mode,
       },
       {
@@ -245,7 +247,8 @@ export class ClearcutLogger {
         value: event.vertex_ai_enabled.toString(),
       },
       {
-        research_cli_key: EventMetadataKey.RESEARCH_CLI_START_SESSION_MCP_SERVERS,
+        research_cli_key:
+          EventMetadataKey.RESEARCH_CLI_START_SESSION_MCP_SERVERS,
         value: event.mcp_servers,
       },
       {
@@ -355,11 +358,13 @@ export class ClearcutLogger {
         value: JSON.stringify(event.prompt_id),
       },
       {
-        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_RESPONSE_STATUS_CODE,
+        research_cli_key:
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_STATUS_CODE,
         value: JSON.stringify(event.status_code),
       },
       {
-        research_cli_key: EventMetadataKey.RESEARCH_CLI_API_RESPONSE_DURATION_MS,
+        research_cli_key:
+          EventMetadataKey.RESEARCH_CLI_API_RESPONSE_DURATION_MS,
         value: JSON.stringify(event.duration_ms),
       },
       {

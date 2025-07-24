@@ -32,9 +32,12 @@ export abstract class BaseModelProvider implements IModelProvider {
    */
   async initialize(config: ModelConfig): Promise<void> {
     if (!this.validateConfig(config)) {
-      throw new ConfigurationError(`Invalid configuration for ${this.name}`, this.name);
+      throw new ConfigurationError(
+        `Invalid configuration for ${this.name}`,
+        this.name,
+      );
     }
-    
+
     this.config = { ...this.getDefaultConfig(), ...config };
     await this.doInitialize();
     this.initialized = true;
@@ -110,7 +113,10 @@ export abstract class BaseModelProvider implements IModelProvider {
    */
   protected ensureInitialized(): void {
     if (!this.initialized || !this.config) {
-      throw new ConfigurationError(`Provider ${this.name} not initialized`, this.name);
+      throw new ConfigurationError(
+        `Provider ${this.name} not initialized`,
+        this.name,
+      );
     }
   }
 
@@ -119,7 +125,10 @@ export abstract class BaseModelProvider implements IModelProvider {
    */
   protected getConfig(): ModelConfig {
     if (!this.config) {
-      throw new ConfigurationError(`Provider ${this.name} not initialized`, this.name);
+      throw new ConfigurationError(
+        `Provider ${this.name} not initialized`,
+        this.name,
+      );
     }
     return this.config;
   }
@@ -131,7 +140,7 @@ export abstract class BaseModelProvider implements IModelProvider {
     if (error.response) {
       const status = error.response.status;
       const message = error.response.data?.message || error.message;
-      
+
       switch (status) {
         case 401:
           throw new AuthenticationError(message, this.name, error);
@@ -142,15 +151,20 @@ export abstract class BaseModelProvider implements IModelProvider {
           throw new APIError(message, this.name, status, error);
       }
     }
-    
-    throw new APIError(error.message || 'Unknown error', this.name, undefined, error);
+
+    throw new APIError(
+      error.message || 'Unknown error',
+      this.name,
+      undefined,
+      error,
+    );
   }
 
   /**
    * 标准化消息格式
    */
   protected normalizeMessages(messages: ChatRequest['messages']): any[] {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       role: msg.role,
       content: msg.content,
     }));
@@ -173,7 +187,11 @@ export abstract class BaseModelProvider implements IModelProvider {
   /**
    * 标准化流式响应格式
    */
-  protected normalizeStreamResponse(chunk: any, model: string, fullContent: string): StreamResponse {
+  protected normalizeStreamResponse(
+    chunk: any,
+    model: string,
+    fullContent: string,
+  ): StreamResponse {
     const delta = this.extractDelta(chunk);
     return {
       content: fullContent + delta,
@@ -189,7 +207,9 @@ export abstract class BaseModelProvider implements IModelProvider {
   // 抽象方法 - 子类必须实现
   protected abstract doInitialize(): Promise<void>;
   protected abstract doChat(request: ChatRequest): Promise<ChatResponse>;
-  protected abstract doStreamChat(request: ChatRequest): AsyncGenerator<StreamResponse>;
+  protected abstract doStreamChat(
+    request: ChatRequest,
+  ): AsyncGenerator<StreamResponse>;
   protected abstract doGetModels(): Promise<ModelInfo[]>;
   protected abstract doValidateConfig(config: ModelConfig): boolean;
 
@@ -197,16 +217,18 @@ export abstract class BaseModelProvider implements IModelProvider {
   protected abstract extractContent(response: any): string;
   protected abstract extractDelta(chunk: any): string;
   protected abstract isStreamDone(chunk: any): boolean;
-  
+
   protected extractUsage(response: any): ChatResponse['usage'] | undefined {
     return undefined;
   }
-  
-  protected extractFinishReason(response: any): ChatResponse['finishReason'] | undefined {
+
+  protected extractFinishReason(
+    response: any,
+  ): ChatResponse['finishReason'] | undefined {
     return undefined;
   }
-  
+
   protected extractMetadata(response: any): Record<string, any> | undefined {
     return undefined;
   }
-} 
+}

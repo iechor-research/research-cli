@@ -20,13 +20,15 @@ interface SubmissionCommandOptions {
 }
 
 const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
-  const [status, setStatus] = React.useState<'parsing' | 'executing' | 'completed' | 'error'>('parsing');
+  const [status, setStatus] = React.useState<
+    'parsing' | 'executing' | 'completed' | 'error'
+  >('parsing');
   const [result, setResult] = React.useState<any>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   const parseArguments = (args: string[]): SubmissionCommandOptions => {
     const options: SubmissionCommandOptions = {};
-    
+
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const nextArg = args[i + 1];
@@ -114,13 +116,13 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 
       // 这里需要调用实际的投稿包准备器
       // 现在先模拟执行
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const mockResult = {
         success: true,
         operation: options.operation,
         message: `${options.operation} operation completed successfully`,
-        details: options
+        details: options,
       };
 
       setResult(mockResult);
@@ -133,9 +135,11 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 
   React.useEffect(() => {
     const options = parseArguments(args);
-    
+
     if (!options.operation) {
-      setError('No operation specified. Use: init, template, extract, validate, prepare, package, checklist, or clean');
+      setError(
+        'No operation specified. Use: init, template, extract, validate, prepare, package, checklist, or clean',
+      );
       setStatus('error');
       return;
     }
@@ -145,52 +149,69 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 
   const renderHelp = () => (
     <Box flexDirection="column" marginY={1}>
-      <Text bold color="cyan">Research CLI - Submission Commands</Text>
-      <Text></Text>
-      
-      <Text bold color="yellow">OPERATIONS:</Text>
-      <Text>  init      - Initialize new project from template</Text>
-      <Text>  template  - Manage templates (search, fetch, cache)</Text>
-      <Text>  extract   - Extract template from arXiv paper</Text>
-      <Text>  validate  - Validate project for submission</Text>
-      <Text>  prepare   - Prepare complete submission package</Text>
-      <Text>  package   - Create submission archive</Text>
-      <Text>  checklist - Generate submission checklist</Text>
-      <Text>  clean     - Clean temporary files</Text>
+      <Text bold color="cyan">
+        Research CLI - Submission Commands
+      </Text>
       <Text></Text>
 
-      <Text bold color="yellow">EXAMPLES:</Text>
-      <Text color="gray">  # Initialize project from template</Text>
-      <Text>  /research submission init --name "my-paper" --template "nature-template"</Text>
-      <Text></Text>
-      
-      <Text color="gray">  # Search for templates</Text>
-      <Text>  /research submission template --journal "Nature"</Text>
-      <Text></Text>
-      
-      <Text color="gray">  # Extract template from arXiv</Text>
-      <Text>  /research submission extract --arxiv "2301.12345"</Text>
-      <Text></Text>
-      
-      <Text color="gray">  # Validate project</Text>
-      <Text>  /research submission validate --project "./my-project"</Text>
-      <Text></Text>
-      
-      <Text color="gray">  # Prepare submission</Text>
-      <Text>  /research submission prepare --project "./my-project" --journal "Nature"</Text>
+      <Text bold color="yellow">
+        OPERATIONS:
+      </Text>
+      <Text> init - Initialize new project from template</Text>
+      <Text> template - Manage templates (search, fetch, cache)</Text>
+      <Text> extract - Extract template from arXiv paper</Text>
+      <Text> validate - Validate project for submission</Text>
+      <Text> prepare - Prepare complete submission package</Text>
+      <Text> package - Create submission archive</Text>
+      <Text> checklist - Generate submission checklist</Text>
+      <Text> clean - Clean temporary files</Text>
       <Text></Text>
 
-      <Text bold color="yellow">OPTIONS:</Text>
-      <Text>  -p, --project &lt;path&gt;        Project directory path</Text>
-      <Text>  -n, --name &lt;name&gt;           Project name (for init)</Text>
-      <Text>  -t, --template &lt;id&gt;        Template ID</Text>
-      <Text>  -s, --source &lt;source&gt;      Template source (overleaf|arxiv|local)</Text>
-      <Text>  -a, --arxiv &lt;id&gt;          arXiv paper ID</Text>
-      <Text>  -j, --journal &lt;name&gt;       Target journal name</Text>
-      <Text>  -o, --output &lt;dir&gt;         Output directory</Text>
-      <Text>      --include-supp         Include supplementary materials</Text>
-      <Text>      --validate-only        Only validate, don't create packages</Text>
-      <Text>  -v, --verbose             Verbose output</Text>
+      <Text bold color="yellow">
+        EXAMPLES:
+      </Text>
+      <Text color="gray"> # Initialize project from template</Text>
+      <Text>
+        {' '}
+        /research submission init --name "my-paper" --template "nature-template"
+      </Text>
+      <Text></Text>
+
+      <Text color="gray"> # Search for templates</Text>
+      <Text> /research submission template --journal "Nature"</Text>
+      <Text></Text>
+
+      <Text color="gray"> # Extract template from arXiv</Text>
+      <Text> /research submission extract --arxiv "2301.12345"</Text>
+      <Text></Text>
+
+      <Text color="gray"> # Validate project</Text>
+      <Text> /research submission validate --project "./my-project"</Text>
+      <Text></Text>
+
+      <Text color="gray"> # Prepare submission</Text>
+      <Text>
+        {' '}
+        /research submission prepare --project "./my-project" --journal "Nature"
+      </Text>
+      <Text></Text>
+
+      <Text bold color="yellow">
+        OPTIONS:
+      </Text>
+      <Text> -p, --project &lt;path&gt; Project directory path</Text>
+      <Text> -n, --name &lt;name&gt; Project name (for init)</Text>
+      <Text> -t, --template &lt;id&gt; Template ID</Text>
+      <Text>
+        {' '}
+        -s, --source &lt;source&gt; Template source (overleaf|arxiv|local)
+      </Text>
+      <Text> -a, --arxiv &lt;id&gt; arXiv paper ID</Text>
+      <Text> -j, --journal &lt;name&gt; Target journal name</Text>
+      <Text> -o, --output &lt;dir&gt; Output directory</Text>
+      <Text> --include-supp Include supplementary materials</Text>
+      <Text> --validate-only Only validate, don't create packages</Text>
+      <Text> -v, --verbose Verbose output</Text>
     </Box>
   );
 
@@ -210,18 +231,20 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
                 <Text>Message: {result.message}</Text>
                 {result.details && (
                   <Box flexDirection="column" marginTop={1}>
-                    <Text bold color="cyan">Details:</Text>
+                    <Text bold color="cyan">
+                      Details:
+                    </Text>
                     {result.details.projectPath && (
-                      <Text>  Project Path: {result.details.projectPath}</Text>
+                      <Text> Project Path: {result.details.projectPath}</Text>
                     )}
                     {result.details.projectName && (
-                      <Text>  Project Name: {result.details.projectName}</Text>
+                      <Text> Project Name: {result.details.projectName}</Text>
                     )}
                     {result.details.templateId && (
-                      <Text>  Template: {result.details.templateId}</Text>
+                      <Text> Template: {result.details.templateId}</Text>
                     )}
                     {result.details.journalName && (
-                      <Text>  Journal: {result.details.journalName}</Text>
+                      <Text> Journal: {result.details.journalName}</Text>
                     )}
                   </Box>
                 )}
@@ -243,7 +266,7 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 
   const renderInitProgress = () => {
     if (status !== 'executing' || result?.operation !== 'init') return null;
-    
+
     return (
       <Box flexDirection="column" marginY={1}>
         <Text color="blue">Initializing project...</Text>
@@ -257,24 +280,31 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 
   const renderTemplateSearch = () => {
     if (status !== 'completed' || result?.operation !== 'template') return null;
-    
+
     return (
       <Box flexDirection="column" marginY={1}>
-        <Text bold color="cyan">Available Templates:</Text>
+        <Text bold color="cyan">
+          Available Templates:
+        </Text>
         <Text>• Nature Journal Template (overleaf:nature-template)</Text>
         <Text>• IEEE Conference Template (overleaf:ieee-template)</Text>
         <Text>• ACS Journal Template (overleaf:acs-template)</Text>
-        <Text color="gray">  Use --template &lt;id&gt; to select a specific template</Text>
+        <Text color="gray">
+          {' '}
+          Use --template &lt;id&gt; to select a specific template
+        </Text>
       </Box>
     );
   };
 
   const renderValidationResults = () => {
     if (status !== 'completed' || result?.operation !== 'validate') return null;
-    
+
     return (
       <Box flexDirection="column" marginY={1}>
-        <Text bold color="cyan">Validation Results:</Text>
+        <Text bold color="cyan">
+          Validation Results:
+        </Text>
         <Text color="green">✓ LaTeX compilation successful</Text>
         <Text color="green">✓ Bibliography format correct</Text>
         <Text color="yellow">⚠ Figure resolution could be improved</Text>
@@ -286,26 +316,29 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
   };
 
   const renderChecklist = () => {
-    if (status !== 'completed' || result?.operation !== 'checklist') return null;
-    
+    if (status !== 'completed' || result?.operation !== 'checklist')
+      return null;
+
     const checklistItems = [
       { name: 'LaTeX Compilation', status: 'completed' },
       { name: 'Bibliography Format', status: 'completed' },
       { name: 'Figure Quality', status: 'warning' },
       { name: 'Abstract Length', status: 'completed' },
       { name: 'Keywords', status: 'pending' },
-      { name: 'Cover Letter', status: 'pending' }
+      { name: 'Cover Letter', status: 'pending' },
     ];
 
     return (
       <Box flexDirection="column" marginY={1}>
-        <Text bold color="cyan">Submission Checklist:</Text>
+        <Text bold color="cyan">
+          Submission Checklist:
+        </Text>
         {checklistItems.map((item, index) => (
           <Text key={index}>
             {item.status === 'completed' && <Text color="green">✓</Text>}
             {item.status === 'warning' && <Text color="yellow">⚠</Text>}
-            {item.status === 'pending' && <Text color="gray">○</Text>}
-            {' '}{item.name}
+            {item.status === 'pending' && <Text color="gray">○</Text>}{' '}
+            {item.name}
           </Text>
         ))}
       </Box>
@@ -324,4 +357,4 @@ const SubmissionCommand: React.FC<SubmissionCommandProps> = ({ args }) => {
 };
 
 // Export command component
-export { SubmissionCommand }; 
+export { SubmissionCommand };

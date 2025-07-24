@@ -6,7 +6,7 @@
 
 /**
  * Research Tools Module
- * 
+ *
  * 提供完整的学术研究工具套件，包括：
  * - 论文写作工具
  * - 文献管理工具
@@ -46,7 +46,7 @@ export {
 
 /**
  * 初始化研究工具模块
- * 
+ *
  * 这个函数会：
  * 1. 注册所有可用的研究工具
  * 2. 设置默认配置
@@ -62,10 +62,12 @@ export function initializeResearchTools(): void {
   globalInitialized = true;
 
   // 延迟初始化研究工具（避免循环依赖）
-  import('./init.js').then(async (initModule) => {
-    const { ResearchToolRegistry } = await import('./registry.js');
-    initModule.initializeResearchTools(ResearchToolRegistry.getInstance());
-  }).catch(console.error);
+  import('./init.js')
+    .then(async (initModule) => {
+      const { ResearchToolRegistry } = await import('./registry.js');
+      initModule.initializeResearchTools(ResearchToolRegistry.getInstance());
+    })
+    .catch(console.error);
 }
 
 /**
@@ -92,8 +94,11 @@ export function checkModuleHealth() {
   } catch (error) {
     return {
       status: 'error' as const,
-      message: error instanceof Error ? error.message : 'Unknown error in research tools module',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error in research tools module',
       timestamp: new Date().toISOString(),
     };
   }
-} 
+}

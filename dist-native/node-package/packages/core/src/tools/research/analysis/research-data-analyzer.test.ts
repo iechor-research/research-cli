@@ -5,22 +5,18 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { 
-  ResearchDataAnalyzer, 
-  DataAnalyzerParams, 
+import {
+  ResearchDataAnalyzer,
+  DataAnalyzerParams,
   DataAnalysisResult,
   StatisticalSummary,
   DescriptiveStats,
   CorrelationAnalysis,
   HypothesisTestResult,
   MLAnalysisResult,
-  TimeSeriesAnalysis
+  TimeSeriesAnalysis,
 } from './research-data-analyzer.js';
-import { 
-  AnalysisType, 
-  DataFormat, 
-  ResearchToolCategory 
-} from '../types.js';
+import { AnalysisType, DataFormat, ResearchToolCategory } from '../types.js';
 
 describe('ResearchDataAnalyzer', () => {
   let analyzer: ResearchDataAnalyzer;
@@ -50,9 +46,9 @@ describe('ResearchDataAnalyzer', () => {
   describe('参数验证', () => {
     it('应该拒绝无效的action', () => {
       const params = {
-          action: 'invalid_action',
-          analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataPath: './test.csv'
+        action: 'invalid_action',
+        analysisTypes: [AnalysisType.DESCRIPTIVE],
+        dataPath: './test.csv',
       } as unknown as DataAnalyzerParams;
 
       expect(analyzer.validate(params)).toBe(false);
@@ -62,7 +58,7 @@ describe('ResearchDataAnalyzer', () => {
       const params = {
         action: 'analyze',
         analysisTypes: [],
-        dataPath: './test.csv'
+        dataPath: './test.csv',
       } as DataAnalyzerParams;
 
       expect(analyzer.validate(params)).toBe(false);
@@ -71,7 +67,7 @@ describe('ResearchDataAnalyzer', () => {
     it('应该拒绝缺少数据源', () => {
       const params = {
         action: 'analyze',
-        analysisTypes: [AnalysisType.DESCRIPTIVE]
+        analysisTypes: [AnalysisType.DESCRIPTIVE],
       } as DataAnalyzerParams;
 
       expect(analyzer.validate(params)).toBe(false);
@@ -81,7 +77,7 @@ describe('ResearchDataAnalyzer', () => {
       const params = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataPath: './test.csv'
+        dataPath: './test.csv',
       } as DataAnalyzerParams;
 
       expect(analyzer.validate(params)).toBe(true);
@@ -91,7 +87,7 @@ describe('ResearchDataAnalyzer', () => {
       const params = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataContent: '[{"x": 1, "y": 2}]'
+        dataContent: '[{"x": 1, "y": 2}]',
       } as DataAnalyzerParams;
 
       expect(analyzer.validate(params)).toBe(true);
@@ -101,7 +97,7 @@ describe('ResearchDataAnalyzer', () => {
   describe('帮助信息', () => {
     it('应该提供详细的帮助信息', () => {
       const help = analyzer.getHelp();
-      
+
       expect(help).toContain('研究数据分析工具使用说明');
       expect(help).toContain('action');
       expect(help).toContain('DESCRIPTIVE');
@@ -117,7 +113,7 @@ describe('ResearchDataAnalyzer', () => {
       { id: 2, age: 30, score: 92, category: 'B', salary: 60000 },
       { id: 3, age: 35, score: 78, category: 'A', salary: 70000 },
       { id: 4, age: 28, score: 88, category: 'C', salary: 55000 },
-      { id: 5, age: 32, score: 95, category: 'B', salary: 65000 }
+      { id: 5, age: 32, score: 95, category: 'B', salary: 65000 },
     ];
 
     describe('描述性统计分析', () => {
@@ -126,12 +122,12 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          includeVisualization: true
+          includeVisualization: true,
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.action).toBe('analyze');
         expect(data.results).toHaveLength(1);
@@ -144,12 +140,12 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'analyze',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
-        
+
         expect(data.summary.totalRows).toBe(5);
         expect(data.summary.totalColumns).toBe(5);
         expect(data.summary.numericColumns).toContain('age');
@@ -161,16 +157,18 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'analyze',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const descriptiveResult = data.results[0];
-        
+
         expect(descriptiveResult.descriptiveStats).toBeDefined();
-        const ageStats = descriptiveResult.descriptiveStats!.find(stat => stat.column === 'age');
-        
+        const ageStats = descriptiveResult.descriptiveStats!.find(
+          (stat) => stat.column === 'age',
+        );
+
         if (ageStats) {
           expect(ageStats.count).toBe(5);
           expect(ageStats.mean).toBeDefined();
@@ -185,13 +183,13 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          correlationMethod: 'pearson'
+          correlationMethod: 'pearson',
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const descriptiveResult = data.results[0];
-        
+
         expect(descriptiveResult.correlationAnalysis).toBeDefined();
         expect(descriptiveResult.correlationAnalysis!.method).toBe('pearson');
         expect(descriptiveResult.correlationAnalysis!.matrix).toBeDefined();
@@ -202,17 +200,19 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          includeVisualization: true
+          includeVisualization: true,
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const descriptiveResult = data.results[0];
-        
+
         expect(descriptiveResult.visualizations).toBeDefined();
         expect(descriptiveResult.visualizations.length).toBeGreaterThan(0);
-        
-        const histogram = descriptiveResult.visualizations.find(viz => viz.type === 'histogram');
+
+        const histogram = descriptiveResult.visualizations.find(
+          (viz) => viz.type === 'histogram',
+        );
         expect(histogram).toBeDefined();
       });
     });
@@ -224,12 +224,12 @@ describe('ResearchDataAnalyzer', () => {
           analysisTypes: [AnalysisType.INFERENTIAL],
           dataContent: JSON.stringify(mockData),
           targetColumn: 'score',
-          significanceLevel: 0.05
+          significanceLevel: 0.05,
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.results[0].type).toBe(AnalysisType.INFERENTIAL);
         expect(data.results[0].hypothesisTests).toBeDefined();
@@ -240,15 +240,15 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'analyze',
           analysisTypes: [AnalysisType.INFERENTIAL],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const inferentialResult = data.results[0];
-        
+
         const normalityTest = inferentialResult.hypothesisTests!.find(
-          test => test.testType === 'normality'
+          (test) => test.testType === 'normality',
         );
         expect(normalityTest).toBeDefined();
         expect(normalityTest!.testName).toContain('正态性检验');
@@ -259,15 +259,15 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.INFERENTIAL],
           dataContent: JSON.stringify(mockData),
-          targetColumn: 'score'
+          targetColumn: 'score',
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const inferentialResult = data.results[0];
-        
+
         const correlationTest = inferentialResult.hypothesisTests!.find(
-          test => test.testName.includes('相关性检验')
+          (test) => test.testName.includes('相关性检验'),
         );
         expect(correlationTest).toBeDefined();
       });
@@ -279,12 +279,12 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.MACHINE_LEARNING],
           dataContent: JSON.stringify(mockData),
-          clusteringMethod: 'kmeans'
+          clusteringMethod: 'kmeans',
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.results[0].type).toBe(AnalysisType.MACHINE_LEARNING);
         expect(data.results[0].mlResults).toBeDefined();
@@ -296,15 +296,15 @@ describe('ResearchDataAnalyzer', () => {
           action: 'analyze',
           analysisTypes: [AnalysisType.MACHINE_LEARNING],
           dataContent: JSON.stringify(mockData),
-          clusteringMethod: 'kmeans'
+          clusteringMethod: 'kmeans',
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const mlResult = data.results[0];
-        
+
         const clusteringAnalysis = mlResult.mlResults!.find(
-          ml => ml.analysisType === 'clustering'
+          (ml) => ml.analysisType === 'clustering',
         );
         expect(clusteringAnalysis).toBeDefined();
         expect(clusteringAnalysis!.algorithm).toContain('K-Means');
@@ -316,15 +316,15 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'analyze',
           analysisTypes: [AnalysisType.MACHINE_LEARNING],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const mlResult = data.results[0];
-        
+
         const pcaAnalysis = mlResult.mlResults!.find(
-          ml => ml.analysisType === 'dimensionality_reduction'
+          (ml) => ml.analysisType === 'dimensionality_reduction',
         );
         expect(pcaAnalysis).toBeDefined();
         expect(pcaAnalysis!.algorithm).toBe('PCA');
@@ -338,15 +338,15 @@ describe('ResearchDataAnalyzer', () => {
           analysisTypes: [AnalysisType.MACHINE_LEARNING],
           dataContent: JSON.stringify(mockData),
           targetColumn: 'salary',
-          regressionMethod: 'linear'
+          regressionMethod: 'linear',
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const mlResult = data.results[0];
-        
+
         const supervisionAnalysis = mlResult.mlResults!.find(
-          ml => ml.analysisType === 'regression'
+          (ml) => ml.analysisType === 'regression',
         );
         expect(supervisionAnalysis).toBeDefined();
         expect(supervisionAnalysis!.results.r2Score).toBeDefined();
@@ -360,7 +360,7 @@ describe('ResearchDataAnalyzer', () => {
         { date: '2023-02-01', value: 105 },
         { date: '2023-03-01', value: 110 },
         { date: '2023-04-01', value: 108 },
-        { date: '2023-05-01', value: 115 }
+        { date: '2023-05-01', value: 115 },
       ];
 
       it('应该执行时间序列分析', async () => {
@@ -369,12 +369,12 @@ describe('ResearchDataAnalyzer', () => {
           analysisTypes: [AnalysisType.TIME_SERIES],
           dataContent: JSON.stringify(timeSeriesData),
           timeColumn: 'date',
-          targetColumn: 'value'
+          targetColumn: 'value',
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.results[0].type).toBe(AnalysisType.TIME_SERIES);
         expect(data.results[0].timeSeriesAnalysis).toBeDefined();
@@ -386,13 +386,13 @@ describe('ResearchDataAnalyzer', () => {
           analysisTypes: [AnalysisType.TIME_SERIES],
           dataContent: JSON.stringify(timeSeriesData),
           timeColumn: 'date',
-          targetColumn: 'value'
+          targetColumn: 'value',
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const tsResult = data.results[0];
-        
+
         expect(tsResult.timeSeriesAnalysis!.trend).toBeDefined();
         expect(tsResult.timeSeriesAnalysis!.seasonality).toBeDefined();
         expect(tsResult.timeSeriesAnalysis!.stationarity).toBeDefined();
@@ -402,7 +402,7 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'analyze',
           analysisTypes: [AnalysisType.TIME_SERIES],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
           // 缺少 timeColumn
         };
 
@@ -417,12 +417,12 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'visualize',
           analysisTypes: [AnalysisType.VISUALIZATION],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.results[0].type).toBe(AnalysisType.VISUALIZATION);
         expect(data.results[0].visualizations).toBeDefined();
@@ -433,14 +433,14 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'visualize',
           analysisTypes: [AnalysisType.VISUALIZATION],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
         const vizResult = data.results[0];
-        
-        const types = vizResult.visualizations.map(viz => viz.type);
+
+        const types = vizResult.visualizations.map((viz) => viz.type);
         expect(types).toContain('histogram');
         expect(types).toContain('bar');
         expect(types).toContain('heatmap');
@@ -453,12 +453,12 @@ describe('ResearchDataAnalyzer', () => {
           action: 'explore',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          includeVisualization: true
+          includeVisualization: true,
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.action).toBe('explore');
         expect(data.results[0].recommendations).toBeDefined();
@@ -475,12 +475,12 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'explore',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataContent: JSON.stringify(dataWithMissing)
+          dataContent: JSON.stringify(dataWithMissing),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
-        
+
         expect(data.summary.missingValues.score).toBeGreaterThan(0);
         expect(data.summary.missingValues.age).toBeGreaterThan(0);
       });
@@ -491,12 +491,12 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'preprocess',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataContent: JSON.stringify(mockData)
+          dataContent: JSON.stringify(mockData),
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.action).toBe('preprocess');
         expect(data.results[0].recommendations).toBeDefined();
@@ -512,12 +512,12 @@ describe('ResearchDataAnalyzer', () => {
         const params: DataAnalyzerParams = {
           action: 'preprocess',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
-          dataContent: JSON.stringify(dataWithIssues)
+          dataContent: JSON.stringify(dataWithIssues),
         };
 
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
-        
+
         const recommendations = data.results[0].recommendations.join(' ');
         expect(recommendations).toContain('缺失值');
         expect(recommendations).toContain('异常值');
@@ -530,12 +530,12 @@ describe('ResearchDataAnalyzer', () => {
           action: 'report',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          outputFormat: 'markdown'
+          outputFormat: 'markdown',
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.report).toBeDefined();
         expect(data.report!).toContain('# 研究数据分析报告');
@@ -547,12 +547,12 @@ describe('ResearchDataAnalyzer', () => {
           action: 'report',
           analysisTypes: [AnalysisType.DESCRIPTIVE],
           dataContent: JSON.stringify(mockData),
-          outputFormat: 'html'
+          outputFormat: 'html',
         };
 
         const result = await analyzer.execute(params);
         expect(result.success).toBe(true);
-        
+
         const data = result.data as DataAnalysisResult;
         expect(data.report).toBeDefined();
         expect(data.report!).toContain('<!DOCTYPE html>');
@@ -566,7 +566,7 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataContent: 'invalid json'
+        dataContent: 'invalid json',
       };
 
       const result = await analyzer.execute(params);
@@ -578,7 +578,7 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataContent: '[]'
+        dataContent: '[]',
       };
 
       const result = await analyzer.execute(params);
@@ -590,7 +590,7 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: ['UNSUPPORTED_TYPE' as AnalysisType],
-        dataContent: JSON.stringify([{ x: 1 }])
+        dataContent: JSON.stringify([{ x: 1 }]),
       };
 
       const result = await analyzer.execute(params);
@@ -604,23 +604,23 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [
-          AnalysisType.DESCRIPTIVE, 
+          AnalysisType.DESCRIPTIVE,
           AnalysisType.INFERENTIAL,
-          AnalysisType.MACHINE_LEARNING
+          AnalysisType.MACHINE_LEARNING,
         ],
         dataContent: JSON.stringify(mockData),
-        includeVisualization: true
+        includeVisualization: true,
       };
 
       const result = await analyzer.execute(params);
       expect(result.success).toBe(true);
-      
+
       const data = result.data as DataAnalysisResult;
       expect(data.results).toHaveLength(3);
-      expect(data.results.map(r => r.type)).toEqual([
+      expect(data.results.map((r) => r.type)).toEqual([
         AnalysisType.DESCRIPTIVE,
         AnalysisType.INFERENTIAL,
-        AnalysisType.MACHINE_LEARNING
+        AnalysisType.MACHINE_LEARNING,
       ]);
     });
 
@@ -628,15 +628,15 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE, AnalysisType.INFERENTIAL],
-        dataContent: JSON.stringify(mockData)
+        dataContent: JSON.stringify(mockData),
       };
 
       const result = await analyzer.execute(params);
       const data = result.data as DataAnalysisResult;
-      
+
       expect(data.recommendations).toBeDefined();
       expect(data.recommendations.length).toBeGreaterThan(0);
-      
+
       // 验证去重功能
       const uniqueRecommendations = new Set(data.recommendations);
       expect(uniqueRecommendations.size).toBe(data.recommendations.length);
@@ -648,12 +648,12 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataContent: JSON.stringify(mockData)
+        dataContent: JSON.stringify(mockData),
       };
 
       const result = await analyzer.execute(params);
       const data = result.data as DataAnalysisResult;
-      
+
       expect(data.executionTime).toBeDefined();
       expect(data.executionTime).toBeGreaterThan(0);
     });
@@ -662,11 +662,11 @@ describe('ResearchDataAnalyzer', () => {
       const params: DataAnalyzerParams = {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        dataContent: JSON.stringify(mockData)
+        dataContent: JSON.stringify(mockData),
       };
 
       const result = await analyzer.execute(params);
-      
+
       expect(result.metadata).toBeDefined();
       expect(result.metadata!.toolName).toBe('research_data_analyzer');
       expect(result.metadata!.version).toBe('1.0.0');
@@ -680,13 +680,13 @@ describe('ResearchDataAnalyzer', () => {
         action: 'analyze',
         analysisTypes: [AnalysisType.DESCRIPTIVE],
         dataContent: JSON.stringify(mockData),
-        correlationMethod: 'spearman'
+        correlationMethod: 'spearman',
       };
 
       const result = await analyzer.execute(params);
       const data = result.data as DataAnalysisResult;
       const correlationAnalysis = data.results[0].correlationAnalysis;
-      
+
       expect(correlationAnalysis?.method).toBe('spearman');
     });
 
@@ -695,14 +695,16 @@ describe('ResearchDataAnalyzer', () => {
         action: 'analyze',
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
         dataContent: JSON.stringify(mockData),
-        clusteringMethod: 'hierarchical'
+        clusteringMethod: 'hierarchical',
       };
 
       const result = await analyzer.execute(params);
       const data = result.data as DataAnalysisResult;
       const mlResults = data.results[0].mlResults;
-      
-      const clusteringResult = mlResults?.find(ml => ml.analysisType === 'clustering');
+
+      const clusteringResult = mlResults?.find(
+        (ml) => ml.analysisType === 'clustering',
+      );
       expect(clusteringResult).toBeDefined();
     });
 
@@ -711,12 +713,12 @@ describe('ResearchDataAnalyzer', () => {
         action: 'analyze',
         analysisTypes: [AnalysisType.INFERENTIAL],
         dataContent: JSON.stringify(mockData),
-        significanceLevel: 0.01
+        significanceLevel: 0.01,
       };
 
       const result = await analyzer.execute(params);
       expect(result.success).toBe(true);
-      
+
       // 验证参数被正确传递
       const data = result.data as DataAnalysisResult;
       expect(data.results[0].hypothesisTests).toBeDefined();
@@ -734,5 +736,5 @@ const mockData = [
   { id: 7, age: 33, score: 90, category: 'C', salary: 68000 },
   { id: 8, age: 27, score: 87, category: 'B', salary: 58000 },
   { id: 9, age: 31, score: 93, category: 'A', salary: 72000 },
-  { id: 10, age: 26, score: 80, category: 'C', salary: 48000 }
-]; 
+  { id: 10, age: 26, score: 80, category: 'C', salary: 48000 },
+];

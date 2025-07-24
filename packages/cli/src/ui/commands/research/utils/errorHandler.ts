@@ -17,7 +17,7 @@ export enum ResearchErrorType {
   INVALID_FORMAT = 'INVALID_FORMAT',
   NETWORK_ERROR = 'NETWORK_ERROR',
   PERMISSION_DENIED = 'PERMISSION_DENIED',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 /**
@@ -32,7 +32,7 @@ export class ResearchCommandError extends Error {
     message: string,
     type: ResearchErrorType = ResearchErrorType.UNKNOWN_ERROR,
     suggestions: string[] = [],
-    details?: any
+    details?: any,
   ) {
     super(message);
     this.name = 'ResearchCommandError';
@@ -59,47 +59,54 @@ export function handleResearchError(error: unknown): ErrorHandlerResult {
     return {
       message: formatError(error.message),
       suggestions: error.suggestions,
-      shouldRetry: error.type === ResearchErrorType.NETWORK_ERROR
+      shouldRetry: error.type === ResearchErrorType.NETWORK_ERROR,
     };
   }
 
   if (error instanceof Error) {
     // 识别常见错误模式并提供有用建议
     const errorMessage = error.message.toLowerCase();
-    
+
     if (errorMessage.includes('not found') || errorMessage.includes('enoent')) {
       return {
         message: formatError('File or directory not found'),
         suggestions: [
           'Check if the file path is correct',
           'Make sure the file exists',
-          'Try using absolute paths instead of relative paths'
+          'Try using absolute paths instead of relative paths',
         ],
-        shouldRetry: false
+        shouldRetry: false,
       };
     }
 
-    if (errorMessage.includes('permission') || errorMessage.includes('eacces')) {
+    if (
+      errorMessage.includes('permission') ||
+      errorMessage.includes('eacces')
+    ) {
       return {
         message: formatError('Permission denied'),
         suggestions: [
           'Check file permissions',
           'Make sure you have read/write access',
-          'Try running with appropriate permissions'
+          'Try running with appropriate permissions',
         ],
-        shouldRetry: false
+        shouldRetry: false,
       };
     }
 
-    if (errorMessage.includes('network') || errorMessage.includes('timeout') || errorMessage.includes('connect')) {
+    if (
+      errorMessage.includes('network') ||
+      errorMessage.includes('timeout') ||
+      errorMessage.includes('connect')
+    ) {
       return {
         message: formatError('Network connection failed'),
         suggestions: [
           'Check your internet connection',
           'Verify the service is available',
-          'Try again in a few minutes'
+          'Try again in a few minutes',
         ],
-        shouldRetry: true
+        shouldRetry: true,
       };
     }
 
@@ -109,16 +116,16 @@ export function handleResearchError(error: unknown): ErrorHandlerResult {
         suggestions: [
           'Check the command syntax',
           'Verify file format is correct',
-          'Use --help for usage information'
+          'Use --help for usage information',
         ],
-        shouldRetry: false
+        shouldRetry: false,
       };
     }
 
     return {
       message: formatError(error.message),
       suggestions: ['Try using --help for more information'],
-      shouldRetry: false
+      shouldRetry: false,
     };
   }
 
@@ -127,9 +134,9 @@ export function handleResearchError(error: unknown): ErrorHandlerResult {
     suggestions: [
       'Try running the command again',
       'Check the command syntax',
-      'Use --help for usage information'
+      'Use --help for usage information',
     ],
-    shouldRetry: false
+    shouldRetry: false,
   };
 }
 
@@ -139,7 +146,7 @@ export function handleResearchError(error: unknown): ErrorHandlerResult {
 export function validateArguments(
   args: string[],
   required: number,
-  commandName: string
+  commandName: string,
 ): void {
   if (args.length < required) {
     throw new ResearchCommandError(
@@ -148,8 +155,8 @@ export function validateArguments(
       [
         `Use /${commandName} help to see usage information`,
         'Check the command syntax',
-        'Make sure all required arguments are provided'
-      ]
+        'Make sure all required arguments are provided',
+      ],
     );
   }
 }
@@ -160,7 +167,7 @@ export function validateArguments(
 export function validateOption(
   value: string | undefined,
   validValues: string[],
-  optionName: string
+  optionName: string,
 ): void {
   if (value && !validValues.includes(value)) {
     throw new ResearchCommandError(
@@ -168,8 +175,8 @@ export function validateOption(
       ResearchErrorType.INVALID_ARGUMENTS,
       [
         `Valid values are: ${validValues.join(', ')}`,
-        `Use /${optionName} help for more information`
-      ]
+        `Use /${optionName} help for more information`,
+      ],
     );
   }
 }
@@ -187,8 +194,8 @@ export function validateFileExists(filePath: string): void {
         [
           'Check if the file path is correct',
           'Make sure the file exists',
-          'Use absolute paths if relative paths are not working'
-        ]
+          'Use absolute paths if relative paths are not working',
+        ],
       );
     }
   } catch (error) {
@@ -198,10 +205,7 @@ export function validateFileExists(filePath: string): void {
     throw new ResearchCommandError(
       `Cannot access file: ${filePath}`,
       ResearchErrorType.PERMISSION_DENIED,
-      [
-        'Check file permissions',
-        'Make sure you have read access to the file'
-      ]
+      ['Check file permissions', 'Make sure you have read access to the file'],
     );
   }
 }
@@ -211,7 +215,7 @@ export function validateFileExists(filePath: string): void {
  */
 export async function executeWithErrorHandling<T>(
   operation: () => Promise<T>,
-  operationName: string
+  operationName: string,
 ): Promise<T> {
   try {
     return await operation();
@@ -226,9 +230,9 @@ export async function executeWithErrorHandling<T>(
       [
         'Check your input parameters',
         'Verify the tool is properly configured',
-        'Try running the command again'
+        'Try running the command again',
       ],
-      error
+      error,
     );
   }
 }
@@ -236,11 +240,14 @@ export async function executeWithErrorHandling<T>(
 /**
  * 格式化警告消息
  */
-export function formatValidationWarning(message: string, suggestions: string[] = []): string {
+export function formatValidationWarning(
+  message: string,
+  suggestions: string[] = [],
+): string {
   let result = formatWarning(message);
   if (suggestions.length > 0) {
     result += '\n\nSuggestions:\n';
-    result += suggestions.map(s => `  • ${s}`).join('\n');
+    result += suggestions.map((s) => `  • ${s}`).join('\n');
   }
   return result;
-} 
+}

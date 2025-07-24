@@ -8,7 +8,7 @@ import {
   JournalStyle,
   OutlineSection,
   OutlineSubsection,
-  ResearchToolCategory
+  ResearchToolCategory,
 } from '../types.js';
 
 export interface PaperOutlineParams extends ResearchToolParams {
@@ -23,12 +23,15 @@ export interface PaperOutlineParams extends ResearchToolParams {
   maxSections?: number;
 }
 
-export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, PaperOutline> {
+export class PaperOutlineGenerator extends BaseResearchTool<
+  PaperOutlineParams,
+  PaperOutline
+> {
   constructor() {
     super(
       'generate_paper_outline',
       'Generate structured paper outline',
-      ResearchToolCategory.WRITING
+      ResearchToolCategory.WRITING,
     );
   }
 
@@ -47,28 +50,74 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     return this.formatHelp(
       'Generate a structured paper outline based on research topic and requirements',
       [
-        { name: 'title', type: 'string', required: true, description: 'Paper title' },
-        { name: 'researchTopic', type: 'string', required: true, description: 'Research topic description' },
-        { name: 'paperType', type: 'PaperType', required: true, description: 'Type of paper (survey, experimental, etc.)' },
-        { name: 'researchField', type: 'ResearchField', required: true, description: 'Research field' },
-        { name: 'targetJournal', type: 'string', required: false, description: 'Target journal name' },
-        { name: 'journalStyle', type: 'JournalStyle', required: false, description: 'Citation style preference' },
-        { name: 'includeTimeline', type: 'boolean', required: false, description: 'Include research timeline' },
-        { name: 'customSections', type: 'string[]', required: false, description: 'Additional custom sections' },
-        { name: 'maxSections', type: 'number', required: false, description: 'Maximum number of sections' }
+        {
+          name: 'title',
+          type: 'string',
+          required: true,
+          description: 'Paper title',
+        },
+        {
+          name: 'researchTopic',
+          type: 'string',
+          required: true,
+          description: 'Research topic description',
+        },
+        {
+          name: 'paperType',
+          type: 'PaperType',
+          required: true,
+          description: 'Type of paper (survey, experimental, etc.)',
+        },
+        {
+          name: 'researchField',
+          type: 'ResearchField',
+          required: true,
+          description: 'Research field',
+        },
+        {
+          name: 'targetJournal',
+          type: 'string',
+          required: false,
+          description: 'Target journal name',
+        },
+        {
+          name: 'journalStyle',
+          type: 'JournalStyle',
+          required: false,
+          description: 'Citation style preference',
+        },
+        {
+          name: 'includeTimeline',
+          type: 'boolean',
+          required: false,
+          description: 'Include research timeline',
+        },
+        {
+          name: 'customSections',
+          type: 'string[]',
+          required: false,
+          description: 'Additional custom sections',
+        },
+        {
+          name: 'maxSections',
+          type: 'number',
+          required: false,
+          description: 'Maximum number of sections',
+        },
       ],
       [
         {
-          description: 'Generate outline for an experimental computer science paper',
+          description:
+            'Generate outline for an experimental computer science paper',
           params: {
             title: 'Novel Machine Learning Approach for Data Analysis',
             researchTopic: 'Machine learning optimization',
             paperType: 'experimental',
             researchField: 'computer_science',
-            includeTimeline: true
-          }
-        }
-      ]
+            includeTimeline: true,
+          },
+        },
+      ],
     );
   }
 
@@ -90,21 +139,25 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     }
   }
 
-  protected async executeImpl(params: PaperOutlineParams): Promise<PaperOutline> {
+  protected async executeImpl(
+    params: PaperOutlineParams,
+  ): Promise<PaperOutline> {
     // Generate sections based on paper type and journal requirements
     const sections = this.generateSections(params);
-    
+
     // Create timeline if requested
-    const timeline = params.includeTimeline ? this.generateTimeline(sections.length) : undefined;
-    
+    const timeline = params.includeTimeline
+      ? this.generateTimeline(sections.length)
+      : undefined;
+
     // Generate abstract structure
     const abstractStructure = this.generateAbstractStructure(params.paperType);
-    
+
     // Create bibliography requirements
     const bibliographyRequirements = this.generateBibliographyRequirements(
       params.paperType,
       params.researchField,
-      params.journalStyle
+      params.journalStyle,
     );
 
     return {
@@ -119,24 +172,29 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
       timeline,
       estimatedLength: this.estimateLength(sections, params.paperType),
       generatedAt: new Date().toISOString(),
-      version: '1.0'
+      version: '1.0',
     };
   }
 
   private generateSections(params: PaperOutlineParams): OutlineSection[] {
-    const baseSections = this.getBaseSections(params.paperType, params.researchField);
-    
+    const baseSections = this.getBaseSections(
+      params.paperType,
+      params.researchField,
+    );
+
     // Add custom sections if provided
     if (params.customSections?.length) {
-      const customSecs: OutlineSection[] = params.customSections.map((title, index) => ({
-        id: `custom_${index + 1}`,
-        title,
-        description: `Custom section: ${title}`,
-        subsections: [],
-        estimatedPages: 2,
-        keyPoints: [],
-        required: false
-      }));
+      const customSecs: OutlineSection[] = params.customSections.map(
+        (title, index) => ({
+          id: `custom_${index + 1}`,
+          title,
+          description: `Custom section: ${title}`,
+          subsections: [],
+          estimatedPages: 2,
+          keyPoints: [],
+          required: false,
+        }),
+      );
       baseSections.push(...customSecs);
     }
 
@@ -148,7 +206,10 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     return baseSections;
   }
 
-  private getBaseSections(paperType: PaperType, field: ResearchField): OutlineSection[] {
+  private getBaseSections(
+    paperType: PaperType,
+    field: ResearchField,
+  ): OutlineSection[] {
     const sections: OutlineSection[] = [];
 
     // Introduction (always required)
@@ -160,38 +221,39 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
         {
           id: 'background',
           title: 'Background',
-          description: 'Context and motivation for the research'
+          description: 'Context and motivation for the research',
         },
         {
           id: 'problem_statement',
           title: 'Problem Statement',
-          description: 'Clear definition of the research problem'
+          description: 'Clear definition of the research problem',
         },
         {
           id: 'objectives',
           title: 'Research Objectives',
-          description: 'Specific goals and research questions'
+          description: 'Specific goals and research questions',
         },
         {
           id: 'contributions',
           title: 'Contributions',
-          description: 'Main contributions of this work'
-        }
+          description: 'Main contributions of this work',
+        },
       ],
       estimatedPages: 3,
       keyPoints: [
         'Clear problem statement',
         'Research motivation',
         'Specific objectives',
-        'Paper organization'
+        'Paper organization',
       ],
-      required: true
+      required: true,
     });
 
     // Literature Review/Related Work
     sections.push({
       id: 'related_work',
-      title: paperType === PaperType.SURVEY ? 'Literature Survey' : 'Related Work',
+      title:
+        paperType === PaperType.SURVEY ? 'Literature Survey' : 'Related Work',
       description: 'Review of existing literature and related research',
       subsections: this.getRelatedWorkSubsections(paperType, field),
       estimatedPages: paperType === PaperType.SURVEY ? 8 : 4,
@@ -199,9 +261,9 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
         'Comprehensive literature review',
         'Gap identification',
         'Comparative analysis',
-        'Positioning of current work'
+        'Positioning of current work',
       ],
-      required: true
+      required: true,
     });
 
     // Add methodology/approach section based on paper type
@@ -213,7 +275,7 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
         subsections: this.getMethodologySubsections(paperType, field),
         estimatedPages: paperType === PaperType.EXPERIMENTAL ? 5 : 4,
         keyPoints: this.getMethodologyKeyPoints(paperType),
-        required: true
+        required: true,
       });
     }
 
@@ -227,27 +289,27 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'experimental_setup',
             title: 'Experimental Setup',
-            description: 'Description of experimental configuration'
+            description: 'Description of experimental configuration',
           },
           {
             id: 'results',
             title: 'Results',
-            description: 'Presentation of experimental results'
+            description: 'Presentation of experimental results',
           },
           {
             id: 'analysis',
             title: 'Analysis and Discussion',
-            description: 'Analysis and interpretation of results'
-          }
+            description: 'Analysis and interpretation of results',
+          },
         ],
         estimatedPages: 6,
         keyPoints: [
           'Clear experimental design',
           'Comprehensive results',
           'Statistical analysis',
-          'Discussion of findings'
+          'Discussion of findings',
         ],
-        required: true
+        required: true,
       });
     }
 
@@ -261,27 +323,27 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'validation_method',
             title: 'Validation Method',
-            description: 'Approach for validating the theoretical work'
+            description: 'Approach for validating the theoretical work',
           },
           {
             id: 'case_studies',
             title: 'Case Studies',
-            description: 'Application examples and case studies'
+            description: 'Application examples and case studies',
           },
           {
             id: 'comparison',
             title: 'Comparison',
-            description: 'Comparison with existing approaches'
-          }
+            description: 'Comparison with existing approaches',
+          },
         ],
         estimatedPages: 4,
         keyPoints: [
           'Validation methodology',
           'Concrete examples',
           'Comparative analysis',
-          'Limitations discussion'
+          'Limitations discussion',
         ],
-        required: true
+        required: true,
       });
     }
 
@@ -295,27 +357,27 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'implications',
             title: 'Implications',
-            description: 'Theoretical and practical implications'
+            description: 'Theoretical and practical implications',
           },
           {
             id: 'limitations',
             title: 'Limitations',
-            description: 'Study limitations and constraints'
+            description: 'Study limitations and constraints',
           },
           {
             id: 'future_work',
             title: 'Future Work',
-            description: 'Directions for future research'
-          }
+            description: 'Directions for future research',
+          },
         ],
         estimatedPages: 2,
         keyPoints: [
           'Research implications',
           'Honest limitations',
           'Future directions',
-          'Broader impact'
+          'Broader impact',
         ],
-        required: true
+        required: true,
       });
     }
 
@@ -328,39 +390,42 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
         {
           id: 'summary',
           title: 'Summary',
-          description: 'Summary of main findings and contributions'
+          description: 'Summary of main findings and contributions',
         },
         {
           id: 'final_remarks',
           title: 'Final Remarks',
-          description: 'Concluding thoughts and recommendations'
-        }
+          description: 'Concluding thoughts and recommendations',
+        },
       ],
       estimatedPages: 1,
       keyPoints: [
         'Clear summary',
         'Key contributions',
         'Final thoughts',
-        'Call to action'
+        'Call to action',
       ],
-      required: true
+      required: true,
     });
 
     return sections;
   }
 
-  private getRelatedWorkSubsections(paperType: PaperType, field: ResearchField): OutlineSubsection[] {
+  private getRelatedWorkSubsections(
+    paperType: PaperType,
+    field: ResearchField,
+  ): OutlineSubsection[] {
     const base: OutlineSubsection[] = [
       {
         id: 'background_theory',
         title: 'Background and Theory',
-        description: 'Fundamental concepts and theoretical background'
+        description: 'Fundamental concepts and theoretical background',
       },
       {
         id: 'existing_approaches',
         title: 'Existing Approaches',
-        description: 'Review of current state-of-the-art methods'
-      }
+        description: 'Review of current state-of-the-art methods',
+      },
     ];
 
     if (paperType === PaperType.SURVEY) {
@@ -368,24 +433,24 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
         {
           id: 'classification',
           title: 'Classification and Taxonomy',
-          description: 'Classification of existing approaches'
+          description: 'Classification of existing approaches',
         },
         {
           id: 'comparative_analysis',
           title: 'Comparative Analysis',
-          description: 'Detailed comparison of different methods'
+          description: 'Detailed comparison of different methods',
         },
         {
           id: 'open_challenges',
           title: 'Open Challenges',
-          description: 'Identification of current challenges and gaps'
-        }
+          description: 'Identification of current challenges and gaps',
+        },
       );
     } else {
       base.push({
         id: 'gap_analysis',
         title: 'Gap Analysis',
-        description: 'Identification of research gaps and opportunities'
+        description: 'Identification of research gaps and opportunities',
       });
     }
 
@@ -407,7 +472,10 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     }
   }
 
-  private getMethodologySubsections(paperType: PaperType, field: ResearchField): OutlineSubsection[] {
+  private getMethodologySubsections(
+    paperType: PaperType,
+    field: ResearchField,
+  ): OutlineSubsection[] {
     const base: OutlineSubsection[] = [];
 
     switch (paperType) {
@@ -416,18 +484,18 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'theoretical_foundation',
             title: 'Theoretical Foundation',
-            description: 'Mathematical or theoretical basis'
+            description: 'Mathematical or theoretical basis',
           },
           {
             id: 'formal_model',
             title: 'Formal Model',
-            description: 'Formal representation and model definition'
+            description: 'Formal representation and model definition',
           },
           {
             id: 'properties',
             title: 'Properties and Analysis',
-            description: 'Analysis of model properties and characteristics'
-          }
+            description: 'Analysis of model properties and characteristics',
+          },
         );
         break;
 
@@ -436,18 +504,18 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'research_design',
             title: 'Research Design',
-            description: 'Overall experimental design and approach'
+            description: 'Overall experimental design and approach',
           },
           {
             id: 'data_collection',
             title: 'Data Collection',
-            description: 'Data sources and collection methodology'
+            description: 'Data sources and collection methodology',
           },
           {
             id: 'analysis_methods',
             title: 'Analysis Methods',
-            description: 'Statistical and analytical methods'
-          }
+            description: 'Statistical and analytical methods',
+          },
         );
         break;
 
@@ -456,18 +524,18 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'study_design',
             title: 'Study Design',
-            description: 'Empirical study design and methodology'
+            description: 'Empirical study design and methodology',
           },
           {
             id: 'participants',
             title: 'Participants and Setting',
-            description: 'Study participants and environmental setup'
+            description: 'Study participants and environmental setup',
           },
           {
             id: 'measures',
             title: 'Measures and Procedures',
-            description: 'Measurement instruments and procedures'
-          }
+            description: 'Measurement instruments and procedures',
+          },
         );
         break;
 
@@ -476,13 +544,13 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           {
             id: 'approach_overview',
             title: 'Approach Overview',
-            description: 'High-level description of the proposed approach'
+            description: 'High-level description of the proposed approach',
           },
           {
             id: 'detailed_method',
             title: 'Detailed Method',
-            description: 'Step-by-step description of the method'
-          }
+            description: 'Step-by-step description of the method',
+          },
         );
     }
 
@@ -490,7 +558,11 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
   }
 
   private getMethodologyKeyPoints(paperType: PaperType): string[] {
-    const base = ['Clear methodology', 'Reproducible approach', 'Justified decisions'];
+    const base = [
+      'Clear methodology',
+      'Reproducible approach',
+      'Justified decisions',
+    ];
 
     switch (paperType) {
       case PaperType.THEORETICAL:
@@ -513,28 +585,28 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
           ...base,
           'Survey scope and methodology',
           'Key findings and classifications',
-          'Open challenges and future directions'
+          'Open challenges and future directions',
         ];
       case PaperType.THEORETICAL:
         return [
           ...base,
           'Theoretical approach and contributions',
           'Key results and properties',
-          'Implications and applications'
+          'Implications and applications',
         ];
       case PaperType.EXPERIMENTAL:
         return [
           ...base,
           'Methodology and experimental design',
           'Key results and findings',
-          'Conclusions and implications'
+          'Conclusions and implications',
         ];
       default:
         return [
           ...base,
           'Proposed approach and method',
           'Evaluation and results',
-          'Main contributions and conclusions'
+          'Main contributions and conclusions',
         ];
     }
   }
@@ -542,8 +614,12 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
   private generateBibliographyRequirements(
     paperType: PaperType,
     field: ResearchField,
-    style?: JournalStyle
-  ): { minReferences: number; recommendedTypes: string[]; citationStyle: JournalStyle } {
+    style?: JournalStyle,
+  ): {
+    minReferences: number;
+    recommendedTypes: string[];
+    citationStyle: JournalStyle;
+  } {
     let minReferences: number;
     let recommendedTypes: string[];
 
@@ -551,19 +627,39 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     switch (paperType) {
       case PaperType.SURVEY:
         minReferences = 80;
-        recommendedTypes = ['journal articles', 'conference papers', 'technical reports', 'books'];
+        recommendedTypes = [
+          'journal articles',
+          'conference papers',
+          'technical reports',
+          'books',
+        ];
         break;
       case PaperType.THEORETICAL:
         minReferences = 30;
-        recommendedTypes = ['journal articles', 'conference papers', 'books', 'technical reports'];
+        recommendedTypes = [
+          'journal articles',
+          'conference papers',
+          'books',
+          'technical reports',
+        ];
         break;
       case PaperType.EXPERIMENTAL:
         minReferences = 40;
-        recommendedTypes = ['journal articles', 'conference papers', 'datasets', 'software'];
+        recommendedTypes = [
+          'journal articles',
+          'conference papers',
+          'datasets',
+          'software',
+        ];
         break;
       case PaperType.EMPIRICAL:
         minReferences = 50;
-        recommendedTypes = ['journal articles', 'conference papers', 'reports', 'datasets'];
+        recommendedTypes = [
+          'journal articles',
+          'conference papers',
+          'reports',
+          'datasets',
+        ];
         break;
       default:
         minReferences = 25;
@@ -571,59 +667,71 @@ export class PaperOutlineGenerator extends BaseResearchTool<PaperOutlineParams, 
     }
 
     // Adjust based on research field
-    if ([ResearchField.COMPUTER_SCIENCE, ResearchField.ENGINEERING].includes(field)) {
+    if (
+      [ResearchField.COMPUTER_SCIENCE, ResearchField.ENGINEERING].includes(
+        field,
+      )
+    ) {
       recommendedTypes.push('software repositories', 'technical standards');
     }
 
     return {
       minReferences,
       recommendedTypes,
-      citationStyle: style || JournalStyle.IEEE
+      citationStyle: style || JournalStyle.IEEE,
     };
   }
 
-  private generateTimeline(sectionCount: number): { phase: string; duration: string; description: string }[] {
+  private generateTimeline(
+    sectionCount: number,
+  ): { phase: string; duration: string; description: string }[] {
     const baseWeeks = Math.max(8, sectionCount * 2);
     const phases = [
       {
         phase: 'Literature Review',
         duration: `${Math.ceil(baseWeeks * 0.25)} weeks`,
-        description: 'Comprehensive review of existing literature'
+        description: 'Comprehensive review of existing literature',
       },
       {
         phase: 'Research and Development',
         duration: `${Math.ceil(baseWeeks * 0.4)} weeks`,
-        description: 'Core research work and methodology development'
+        description: 'Core research work and methodology development',
       },
       {
         phase: 'Experimentation/Validation',
         duration: `${Math.ceil(baseWeeks * 0.2)} weeks`,
-        description: 'Experiments, validation, and result analysis'
+        description: 'Experiments, validation, and result analysis',
       },
       {
         phase: 'Writing and Review',
         duration: `${Math.ceil(baseWeeks * 0.15)} weeks`,
-        description: 'Paper writing and internal review'
-      }
+        description: 'Paper writing and internal review',
+      },
     ];
 
     return phases;
   }
 
-  private estimateLength(sections: OutlineSection[], paperType: PaperType): { pages: number; words: number } {
-    const totalPages = sections.reduce((sum, section) => sum + section.estimatedPages, 0);
-    
+  private estimateLength(
+    sections: OutlineSection[],
+    paperType: PaperType,
+  ): { pages: number; words: number } {
+    const totalPages = sections.reduce(
+      (sum, section) => sum + section.estimatedPages,
+      0,
+    );
+
     // Add pages for references, appendices, etc.
     const additionalPages = paperType === PaperType.SURVEY ? 8 : 4;
     const finalPages = totalPages + additionalPages;
-    
+
     // Estimate words (approximately 300-400 words per page for academic papers)
     const wordsPerPage = 350;
     const estimatedWords = finalPages * wordsPerPage;
 
     return {
       pages: finalPages,
-      words: estimatedWords
+      words: estimatedWords,
     };
   }
-} 
+}

@@ -1,0 +1,20 @@
+{
+  "defaultProvider": "qwen",
+  "defaultModel": "qwen-turbo",
+  "providers": {
+    "qwen": {
+      "apiKey": "sk-296434b603504719b9f5aca8286f5166",
+      "baseUrl": "https://dashscope.aliyuncs.com/api/v1",
+      "models": ["qwen-turbo", "qwen-plus", "qwen-max"],
+      "defaultModel": "qwen-turbo",
+      "timeout": 30000,
+      "retryAttempts": 3,
+      "retryDelay": 1000
+    }
+  },
+  "globalConfig": {
+    "temperature": 0.7,
+    "maxTokens": 2048,
+    "topP": 1.0
+  }
+} 

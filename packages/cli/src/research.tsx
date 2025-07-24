@@ -251,7 +251,9 @@ export async function main() {
 
 function setWindowTitle(title: string, settings: LoadedSettings) {
   if (!settings.merged.hideWindowTitle) {
-    const windowTitle = (process.env.CLI_TITLE || `Research - ${title}`).replace(
+    const windowTitle = (
+      process.env.CLI_TITLE || `Research - ${title}`
+    ).replace(
       // eslint-disable-next-line no-control-regex
       /[\x00-\x1F\x7F]/g,
       '',
@@ -325,7 +327,7 @@ async function validateNonInterActiveAuth(
   // making a special case for the cli. many headless environments might not have a settings.json set
   // so if GEMINI_API_KEY  is set, we'll use that. However since the oauth things are interactive anyway, we'll
   // still expect that exists
-  if (!selectedAuthType && !process.env.GEMINI_API_KEY ) {
+  if (!selectedAuthType && !process.env.GEMINI_API_KEY) {
     console.error(
       `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify GEMINI_API_KEY  env variable file before running`,
     );

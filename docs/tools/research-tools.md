@@ -80,20 +80,28 @@ research-cli
 # Deep Learning for Natural Language Processing: A Comprehensive Survey
 
 ## Abstract (200-250 words)
+
 - Background and motivation
 - Scope and objectives
 - Main contributions
 - Key findings
 
 ## 1. Introduction (800-1000 words)
+
 ### 1.1 Background
+
 ### 1.2 Motivation
+
 ### 1.3 Contributions
+
 ### 1.4 Paper Structure
 
 ## 2. Related Work (1200-1500 words)
+
 ### 2.1 Traditional NLP Methods
+
 ### 2.2 Early Deep Learning Approaches
+
 ### 2.3 Recent Advances
 
 ...
@@ -377,6 +385,7 @@ my-paper/
 # 期刊匹配结果
 
 ## 1. Nature Machine Intelligence (匹配度: 95%)
+
 - **影响因子**: 25.898
 - **研究领域**: 人工智能, 机器学习
 - **接收率**: 8%
@@ -384,6 +393,7 @@ my-paper/
 - **开放获取**: 混合模式
 
 ## 2. IEEE Transactions on Pattern Analysis and Machine Intelligence (匹配度: 88%)
+
 - **影响因子**: 17.861
 - **研究领域**: 计算机视觉, 模式识别
 - **接收率**: 14%
@@ -502,48 +512,53 @@ Research-CLI 提供了直观的斜杠命令界面。
 ### 研究工作流建议
 
 1. **项目初始化**
+
    ```bash
    # 创建研究项目
    mkdir my-research-project
    cd my-research-project
-   
+
    # 初始化配置
    research-cli config init
    ```
 
 2. **文献调研**
+
    ```bash
    # 搜索相关文献
    /research search "your research topic" --source=arxiv --limit=20
-   
+
    # 管理文献
    /paper bib search "specific keywords" --sources=arxiv,scholar
    ```
 
 3. **论文写作**
+
    ```bash
    # 生成大纲
    /paper outline EXPERIMENTAL COMPUTER_SCIENCE --journal="Target Journal"
-   
+
    # 逐步写作
    /paper write introduction --style=academic
    /paper write methodology --style=technical
    ```
 
 4. **数据分析**
+
    ```bash
    # 生成实验代码
    /research experiment python ml --output=./experiments
-   
+
    # 分析结果
    /research data analyze results.csv --type=all --format=report
    ```
 
 5. **投稿准备**
+
    ```bash
    # 匹配期刊
    /submit match "Paper Title" "Abstract text" --field=COMPUTER_SCIENCE
-   
+
    # 准备投稿包
    /submit prepare package --project=./paper --journal="Nature"
    ```
@@ -578,11 +593,13 @@ Research-CLI 提供了直观的斜杠命令界面。
 #### 1. LaTeX 编译错误
 
 **问题**: LaTeX 文档编译失败
+
 ```bash
 Error: LaTeX compilation failed with exit code 1
 ```
 
 **解决方案**:
+
 ```bash
 # 检查 LaTeX 安装
 /submit latex check ./project
@@ -597,11 +614,13 @@ Error: LaTeX compilation failed with exit code 1
 #### 2. 文献搜索失败
 
 **问题**: 无法连接到学术数据库
+
 ```bash
 Error: Failed to connect to arXiv API
 ```
 
 **解决方案**:
+
 ```bash
 # 检查网络连接
 /research search "test" --source=arxiv --debug
@@ -616,11 +635,13 @@ Error: Failed to connect to arXiv API
 #### 3. 数据分析错误
 
 **问题**: 数据文件格式不支持
+
 ```bash
 Error: Unsupported file format: .xlsx
 ```
 
 **解决方案**:
+
 ```bash
 # 转换文件格式
 /research data convert data.xlsx --format=csv
@@ -684,7 +705,7 @@ enum ResearchToolCategory {
   ANALYSIS = 'analysis',
   SUBMISSION = 'submission',
   COLLABORATION = 'collaboration',
-  INTEGRATION = 'integration'
+  INTEGRATION = 'integration',
 }
 ```
 
@@ -718,4 +739,4 @@ interface ResearchToolResult {
 
 ---
 
-如果您在使用过程中遇到任何问题，请查看 [故障排除指南](../troubleshooting.md) 或提交 [Issue](https://github.com/iechor/research-cli/issues)。 
+如果您在使用过程中遇到任何问题，请查看 [故障排除指南](../troubleshooting.md) 或提交 [Issue](https://github.com/iechor/research-cli/issues)。

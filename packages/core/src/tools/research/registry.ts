@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ResearchTool, ResearchToolCategory, ResearchToolParams, ResearchToolResult } from './types.js';
+import {
+  ResearchTool,
+  ResearchToolCategory,
+  ResearchToolParams,
+  ResearchToolResult,
+} from './types.js';
 import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
 import { AcademicWritingAssistant } from './writing/academic-writing-assistant.js';
 import { ArXivMCPClient } from './bibliography/arxiv-mcp-client.js';
@@ -22,7 +27,8 @@ import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
 export class ResearchToolRegistry {
   private static instance: ResearchToolRegistry;
   private tools: Map<string, ResearchTool> = new Map();
-  private toolsByCategory: Map<ResearchToolCategory, ResearchTool[]> = new Map();
+  private toolsByCategory: Map<ResearchToolCategory, ResearchTool[]> =
+    new Map();
   private initialized: boolean = false;
   private arxivClient: ArXivMCPClient;
 
@@ -30,7 +36,7 @@ export class ResearchToolRegistry {
     this.tools = new Map();
     this.arxivClient = new ArXivMCPClient();
     // 初始化分类映射
-    Object.values(ResearchToolCategory).forEach(category => {
+    Object.values(ResearchToolCategory).forEach((category) => {
       this.toolsByCategory.set(category, []);
     });
   }
@@ -64,12 +70,14 @@ export class ResearchToolRegistry {
    */
   public registerTool(tool: ResearchTool): void {
     if (this.tools.has(tool.name)) {
-      console.debug(`Research tool '${tool.name}' already registered, skipping.`);
+      console.debug(
+        `Research tool '${tool.name}' already registered, skipping.`,
+      );
       return;
     }
 
     this.tools.set(tool.name, tool);
-    
+
     const categoryTools = this.toolsByCategory.get(tool.category) || [];
     categoryTools.push(tool);
     this.toolsByCategory.set(tool.category, categoryTools);
@@ -82,7 +90,7 @@ export class ResearchToolRegistry {
     // Only register tools that are not registered in init.ts
     // Journal matching
     this.registerTool(new JournalMatcher());
-    
+
     // Submission preparation (new)
     this.registerTool(new SubmissionPreparator(this.arxivClient));
   }
@@ -125,7 +133,10 @@ export class ResearchToolRegistry {
   /**
    * 执行工具
    */
-  public async executeTool(name: string, params: ResearchToolParams): Promise<ResearchToolResult> {
+  public async executeTool(
+    name: string,
+    params: ResearchToolParams,
+  ): Promise<ResearchToolResult> {
     const tool = this.tools.get(name);
     if (!tool) {
       return {
@@ -155,7 +166,7 @@ export class ResearchToolRegistry {
 
       // 执行工具
       const result = await tool.execute(params);
-      
+
       // 确保结果包含元数据
       if (!result.metadata) {
         result.metadata = {
@@ -169,7 +180,8 @@ export class ResearchToolRegistry {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
         metadata: {
           timestamp: new Date().toISOString(),
           toolName: name,
@@ -196,7 +208,7 @@ export class ResearchToolRegistry {
     category: ResearchToolCategory;
     version: string;
   }> {
-    return Array.from(this.tools.values()).map(tool => ({
+    return Array.from(this.tools.values()).map((tool) => ({
       name: tool.name,
       description: tool.description,
       category: tool.category,
@@ -214,9 +226,9 @@ export class ResearchToolRegistry {
     }
 
     this.tools.delete(name);
-    
+
     const categoryTools = this.toolsByCategory.get(tool.category) || [];
-    const index = categoryTools.findIndex(t => t.name === name);
+    const index = categoryTools.findIndex((t) => t.name === name);
     if (index !== -1) {
       categoryTools.splice(index, 1);
       this.toolsByCategory.set(tool.category, categoryTools);
@@ -231,7 +243,7 @@ export class ResearchToolRegistry {
   public clearAll(): void {
     this.tools.clear();
     this.toolsByCategory.clear();
-    Object.values(ResearchToolCategory).forEach(category => {
+    Object.values(ResearchToolCategory).forEach((category) => {
       this.toolsByCategory.set(category, []);
     });
   }
@@ -240,4 +252,4 @@ export class ResearchToolRegistry {
 /**
  * 导出默认注册中心实例
  */
-export const researchToolRegistry = ResearchToolRegistry.getInstance(); 
+export const researchToolRegistry = ResearchToolRegistry.getInstance();

@@ -229,7 +229,11 @@ Use this tool when the user's query implies needing the content of several files
 
     const finalExclusionPatternsForDescription: string[] =
       paramUseDefaultExcludes
-        ? [...DEFAULT_EXCLUDES, ...paramExcludes, ...this.researchIgnorePatterns]
+        ? [
+            ...DEFAULT_EXCLUDES,
+            ...paramExcludes,
+            ...this.researchIgnorePatterns,
+          ]
         : [...paramExcludes, ...this.researchIgnorePatterns];
 
     let excludeDesc = `Excluding: ${finalExclusionPatternsForDescription.length > 0 ? `patterns like \`${finalExclusionPatternsForDescription.slice(0, 2).join('`, `')}${finalExclusionPatternsForDescription.length > 2 ? '...`' : '`'}` : 'none specified'}`;

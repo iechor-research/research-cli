@@ -29,7 +29,12 @@ const USER_RESEARCH_DIR = path.join(os.homedir(), '.research');
 const WORKSPACE_RESEARCH_DIR = path.join(projectRoot, '.research');
 
 // Telemetry artifacts are stored in a hashed directory under the user's ~/.research/tmp
-export const OTEL_DIR = path.join(USER_RESEARCH_DIR, 'tmp', projectHash, 'otel');
+export const OTEL_DIR = path.join(
+  USER_RESEARCH_DIR,
+  'tmp',
+  projectHash,
+  'otel',
+);
 export const BIN_DIR = path.join(OTEL_DIR, 'bin');
 
 // Workspace settings remain in the project's .research directory

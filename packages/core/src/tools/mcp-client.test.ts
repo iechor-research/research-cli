@@ -628,7 +628,7 @@ describe('discoverMcpTools', () => {
 
     expect(cleanedParams).not.toHaveProperty('$schema');
     expect(cleanedParams).not.toHaveProperty('additionalProperties');
-    
+
     // Check if properties exist before accessing them
     if (cleanedParams.properties) {
       if (cleanedParams.properties.prop1) {
@@ -639,12 +639,12 @@ describe('discoverMcpTools', () => {
           'additionalProperties',
         );
         if (cleanedParams.properties.prop2.properties?.nested) {
-          expect(cleanedParams.properties.prop2.properties.nested).not.toHaveProperty(
-            '$schema',
-          );
-          expect(cleanedParams.properties.prop2.properties.nested).not.toHaveProperty(
-            'additionalProperties',
-          );
+          expect(
+            cleanedParams.properties.prop2.properties.nested,
+          ).not.toHaveProperty('$schema');
+          expect(
+            cleanedParams.properties.prop2.properties.nested,
+          ).not.toHaveProperty('additionalProperties');
         }
       }
     }

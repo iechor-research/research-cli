@@ -6,7 +6,10 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Config } from './config.js';
-import { DEFAULT_RESEARCH_MODEL, DEFAULT_RESEARCH_FLASH_MODEL } from './models.js';
+import {
+  DEFAULT_RESEARCH_MODEL,
+  DEFAULT_RESEARCH_FLASH_MODEL,
+} from './models.js';
 
 describe('Flash Model Fallback Configuration', () => {
   let config: Config;

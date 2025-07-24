@@ -510,8 +510,8 @@ export async function start_sandbox(
   args.push('--name', containerName, '--hostname', containerName);
 
   // copy GEMINI_API_KEY (s)
-  if (process.env.GEMINI_API_KEY ) {
-    args.push('--env', `GEMINI_API_KEY =${process.env.GEMINI_API_KEY }`);
+  if (process.env.GEMINI_API_KEY) {
+    args.push('--env', `GEMINI_API_KEY =${process.env.GEMINI_API_KEY}`);
   }
   if (process.env.GOOGLE_API_KEY) {
     args.push('--env', `GOOGLE_API_KEY=${process.env.GOOGLE_API_KEY}`);

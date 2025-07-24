@@ -9,32 +9,36 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 读取package.json获取版本
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'),
+);
 const version = packageJson.version;
 const tagName = `v${version}-native`;
 
-console.log(`🚀 Creating GitHub Release for Research CLI Native Wrapper v${version}\n`);
+console.log(
+  `🚀 Creating GitHub Release for Research CLI Native Wrapper v${version}\n`,
+);
 
 try {
-    // 1. 构建原生包装器
-    console.log('📦 Building native wrapper...');
-    execSync('npm run build:native', { stdio: 'inherit' });
-    
-    // 2. 创建Git标签
-    console.log(`\n🏷️  Creating git tag: ${tagName}`);
-    try {
-        execSync(`git tag -d ${tagName}`, { stdio: 'pipe' }); // 删除已存在的标签
-    } catch (e) {
-        // 忽略错误，标签可能不存在
-    }
-    execSync(`git tag ${tagName}`, { stdio: 'inherit' });
-    
-    // 3. 推送标签
-    console.log('📤 Pushing tag to GitHub...');
-    execSync(`git push origin ${tagName}`, { stdio: 'inherit' });
-    
-    // 4. 创建发布说明
-    const releaseNotes = `# Research CLI Native Wrapper v${version}
+  // 1. 构建原生包装器
+  console.log('📦 Building native wrapper...');
+  execSync('npm run build:native', { stdio: 'inherit' });
+
+  // 2. 创建Git标签
+  console.log(`\n🏷️  Creating git tag: ${tagName}`);
+  try {
+    execSync(`git tag -d ${tagName}`, { stdio: 'pipe' }); // 删除已存在的标签
+  } catch (e) {
+    // 忽略错误，标签可能不存在
+  }
+  execSync(`git tag ${tagName}`, { stdio: 'inherit' });
+
+  // 3. 推送标签
+  console.log('📤 Pushing tag to GitHub...');
+  execSync(`git push origin ${tagName}`, { stdio: 'inherit' });
+
+  // 4. 创建发布说明
+  const releaseNotes = `# Research CLI Native Wrapper v${version}
 
 ## 🎯 What's New
 
@@ -93,30 +97,33 @@ This wrapper is built with Rust and directly executes the Research CLI Node.js p
 Built: ${new Date().toISOString()}
 `;
 
-    // 5. 检查dist-native目录中的文件
-    const distDir = path.join(__dirname, '..', 'dist-native');
-    const files = fs.readdirSync(distDir).filter(f => !f.endsWith('.json') && f !== 'README.md');
-    
-    console.log(`\n📁 Release assets:`);
-    files.forEach(file => {
-        const filePath = path.join(distDir, file);
-        const stats = fs.statSync(filePath);
-        const sizeKB = Math.round(stats.size / 1024);
-        console.log(`   - ${file} (${sizeKB}KB)`);
-    });
-    
-    // 6. 创建发布说明文件
-    fs.writeFileSync(path.join(distDir, 'RELEASE_NOTES.md'), releaseNotes);
-    
-    console.log(`\n✅ Release preparation completed!`);
-    console.log(`\n📋 Next steps:`);
-    console.log(`   1. Go to: https://github.com/iechor-research/research-cli/releases/new`);
-    console.log(`   2. Select tag: ${tagName}`);
-    console.log(`   3. Upload files from: dist-native/`);
-    console.log(`   4. Copy release notes from: dist-native/RELEASE_NOTES.md`);
-    console.log(`   5. Publish the release`);
-    
+  // 5. 检查dist-native目录中的文件
+  const distDir = path.join(__dirname, '..', 'dist-native');
+  const files = fs
+    .readdirSync(distDir)
+    .filter((f) => !f.endsWith('.json') && f !== 'README.md');
+
+  console.log(`\n📁 Release assets:`);
+  files.forEach((file) => {
+    const filePath = path.join(distDir, file);
+    const stats = fs.statSync(filePath);
+    const sizeKB = Math.round(stats.size / 1024);
+    console.log(`   - ${file} (${sizeKB}KB)`);
+  });
+
+  // 6. 创建发布说明文件
+  fs.writeFileSync(path.join(distDir, 'RELEASE_NOTES.md'), releaseNotes);
+
+  console.log(`\n✅ Release preparation completed!`);
+  console.log(`\n📋 Next steps:`);
+  console.log(
+    `   1. Go to: https://github.com/iechor-research/research-cli/releases/new`,
+  );
+  console.log(`   2. Select tag: ${tagName}`);
+  console.log(`   3. Upload files from: dist-native/`);
+  console.log(`   4. Copy release notes from: dist-native/RELEASE_NOTES.md`);
+  console.log(`   5. Publish the release`);
 } catch (error) {
-    console.error('❌ Release creation failed:', error.message);
-    process.exit(1);
-} 
+  console.error('❌ Release creation failed:', error.message);
+  process.exit(1);
+}

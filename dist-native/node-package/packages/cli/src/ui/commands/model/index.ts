@@ -14,11 +14,14 @@ const CONFIG_DIR = path.join(os.homedir(), '.research-cli');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'model-config.json');
 
 interface ModelConfig {
-  providers: Record<string, {
-    apiKey?: string;
-    baseUrl?: string;
-    defaultModel?: string;
-  }>;
+  providers: Record<
+    string,
+    {
+      apiKey?: string;
+      baseUrl?: string;
+      defaultModel?: string;
+    }
+  >;
 }
 
 // 读取配置文件
@@ -43,7 +46,9 @@ function writeConfig(config: ModelConfig): void {
     }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
   } catch (error) {
-    throw new Error(`Failed to write config: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to write config: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 }
 
@@ -51,29 +56,29 @@ function writeConfig(config: ModelConfig): void {
 function getApiKey(provider: string): string | undefined {
   const config = readConfig();
   const providerConfig = config.providers[provider.toLowerCase()];
-  
+
   if (providerConfig?.apiKey) {
     return providerConfig.apiKey;
   }
-  
+
   // 回退到环境变量
   const envVarMapping: Record<string, string> = {
-    'openai': 'OPENAI_API_KEY',
-    'anthropic': 'ANTHROPIC_API_KEY',
-    'deepseek': 'DEEPSEEK_API_KEY',
-    'qwen': 'QWEN_API_KEY',
-    'gemini': 'GEMINI_API_KEY',
-    'groq': 'GROQ_API_KEY',
-    'mistral': 'MISTRAL_API_KEY',
-    'cohere': 'COHERE_API_KEY',
-    'huggingface': 'HUGGINGFACE_API_KEY',
-    'ollama': 'OLLAMA_API_KEY',
-    'together': 'TOGETHER_API_KEY',
-    'fireworks': 'FIREWORKS_API_KEY',
-    'replicate': 'REPLICATE_API_KEY',
-    'perplexity': 'PERPLEXITY_API_KEY',
+    openai: 'OPENAI_API_KEY',
+    anthropic: 'ANTHROPIC_API_KEY',
+    deepseek: 'DEEPSEEK_API_KEY',
+    qwen: 'QWEN_API_KEY',
+    gemini: 'GEMINI_API_KEY',
+    groq: 'GROQ_API_KEY',
+    mistral: 'MISTRAL_API_KEY',
+    cohere: 'COHERE_API_KEY',
+    huggingface: 'HUGGINGFACE_API_KEY',
+    ollama: 'OLLAMA_API_KEY',
+    together: 'TOGETHER_API_KEY',
+    fireworks: 'FIREWORKS_API_KEY',
+    replicate: 'REPLICATE_API_KEY',
+    perplexity: 'PERPLEXITY_API_KEY',
   };
-  
+
   const envVar = envVarMapping[provider.toLowerCase()];
   return envVar ? process.env[envVar] : undefined;
 }
@@ -82,20 +87,23 @@ export const modelCommand: SlashCommand = {
   name: 'model',
   description: 'Manage and switch between different AI models',
   action: async (context, args) => {
-    const argsArray = args.trim().split(/\s+/).filter(arg => arg.length > 0);
+    const argsArray = args
+      .trim()
+      .split(/\s+/)
+      .filter((arg) => arg.length > 0);
     const command = argsArray[0] || 'help';
-    
+
     try {
       // 动态导入core包以避免编译时类型问题
       const core = await import('@iechor/research-cli-core');
-      
+
       // 初始化配置管理器
       const manager = new core.ModelProviderConfigManager();
       await manager.loadFromEnvironment();
 
       // 创建模型选择器
       const selector = new core.ModelSelector();
-      
+
       // 添加提供商配置（包括从配置文件读取的API keys）
       const providers = manager.getConfiguredProviders();
       for (const provider of providers) {
@@ -109,7 +117,7 @@ export const modelCommand: SlashCommand = {
           selector.addProviderConfig(providerConfig);
         }
       }
-      
+
       switch (command) {
         case 'config': {
           if (argsArray.length < 2) {
@@ -130,48 +138,50 @@ Examples:
   /model config list`,
             };
           }
-          
+
           const subCommand = argsArray[1];
-          
+
           switch (subCommand) {
             case 'set': {
               if (argsArray.length < 4) {
                 return {
                   type: 'message',
                   messageType: 'error',
-                  content: 'Usage: /model config set <provider> <api-key>\nExample: /model config set openai sk-your-key-here',
+                  content:
+                    'Usage: /model config set <provider> <api-key>\nExample: /model config set openai sk-your-key-here',
                 };
               }
-              
+
               const [, , provider, apiKey] = argsArray;
               const config = readConfig();
-              
+
               if (!config.providers[provider.toLowerCase()]) {
                 config.providers[provider.toLowerCase()] = {};
               }
-              
+
               config.providers[provider.toLowerCase()].apiKey = apiKey;
               writeConfig(config);
-              
+
               return {
                 type: 'message',
                 messageType: 'info',
                 content: `✅ API key for ${provider} has been saved to configuration file.`,
               };
             }
-            
+
             case 'get': {
               if (argsArray.length < 3) {
                 return {
                   type: 'message',
                   messageType: 'error',
-                  content: 'Usage: /model config get <provider>\nExample: /model config get openai',
+                  content:
+                    'Usage: /model config get <provider>\nExample: /model config get openai',
                 };
               }
-              
+
               const [, , provider] = argsArray;
               const apiKey = getApiKey(provider);
-              
+
               if (!apiKey) {
                 return {
                   type: 'message',
@@ -179,23 +189,26 @@ Examples:
                   content: `No API key configured for ${provider}`,
                 };
               }
-              
+
               // 显示掩码后的API key
-              const maskedKey = apiKey.length > 8 
-                ? apiKey.substring(0, 4) + '*'.repeat(apiKey.length - 8) + apiKey.substring(apiKey.length - 4)
-                : '*'.repeat(apiKey.length);
-              
+              const maskedKey =
+                apiKey.length > 8
+                  ? apiKey.substring(0, 4) +
+                    '*'.repeat(apiKey.length - 8) +
+                    apiKey.substring(apiKey.length - 4)
+                  : '*'.repeat(apiKey.length);
+
               return {
                 type: 'message',
                 messageType: 'info',
                 content: `API key for ${provider}: ${maskedKey}`,
               };
             }
-            
+
             case 'list': {
               const config = readConfig();
               const configuredProviders = Object.keys(config.providers);
-              
+
               if (configuredProviders.length === 0) {
                 return {
                   type: 'message',
@@ -203,31 +216,36 @@ Examples:
                   content: 'No providers configured in configuration file.',
                 };
               }
-              
-              const providerList = configuredProviders.map(provider => {
-                const hasApiKey = config.providers[provider]?.apiKey ? '✅' : '❌';
-                return `  ${hasApiKey} ${provider}`;
-              }).join('\n');
-              
+
+              const providerList = configuredProviders
+                .map((provider) => {
+                  const hasApiKey = config.providers[provider]?.apiKey
+                    ? '✅'
+                    : '❌';
+                  return `  ${hasApiKey} ${provider}`;
+                })
+                .join('\n');
+
               return {
                 type: 'message',
                 messageType: 'info',
                 content: `Configured Providers:\n${providerList}`,
               };
             }
-            
+
             case 'remove': {
               if (argsArray.length < 3) {
                 return {
                   type: 'message',
                   messageType: 'error',
-                  content: 'Usage: /model config remove <provider>\nExample: /model config remove openai',
+                  content:
+                    'Usage: /model config remove <provider>\nExample: /model config remove openai',
                 };
               }
-              
+
               const [, , provider] = argsArray;
               const config = readConfig();
-              
+
               if (!config.providers[provider.toLowerCase()]) {
                 return {
                   type: 'message',
@@ -235,17 +253,17 @@ Examples:
                   content: `No configuration found for ${provider}`,
                 };
               }
-              
+
               delete config.providers[provider.toLowerCase()];
               writeConfig(config);
-              
+
               return {
                 type: 'message',
                 messageType: 'info',
                 content: `✅ Configuration for ${provider} has been removed.`,
               };
             }
-            
+
             case 'show': {
               return {
                 type: 'message',
@@ -253,7 +271,7 @@ Examples:
                 content: `Configuration file location: ${CONFIG_FILE}`,
               };
             }
-            
+
             default: {
               return {
                 type: 'message',
@@ -263,20 +281,22 @@ Examples:
             }
           }
         }
-        
+
         case 'list': {
           const models = await selector.getAvailableModels();
-          const modelList = models.map((model: any) => 
-            `• ${model.name} (${model.provider}/${model.id})`
-          ).join('\n');
-          
+          const modelList = models
+            .map(
+              (model: any) => `• ${model.name} (${model.provider}/${model.id})`,
+            )
+            .join('\n');
+
           return {
             type: 'message',
             messageType: 'info',
             content: `Available Models:\n${modelList}`,
           };
         }
-        
+
         case 'current': {
           // 显示Research CLI核心配置中的当前模型
           const currentCoreModel = context.services.config?.getModel();
@@ -294,33 +314,38 @@ Examples:
             };
           }
         }
-        
+
         case 'providers': {
           const models = await selector.getAvailableModels();
-          const providerList = Array.from(new Set(models.map((m: any) => m.provider)))
-            .map(provider => `• ${provider}`)
+          const providerList = Array.from(
+            new Set(models.map((m: any) => m.provider)),
+          )
+            .map((provider) => `• ${provider}`)
             .join('\n');
-          
+
           return {
             type: 'message',
             messageType: 'info',
             content: `Model Providers:\n${providerList}`,
           };
         }
-        
+
         case 'select': {
           if (argsArray.length < 3) {
             return {
               type: 'message',
               messageType: 'error',
-              content: 'Usage: /model select <provider> <model-id>\nExample: /model select openai gpt-4o',
+              content:
+                'Usage: /model select <provider> <model-id>\nExample: /model select openai gpt-4o',
             };
           }
-          
+
           const [, provider, modelId] = argsArray;
           const models = await selector.getAvailableModels();
-          const selectedModel = models.find((m: any) => m.provider === provider && m.id === modelId);
-          
+          const selectedModel = models.find(
+            (m: any) => m.provider === provider && m.id === modelId,
+          );
+
           if (!selectedModel) {
             return {
               type: 'message',
@@ -328,17 +353,20 @@ Examples:
               content: `Model not found: ${provider}/${modelId}\nUse '/model list' to see available models`,
             };
           }
-          
+
           // 首先更新ModelSelector
-          const providerEnum = core.ModelProvider[provider.toUpperCase() as keyof typeof core.ModelProvider];
+          const providerEnum =
+            core.ModelProvider[
+              provider.toUpperCase() as keyof typeof core.ModelProvider
+            ];
           await selector.selectModel(providerEnum, modelId);
-          
+
           // 然后更新Research CLI的核心Config
           const config = context.services.config;
           if (config) {
             // 构建模型名称 - 根据提供商类型使用不同的格式
             let modelName: string;
-            
+
             // 对于Gemini模型，使用Gemini格式
             if (provider.toLowerCase() === 'gemini') {
               modelName = modelId; // 直接使用模型ID，如 'gemini-1.5-pro'
@@ -347,9 +375,9 @@ Examples:
               // 这里先使用简单的格式，后续可以根据需要调整
               modelName = modelId;
             }
-            
+
             config.setModel(modelName);
-            
+
             return {
               type: 'message',
               messageType: 'info',
@@ -363,7 +391,7 @@ Examples:
             };
           }
         }
-        
+
         case 'help':
         default: {
           return {
@@ -398,4 +426,4 @@ Configuration:
       };
     }
   },
-}; 
+};

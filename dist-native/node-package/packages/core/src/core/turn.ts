@@ -246,7 +246,10 @@ export class Turn {
         message: getErrorMessage(error),
         status,
       };
-      yield { type: ResearchEventType.Error, value: { error: structuredError } };
+      yield {
+        type: ResearchEventType.Error,
+        value: { error: structuredError },
+      };
       return;
     }
   }

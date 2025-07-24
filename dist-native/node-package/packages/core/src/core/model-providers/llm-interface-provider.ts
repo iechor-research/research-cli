@@ -235,13 +235,16 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     super(provider);
     this.providerKey = PROVIDER_MAPPING[provider];
     if (!this.providerKey) {
-      throw new ConfigurationError(`Unsupported provider: ${provider}`, provider);
+      throw new ConfigurationError(
+        `Unsupported provider: ${provider}`,
+        provider,
+      );
     }
   }
 
   protected async doInitialize(): Promise<void> {
     const config = this.getConfig();
-    
+
     // 设置 API Key
     if (config.apiKey) {
       LLMInterface.setApiKey({ [this.providerKey]: config.apiKey });
@@ -254,20 +257,17 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     try {
       const config = this.getConfig();
       const messages = this.normalizeMessages(request.messages);
-      
-      const response = await this.llmInterface.sendMessage(
-        this.providerKey,
-        {
-          messages,
-          model: request.model || config.model,
-          temperature: request.temperature ?? config.temperature,
-          max_tokens: request.maxTokens ?? config.maxTokens,
-          top_p: request.topP ?? config.topP,
-          frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
-          presence_penalty: request.presencePenalty ?? config.presencePenalty,
-          stop: request.stopSequences ?? config.stopSequences,
-        }
-      );
+
+      const response = await this.llmInterface.sendMessage(this.providerKey, {
+        messages,
+        model: request.model || config.model,
+        temperature: request.temperature ?? config.temperature,
+        max_tokens: request.maxTokens ?? config.maxTokens,
+        top_p: request.topP ?? config.topP,
+        frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
+        presence_penalty: request.presencePenalty ?? config.presencePenalty,
+        stop: request.stopSequences ?? config.stopSequences,
+      });
 
       return this.normalizeResponse(response, request.model || config.model);
     } catch (error) {
@@ -275,32 +275,31 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     }
   }
 
-  protected async *doStreamChat(request: ChatRequest): AsyncGenerator<StreamResponse> {
+  protected async *doStreamChat(
+    request: ChatRequest,
+  ): AsyncGenerator<StreamResponse> {
     try {
       const config = this.getConfig();
       const messages = this.normalizeMessages(request.messages);
-      
-      const stream = await this.llmInterface.sendMessage(
-        this.providerKey,
-        {
-          messages,
-          model: request.model || config.model,
-          temperature: request.temperature ?? config.temperature,
-          max_tokens: request.maxTokens ?? config.maxTokens,
-          top_p: request.topP ?? config.topP,
-          frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
-          presence_penalty: request.presencePenalty ?? config.presencePenalty,
-          stop: request.stopSequences ?? config.stopSequences,
-          stream: true,
-        }
-      );
+
+      const stream = await this.llmInterface.sendMessage(this.providerKey, {
+        messages,
+        model: request.model || config.model,
+        temperature: request.temperature ?? config.temperature,
+        max_tokens: request.maxTokens ?? config.maxTokens,
+        top_p: request.topP ?? config.topP,
+        frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
+        presence_penalty: request.presencePenalty ?? config.presencePenalty,
+        stop: request.stopSequences ?? config.stopSequences,
+        stream: true,
+      });
 
       let fullContent = '';
       for await (const chunk of stream) {
         const streamResponse = this.normalizeStreamResponse(
           chunk,
           request.model || config.model,
-          fullContent
+          fullContent,
         );
         fullContent = streamResponse.content;
         yield streamResponse;
@@ -327,15 +326,20 @@ export class LLMInterfaceProvider extends BaseModelProvider {
   }
 
   protected extractDelta(chunk: any): string {
-    return chunk?.choices?.[0]?.delta?.content || 
-           chunk?.delta?.content || 
-           chunk?.content || '';
+    return (
+      chunk?.choices?.[0]?.delta?.content ||
+      chunk?.delta?.content ||
+      chunk?.content ||
+      ''
+    );
   }
 
   protected isStreamDone(chunk: any): boolean {
-    return chunk?.choices?.[0]?.finish_reason !== null || 
-           chunk?.finish_reason !== null ||
-           chunk?.done === true;
+    return (
+      chunk?.choices?.[0]?.finish_reason !== null ||
+      chunk?.finish_reason !== null ||
+      chunk?.done === true
+    );
   }
 
   protected extractUsage(response: any): ChatResponse['usage'] | undefined {
@@ -349,8 +353,11 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     return undefined;
   }
 
-  protected extractFinishReason(response: any): ChatResponse['finishReason'] | undefined {
-    const reason = response?.choices?.[0]?.finish_reason || response?.finish_reason;
+  protected extractFinishReason(
+    response: any,
+  ): ChatResponse['finishReason'] | undefined {
+    const reason =
+      response?.choices?.[0]?.finish_reason || response?.finish_reason;
     if (reason) {
       return reason as ChatResponse['finishReason'];
     }
@@ -359,7 +366,7 @@ export class LLMInterfaceProvider extends BaseModelProvider {
 
   protected extractMetadata(response: any): Record<string, any> | undefined {
     const metadata: Record<string, any> = {};
-    
+
     if (response?.id) {
       metadata.id = response.id;
     }
@@ -369,13 +376,13 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     if (response?.model) {
       metadata.model = response.model;
     }
-    
+
     return Object.keys(metadata).length > 0 ? metadata : undefined;
   }
 
   protected getSupportedFeatures(): string[] {
     const baseFeatures = super.getSupportedFeatures();
-    
+
     // 根据不同提供商添加特定功能
     switch (this.name) {
       case ModelProvider.OPENAI:
@@ -388,4 +395,4 @@ export class LLMInterfaceProvider extends BaseModelProvider {
         return baseFeatures;
     }
   }
-} 
+}

@@ -93,7 +93,11 @@ Text to summarize:
 Return the summary string which should first contain an overall summarization of text followed by the full stack trace of errors and warnings in the tool output.
 `;
 
-export const llmSummarizer: Summarizer = (result, researchClient, abortSignal) =>
+export const llmSummarizer: Summarizer = (
+  result,
+  researchClient,
+  abortSignal,
+) =>
   summarizeToolOutput(
     partToString(result.llmContent),
     researchClient,

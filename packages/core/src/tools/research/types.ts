@@ -146,7 +146,7 @@ export interface BibliographyEntry {
   citationCount?: number;
   conference?: string;
   arxivId?: string;
-  
+
   // Legacy metadata structure (optional)
   metadata?: PaperMetadata;
   source: string;
@@ -199,7 +199,7 @@ export enum LaTeXEngine {
   PDFLATEX = 'pdflatex',
   XELATEX = 'xelatex',
   LUALATEX = 'lualatex',
-  LATEX = 'latex'
+  LATEX = 'latex',
 }
 
 /**
@@ -215,7 +215,7 @@ export enum DocumentType {
   BOOK_CHAPTER = 'book_chapter',
   PREPRINT = 'preprint',
   POSTER = 'poster',
-  PRESENTATION = 'presentation'
+  PRESENTATION = 'presentation',
 }
 
 export enum ResearchMethod {
@@ -363,7 +363,7 @@ export enum ResearchToolCategory {
   SUBMISSION = 'submission',
   COLLABORATION = 'collaboration',
   INTEGRATION = 'integration',
-  PUBLISHING = "PUBLISHING",
+  PUBLISHING = 'PUBLISHING',
 }
 
 /**
@@ -426,14 +426,14 @@ export interface PaperOutline {
   };
   generatedAt: string;
   version: string;
-} 
+}
 
 // Writing Assistant Types
 export enum WritingStyle {
   ACADEMIC = 'academic',
   FORMAL = 'formal',
   TECHNICAL = 'technical',
-  SCIENTIFIC = 'scientific'
+  SCIENTIFIC = 'scientific',
 }
 
 export enum WritingOperation {
@@ -443,20 +443,26 @@ export enum WritingOperation {
   VERIFY_CITATIONS = 'verify_citations',
   CHECK_READABILITY = 'check_readability',
   DETECT_PLAGIARISM = 'detect_plagiarism',
-  COMPREHENSIVE_REVIEW = 'comprehensive_review'
+  COMPREHENSIVE_REVIEW = 'comprehensive_review',
 }
 
 export enum TargetAudience {
   EXPERTS = 'experts',
   GENERAL_ACADEMIC = 'general_academic',
   STUDENTS = 'students',
-  PRACTITIONERS = 'practitioners'
+  PRACTITIONERS = 'practitioners',
 }
 
-
-
 export interface WritingSuggestion {
-  type: 'grammar' | 'style' | 'structure' | 'citation' | 'readability' | 'plagiarism' | 'transitions' | 'technical_terms';
+  type:
+    | 'grammar'
+    | 'style'
+    | 'structure'
+    | 'citation'
+    | 'readability'
+    | 'plagiarism'
+    | 'transitions'
+    | 'technical_terms';
   severity: 'low' | 'medium' | 'high';
   message: string;
   suggestion: string;
@@ -468,7 +474,12 @@ export interface WritingSuggestion {
 }
 
 export interface GrammarCheck {
-  type: 'subject_verb_agreement' | 'punctuation' | 'capitalization' | 'redundancy' | 'passive_voice';
+  type:
+    | 'subject_verb_agreement'
+    | 'punctuation'
+    | 'capitalization'
+    | 'redundancy'
+    | 'passive_voice';
   severity: 'low' | 'medium' | 'high';
   message: string;
   suggestion: string;
@@ -480,7 +491,12 @@ export interface GrammarCheck {
 }
 
 export interface StyleImprovement {
-  type: 'wordiness' | 'formality' | 'clarity' | 'transitions' | 'technical_terms';
+  type:
+    | 'wordiness'
+    | 'formality'
+    | 'clarity'
+    | 'transitions'
+    | 'technical_terms';
   severity: 'low' | 'medium' | 'high';
   message: string;
   suggestion: string;
@@ -573,4 +589,4 @@ export interface WritingAssistantResult extends ResearchToolResult {
   readabilityMetrics?: ReadabilityMetrics;
   plagiarismCheck?: PlagiarismCheck;
   suggestions?: WritingSuggestion[];
-} 
+}

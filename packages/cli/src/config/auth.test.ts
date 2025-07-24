@@ -34,7 +34,7 @@ describe('validateAuthMethod', () => {
 
   describe('USE_RESEARCH', () => {
     it('should return null if GEMINI_API_KEY  is set', () => {
-      process.env.GEMINI_API_KEY  = 'test-key';
+      process.env.GEMINI_API_KEY = 'test-key';
       expect(validateAuthMethod(AuthType.USE_RESEARCH)).toBeNull();
     });
 

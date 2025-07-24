@@ -5,7 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PaperOutlineGenerator, PaperOutlineParams } from './paper-outline-generator.js';
+import {
+  PaperOutlineGenerator,
+  PaperOutlineParams,
+} from './paper-outline-generator.js';
 import { PaperType, ResearchField, JournalStyle } from '../types.js';
 
 describe('PaperOutlineGenerator', () => {
@@ -30,7 +33,7 @@ describe('PaperOutlineGenerator', () => {
         title: 'Test Paper',
         researchTopic: 'Machine Learning',
         paperType: PaperType.EXPERIMENTAL,
-        researchField: ResearchField.COMPUTER_SCIENCE
+        researchField: ResearchField.COMPUTER_SCIENCE,
       };
 
       expect(generator.validate(validParams)).toBe(true);
@@ -41,7 +44,7 @@ describe('PaperOutlineGenerator', () => {
         title: '',
         researchTopic: 'Machine Learning',
         paperType: PaperType.EXPERIMENTAL,
-        researchField: ResearchField.COMPUTER_SCIENCE
+        researchField: ResearchField.COMPUTER_SCIENCE,
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -52,7 +55,7 @@ describe('PaperOutlineGenerator', () => {
         title: 'Test Paper',
         researchTopic: '',
         paperType: PaperType.EXPERIMENTAL,
-        researchField: ResearchField.COMPUTER_SCIENCE
+        researchField: ResearchField.COMPUTER_SCIENCE,
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -64,7 +67,7 @@ describe('PaperOutlineGenerator', () => {
         researchTopic: 'Machine Learning',
         paperType: PaperType.EXPERIMENTAL,
         researchField: ResearchField.COMPUTER_SCIENCE,
-        maxSections: 2
+        maxSections: 2,
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -80,7 +83,7 @@ describe('PaperOutlineGenerator', () => {
         researchField: ResearchField.COMPUTER_SCIENCE,
         targetJournal: 'IEEE Transactions on Neural Networks',
         journalStyle: JournalStyle.IEEE,
-        includeTimeline: true
+        includeTimeline: true,
       };
 
       const result = await generator.execute(params);
@@ -105,7 +108,7 @@ describe('PaperOutlineGenerator', () => {
         title: 'A Survey of Machine Learning Techniques',
         researchTopic: 'Comprehensive review of ML methods',
         paperType: PaperType.SURVEY,
-        researchField: ResearchField.COMPUTER_SCIENCE
+        researchField: ResearchField.COMPUTER_SCIENCE,
       };
 
       const result = await generator.execute(params);
@@ -114,11 +117,15 @@ describe('PaperOutlineGenerator', () => {
       const outline = result.data as any;
 
       // 调查论文应该有不同的章节结构
-      const relatedWorkSection = outline.sections.find((s: any) => s.id === 'related_work');
+      const relatedWorkSection = outline.sections.find(
+        (s: any) => s.id === 'related_work',
+      );
       expect(relatedWorkSection?.title).toBe('Literature Survey');
-      
+
       // 调查论文应该有更多的文献要求
-      expect(outline.bibliographyRequirements.minReferences).toBeGreaterThanOrEqual(80);
+      expect(
+        outline.bibliographyRequirements.minReferences,
+      ).toBeGreaterThanOrEqual(80);
     });
 
     it('应该生成理论论文的大纲', async () => {
@@ -126,7 +133,7 @@ describe('PaperOutlineGenerator', () => {
         title: 'Theoretical Framework for Optimization',
         researchTopic: 'Mathematical optimization theory',
         paperType: PaperType.THEORETICAL,
-        researchField: ResearchField.MATHEMATICS
+        researchField: ResearchField.MATHEMATICS,
       };
 
       const result = await generator.execute(params);
@@ -135,10 +142,14 @@ describe('PaperOutlineGenerator', () => {
       const outline = result.data as any;
 
       // 理论论文应该有评估章节而不是实验章节
-      const evaluationSection = outline.sections.find((s: any) => s.id === 'evaluation');
+      const evaluationSection = outline.sections.find(
+        (s: any) => s.id === 'evaluation',
+      );
       expect(evaluationSection).toBeDefined();
-      
-      const experimentSection = outline.sections.find((s: any) => s.id === 'experiments');
+
+      const experimentSection = outline.sections.find(
+        (s: any) => s.id === 'experiments',
+      );
       expect(experimentSection).toBeUndefined();
     });
 
@@ -148,7 +159,7 @@ describe('PaperOutlineGenerator', () => {
         researchTopic: 'Test Topic',
         paperType: PaperType.EXPERIMENTAL,
         researchField: ResearchField.COMPUTER_SCIENCE,
-        customSections: ['Custom Section 1', 'Custom Section 2']
+        customSections: ['Custom Section 1', 'Custom Section 2'],
       };
 
       const result = await generator.execute(params);
@@ -156,9 +167,13 @@ describe('PaperOutlineGenerator', () => {
       expect(result.success).toBe(true);
       const outline = result.data as any;
 
-      const customSection1 = outline.sections.find((s: any) => s.title === 'Custom Section 1');
-      const customSection2 = outline.sections.find((s: any) => s.title === 'Custom Section 2');
-      
+      const customSection1 = outline.sections.find(
+        (s: any) => s.title === 'Custom Section 1',
+      );
+      const customSection2 = outline.sections.find(
+        (s: any) => s.title === 'Custom Section 2',
+      );
+
       expect(customSection1).toBeDefined();
       expect(customSection2).toBeDefined();
       expect(customSection1.required).toBe(false);
@@ -171,7 +186,7 @@ describe('PaperOutlineGenerator', () => {
         researchTopic: 'Test Topic',
         paperType: PaperType.EXPERIMENTAL,
         researchField: ResearchField.COMPUTER_SCIENCE,
-        maxSections: 5
+        maxSections: 5,
       };
 
       const result = await generator.execute(params);
@@ -187,7 +202,7 @@ describe('PaperOutlineGenerator', () => {
         researchTopic: 'Test Topic',
         paperType: PaperType.EXPERIMENTAL,
         researchField: ResearchField.COMPUTER_SCIENCE,
-        includeTimeline: false
+        includeTimeline: false,
       };
 
       const result = await generator.execute(params);
@@ -201,7 +216,7 @@ describe('PaperOutlineGenerator', () => {
   describe('帮助信息', () => {
     it('应该提供详细的帮助信息', () => {
       const help = generator.getHelp();
-      
+
       expect(help).toContain('Generate a structured paper outline');
       expect(help).toContain('title');
       expect(help).toContain('researchTopic');
@@ -216,7 +231,7 @@ describe('PaperOutlineGenerator', () => {
         title: '',
         researchTopic: '',
         paperType: undefined,
-        researchField: undefined
+        researchField: undefined,
       };
 
       const result = await generator.execute(invalidParams as any);
@@ -225,4 +240,4 @@ describe('PaperOutlineGenerator', () => {
       expect(result.error).toBeDefined();
     });
   });
-}); 
+});

@@ -13,20 +13,25 @@ export interface ModelProviderSettings {
   // 默认提供商和模型
   defaultProvider?: ModelProvider;
   defaultModel?: string;
-  
+
   // 提供商配置
-  providers?: Partial<Record<ModelProvider, {
-    apiKey?: string;
-    baseUrl?: string;
-    models?: string[];
-    defaultModel?: string;
-    timeout?: number;
-    retryAttempts?: number;
-    retryDelay?: number;
-    // 特定提供商的额外配置
-    extra?: Record<string, any>;
-  }>>;
-  
+  providers?: Partial<
+    Record<
+      ModelProvider,
+      {
+        apiKey?: string;
+        baseUrl?: string;
+        models?: string[];
+        defaultModel?: string;
+        timeout?: number;
+        retryAttempts?: number;
+        retryDelay?: number;
+        // 特定提供商的额外配置
+        extra?: Record<string, any>;
+      }
+    >
+  >;
+
   // 全局模型配置
   globalConfig?: {
     temperature?: number;
@@ -99,7 +104,7 @@ export class ModelProviderConfigManager {
   getProviderConfig(provider: ModelProvider): ModelConfig | null {
     const providerSettings = this.settings.providers?.[provider];
     const envApiKey = process.env[ENV_VAR_MAPPING[provider]];
-    
+
     if (!providerSettings && !envApiKey) {
       return null;
     }
@@ -126,21 +131,24 @@ export class ModelProviderConfigManager {
    */
   getConfiguredProviders(): ModelProvider[] {
     const providers: ModelProvider[] = [];
-    
+
     // 检查设置中的提供商
     if (this.settings.providers) {
-      Object.keys(this.settings.providers).forEach(provider => {
+      Object.keys(this.settings.providers).forEach((provider) => {
         providers.push(provider as ModelProvider);
       });
     }
-    
+
     // 检查环境变量中的提供商
     Object.entries(ENV_VAR_MAPPING).forEach(([provider, envVar]) => {
-      if (process.env[envVar] && !providers.includes(provider as ModelProvider)) {
+      if (
+        process.env[envVar] &&
+        !providers.includes(provider as ModelProvider)
+      ) {
         providers.push(provider as ModelProvider);
       }
     });
-    
+
     return providers;
   }
 
@@ -151,7 +159,7 @@ export class ModelProviderConfigManager {
     if (this.settings.defaultProvider) {
       return this.settings.defaultProvider;
     }
-    
+
     // 如果没有设置默认提供商，返回第一个配置的提供商
     const configuredProviders = this.getConfiguredProviders();
     return configuredProviders.length > 0 ? configuredProviders[0] : null;
@@ -165,25 +173,32 @@ export class ModelProviderConfigManager {
     if (!targetProvider) {
       return null;
     }
-    
-    return this.settings.defaultModel || 
-           this.settings.providers?.[targetProvider]?.defaultModel || 
-           DEFAULT_MODELS[targetProvider];
+
+    return (
+      this.settings.defaultModel ||
+      this.settings.providers?.[targetProvider]?.defaultModel ||
+      DEFAULT_MODELS[targetProvider]
+    );
   }
 
   /**
    * 设置提供商配置
    */
-     setProviderConfig(provider: ModelProvider, config: Partial<NonNullable<ModelProviderSettings['providers']>[ModelProvider]>): void {
-     if (!this.settings.providers) {
-       this.settings.providers = {};
-     }
-     
-     this.settings.providers[provider] = {
-       ...this.settings.providers[provider],
-       ...config,
-     };
-   }
+  setProviderConfig(
+    provider: ModelProvider,
+    config: Partial<
+      NonNullable<ModelProviderSettings['providers']>[ModelProvider]
+    >,
+  ): void {
+    if (!this.settings.providers) {
+      this.settings.providers = {};
+    }
+
+    this.settings.providers[provider] = {
+      ...this.settings.providers[provider],
+      ...config,
+    };
+  }
 
   /**
    * 移除提供商配置
@@ -211,7 +226,9 @@ export class ModelProviderConfigManager {
   /**
    * 设置全局配置
    */
-  setGlobalConfig(config: Partial<ModelProviderSettings['globalConfig']>): void {
+  setGlobalConfig(
+    config: Partial<ModelProviderSettings['globalConfig']>,
+  ): void {
     this.settings.globalConfig = {
       ...this.settings.globalConfig,
       ...config,
@@ -250,16 +267,16 @@ export class ModelProviderConfigManager {
     if (!config) {
       return false;
     }
-    
+
     // 基本验证
     if (!config.apiKey && provider !== ModelProvider.OLLAMA) {
       return false;
     }
-    
+
     if (!config.model) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -293,4 +310,4 @@ export class ModelProviderConfigManager {
       throw new Error(`Invalid JSON configuration: ${error}`);
     }
   }
-} 
+}

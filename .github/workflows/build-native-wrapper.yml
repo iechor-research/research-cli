@@ -121,7 +121,7 @@ jobs:
             BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
             SIZE_DISPLAY=$(du -h "dist-native/${{ matrix.platform.archive }}" | cut -f1)
           fi
-          
+
           cat > "dist-native/${{ matrix.platform.archive }}.json" << EOF
           {
             "version": "${{ github.event.inputs.version || '0.2.6' }}",
@@ -149,18 +149,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build project
         run: npm run build
-        
+
       - name: Create package archive
         run: |
           mkdir -p dist-package
@@ -170,7 +170,7 @@ jobs:
           cd dist-package
           tar -czf ../research-cli-node.tar.gz .
           cd ..
-          
+
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
@@ -179,10 +179,18 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [build-macos-intel, build-macos-arm, build-windows, build-linux-x64, build-linux-arm64, create-node-package]
+    needs:
+      [
+        build-macos-intel,
+        build-macos-arm,
+        build-windows,
+        build-linux-x64,
+        build-linux-arm64,
+        create-node-package,
+      ]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') && endsWith(github.ref, '-native')
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -194,7 +202,7 @@ jobs:
         run: |
           echo "Downloading artifacts manually..."
           mkdir -p dist-native-temp
-          
+
           # Function to download individual artifact
           download_artifact() {
             local artifact_name=$1
@@ -225,7 +233,7 @@ jobs:
             
             return 0
           }
-          
+
           # Download each artifact
           artifacts=(
             "research-cli-darwin-x64"
@@ -235,11 +243,11 @@ jobs:
             "research-cli-linux-arm64"
             "node-package"
           )
-          
+
           for artifact in "${artifacts[@]}"; do
             download_artifact "$artifact" || echo "Failed to download $artifact"
           done
-          
+
           # Move all files to dist-native
           mv dist-native-temp/* dist-native/ || true
           rmdir dist-native-temp || true
@@ -251,29 +259,29 @@ jobs:
           echo "=== Initial directory structure ==="
           find dist-native -type f | sort
           echo ""
-          
+
           # 移动所有文件到 dist-native 根目录
           echo "=== Moving files to root directory ==="
-          
+
           # 处理每个特定的文件
           # Windows
           if [ -f "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" ]; then
             echo "Moving Windows binary..."
             mv -f "dist-native/research-cli-win32-x64.exe/research-cli-win32-x64.exe" "dist-native/" || true
           fi
-          
+
           # Linux x64
           if [ -f "dist-native/research-cli-linux-x64/research-cli-linux-x64" ]; then
             echo "Moving Linux x64 binary..."
             mv -f "dist-native/research-cli-linux-x64/research-cli-linux-x64" "dist-native/" || true
           fi
-          
+
           # Linux ARM64
           if [ -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" ]; then
             echo "Moving Linux ARM64 binary..."
             mv -f "dist-native/research-cli-linux-arm64/research-cli-linux-arm64" "dist-native/" || true
           fi
-          
+
           # Node.js package
           if [ -f "dist-native/node-package/research-cli-node.tar.gz" ]; then
             echo "Moving Node.js package..."
@@ -281,18 +289,18 @@ jobs:
           elif [ -f "dist-native/research-cli-node.tar.gz" ]; then
             echo "Node.js package already in place"
           fi
-          
+
           # 移动JSON文件
           find dist-native -mindepth 2 -name "*.json" -exec mv -f {} dist-native/ \; || true
-          
+
           # 清理空目录
           find dist-native -type d -empty -delete || true
-          
+
           echo ""
           echo "=== Files in dist-native after organization ==="
           ls -la dist-native/
           echo ""
-          
+
           # 确保我们有所有必需的文件
           echo "=== Checking for required files ==="
           missing_files=()
@@ -304,7 +312,7 @@ jobs:
             "research-cli-linux-arm64"
             "research-cli-node.tar.gz"
           )
-          
+
           for file in "${required_files[@]}"; do
             if [ ! -f "dist-native/$file" ]; then
               echo "❌ Missing required file: $file"
@@ -315,7 +323,7 @@ jobs:
               chmod +x "dist-native/$file" || true
             fi
           done
-          
+
           if [ ${#missing_files[@]} -gt 0 ]; then
             echo ""
             echo "=== ERROR: Missing files ==="
@@ -328,7 +336,7 @@ jobs:
             find dist-native -type f | sort
             exit 1
           fi
-          
+
           echo ""
           echo "=== All required files found! ==="
 
@@ -336,22 +344,22 @@ jobs:
         run: |
           # Copy the complete installer script
           cp dist-native/install-complete.sh dist-native/install-complete.sh || echo "install-complete.sh not found"
-          
+
           cat > dist-native/install.sh << 'EOF'
           #!/bin/bash
-          
+
           # Research CLI Native Wrapper - One-line Installer
           # Usage: curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install.sh | bash
-          
+
           set -e
-          
+
           # Colors for output
           RED='\033[0;31m'
           GREEN='\033[0;32m'
           YELLOW='\033[1;33m'
           BLUE='\033[0;34m'
           NC='\033[0m' # No Color
-          
+
           # Detect platform
           detect_platform() {
               local os=$(uname -s)
@@ -383,7 +391,7 @@ jobs:
                       ;;
               esac
           }
-          
+
           # Main installation function
           install_research_cli() {
               local platform=$(detect_platform)
@@ -450,31 +458,31 @@ jobs:
               echo -e "${BLUE}For more information, visit:${NC}"
               echo "  https://github.com/iechor-research/research-cli"
           }
-          
+
           # Run installation
           install_research_cli
           EOF
-          
+
           chmod +x dist-native/install.sh
 
       - name: Generate release notes
         run: |
           cat > dist-native/RELEASE_NOTES.md << 'EOF'
           # Research CLI Native Wrapper v0.2.7
-          
+
           **Cross-platform native wrapper for Research CLI**
-          
+
           ## Features
-          
+
           - **Ultra-lightweight**: ~500KB per binary (99% smaller than previous versions)
           - **Zero dependencies**: No Node.js runtime required
           - **Native performance**: Pure Rust wrapper with direct CLI execution
           - **Cross-platform**: Support for 5 major platforms
           - **One-line install**: Simple installation script
           - **Linux compatibility**: Uses musl static linking for better compatibility
-          
+
           ## Supported Platforms
-          
+
           | Platform | Architecture | File | Size |
           |----------|-------------|------|------|
           | macOS | Intel x64 | `research-cli-darwin-x64` | ~420KB |
@@ -482,72 +490,72 @@ jobs:
           | Windows | x64 | `research-cli-win32-x64.exe` | ~500KB |
           | Linux | x64 | `research-cli-linux-x64` | ~450KB |
           | Linux | ARM64 | `research-cli-linux-arm64` | ~480KB |
-          
+
           ## Quick Install
-          
+
           ```bash
           # One-line install (recommended)
           curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.7-native/install.sh | bash
-          
+
           # Manual install
           # 1. Download the binary for your platform
           # 2. Make it executable: chmod +x research-cli-*
           # 3. Move to PATH: mv research-cli-* ~/.local/bin/research-cli
           ```
-          
+
           ## Usage
-          
+
           ```bash
           # Show help
           research-cli --help
-          
+
           # Show configuration
           research-cli config show
-          
+
           # List available models
           research-cli models list
-          
+
           # Start research session
           research-cli
           ```
-          
+
           ## Technical Details
-          
+
           - **Runtime**: Pure Rust wrapper (no Node.js required)
           - **Execution**: Direct process spawning with inherited I/O
           - **Compatibility**: Full Research CLI feature support
           - **Performance**: Native speed with minimal overhead
-          
+
           ## Requirements
-          
+
           - No runtime dependencies
           - Node.js installation (for Research CLI backend)
           - Compatible with all Research CLI features
-          
+
           ## Troubleshooting
-          
+
           If you encounter issues:
-          
+
           1. **Permission denied**: Run `chmod +x research-cli-*`
           2. **Command not found**: Add binary to PATH or use full path
           3. **Node.js missing**: Install Node.js for Research CLI backend
           4. **Platform not supported**: Check supported platforms above
-          
+
           ## Links
-          
+
           - **Repository**: https://github.com/iechor-research/research-cli
           - **Documentation**: https://github.com/iechor-research/research-cli/docs
           - **Issues**: https://github.com/iechor-research/research-cli/issues
-          
+
           ---
-          
+
           **Built with ❤️ using GitHub Actions**
           EOF
 
       - name: Create GitHub Release
         run: |
           echo "Creating GitHub Release..."
-          
+
           # Create release using GitHub CLI
           gh release create "${{ github.ref_name }}" \
             --title "Research CLI Native Wrapper ${{ github.ref_name }}" \
@@ -582,4 +590,4 @@ jobs:
           echo 'curl -sSL https://github.com/iechor-research/research-cli/releases/download/${{ github.ref_name }}/install.sh | bash' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Release URL**: https://github.com/iechor-research/research-cli/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
+          echo "**Release URL**: https://github.com/iechor-research/research-cli/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

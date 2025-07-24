@@ -4,18 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { 
-  ResearchTool, 
-  ResearchToolCategory, 
-  ResearchToolParams, 
-  ResearchToolResult 
+import {
+  ResearchTool,
+  ResearchToolCategory,
+  ResearchToolParams,
+  ResearchToolResult,
 } from './types.js';
 
 /**
  * 研究工具基础抽象类
  * 提供通用功能和模板方法模式
  */
-export abstract class BaseResearchTool<TParams extends ResearchToolParams = ResearchToolParams, TResult = unknown> implements ResearchTool {
+export abstract class BaseResearchTool<
+  TParams extends ResearchToolParams = ResearchToolParams,
+  TResult = unknown,
+> implements ResearchTool
+{
   public readonly name: string;
   public readonly description: string;
   public readonly category: ResearchToolCategory;
@@ -25,7 +29,7 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
     name: string,
     description: string,
     category: ResearchToolCategory,
-    version: string = '1.0.0'
+    version: string = '1.0.0',
   ) {
     this.name = name;
     this.description = description;
@@ -37,7 +41,9 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
    * 执行工具的主要方法
    * 实现模板方法模式，提供统一的执行流程
    */
-  public async execute(params: ResearchToolParams): Promise<ResearchToolResult> {
+  public async execute(
+    params: ResearchToolParams,
+  ): Promise<ResearchToolResult> {
     const startTime = Date.now();
 
     try {
@@ -64,7 +70,8 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
         metadata: {
           timestamp: new Date().toISOString(),
           toolName: this.name,
@@ -108,7 +115,10 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
    * 后处理钩子方法
    * 子类可以重写此方法来执行后处理逻辑
    */
-  protected async postProcess(data: TResult, params: TParams): Promise<TResult> {
+  protected async postProcess(
+    data: TResult,
+    params: TParams,
+  ): Promise<TResult> {
     // 默认实现：直接返回数据
     return data;
   }
@@ -117,9 +127,16 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
    * 验证必需参数
    * 工具方法，帮助子类验证必需参数
    */
-  protected validateRequiredParams(params: ResearchToolParams, requiredKeys: string[]): boolean {
+  protected validateRequiredParams(
+    params: ResearchToolParams,
+    requiredKeys: string[],
+  ): boolean {
     for (const key of requiredKeys) {
-      if (!(key in params) || params[key] === undefined || params[key] === null) {
+      if (
+        !(key in params) ||
+        params[key] === undefined ||
+        params[key] === null
+      ) {
         return false;
       }
     }
@@ -141,7 +158,9 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
       case 'array':
         return Array.isArray(value);
       case 'object':
-        return typeof value === 'object' && value !== null && !Array.isArray(value);
+        return (
+          typeof value === 'object' && value !== null && !Array.isArray(value)
+        );
       default:
         return false;
     }
@@ -183,7 +202,11 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
    * 日志方法
    * 工具方法，帮助子类记录日志
    */
-  protected log(level: 'info' | 'warn' | 'error', message: string, data?: unknown): void {
+  protected log(
+    level: 'info' | 'warn' | 'error',
+    message: string,
+    data?: unknown,
+  ): void {
     const logMessage = `[${this.name}] ${message}`;
     switch (level) {
       case 'info':
@@ -204,16 +227,21 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
    */
   protected formatHelp(
     purpose: string,
-    parameters: Array<{ name: string; type: string; required: boolean; description: string }>,
-    examples?: Array<{ description: string; params: Record<string, unknown> }>
+    parameters: Array<{
+      name: string;
+      type: string;
+      required: boolean;
+      description: string;
+    }>,
+    examples?: Array<{ description: string; params: Record<string, unknown> }>,
   ): string {
     let help = `${this.name} (v${this.version})\n`;
     help += `Category: ${this.category}\n`;
     help += `Description: ${this.description}\n\n`;
     help += `Purpose: ${purpose}\n\n`;
-    
+
     help += 'Parameters:\n';
-    parameters.forEach(param => {
+    parameters.forEach((param) => {
       const required = param.required ? '(required)' : '(optional)';
       help += `  - ${param.name} (${param.type}) ${required}: ${param.description}\n`;
     });
@@ -228,4 +256,4 @@ export abstract class BaseResearchTool<TParams extends ResearchToolParams = Rese
 
     return help;
   }
-} 
+}

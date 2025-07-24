@@ -119,7 +119,12 @@ describe('summarizers', () => {
         candidates: [{ content: { parts: [{ text: summary }] } }],
       });
 
-      await summarizeToolOutput(longText, mockResearchClient, abortSignal, 1000);
+      await summarizeToolOutput(
+        longText,
+        mockResearchClient,
+        abortSignal,
+        1000,
+      );
 
       const expectedPrompt = `Summarize the following tool output to be a maximum of 1000 characters. The summary should be concise and capture the main points of the tool output.
 

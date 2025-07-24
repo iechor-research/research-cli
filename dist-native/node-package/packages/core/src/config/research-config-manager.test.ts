@@ -7,9 +7,19 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { ResearchConfigManager, ResearchConfigScope } from './research-config-manager.js';
-import { DEFAULT_RESEARCH_CONFIG, ResearchSettings } from './research-config.js';
-import { CitationStyle, PaperType, ResearchField } from '../tools/research/types.js';
+import {
+  ResearchConfigManager,
+  ResearchConfigScope,
+} from './research-config-manager.js';
+import {
+  DEFAULT_RESEARCH_CONFIG,
+  ResearchSettings,
+} from './research-config.js';
+import {
+  CitationStyle,
+  PaperType,
+  ResearchField,
+} from '../tools/research/types.js';
 
 // Mock fs module
 vi.mock('fs/promises');
@@ -49,13 +59,13 @@ describe('ResearchConfigManager', () => {
 
     it('should merge configs from system, user, and workspace', async () => {
       const systemConfig = {
-        defaults: { citationStyle: CitationStyle.IEEE }
+        defaults: { citationStyle: CitationStyle.IEEE },
       };
       const userConfig = {
-        defaults: { paperType: PaperType.REVIEW }
+        defaults: { paperType: PaperType.REVIEW },
       };
       const workspaceConfig = {
-        defaults: { researchField: ResearchField.ENGINEERING }
+        defaults: { researchField: ResearchField.ENGINEERING },
       };
 
       vi.mocked(fs.readFile)
@@ -90,13 +100,13 @@ describe('ResearchConfigManager', () => {
       await configManager.setResearchConfig(
         ResearchConfigScope.USER,
         'defaults.citationStyle',
-        CitationStyle.APA
+        CitationStyle.APA,
       );
 
       expect(fs.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('research-config.json'),
         expect.stringContaining('citationStyle'),
-        'utf-8'
+        'utf-8',
       );
     });
 
@@ -113,7 +123,7 @@ describe('ResearchConfigManager', () => {
       await configManager.setResearchConfig(
         ResearchConfigScope.USER,
         'defaults.citationStyle',
-        CitationStyle.APA
+        CitationStyle.APA,
       );
 
       // Next access should reload from files
@@ -127,13 +137,15 @@ describe('ResearchConfigManager', () => {
       const config = {
         defaults: {
           citationStyle: CitationStyle.IEEE,
-          paperType: PaperType.RESEARCH_PAPER
-        }
+          paperType: PaperType.RESEARCH_PAPER,
+        },
       };
 
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(config));
 
-      const value = await configManager.getConfigValue('defaults.citationStyle');
+      const value = await configManager.getConfigValue(
+        'defaults.citationStyle',
+      );
       expect(value).toBe(CitationStyle.IEEE);
     });
 
@@ -150,14 +162,14 @@ describe('ResearchConfigManager', () => {
       const validConfig: ResearchSettings = {
         version: '1.0.0',
         defaults: {
-          citationStyle: CitationStyle.APA
+          citationStyle: CitationStyle.APA,
         },
         apis: {
           arxiv: {
             enabled: true,
-            maxResults: 20
-          }
-        }
+            maxResults: 20,
+          },
+        },
       };
 
       const result = configManager.validateConfig(validConfig);
@@ -167,7 +179,7 @@ describe('ResearchConfigManager', () => {
 
     it('should detect invalid version format', () => {
       const invalidConfig: ResearchSettings = {
-        version: 'invalid-version'
+        version: 'invalid-version',
       };
 
       const result = configManager.validateConfig(invalidConfig);
@@ -180,15 +192,17 @@ describe('ResearchConfigManager', () => {
       const invalidConfig: ResearchSettings = {
         apis: {
           pubmed: {
-            enabled: true
+            enabled: true,
             // missing email
-          }
-        }
+          },
+        },
       };
 
       const result = configManager.validateConfig(invalidConfig);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.path === 'apis.pubmed.email')).toBe(true);
+      expect(result.errors.some((e) => e.path === 'apis.pubmed.email')).toBe(
+        true,
+      );
     });
 
     it('should detect invalid email format', () => {
@@ -197,14 +211,16 @@ describe('ResearchConfigManager', () => {
           authorInfo: {
             name: 'Test User',
             email: 'invalid-email',
-            affiliation: 'Test University'
-          }
-        }
+            affiliation: 'Test University',
+          },
+        },
       };
 
       const result = configManager.validateConfig(invalidConfig);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.path === 'latex.authorInfo.email')).toBe(true);
+      expect(
+        result.errors.some((e) => e.path === 'latex.authorInfo.email'),
+      ).toBe(true);
     });
 
     it('should generate warnings for performance issues', () => {
@@ -212,9 +228,9 @@ describe('ResearchConfigManager', () => {
         apis: {
           arxiv: {
             enabled: true,
-            maxResults: 150 // Too high
-          }
-        }
+            maxResults: 150, // Too high
+          },
+        },
       };
 
       const result = configManager.validateConfig(configWithWarnings);
@@ -226,7 +242,7 @@ describe('ResearchConfigManager', () => {
   describe('exportConfig', () => {
     it('should export config as JSON string', async () => {
       const config = {
-        defaults: { citationStyle: CitationStyle.APA }
+        defaults: { citationStyle: CitationStyle.APA },
       };
 
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(config));
@@ -241,7 +257,7 @@ describe('ResearchConfigManager', () => {
 
       const exported = await configManager.exportConfig(true);
       const parsed = JSON.parse(exported);
-      
+
       expect(parsed.version).toBe(DEFAULT_RESEARCH_CONFIG.version);
       expect(parsed.defaults).toBeDefined();
     });
@@ -251,7 +267,7 @@ describe('ResearchConfigManager', () => {
     it('should import valid configuration', async () => {
       const validConfig = {
         version: '1.0.0',
-        defaults: { citationStyle: CitationStyle.APA }
+        defaults: { citationStyle: CitationStyle.APA },
       };
 
       vi.mocked(fs.mkdir).mockResolvedValue(undefined);
@@ -259,32 +275,32 @@ describe('ResearchConfigManager', () => {
 
       await configManager.importConfig(
         JSON.stringify(validConfig),
-        ResearchConfigScope.USER
+        ResearchConfigScope.USER,
       );
 
       expect(fs.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('research-config.json'),
         expect.stringContaining('citationStyle'),
-        'utf-8'
+        'utf-8',
       );
     });
 
     it('should reject invalid JSON', async () => {
       await expect(
-        configManager.importConfig('invalid json', ResearchConfigScope.USER)
+        configManager.importConfig('invalid json', ResearchConfigScope.USER),
       ).rejects.toThrow('Invalid JSON configuration');
     });
 
     it('should reject invalid configuration', async () => {
       const invalidConfig = {
-        version: 'invalid-version'
+        version: 'invalid-version',
       };
 
       await expect(
         configManager.importConfig(
           JSON.stringify(invalidConfig),
-          ResearchConfigScope.USER
-        )
+          ResearchConfigScope.USER,
+        ),
       ).rejects.toThrow('Configuration validation failed');
     });
   });
@@ -299,7 +315,7 @@ describe('ResearchConfigManager', () => {
       expect(fs.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('research-config.json'),
         '{}',
-        'utf-8'
+        'utf-8',
       );
     });
   });
@@ -307,7 +323,7 @@ describe('ResearchConfigManager', () => {
   describe('getDefaults', () => {
     it('should return copy of default configuration', () => {
       const defaults = configManager.getDefaults();
-      
+
       expect(defaults).toEqual(DEFAULT_RESEARCH_CONFIG);
       expect(defaults).not.toBe(DEFAULT_RESEARCH_CONFIG); // Should be a copy
     });
@@ -318,14 +334,14 @@ describe('ResearchConfigManager', () => {
       const userConfig = {
         apis: {
           arxiv: { enabled: true, maxResults: 30 },
-          pubmed: { enabled: false }
-        }
+          pubmed: { enabled: false },
+        },
       };
       const workspaceConfig = {
         apis: {
           arxiv: { maxResults: 50 }, // Should override user config
-          ieee: { enabled: true } // Should be added
-        }
+          ieee: { enabled: true }, // Should be added
+        },
       };
 
       vi.mocked(fs.readFile)
@@ -341,4 +357,4 @@ describe('ResearchConfigManager', () => {
       expect(config.apis?.ieee?.enabled).toBe(true); // from workspace (new)
     });
   });
-}); 
+});

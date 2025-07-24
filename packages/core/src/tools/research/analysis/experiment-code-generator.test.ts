@@ -5,13 +5,16 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ExperimentCodeGenerator, ExperimentCodeParams } from './experiment-code-generator.js';
-import { 
-  ProgrammingLanguage, 
-  ResearchMethod, 
-  DataFormat, 
-  AnalysisType, 
-  ResearchToolCategory 
+import {
+  ExperimentCodeGenerator,
+  ExperimentCodeParams,
+} from './experiment-code-generator.js';
+import {
+  ProgrammingLanguage,
+  ResearchMethod,
+  DataFormat,
+  AnalysisType,
+  ResearchToolCategory,
 } from '../types.js';
 
 describe('ExperimentCodeGenerator', () => {
@@ -38,7 +41,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       expect(generator.validate(validParams)).toBe(true);
@@ -51,7 +54,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -64,7 +67,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -77,7 +80,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -90,7 +93,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: []
+        outputFormats: [],
       };
 
       expect(generator.validate(invalidParams)).toBe(false);
@@ -104,24 +107,27 @@ describe('ExperimentCodeGenerator', () => {
         researchMethod: ResearchMethod.MACHINE_LEARNING,
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV, DataFormat.JSON],
-        analysisTypes: [AnalysisType.MACHINE_LEARNING, AnalysisType.DESCRIPTIVE],
+        analysisTypes: [
+          AnalysisType.MACHINE_LEARNING,
+          AnalysisType.DESCRIPTIVE,
+        ],
         outputFormats: ['html', 'jupyter'],
         includeVisualization: true,
         includeTesting: true,
         dataPath: './data/',
-        description: 'Test ML experiment'
+        description: 'Test ML experiment',
       };
 
       const result = await generator.execute(params);
 
       expect(result.success).toBe(true);
       const codeResult = result.data as any;
-      
+
       expect(codeResult.experimentName).toBe(params.experimentName);
       expect(codeResult.language).toBe(ProgrammingLanguage.PYTHON);
       expect(codeResult.files).toBeInstanceOf(Array);
       expect(codeResult.files.length).toBeGreaterThan(0);
-      
+
       // 检查主文件
       const mainFile = codeResult.files.find((f: any) => f.type === 'main');
       expect(mainFile).toBeDefined();
@@ -137,13 +143,17 @@ describe('ExperimentCodeGenerator', () => {
       expect(configFile.filename).toBe('config.json');
 
       // 检查依赖文件
-      const requirementsFile = codeResult.files.find((f: any) => f.type === 'requirements');
+      const requirementsFile = codeResult.files.find(
+        (f: any) => f.type === 'requirements',
+      );
       expect(requirementsFile).toBeDefined();
       expect(requirementsFile.content).toContain('pandas');
       expect(requirementsFile.content).toContain('scikit-learn');
 
       // 检查 README
-      const readmeFile = codeResult.files.find((f: any) => f.type === 'documentation');
+      const readmeFile = codeResult.files.find(
+        (f: any) => f.type === 'documentation',
+      );
       expect(readmeFile).toBeDefined();
       expect(readmeFile.content).toContain(params.experimentName);
     });
@@ -155,7 +165,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.DESCRIPTIVE, AnalysisType.INFERENTIAL],
-        outputFormats: ['pdf']
+        outputFormats: ['pdf'],
       };
 
       const result = await generator.execute(params);
@@ -177,7 +187,7 @@ describe('ExperimentCodeGenerator', () => {
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.VISUALIZATION],
         outputFormats: ['html'],
-        includeVisualization: true
+        includeVisualization: true,
       };
 
       const result = await generator.execute(params);
@@ -197,7 +207,7 @@ describe('ExperimentCodeGenerator', () => {
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
         outputFormats: ['html'],
-        includeTesting: true
+        includeTesting: true,
       };
 
       const result = await generator.execute(params);
@@ -218,7 +228,7 @@ describe('ExperimentCodeGenerator', () => {
         dataTypes: [DataFormat.CSV, DataFormat.EXCEL],
         analysisTypes: [AnalysisType.DESCRIPTIVE, AnalysisType.INFERENTIAL],
         outputFormats: ['html', 'pdf'],
-        includeVisualization: true
+        includeVisualization: true,
       };
 
       const result = await generator.execute(params);
@@ -244,7 +254,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.R,
         dataTypes: [DataFormat.CSV, DataFormat.EXCEL],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -265,7 +275,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.MATLAB,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['pdf']
+        outputFormats: ['pdf'],
       };
 
       const result = await generator.execute(params);
@@ -284,7 +294,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.JULIA,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -303,7 +313,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.JAVASCRIPT,
         dataTypes: [DataFormat.JSON],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -322,7 +332,7 @@ describe('ExperimentCodeGenerator', () => {
         language: 'unsupported_language',
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params as any);
@@ -341,7 +351,7 @@ describe('ExperimentCodeGenerator', () => {
         dataTypes: [DataFormat.CSV, DataFormat.EXCEL],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
         outputFormats: ['html'],
-        includeVisualization: true
+        includeVisualization: true,
       };
 
       const result = await generator.execute(params);
@@ -360,7 +370,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.INFERENTIAL],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -379,7 +389,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['html', 'markdown', 'pdf']
+        outputFormats: ['html', 'markdown', 'pdf'],
       };
 
       const result = await generator.execute(params);
@@ -398,8 +408,11 @@ describe('ExperimentCodeGenerator', () => {
         researchMethod: ResearchMethod.MACHINE_LEARNING,
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV, DataFormat.JSON],
-        analysisTypes: [AnalysisType.MACHINE_LEARNING, AnalysisType.INFERENTIAL],
-        outputFormats: ['html']
+        analysisTypes: [
+          AnalysisType.MACHINE_LEARNING,
+          AnalysisType.INFERENTIAL,
+        ],
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -416,7 +429,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -424,11 +437,15 @@ describe('ExperimentCodeGenerator', () => {
 
       expect(codeResult.resources).toBeInstanceOf(Array);
       expect(codeResult.resources.length).toBeGreaterThan(0);
-      
-      const pythonResource = codeResult.resources.find((r: any) => r.name.includes('Pandas'));
+
+      const pythonResource = codeResult.resources.find((r: any) =>
+        r.name.includes('Pandas'),
+      );
       expect(pythonResource).toBeDefined();
 
-      const mlResource = codeResult.resources.find((r: any) => r.name.includes('Statistical Learning'));
+      const mlResource = codeResult.resources.find((r: any) =>
+        r.name.includes('Statistical Learning'),
+      );
       expect(mlResource).toBeDefined();
     });
 
@@ -439,13 +456,15 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.R,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.DESCRIPTIVE],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
       const codeResult = result.data as any;
 
-      const rResource = codeResult.resources.find((r: any) => r.name.includes('R for Data Science'));
+      const rResource = codeResult.resources.find((r: any) =>
+        r.name.includes('R for Data Science'),
+      );
       expect(rResource).toBeDefined();
     });
   });
@@ -458,7 +477,7 @@ describe('ExperimentCodeGenerator', () => {
         language: ProgrammingLanguage.PYTHON,
         dataTypes: [DataFormat.CSV],
         analysisTypes: [AnalysisType.MACHINE_LEARNING],
-        outputFormats: ['html']
+        outputFormats: ['html'],
       };
 
       const result = await generator.execute(params);
@@ -474,7 +493,7 @@ describe('ExperimentCodeGenerator', () => {
   describe('帮助信息', () => {
     it('应该提供详细的帮助信息', () => {
       const help = generator.getHelp();
-      
+
       expect(help).toContain('Generate complete experiment code frameworks');
       expect(help).toContain('experimentName');
       expect(help).toContain('researchMethod');
@@ -492,7 +511,7 @@ describe('ExperimentCodeGenerator', () => {
         language: undefined,
         dataTypes: [],
         analysisTypes: [],
-        outputFormats: []
+        outputFormats: [],
       };
 
       const result = await generator.execute(invalidParams as any);
@@ -501,4 +520,4 @@ describe('ExperimentCodeGenerator', () => {
       expect(result.error).toBeDefined();
     });
   });
-}); 
+});

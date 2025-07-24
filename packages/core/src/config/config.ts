@@ -237,14 +237,14 @@ export class Config {
     this.listExtensions = params.listExtensions ?? false;
     this._activeExtensions = params.activeExtensions ?? [];
     this.noBrowser = params.noBrowser ?? false;
-    
+
     // Initialize research configuration manager
     this.researchConfigManager = new ResearchConfigManager(this.cwd);
 
     // Set context filename if provided
     if (params.contextFileName) {
-      const contextFile = Array.isArray(params.contextFileName) 
-        ? params.contextFileName[0] 
+      const contextFile = Array.isArray(params.contextFileName)
+        ? params.contextFileName[0]
         : params.contextFileName;
       setResearchMdFilename(contextFile);
     }
@@ -596,8 +596,10 @@ export class Config {
   private async registerResearchTools(registry: ToolRegistry): Promise<void> {
     try {
       // Dynamic import to avoid circular dependencies
-      const { registerResearchTools } = await import('../tools/research/index.js');
-      
+      const { registerResearchTools } = await import(
+        '../tools/research/index.js'
+      );
+
       // Register research tools with the main tool registry
       registerResearchTools(registry);
     } catch (error) {

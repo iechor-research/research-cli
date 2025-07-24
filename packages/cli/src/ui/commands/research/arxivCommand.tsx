@@ -12,7 +12,11 @@ export interface ArXivCommandProps {
   args: string[];
 }
 
-export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand, args }) => {
+export const ArXivCommand: React.FC<ArXivCommandProps> = ({
+  context,
+  subcommand,
+  args,
+}) => {
   const [result, setResult] = React.useState<string>('');
   const [loading, setLoading] = React.useState(false);
 
@@ -25,7 +29,7 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
     try {
       const toolRegistry = context.toolRegistry;
       const tool = toolRegistry.getTool('enhanced_bibliography_manager');
-      
+
       if (!tool) {
         setResult('Enhanced bibliography manager tool not found');
         return;
@@ -36,13 +40,15 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
       switch (subcommand) {
         case 'search':
           if (args.length === 0) {
-            setResult('Usage: /research arxiv search <query> [--max-results N]');
+            setResult(
+              'Usage: /research arxiv search <query> [--max-results N]',
+            );
             return;
           }
           params = {
             operation: 'search',
             query: args[0],
-            searchOptions: { maxResults: 10 }
+            searchOptions: { maxResults: 10 },
           };
           break;
 
@@ -53,7 +59,7 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
           }
           params = {
             operation: 'download',
-            paperId: args[0]
+            paperId: args[0],
           };
           break;
 
@@ -64,7 +70,7 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
           }
           params = {
             operation: 'read',
-            paperId: args[0]
+            paperId: args[0],
           };
           break;
 
@@ -78,15 +84,16 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
       }
 
       const response = await tool.execute(params);
-      
+
       if (response.success) {
         setResult(response.message || 'Operation completed successfully');
       } else {
         setResult(`Error: ${response.error}`);
       }
-
     } catch (error) {
-      setResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setResult(
+        `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     } finally {
       setLoading(false);
     }
@@ -105,4 +112,4 @@ export const ArXivCommand: React.FC<ArXivCommandProps> = ({ context, subcommand,
       <Text>{result}</Text>
     </Box>
   );
-}; 
+};

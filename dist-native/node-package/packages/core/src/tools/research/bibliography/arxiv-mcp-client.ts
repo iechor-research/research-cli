@@ -3,7 +3,11 @@
  * Provides paper search, download, and content management capabilities
  */
 
-import { ResearchTool, PaperMetadata, SearchOptions as BaseSearchOptions } from '../types.js';
+import {
+  ResearchTool,
+  PaperMetadata,
+  SearchOptions as BaseSearchOptions,
+} from '../types.js';
 
 export interface ArXivSearchOptions extends BaseSearchOptions {
   maxResults?: number;
@@ -79,7 +83,10 @@ export class ArXivMCPClient {
   private cache: Map<string, CachedPaper> = new Map();
   private cacheDir: string;
 
-  constructor(serverUrl: string = 'http://localhost:3000', cacheDir: string = '.arxiv-cache') {
+  constructor(
+    serverUrl: string = 'http://localhost:3000',
+    cacheDir: string = '.arxiv-cache',
+  ) {
     this.mcpServerUrl = serverUrl;
     this.cacheDir = cacheDir;
     this.initializeCache();
@@ -92,21 +99,21 @@ export class ArXivMCPClient {
     try {
       const fs = await import('fs/promises');
       const path = await import('path');
-      
+
       // Create cache directory if it doesn't exist
       await fs.mkdir(this.cacheDir, { recursive: true });
-      
+
       // Load existing cache metadata
       const cacheMetaFile = path.join(this.cacheDir, 'cache-metadata.json');
       try {
         const cacheData = await fs.readFile(cacheMetaFile, 'utf-8');
         const cachedPapers: CachedPaper[] = JSON.parse(cacheData);
-        
+
         for (const paper of cachedPapers) {
           this.cache.set(paper.id, {
             ...paper,
             cachedAt: new Date(paper.cachedAt),
-            lastAccessed: new Date(paper.lastAccessed)
+            lastAccessed: new Date(paper.lastAccessed),
           });
         }
       } catch (error) {
@@ -125,7 +132,9 @@ export class ArXivMCPClient {
     try {
       // In a real implementation, this would use the MCP protocol
       // For now, we'll simulate the connection check
-      const response = await fetch(`${this.mcpServerUrl}/health`).catch(() => null);
+      const response = await fetch(`${this.mcpServerUrl}/health`).catch(
+        () => null,
+      );
       this.isConnected = response?.ok || false;
       return this.isConnected;
     } catch (error) {
@@ -137,7 +146,10 @@ export class ArXivMCPClient {
   /**
    * Search papers using arXiv MCP server
    */
-  async searchPapers(query: string, options: ArXivSearchOptions = {}): Promise<ArXivPaper[]> {
+  async searchPapers(
+    query: string,
+    options: ArXivSearchOptions = {},
+  ): Promise<ArXivPaper[]> {
     if (!this.isConnected && !(await this.checkConnection())) {
       throw new Error('ArXiv MCP server is not available');
     }
@@ -147,14 +159,14 @@ export class ArXivMCPClient {
       // For demonstration, we'll simulate the search with arXiv API
       const searchUrl = this.buildSearchUrl(query, options);
       const response = await fetch(searchUrl);
-      
+
       if (!response.ok) {
         throw new Error(`Search failed: ${response.statusText}`);
       }
 
       const xmlText = await response.text();
       const papers = await this.parseArXivResponse(xmlText);
-      
+
       // Cache search results
       for (const paper of papers) {
         await this.updateCache(paper);
@@ -163,7 +175,9 @@ export class ArXivMCPClient {
       return papers;
     } catch (error) {
       console.error('Search failed:', error);
-      throw new Error(`Failed to search papers: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to search papers: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -184,7 +198,7 @@ export class ArXivMCPClient {
           status: 'success',
           filePath: cached.filePath,
           conversionStatus: 'completed',
-          downloadedAt: cached.cachedAt
+          downloadedAt: cached.cachedAt,
         };
       }
 
@@ -192,19 +206,19 @@ export class ArXivMCPClient {
       // For now, we'll simulate the download process
       const downloadUrl = `https://arxiv.org/pdf/${paperId}.pdf`;
       const response = await fetch(downloadUrl);
-      
+
       if (!response.ok) {
         return {
           paperId,
           status: 'failed',
-          error: `Download failed: ${response.statusText}`
+          error: `Download failed: ${response.statusText}`,
         };
       }
 
       // Save to cache directory
       const fs = await import('fs/promises');
       const path = await import('path');
-      
+
       const pdfPath = path.join(this.cacheDir, `${paperId}.pdf`);
       const arrayBuffer = await response.arrayBuffer();
       await fs.writeFile(pdfPath, Buffer.from(arrayBuffer));
@@ -223,13 +237,13 @@ export class ArXivMCPClient {
         filePath: pdfPath,
         conversionStatus: 'pending',
         downloadedAt: new Date(),
-        fileSize: arrayBuffer.byteLength
+        fileSize: arrayBuffer.byteLength,
       };
     } catch (error) {
       return {
         paperId,
         status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -244,7 +258,7 @@ export class ArXivMCPClient {
       cached.lastAccessed = new Date();
       cached.accessCount++;
       await this.saveCacheMetadata();
-      
+
       return {
         id: cached.metadata.id,
         title: cached.metadata.title,
@@ -254,7 +268,7 @@ export class ArXivMCPClient {
         journal: cached.metadata.journalRef || 'arXiv',
         doi: cached.metadata.doi,
         keywords: cached.metadata.categories,
-        url: `https://arxiv.org/abs/${paperId}`
+        url: `https://arxiv.org/abs/${paperId}`,
       };
     }
 
@@ -274,7 +288,7 @@ export class ArXivMCPClient {
       journal: paper.journalRef || 'arXiv',
       doi: paper.doi,
       keywords: paper.categories,
-      url: `https://arxiv.org/abs/${paperId}`
+      url: `https://arxiv.org/abs/${paperId}`,
     };
   }
 
@@ -283,7 +297,7 @@ export class ArXivMCPClient {
    */
   async readPaper(paperId: string): Promise<string> {
     const cached = this.cache.get(paperId);
-    
+
     // Check if markdown version exists
     if (cached?.markdownPath) {
       try {
@@ -310,15 +324,15 @@ export class ArXivMCPClient {
     // For now, we'll return a placeholder markdown content
     const metadata = await this.getPaperMetadata(paperId);
     const markdownContent = this.generateMarkdownContent(metadata);
-    
+
     // Save markdown to cache
     if (cached) {
       const path = await import('path');
       const fs = await import('fs/promises');
-      
+
       const markdownPath = path.join(this.cacheDir, `${paperId}.md`);
       await fs.writeFile(markdownPath, markdownContent, 'utf-8');
-      
+
       cached.markdownPath = markdownPath;
       await this.saveCacheMetadata();
     }
@@ -330,8 +344,8 @@ export class ArXivMCPClient {
    * List all cached papers
    */
   async listCachedPapers(): Promise<CachedPaper[]> {
-    return Array.from(this.cache.values()).sort((a, b) => 
-      b.lastAccessed.getTime() - a.lastAccessed.getTime()
+    return Array.from(this.cache.values()).sort(
+      (a, b) => b.lastAccessed.getTime() - a.lastAccessed.getTime(),
     );
   }
 
@@ -353,7 +367,7 @@ export class ArXivMCPClient {
     for (const [paperId, cached] of this.cache.entries()) {
       if (cached.lastAccessed < cutoffDate) {
         toDelete.push(paperId);
-        
+
         // Delete files
         if (cached.filePath) {
           try {
@@ -366,7 +380,9 @@ export class ArXivMCPClient {
           try {
             await fs.unlink(cached.markdownPath);
           } catch (error) {
-            console.warn(`Failed to delete markdown file: ${cached.markdownPath}`);
+            console.warn(
+              `Failed to delete markdown file: ${cached.markdownPath}`,
+            );
           }
         }
       }
@@ -390,7 +406,7 @@ export class ArXivMCPClient {
       version: '1.0.0',
       exportedAt: new Date(),
       papers,
-      totalSize: papers.length
+      totalSize: papers.length,
     };
   }
 
@@ -402,7 +418,7 @@ export class ArXivMCPClient {
       this.cache.set(paper.id, {
         ...paper,
         cachedAt: new Date(paper.cachedAt),
-        lastAccessed: new Date(paper.lastAccessed)
+        lastAccessed: new Date(paper.lastAccessed),
       });
     }
     await this.saveCacheMetadata();
@@ -413,11 +429,11 @@ export class ArXivMCPClient {
   private buildSearchUrl(query: string, options: ArXivSearchOptions): string {
     const baseUrl = 'http://export.arxiv.org/api/query';
     const params = new URLSearchParams();
-    
+
     params.set('search_query', query);
     params.set('start', '0');
     params.set('max_results', (options.maxResults || 10).toString());
-    
+
     if (options.sortBy) {
       switch (options.sortBy) {
         case 'lastUpdatedDate':
@@ -438,19 +454,23 @@ export class ArXivMCPClient {
     // Simple XML parsing for arXiv API response
     // In a real implementation, you'd use a proper XML parser
     const papers: ArXivPaper[] = [];
-    
+
     // Extract entries using regex (simplified)
     const entryRegex = /<entry>(.*?)<\/entry>/gs;
     const entries = xmlText.match(entryRegex) || [];
 
     for (const entry of entries) {
       try {
-        const id = this.extractXmlValue(entry, 'id')?.replace('http://arxiv.org/abs/', '') || '';
+        const id =
+          this.extractXmlValue(entry, 'id')?.replace(
+            'http://arxiv.org/abs/',
+            '',
+          ) || '';
         const title = this.extractXmlValue(entry, 'title')?.trim() || '';
         const abstract = this.extractXmlValue(entry, 'summary')?.trim() || '';
         const published = this.extractXmlValue(entry, 'published') || '';
         const updated = this.extractXmlValue(entry, 'updated') || '';
-        
+
         // Extract authors
         const authorRegex = /<author><name>(.*?)<\/name><\/author>/g;
         const authors: string[] = [];
@@ -479,7 +499,7 @@ export class ArXivMCPClient {
             pdfUrl: `https://arxiv.org/pdf/${id}.pdf`,
             journalRef: this.extractXmlValue(entry, 'arxiv:journal_ref'),
             doi: this.extractXmlValue(entry, 'arxiv:doi'),
-            comments: this.extractXmlValue(entry, 'arxiv:comment')
+            comments: this.extractXmlValue(entry, 'arxiv:comment'),
           });
         }
       } catch (error) {
@@ -507,7 +527,7 @@ export class ArXivMCPClient {
       lastAccessed: now,
       filePath: existing?.filePath,
       markdownPath: existing?.markdownPath,
-      accessCount: (existing?.accessCount || 0) + 1
+      accessCount: (existing?.accessCount || 0) + 1,
     };
 
     this.cache.set(paper.id, cached);
@@ -518,10 +538,14 @@ export class ArXivMCPClient {
     try {
       const fs = await import('fs/promises');
       const path = await import('path');
-      
+
       const cacheMetaFile = path.join(this.cacheDir, 'cache-metadata.json');
       const cacheData = Array.from(this.cache.values());
-      await fs.writeFile(cacheMetaFile, JSON.stringify(cacheData, null, 2), 'utf-8');
+      await fs.writeFile(
+        cacheMetaFile,
+        JSON.stringify(cacheData, null, 2),
+        'utf-8',
+      );
     } catch (error) {
       console.error('Failed to save cache metadata:', error);
     }
@@ -548,4 +572,4 @@ ${metadata.abstract}
 *Note: This is a placeholder content. In a real implementation, the full paper content would be extracted and converted from PDF.*
 `;
   }
-} 
+}

@@ -66,9 +66,9 @@ export const CloudFreePrivacyNotice = ({
       </Text>
       <Newline />
       <Text>
-        When you use Research Code Assist for individuals with Research CLI, iEchor
-        collects your prompts, related code, generated output, code edits,
-        related feature usage information, and your feedback to provide,
+        When you use Research Code Assist for individuals with Research CLI,
+        iEchor collects your prompts, related code, generated output, code
+        edits, related feature usage information, and your feedback to provide,
         improve, and develop iEchor products and services and machine learning
         technologies.
       </Text>

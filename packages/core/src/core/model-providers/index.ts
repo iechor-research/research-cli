@@ -14,5 +14,8 @@ export { BaseModelProvider } from './base-provider.js';
 export { LLMInterfaceProvider } from './llm-interface-provider.js';
 
 // 导出工厂和选择器
-export { ModelProviderFactory, modelProviderFactory } from './model-provider-factory.js';
-export { ModelSelector } from './model-selector.js'; 
+export {
+  ModelProviderFactory,
+  modelProviderFactory,
+} from './model-provider-factory.js';
+export { ModelSelector } from './model-selector.js';

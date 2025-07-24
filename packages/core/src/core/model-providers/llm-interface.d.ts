@@ -13,7 +13,7 @@ declare module 'llm-interface' {
         presence_penalty?: number;
         stop?: string[];
         stream?: boolean;
-      }
+      },
     ): Promise<any>;
   }
-} 
+}

@@ -6,19 +6,19 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LaTeXManager, LaTeXManagerParams } from './latex-manager.js';
-import { 
-  DocumentType, 
-  LaTeXEngine, 
-  ResearchToolCategory 
-} from '../types.js';
+import { DocumentType, LaTeXEngine, ResearchToolCategory } from '../types.js';
 
 // Mock fs/promises
 vi.mock('fs/promises', () => ({
   mkdir: vi.fn().mockResolvedValue(undefined),
   writeFile: vi.fn().mockResolvedValue(undefined),
   readdir: vi.fn().mockResolvedValue(['main.tex', 'references.bib']),
-  readFile: vi.fn().mockResolvedValue('\\documentclass{article}\\begin{document}\\end{document}'),
-  unlink: vi.fn().mockResolvedValue(undefined)
+  readFile: vi
+    .fn()
+    .mockResolvedValue(
+      '\\documentclass{article}\\begin{document}\\end{document}',
+    ),
+  unlink: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('LaTeXManager', () => {
@@ -32,7 +32,9 @@ describe('LaTeXManager', () => {
   describe('基本属性', () => {
     it('应该有正确的工具属性', () => {
       expect(manager.name).toBe('latex_manager');
-      expect(manager.description).toBe('Comprehensive LaTeX project management and compilation tool');
+      expect(manager.description).toBe(
+        'Comprehensive LaTeX project management and compilation tool',
+      );
       expect(manager.category).toBe(ResearchToolCategory.SUBMISSION);
       expect(manager.version).toBe('1.0.0');
     });
@@ -43,7 +45,7 @@ describe('LaTeXManager', () => {
       const validParams: LaTeXManagerParams = {
         action: 'create',
         projectName: 'my-paper',
-        documentType: DocumentType.JOURNAL_ARTICLE
+        documentType: DocumentType.JOURNAL_ARTICLE,
       };
 
       expect(manager.validate(validParams)).toBe(true);
@@ -52,7 +54,7 @@ describe('LaTeXManager', () => {
     it('应该验证编译项目的有效参数', () => {
       const validParams: LaTeXManagerParams = {
         action: 'compile',
-        projectPath: './my-paper/'
+        projectPath: './my-paper/',
       };
 
       expect(manager.validate(validParams)).toBe(true);
@@ -60,7 +62,7 @@ describe('LaTeXManager', () => {
 
     it('应该验证模板列表操作', () => {
       const validParams: LaTeXManagerParams = {
-        action: 'template'
+        action: 'template',
       };
 
       expect(manager.validate(validParams)).toBe(true);
@@ -68,7 +70,7 @@ describe('LaTeXManager', () => {
 
     it('应该拒绝缺少必需参数的创建操作', () => {
       const invalidParams = {
-        action: 'create'
+        action: 'create',
         // 缺少 projectName 和 documentType
       };
 
@@ -77,7 +79,7 @@ describe('LaTeXManager', () => {
 
     it('应该拒绝缺少项目路径的编译操作', () => {
       const invalidParams = {
-        action: 'compile'
+        action: 'compile',
         // 缺少 projectPath
       };
 
@@ -86,7 +88,7 @@ describe('LaTeXManager', () => {
 
     it('应该允许无效的操作通过验证（在执行时处理）', () => {
       const invalidParams = {
-        action: 'invalid_action'
+        action: 'invalid_action',
       };
 
       // 验证应该通过，错误在执行时处理
@@ -105,32 +107,38 @@ describe('LaTeXManager', () => {
         authorInfo: {
           name: 'John Doe',
           email: 'john@example.com',
-          affiliation: 'University of Test'
-        }
+          affiliation: 'University of Test',
+        },
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('create');
       expect(latexResult.projectPath).toBeDefined();
       expect(latexResult.files).toBeInstanceOf(Array);
       expect(latexResult.files.length).toBeGreaterThan(0);
 
       // 检查主文件
-      const mainFile = latexResult.files.find((f: any) => f.filename === 'main.tex');
+      const mainFile = latexResult.files.find(
+        (f: any) => f.filename === 'main.tex',
+      );
       expect(mainFile).toBeDefined();
       expect(mainFile.content).toContain('IEEEtran');
       expect(mainFile.content).toContain('John Doe');
 
       // 检查配置文件
-      const makeFile = latexResult.files.find((f: any) => f.filename === 'Makefile');
+      const makeFile = latexResult.files.find(
+        (f: any) => f.filename === 'Makefile',
+      );
       expect(makeFile).toBeDefined();
 
       // 检查 gitignore
-      const gitignore = latexResult.files.find((f: any) => f.filename === '.gitignore');
+      const gitignore = latexResult.files.find(
+        (f: any) => f.filename === '.gitignore',
+      );
       expect(gitignore).toBeDefined();
     });
 
@@ -140,7 +148,7 @@ describe('LaTeXManager', () => {
         projectName: 'acm-article',
         documentType: DocumentType.JOURNAL_ARTICLE,
         templateName: 'acm-article',
-        customPackages: ['algorithm2e', 'listings']
+        customPackages: ['algorithm2e', 'listings'],
       };
 
       const result = await manager.execute(params);
@@ -148,7 +156,9 @@ describe('LaTeXManager', () => {
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
 
-      const mainFile = latexResult.files.find((f: any) => f.filename === 'main.tex');
+      const mainFile = latexResult.files.find(
+        (f: any) => f.filename === 'main.tex',
+      );
       expect(mainFile.content).toContain('acmart');
     });
 
@@ -161,8 +171,8 @@ describe('LaTeXManager', () => {
         authorInfo: {
           name: 'Jane Doe',
           email: 'jane@university.edu',
-          affiliation: 'Research University'
-        }
+          affiliation: 'Research University',
+        },
       };
 
       const result = await manager.execute(params);
@@ -170,12 +180,16 @@ describe('LaTeXManager', () => {
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
 
-      const mainFile = latexResult.files.find((f: any) => f.filename === 'main.tex');
+      const mainFile = latexResult.files.find(
+        (f: any) => f.filename === 'main.tex',
+      );
       expect(mainFile.content).toContain('book');
       expect(mainFile.content).toContain('Jane Doe');
 
       // 检查章节文件
-      const introFile = latexResult.files.find((f: any) => f.filename === 'chapters/introduction.tex');
+      const introFile = latexResult.files.find(
+        (f: any) => f.filename === 'chapters/introduction.tex',
+      );
       expect(introFile).toBeDefined();
     });
 
@@ -184,7 +198,7 @@ describe('LaTeXManager', () => {
         action: 'create',
         projectName: 'springer-paper',
         documentType: DocumentType.JOURNAL_ARTICLE,
-        templateName: 'springer-article'
+        templateName: 'springer-article',
       };
 
       const result = await manager.execute(params);
@@ -192,7 +206,9 @@ describe('LaTeXManager', () => {
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
 
-      const mainFile = latexResult.files.find((f: any) => f.filename === 'main.tex');
+      const mainFile = latexResult.files.find(
+        (f: any) => f.filename === 'main.tex',
+      );
       expect(mainFile.content).toContain('svjour3');
     });
 
@@ -201,7 +217,7 @@ describe('LaTeXManager', () => {
         action: 'create',
         projectName: 'custom-paper',
         documentType: DocumentType.JOURNAL_ARTICLE,
-        customPackages: ['tikz', 'pgfplots', 'algorithm2e']
+        customPackages: ['tikz', 'pgfplots', 'algorithm2e'],
       };
 
       const result = await manager.execute(params);
@@ -209,7 +225,9 @@ describe('LaTeXManager', () => {
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
 
-      const mainFile = latexResult.files.find((f: any) => f.filename === 'main.tex');
+      const mainFile = latexResult.files.find(
+        (f: any) => f.filename === 'main.tex',
+      );
       expect(mainFile.content).toContain('tikz');
       expect(mainFile.content).toContain('pgfplots');
       expect(mainFile.content).toContain('algorithm2e');
@@ -219,14 +237,14 @@ describe('LaTeXManager', () => {
   describe('模板管理', () => {
     it('应该列出所有可用模板', async () => {
       const params: LaTeXManagerParams = {
-        action: 'template'
+        action: 'template',
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('template');
       expect(latexResult.templates).toBeInstanceOf(Array);
       expect(latexResult.templates.length).toBeGreaterThan(0);
@@ -239,7 +257,9 @@ describe('LaTeXManager', () => {
       expect(templateNames).toContain('springer-article');
 
       // 检查模板结构
-      const ieeeTemplate = latexResult.templates.find((t: any) => t.name === 'ieee-conference');
+      const ieeeTemplate = latexResult.templates.find(
+        (t: any) => t.name === 'ieee-conference',
+      );
       expect(ieeeTemplate.description).toBeDefined();
       expect(ieeeTemplate.documentType).toBe(DocumentType.CONFERENCE_PAPER);
       expect(ieeeTemplate.files).toBeInstanceOf(Array);
@@ -254,14 +274,14 @@ describe('LaTeXManager', () => {
         action: 'compile',
         projectPath: './test-project/',
         engine: LaTeXEngine.PDFLATEX,
-        outputFormat: 'pdf'
+        outputFormat: 'pdf',
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('compile');
       expect(latexResult.projectPath).toBe('./test-project/');
       expect(latexResult.compileResult).toBeDefined();
@@ -274,25 +294,27 @@ describe('LaTeXManager', () => {
         action: 'compile',
         projectPath: './test-project/',
         engine: LaTeXEngine.XELATEX,
-        compileOptions: ['-shell-escape']
+        compileOptions: ['-shell-escape'],
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.compileResult.success).toBe(true);
     });
 
     it('应该处理编译错误', async () => {
       // Mock fs to simulate missing files
       const fs = await import('fs/promises');
-      vi.mocked(fs.readdir).mockRejectedValueOnce(new Error('Directory not found'));
+      vi.mocked(fs.readdir).mockRejectedValueOnce(
+        new Error('Directory not found'),
+      );
 
       const params: LaTeXManagerParams = {
         action: 'compile',
-        projectPath: './nonexistent-project/'
+        projectPath: './nonexistent-project/',
       };
 
       const result = await manager.execute(params);
@@ -307,22 +329,27 @@ describe('LaTeXManager', () => {
       // Mock fs to return some auxiliary files
       const fs = await import('fs/promises');
       vi.mocked(fs.readdir).mockResolvedValueOnce([
-        'main.tex', 'main.pdf', 'main.aux', 'main.log', 'main.bbl', 'main.toc'
+        'main.tex',
+        'main.pdf',
+        'main.aux',
+        'main.log',
+        'main.bbl',
+        'main.toc',
       ] as any);
 
       const params: LaTeXManagerParams = {
         action: 'clean',
-        projectPath: './test-project/'
+        projectPath: './test-project/',
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('clean');
       expect(latexResult.files).toBeInstanceOf(Array);
-      
+
       // 检查是否删除了辅助文件
       const deletedFiles = latexResult.files.map((f: any) => f.filename);
       expect(deletedFiles).toContain('main.aux');
@@ -333,11 +360,13 @@ describe('LaTeXManager', () => {
 
     it('应该处理清理错误', async () => {
       const fs = await import('fs/promises');
-      vi.mocked(fs.readdir).mockRejectedValueOnce(new Error('Permission denied'));
+      vi.mocked(fs.readdir).mockRejectedValueOnce(
+        new Error('Permission denied'),
+      );
 
       const params: LaTeXManagerParams = {
         action: 'clean',
-        projectPath: './protected-project/'
+        projectPath: './protected-project/',
       };
 
       const result = await manager.execute(params);
@@ -351,14 +380,14 @@ describe('LaTeXManager', () => {
     it('应该诊断项目问题', async () => {
       const params: LaTeXManagerParams = {
         action: 'diagnose',
-        projectPath: './test-project/'
+        projectPath: './test-project/',
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('diagnose');
       expect(latexResult.diagnostics).toBeDefined();
       expect(latexResult.diagnostics.errors).toBeInstanceOf(Array);
@@ -368,20 +397,24 @@ describe('LaTeXManager', () => {
 
     it('应该检测缺失的 .tex 文件', async () => {
       const fs = await import('fs/promises');
-      vi.mocked(fs.readdir).mockResolvedValueOnce(['README.md', 'data.csv'] as any);
+      vi.mocked(fs.readdir).mockResolvedValueOnce([
+        'README.md',
+        'data.csv',
+      ] as any);
 
       const params: LaTeXManagerParams = {
         action: 'diagnose',
-        projectPath: './no-tex-project/'
+        projectPath: './no-tex-project/',
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       const fatalError = latexResult.diagnostics.errors.find(
-        (e: any) => e.severity === 'fatal' && e.message.includes('No .tex files found')
+        (e: any) =>
+          e.severity === 'fatal' && e.message.includes('No .tex files found'),
       );
       expect(fatalError).toBeDefined();
     });
@@ -392,7 +425,7 @@ describe('LaTeXManager', () => {
 
       const params: LaTeXManagerParams = {
         action: 'diagnose',
-        projectPath: './inaccessible-project/'
+        projectPath: './inaccessible-project/',
       };
 
       const result = await manager.execute(params);
@@ -407,14 +440,14 @@ describe('LaTeXManager', () => {
       const params: LaTeXManagerParams = {
         action: 'package',
         projectPath: './test-project/',
-        documentType: DocumentType.JOURNAL_ARTICLE
+        documentType: DocumentType.JOURNAL_ARTICLE,
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       expect(latexResult.action).toBe('package');
       expect(latexResult.packageInfo).toBeDefined();
       expect(latexResult.packageInfo.installed).toBeInstanceOf(Array);
@@ -429,14 +462,14 @@ describe('LaTeXManager', () => {
     it('应该为不同文档类型提供推荐包', async () => {
       const params: LaTeXManagerParams = {
         action: 'package',
-        documentType: DocumentType.THESIS
+        documentType: DocumentType.THESIS,
       };
 
       const result = await manager.execute(params);
 
       expect(result.success).toBe(true);
       const latexResult = result.data as any;
-      
+
       const recommendations = latexResult.packageInfo.recommendations;
       expect(recommendations).toContain('fancyhdr');
       expect(recommendations).toContain('setspace');
@@ -447,7 +480,7 @@ describe('LaTeXManager', () => {
   describe('错误处理', () => {
     it('应该处理未知操作', async () => {
       const params = {
-        action: 'unknown_action'
+        action: 'unknown_action',
       };
 
       const result = await manager.execute(params as any);
@@ -461,7 +494,7 @@ describe('LaTeXManager', () => {
         action: 'create',
         projectName: 'test-project',
         documentType: DocumentType.JOURNAL_ARTICLE,
-        templateName: 'nonexistent-template'
+        templateName: 'nonexistent-template',
       };
 
       const result = await manager.execute(params);
@@ -474,7 +507,7 @@ describe('LaTeXManager', () => {
       const params: LaTeXManagerParams = {
         action: 'create',
         projectName: 'test-project',
-        documentType: 'unsupported_type' as any
+        documentType: 'unsupported_type' as any,
       };
 
       const result = await manager.execute(params);
@@ -486,13 +519,17 @@ describe('LaTeXManager', () => {
 
   describe('引擎和选项', () => {
     it('应该支持不同的 LaTeX 引擎', async () => {
-      const engines = [LaTeXEngine.PDFLATEX, LaTeXEngine.XELATEX, LaTeXEngine.LUALATEX];
-      
+      const engines = [
+        LaTeXEngine.PDFLATEX,
+        LaTeXEngine.XELATEX,
+        LaTeXEngine.LUALATEX,
+      ];
+
       for (const engine of engines) {
         const params: LaTeXManagerParams = {
           action: 'compile',
           projectPath: './test-project/',
-          engine
+          engine,
         };
 
         const result = await manager.execute(params);
@@ -505,7 +542,7 @@ describe('LaTeXManager', () => {
         action: 'compile',
         projectPath: './test-project/',
         engine: LaTeXEngine.PDFLATEX,
-        compileOptions: ['-shell-escape', '-synctex=1']
+        compileOptions: ['-shell-escape', '-synctex=1'],
       };
 
       const result = await manager.execute(params);
@@ -516,16 +553,16 @@ describe('LaTeXManager', () => {
   describe('帮助信息', () => {
     it('应该提供详细的帮助信息', () => {
       const help = manager.getHelp();
-      
+
       expect(help).toContain('Comprehensive LaTeX project management');
       expect(help).toContain('action');
       expect(help).toContain('projectName');
       expect(help).toContain('documentType');
       expect(help).toContain('engine');
-      
+
       // 检查示例
       expect(help).toContain('IEEE conference paper');
       expect(help).toContain('XeLaTeX');
     });
   });
-}); 
+});

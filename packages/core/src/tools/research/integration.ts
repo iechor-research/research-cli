@@ -13,12 +13,15 @@ import { ResearchToolParams } from './types.js';
  * 研究工具适配器
  * 将研究工具适配为标准工具接口
  */
-export class ResearchToolAdapter extends BaseTool<ResearchToolParams, ToolResult> {
+export class ResearchToolAdapter extends BaseTool<
+  ResearchToolParams,
+  ToolResult
+> {
   constructor(
     private readonly researchToolName: string,
     name: string,
     description: string,
-    parameterSchema: Record<string, unknown>
+    parameterSchema: Record<string, unknown>,
   ) {
     super(
       name,
@@ -26,14 +29,20 @@ export class ResearchToolAdapter extends BaseTool<ResearchToolParams, ToolResult
       description,
       parameterSchema,
       true, // isOutputMarkdown - 研究工具通常输出格式化内容
-      false // canUpdateOutput
+      false, // canUpdateOutput
     );
   }
 
-  async execute(params: ResearchToolParams, signal: AbortSignal): Promise<ToolResult> {
+  async execute(
+    params: ResearchToolParams,
+    signal: AbortSignal,
+  ): Promise<ToolResult> {
     try {
-      const result = await researchToolRegistry.executeTool(this.researchToolName, params);
-      
+      const result = await researchToolRegistry.executeTool(
+        this.researchToolName,
+        params,
+      );
+
       if (result.success) {
         const output = this.formatSuccessOutput(result.data);
         return {
@@ -63,11 +72,11 @@ export class ResearchToolAdapter extends BaseTool<ResearchToolParams, ToolResult
     if (typeof data === 'string') {
       return data;
     }
-    
+
     if (typeof data === 'object' && data !== null) {
       return JSON.stringify(data, null, 2);
     }
-    
+
     return String(data);
   }
 }
@@ -77,15 +86,15 @@ export class ResearchToolAdapter extends BaseTool<ResearchToolParams, ToolResult
  */
 export function registerResearchTools(toolRegistry: ToolRegistry): void {
   const researchTools = researchToolRegistry.getAllTools();
-  
+
   for (const researchTool of researchTools) {
     const adapter = new ResearchToolAdapter(
       researchTool.name,
       `research_${researchTool.name}`,
       researchTool.description,
-      generateParameterSchema(researchTool.name)
+      generateParameterSchema(researchTool.name),
     );
-    
+
     toolRegistry.registerTool(adapter);
   }
 }
@@ -114,7 +123,13 @@ function generateParameterSchema(toolName: string): Record<string, unknown> {
           },
           paper_type: {
             type: 'string',
-            enum: ['research_paper', 'review', 'case_study', 'conference', 'thesis'],
+            enum: [
+              'research_paper',
+              'review',
+              'case_study',
+              'conference',
+              'thesis',
+            ],
             description: 'Type of paper to generate',
           },
           citation_style: {
@@ -170,7 +185,12 @@ function generateParameterSchema(toolName: string): Record<string, unknown> {
         properties: {
           research_method: {
             type: 'string',
-            enum: ['machine_learning', 'statistical_analysis', 'numerical_computation', 'simulation'],
+            enum: [
+              'machine_learning',
+              'statistical_analysis',
+              'numerical_computation',
+              'simulation',
+            ],
             description: 'Research method type',
           },
           programming_language: {
@@ -216,7 +236,18 @@ function generateParameterSchema(toolName: string): Record<string, unknown> {
           },
           research_field: {
             type: 'string',
-            enum: ['computer_science', 'engineering', 'medicine', 'physics', 'chemistry', 'biology', 'mathematics', 'psychology', 'economics', 'social_sciences'],
+            enum: [
+              'computer_science',
+              'engineering',
+              'medicine',
+              'physics',
+              'chemistry',
+              'biology',
+              'mathematics',
+              'psychology',
+              'economics',
+              'social_sciences',
+            ],
             description: 'Primary research field',
           },
           impact_factor_range: {
@@ -268,10 +299,10 @@ function generateParameterSchema(toolName: string): Record<string, unknown> {
  * 获取研究工具的帮助信息
  */
 export function getResearchToolHelp(toolName: string): string | undefined {
-  const cleanToolName = toolName.startsWith('research_') 
-    ? toolName.substring(9) 
+  const cleanToolName = toolName.startsWith('research_')
+    ? toolName.substring(9)
     : toolName;
-  
+
   return researchToolRegistry.getToolHelp(cleanToolName);
 }
 
@@ -280,18 +311,18 @@ export function getResearchToolHelp(toolName: string): string | undefined {
  */
 export function listResearchTools(): string {
   const tools = researchToolRegistry.getToolsSummary();
-  
+
   if (tools.length === 0) {
     return 'No research tools are currently registered.';
   }
 
   let output = 'Available Research Tools:\n\n';
-  
-  tools.forEach(tool => {
+
+  tools.forEach((tool) => {
     output += `**${tool.name}** (v${tool.version})\n`;
     output += `Category: ${tool.category}\n`;
     output += `Description: ${tool.description}\n\n`;
   });
 
   return output;
-} 
+}

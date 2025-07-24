@@ -25,7 +25,7 @@ const params: DataAnalyzerParams = {
   analysisTypes: [AnalysisType.DESCRIPTIVE],
   dataPath: './research_data.csv',
   includeVisualization: true,
-  correlationMethod: 'pearson'
+  correlationMethod: 'pearson',
 };
 
 const result = await analyzer.execute(params);
@@ -37,6 +37,7 @@ console.log('相关性分析:', result.data.results[0].correlationAnalysis);
 ```
 
 **输出示例:**
+
 ```
 数据摘要: {
   totalRows: 1000,
@@ -68,18 +69,21 @@ const params: DataAnalyzerParams = {
   analysisTypes: [AnalysisType.INFERENTIAL],
   dataPath: './experiment_data.csv',
   targetColumn: 'performance_score',
-  significanceLevel: 0.05
+  significanceLevel: 0.05,
 };
 
 const result = await analyzer.execute(params);
 
 // 查看假设检验结果
-result.data.results[0].hypothesisTests?.forEach(test => {
-  console.log(`${test.testName}: p值=${test.pValue}, 结论=${test.interpretation}`);
+result.data.results[0].hypothesisTests?.forEach((test) => {
+  console.log(
+    `${test.testName}: p值=${test.pValue}, 结论=${test.interpretation}`,
+  );
 });
 ```
 
 **输出示例:**
+
 ```
 Shapiro-Wilk正态性检验: p值=0.023, 结论=数据不符合正态分布
 age 与 performance_score 相关性检验: p值=0.001, 结论=存在显著相关性
@@ -96,20 +100,21 @@ const params: DataAnalyzerParams = {
   targetColumn: 'purchase_amount',
   clusteringMethod: 'kmeans',
   regressionMethod: 'random_forest',
-  includeVisualization: true
+  includeVisualization: true,
 };
 
 const result = await analyzer.execute(params);
 
 // 查看机器学习结果
 const mlResults = result.data.results[0].mlResults;
-mlResults?.forEach(ml => {
+mlResults?.forEach((ml) => {
   console.log(`${ml.analysisType}: ${ml.algorithm}`);
   console.log('建议:', ml.recommendations.join(', '));
 });
 ```
 
 **输出示例:**
+
 ```
 clustering: K-Means (k=3)
 建议: 建议尝试不同的聚类数量, 可以使用肘部法则确定最优聚类数
@@ -130,7 +135,7 @@ const params: DataAnalyzerParams = {
   dataPath: './sales_timeseries.csv',
   timeColumn: 'date',
   targetColumn: 'sales_amount',
-  includeVisualization: true
+  includeVisualization: true,
 };
 
 const result = await analyzer.execute(params);
@@ -139,7 +144,10 @@ const result = await analyzer.execute(params);
 const tsAnalysis = result.data.results[0].timeSeriesAnalysis;
 console.log('趋势:', tsAnalysis?.trend);
 console.log('季节性:', tsAnalysis?.seasonality.detected ? '有' : '无');
-console.log('平稳性:', tsAnalysis?.stationarity.isStationary ? '平稳' : '非平稳');
+console.log(
+  '平稳性:',
+  tsAnalysis?.stationarity.isStationary ? '平稳' : '非平稳',
+);
 ```
 
 ### 5. 探索性数据分析
@@ -149,7 +157,7 @@ const params: DataAnalyzerParams = {
   action: 'explore',
   analysisTypes: [AnalysisType.DESCRIPTIVE],
   dataPath: './survey_data.csv',
-  includeVisualization: true
+  includeVisualization: true,
 };
 
 const result = await analyzer.execute(params);
@@ -162,6 +170,7 @@ result.data.results[0].recommendations.forEach((insight, index) => {
 ```
 
 **输出示例:**
+
 ```
 数据洞察:
 1. 数据集包含 2500 行和 12 列
@@ -177,19 +186,20 @@ result.data.results[0].recommendations.forEach((insight, index) => {
 const params: DataAnalyzerParams = {
   action: 'preprocess',
   analysisTypes: [AnalysisType.DESCRIPTIVE],
-  dataPath: './raw_data.csv'
+  dataPath: './raw_data.csv',
 };
 
 const result = await analyzer.execute(params);
 
 // 查看预处理建议
 console.log('预处理建议:');
-result.data.results[0].recommendations.forEach(recommendation => {
+result.data.results[0].recommendations.forEach((recommendation) => {
   console.log('- ' + recommendation);
 });
 ```
 
 **输出示例:**
+
 ```
 预处理建议:
 - income: 缺失值较多(8.5%)，建议使用插值或建模填充
@@ -208,12 +218,12 @@ const params: DataAnalyzerParams = {
   analysisTypes: [
     AnalysisType.DESCRIPTIVE,
     AnalysisType.INFERENTIAL,
-    AnalysisType.MACHINE_LEARNING
+    AnalysisType.MACHINE_LEARNING,
   ],
   dataPath: './complete_dataset.csv',
   outputFormat: 'html',
   includeVisualization: true,
-  includeRecommendations: true
+  includeRecommendations: true,
 };
 
 const result = await analyzer.execute(params);
@@ -238,7 +248,7 @@ const params: DataAnalyzerParams = {
   action: 'analyze',
   analysisTypes: [AnalysisType.DESCRIPTIVE, AnalysisType.VISUALIZATION],
   dataContent: JSON.stringify(customData),
-  includeVisualization: true
+  includeVisualization: true,
 };
 
 const result = await analyzer.execute(params);
@@ -294,11 +304,11 @@ const result = await analyzer.execute(params);
 ```typescript
 interface DataAnalysisResult {
   action: string;
-  summary: StatisticalSummary;        // 数据摘要
-  results: AnalysisResults[];         // 分析结果数组
-  report?: string;                    // 格式化报告
-  executionTime: number;              // 执行时间
-  recommendations: string[];          // 总体建议
+  summary: StatisticalSummary; // 数据摘要
+  results: AnalysisResults[]; // 分析结果数组
+  report?: string; // 格式化报告
+  executionTime: number; // 执行时间
+  recommendations: string[]; // 总体建议
 }
 ```
 
@@ -324,21 +334,25 @@ interface DataAnalysisResult {
 ## 常见用例
 
 ### 学术研究
+
 - 实验数据的统计分析
 - 调查数据的探索性分析
 - 论文中的数据可视化
 
 ### 市场研究
+
 - 客户行为分析
 - 产品性能评估
 - 市场趋势分析
 
 ### 质量控制
+
 - 生产数据监控
 - 异常检测
 - 过程改进分析
 
 ### 医学研究
+
 - 临床试验数据分析
 - 流行病学研究
-- 生物标志物分析 
+- 生物标志物分析

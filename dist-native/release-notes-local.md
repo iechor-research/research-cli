@@ -16,6 +16,7 @@
 ## 📦 快速安装
 
 ### 一键安装器（所有平台）
+
 ```bash
 curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/install-complete.sh | bash
 ```
@@ -23,12 +24,14 @@ curl -sSL https://github.com/iechor-research/research-cli/releases/download/v0.2
 ### 手动安装
 
 #### macOS Intel
+
 ```bash
 curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-x64
 chmod +x research-cli && ./research-cli
 ```
 
 #### macOS Apple Silicon (M1/M2/M3)
+
 ```bash
 curl -L -o research-cli https://github.com/iechor-research/research-cli/releases/download/v0.2.8-native/research-cli-darwin-arm64
 chmod +x research-cli && ./research-cli
@@ -42,6 +45,7 @@ chmod +x research-cli && ./research-cli
 ## 🔧 技术细节
 
 每个二进制文件都是一个轻量级的Rust包装器，具有以下特性：
+
 - 包含完整的Research CLI Node.js包
 - 自动查找并使用系统的Node.js安装
 - 提供完全的终端兼容性（stdin/stdout/stderr）

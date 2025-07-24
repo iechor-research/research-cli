@@ -89,7 +89,7 @@ describe('CommandService', () => {
         expect(loadedTree.length).toBe(8);
         // Just check that the core commands are present
         // Research commands are tested separately
-        const commandNames = loadedTree.map(cmd => cmd.name);
+        const commandNames = loadedTree.map((cmd) => cmd.name);
         expect(commandNames).toContain('clear');
         expect(commandNames).toContain('help');
         expect(commandNames).toContain('memory');

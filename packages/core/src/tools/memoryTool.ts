@@ -83,7 +83,11 @@ interface SaveMemoryParams {
 }
 
 function getGlobalMemoryFilePath(): string {
-  return path.join(homedir(), RESEARCH_CONFIG_DIR, getCurrentResearchMdFilename());
+  return path.join(
+    homedir(),
+    RESEARCH_CONFIG_DIR,
+    getCurrentResearchMdFilename(),
+  );
 }
 
 /**

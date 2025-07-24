@@ -11,9 +11,13 @@ import {
   Database,
   CitationStyle,
   ResearchToolCategory,
-  LiteratureSearchParams
+  LiteratureSearchParams,
 } from '../types.js';
-import { cached, monitored, ParallelProcessor } from '../utils/performance-optimizer.js';
+import {
+  cached,
+  monitored,
+  ParallelProcessor,
+} from '../utils/performance-optimizer.js';
 import { GoogleScholarClient } from '../bibliography/google-scholar-client.js';
 
 /**
@@ -109,7 +113,7 @@ export class BibliographyManager extends BaseResearchTool<
     super(
       'manage_bibliography',
       'Manage bibliography and search academic literature',
-      ResearchToolCategory.ANALYSIS
+      ResearchToolCategory.ANALYSIS,
     );
     this.googleScholarClient = new GoogleScholarClient();
   }
@@ -122,13 +126,20 @@ export class BibliographyManager extends BaseResearchTool<
         searchParams.query?.trim() &&
         searchParams.databases?.length > 0 &&
         (!searchParams.maxResults || searchParams.maxResults > 0) &&
-        (!searchParams.yearRange || 
-         (searchParams.yearRange.start <= searchParams.yearRange.end))
+        (!searchParams.yearRange ||
+          searchParams.yearRange.start <= searchParams.yearRange.end)
       );
     } else if ('action' in params) {
       // 管理参数验证
       const manageParams = params as BibliographyManageParams;
-      const validActions = ['add', 'remove', 'update', 'list', 'export', 'import'];
+      const validActions = [
+        'add',
+        'remove',
+        'update',
+        'list',
+        'export',
+        'import',
+      ];
       return validActions.includes(manageParams.action);
     }
     return false;
@@ -139,19 +150,80 @@ export class BibliographyManager extends BaseResearchTool<
       'Search academic literature and manage bibliography database',
       [
         // 搜索参数
-        { name: 'query', type: 'string', required: true, description: 'Search query for literature' },
-        { name: 'databases', type: 'Database[]', required: true, description: 'Databases to search (arxiv, pubmed, ieee, etc.)' },
-        { name: 'maxResults', type: 'number', required: false, description: 'Maximum number of results (default: 20)' },
-        { name: 'yearRange', type: 'object', required: false, description: 'Year range filter {start: number, end: number}' },
-        { name: 'fields', type: 'string[]', required: false, description: 'Specific research fields to focus on' },
-        { name: 'includeAbstracts', type: 'boolean', required: false, description: 'Include abstracts in results' },
-        { name: 'sortBy', type: 'string', required: false, description: 'Sort order: relevance, date, citations' },
+        {
+          name: 'query',
+          type: 'string',
+          required: true,
+          description: 'Search query for literature',
+        },
+        {
+          name: 'databases',
+          type: 'Database[]',
+          required: true,
+          description: 'Databases to search (arxiv, pubmed, ieee, etc.)',
+        },
+        {
+          name: 'maxResults',
+          type: 'number',
+          required: false,
+          description: 'Maximum number of results (default: 20)',
+        },
+        {
+          name: 'yearRange',
+          type: 'object',
+          required: false,
+          description: 'Year range filter {start: number, end: number}',
+        },
+        {
+          name: 'fields',
+          type: 'string[]',
+          required: false,
+          description: 'Specific research fields to focus on',
+        },
+        {
+          name: 'includeAbstracts',
+          type: 'boolean',
+          required: false,
+          description: 'Include abstracts in results',
+        },
+        {
+          name: 'sortBy',
+          type: 'string',
+          required: false,
+          description: 'Sort order: relevance, date, citations',
+        },
         // 管理参数
-        { name: 'action', type: 'string', required: true, description: 'Management action: add, remove, update, list, export, import' },
-        { name: 'entryId', type: 'string', required: false, description: 'Entry ID for update/remove actions' },
-        { name: 'entry', type: 'BibliographyEntry', required: false, description: 'Bibliography entry data' },
-        { name: 'format', type: 'CitationStyle', required: false, description: 'Citation format for export' },
-        { name: 'filename', type: 'string', required: false, description: 'Filename for export/import' }
+        {
+          name: 'action',
+          type: 'string',
+          required: true,
+          description:
+            'Management action: add, remove, update, list, export, import',
+        },
+        {
+          name: 'entryId',
+          type: 'string',
+          required: false,
+          description: 'Entry ID for update/remove actions',
+        },
+        {
+          name: 'entry',
+          type: 'BibliographyEntry',
+          required: false,
+          description: 'Bibliography entry data',
+        },
+        {
+          name: 'format',
+          type: 'CitationStyle',
+          required: false,
+          description: 'Citation format for export',
+        },
+        {
+          name: 'filename',
+          type: 'string',
+          required: false,
+          description: 'Filename for export/import',
+        },
       ],
       [
         {
@@ -161,23 +233,23 @@ export class BibliographyManager extends BaseResearchTool<
             databases: ['arxiv'],
             maxResults: 10,
             yearRange: { start: 2020, end: 2024 },
-            includeAbstracts: true
-          }
+            includeAbstracts: true,
+          },
         },
         {
           description: 'Export bibliography in APA format',
           params: {
             action: 'export',
             format: 'apa',
-            filename: 'my-bibliography.txt'
-          }
-        }
-      ]
+            filename: 'my-bibliography.txt',
+          },
+        },
+      ],
     );
   }
 
   protected async executeImpl(
-    params: BibliographySearchParams | BibliographyManageParams
+    params: BibliographySearchParams | BibliographyManageParams,
   ): Promise<BibliographySearchResult | BibliographyManageResult> {
     if ('query' in params) {
       return this.searchLiterature(params as BibliographySearchParams);
@@ -189,19 +261,21 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 搜索学术文献
    */
-  private async searchLiterature(params: BibliographySearchParams): Promise<BibliographySearchResult> {
+  private async searchLiterature(
+    params: BibliographySearchParams,
+  ): Promise<BibliographySearchResult> {
     const startTime = Date.now();
     const maxResults = params.maxResults || 20;
     const allEntries: BibliographyEntry[] = [];
     const sources: BibliographySearchResult['sources'] = {};
-    
+
     // 使用并行处理器优化数据库搜索
     const processor = new ParallelProcessor<Database, BibliographyEntry[]>(3); // 限制并发数
-    
-    const searchTasks = params.databases.map(database => async () => {
+
+    const searchTasks = params.databases.map((database) => async () => {
       try {
         let entries: BibliographyEntry[] = [];
-        
+
         switch (database) {
           case Database.ARXIV:
             entries = await this.searchArxivCached(params, maxResults);
@@ -222,7 +296,7 @@ export class BibliographyManager extends BaseResearchTool<
 
         sources[database] = {
           count: entries.length,
-          status: 'success'
+          status: 'success',
         };
 
         return entries;
@@ -231,15 +305,17 @@ export class BibliographyManager extends BaseResearchTool<
         sources[database] = {
           count: 0,
           status: 'error',
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         };
         return [];
       }
     });
 
     // 并行执行搜索任务
-    const results = await processor.process(params.databases, (database) => searchTasks[params.databases.indexOf(database)]());
-    results.forEach(entries => allEntries.push(...entries));
+    const results = await processor.process(params.databases, (database) =>
+      searchTasks[params.databases.indexOf(database)](),
+    );
+    results.forEach((entries) => allEntries.push(...entries));
 
     // 优化去重处理
     const uniqueEntries = this.deduplicateEntriesOptimized(allEntries);
@@ -249,7 +325,10 @@ export class BibliographyManager extends BaseResearchTool<
     let filteredEntries = this.applyFilters(uniqueEntries, params);
 
     // 排序
-    filteredEntries = this.sortEntries(filteredEntries, params.sortBy || 'relevance');
+    filteredEntries = this.sortEntries(
+      filteredEntries,
+      params.sortBy || 'relevance',
+    );
 
     // 限制结果数量
     filteredEntries = filteredEntries.slice(0, maxResults);
@@ -263,16 +342,19 @@ export class BibliographyManager extends BaseResearchTool<
         query: params.query,
         databases: params.databases,
         searchTime,
-        duplicatesRemoved
+        duplicatesRemoved,
       },
-      sources
+      sources,
     };
   }
 
   /**
    * 缓存的 arXiv 搜索
    */
-  private async searchArxivCached(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+  private async searchArxivCached(
+    params: BibliographySearchParams,
+    maxResults: number,
+  ): Promise<BibliographyEntry[]> {
     // TODO: Implement caching logic
     return this.searchArxiv(params, maxResults);
   }
@@ -280,7 +362,10 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 搜索 arXiv
    */
-  private async searchArxiv(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+  private async searchArxiv(
+    params: BibliographySearchParams,
+    maxResults: number,
+  ): Promise<BibliographyEntry[]> {
     const query = encodeURIComponent(params.query);
     const url = `http://export.arxiv.org/api/query?search_query=all:${query}&start=0&max_results=${maxResults}`;
 
@@ -302,22 +387,30 @@ export class BibliographyManager extends BaseResearchTool<
    * 使用网络搜索进行学术文献搜索
    * 这里可以集成现有的 WebSearchTool 或实现专门的学术搜索
    */
-  private async searchWebScientific(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+  private async searchWebScientific(
+    params: BibliographySearchParams,
+    maxResults: number,
+  ): Promise<BibliographyEntry[]> {
     try {
       console.log('Using Google Scholar search via SERPAPI');
-      
+
       const searchOptions = {
         maxResults,
         yearRange: params.yearRange,
         language: params.language,
-        sortBy: params.sortBy === 'date' ? 'date' as const : 'relevance' as const
+        sortBy:
+          params.sortBy === 'date' ? ('date' as const) : ('relevance' as const),
       };
 
-      const entries = await this.googleScholarClient.searchPapers(params.query, searchOptions);
-      
-      console.log(`Google Scholar search returned ${entries.length} results for: ${params.query}`);
+      const entries = await this.googleScholarClient.searchPapers(
+        params.query,
+        searchOptions,
+      );
+
+      console.log(
+        `Google Scholar search returned ${entries.length} results for: ${params.query}`,
+      );
       return entries;
-      
     } catch (error) {
       console.error('Google Scholar search error:', error);
       // 如果 API 调用失败，返回模拟数据
@@ -329,7 +422,10 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 搜索 PubMed（模拟实现）
    */
-  private async searchPubmed(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+  private async searchPubmed(
+    params: BibliographySearchParams,
+    maxResults: number,
+  ): Promise<BibliographyEntry[]> {
     // 这里应该实现真实的 PubMed API 调用
     console.log(`PubMed search for: ${params.query}`);
     return this.createMockPubmedResults(params.query, Math.min(maxResults, 3));
@@ -338,7 +434,10 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 搜索 IEEE（模拟实现）
    */
-  private async searchIEEE(params: BibliographySearchParams, maxResults: number): Promise<BibliographyEntry[]> {
+  private async searchIEEE(
+    params: BibliographySearchParams,
+    maxResults: number,
+  ): Promise<BibliographyEntry[]> {
     // 这里应该实现真实的 IEEE API 调用
     console.log(`IEEE search for: ${params.query}`);
     return this.createMockIEEEResults(params.query, Math.min(maxResults, 3));
@@ -349,24 +448,29 @@ export class BibliographyManager extends BaseResearchTool<
    */
   private parseArxivXML(xmlText: string): BibliographyEntry[] {
     const entries: BibliographyEntry[] = [];
-    
+
     // 简单的 XML 解析（生产环境应使用专门的 XML 解析库）
     const entryMatches = xmlText.match(/<entry>([\s\S]*?)<\/entry>/g);
-    
+
     if (!entryMatches) return entries;
 
     entryMatches.forEach((entryXml, index) => {
       try {
         const id = this.extractXmlValue(entryXml, 'id');
-        const title = this.extractXmlValue(entryXml, 'title')?.replace(/\s+/g, ' ').trim();
-        const summary = this.extractXmlValue(entryXml, 'summary')?.replace(/\s+/g, ' ').trim();
+        const title = this.extractXmlValue(entryXml, 'title')
+          ?.replace(/\s+/g, ' ')
+          .trim();
+        const summary = this.extractXmlValue(entryXml, 'summary')
+          ?.replace(/\s+/g, ' ')
+          .trim();
         const published = this.extractXmlValue(entryXml, 'published');
-        
+
         // 提取作者
         const authorMatches = entryXml.match(/<author>([\s\S]*?)<\/author>/g);
-        const authors = authorMatches?.map(authorXml => 
-          this.extractXmlValue(authorXml, 'name') || 'Unknown'
-        ) || [];
+        const authors =
+          authorMatches?.map(
+            (authorXml) => this.extractXmlValue(authorXml, 'name') || 'Unknown',
+          ) || [];
 
         // 提取 DOI
         const doiMatch = entryXml.match(/doi:([^<\s]+)/);
@@ -395,8 +499,8 @@ export class BibliographyManager extends BaseResearchTool<
             citationFormats: {
               apa: '',
               mla: '',
-              ieee: ''
-            }
+              ieee: '',
+            },
           });
         }
       } catch (error) {
@@ -418,9 +522,12 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 创建模拟的网络搜索结果
    */
-  private createMockWebResults(query: string, count: number): BibliographyEntry[] {
+  private createMockWebResults(
+    query: string,
+    count: number,
+  ): BibliographyEntry[] {
     const results: BibliographyEntry[] = [];
-    
+
     for (let i = 1; i <= count; i++) {
       results.push({
         id: `web_${i}`,
@@ -437,74 +544,88 @@ export class BibliographyManager extends BaseResearchTool<
         citationFormats: {
           apa: '',
           mla: '',
-          ieee: ''
-        }
+          ieee: '',
+        },
       });
     }
-    
+
     return results;
   }
 
   /**
    * 创建 PubMed 模拟结果
    */
-  private createMockPubmedResults(query: string, count: number): BibliographyEntry[] {
+  private createMockPubmedResults(
+    query: string,
+    count: number,
+  ): BibliographyEntry[] {
     const results: BibliographyEntry[] = [];
-    
+
     for (let i = 1; i <= count; i++) {
-      const entry = this.createBibliographyEntry({
-        id: `pubmed_${i}`,
-        title: `Medical Study: ${query} ${i}`,
-        authors: [`Dr. ${i} Smith`, `Dr. ${i} Johnson`],
-        year: 2022 - i,
-        journal: `Medical Journal ${i}`,
-        abstract: `Medical research on ${query}. Study ${i} examines the clinical implications and therapeutic applications.`,
-        url: `https://pubmed.ncbi.nlm.nih.gov/${i}`,
-        keywords: [query, 'medicine', 'clinical']
-      }, 'pubmed');
-      
+      const entry = this.createBibliographyEntry(
+        {
+          id: `pubmed_${i}`,
+          title: `Medical Study: ${query} ${i}`,
+          authors: [`Dr. ${i} Smith`, `Dr. ${i} Johnson`],
+          year: 2022 - i,
+          journal: `Medical Journal ${i}`,
+          abstract: `Medical research on ${query}. Study ${i} examines the clinical implications and therapeutic applications.`,
+          url: `https://pubmed.ncbi.nlm.nih.gov/${i}`,
+          keywords: [query, 'medicine', 'clinical'],
+        },
+        'pubmed',
+      );
+
       results.push(entry);
     }
-    
+
     return results;
   }
 
   /**
    * 创建 IEEE 模拟结果
    */
-  private createMockIEEEResults(query: string, count: number): BibliographyEntry[] {
+  private createMockIEEEResults(
+    query: string,
+    count: number,
+  ): BibliographyEntry[] {
     const results: BibliographyEntry[] = [];
-    
+
     for (let i = 1; i <= count; i++) {
-      const entry = this.createBibliographyEntry({
-        id: `ieee_${i}`,
-        title: `Engineering Research: ${query} ${i}`,
-        authors: [`Prof. ${i} Chen`, `Dr. ${i} Wang`],
-        year: 2023 - i,
-        conference: `IEEE Conference ${i}`,
-        abstract: `Engineering study on ${query}. Research ${i} focuses on technical innovations and practical applications.`,
-        doi: `10.1109/EXAMPLE.2023.${i}`,
-        url: `https://ieeexplore.ieee.org/document/${i}`,
-        keywords: [query, 'engineering', 'technology']
-      }, 'ieee');
-      
+      const entry = this.createBibliographyEntry(
+        {
+          id: `ieee_${i}`,
+          title: `Engineering Research: ${query} ${i}`,
+          authors: [`Prof. ${i} Chen`, `Dr. ${i} Wang`],
+          year: 2023 - i,
+          conference: `IEEE Conference ${i}`,
+          abstract: `Engineering study on ${query}. Research ${i} focuses on technical innovations and practical applications.`,
+          doi: `10.1109/EXAMPLE.2023.${i}`,
+          url: `https://ieeexplore.ieee.org/document/${i}`,
+          keywords: [query, 'engineering', 'technology'],
+        },
+        'ieee',
+      );
+
       results.push(entry);
     }
-    
+
     return results;
   }
 
   /**
    * 文献去重
    */
-  private deduplicateEntries(entries: BibliographyEntry[]): BibliographyEntry[] {
+  private deduplicateEntries(
+    entries: BibliographyEntry[],
+  ): BibliographyEntry[] {
     const seen = new Set<string>();
     const unique: BibliographyEntry[] = [];
 
     for (const entry of entries) {
       // 使用标题和年份作为去重键
       const key = `${entry.title?.toLowerCase().trim()}_${entry.year}`;
-      
+
       if (!seen.has(key)) {
         seen.add(key);
         unique.push(entry);
@@ -517,43 +638,50 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 优化的去重处理
    */
-  private deduplicateEntriesOptimized(entries: BibliographyEntry[]): BibliographyEntry[] {
+  private deduplicateEntriesOptimized(
+    entries: BibliographyEntry[],
+  ): BibliographyEntry[] {
     const seen = new Set<string>();
     const uniqueEntries: BibliographyEntry[] = [];
-    
+
     for (const entry of entries) {
       // 使用标题和年份的组合作为唯一标识
       const key = `${entry.title?.toLowerCase().replace(/\s+/g, ' ').trim()}_${entry.year}`;
-      
+
       if (!seen.has(key)) {
         seen.add(key);
         uniqueEntries.push(entry);
       }
     }
-    
+
     return uniqueEntries;
   }
 
   /**
    * 应用搜索过滤器
    */
-  private applyFilters(entries: BibliographyEntry[], params: BibliographySearchParams): BibliographyEntry[] {
+  private applyFilters(
+    entries: BibliographyEntry[],
+    params: BibliographySearchParams,
+  ): BibliographyEntry[] {
     let filtered = entries;
 
     // 年份范围过滤
     if (params.yearRange) {
-      filtered = filtered.filter(entry => 
-        entry.year >= params.yearRange!.start && 
-        entry.year <= params.yearRange!.end
+      filtered = filtered.filter(
+        (entry) =>
+          entry.year >= params.yearRange!.start &&
+          entry.year <= params.yearRange!.end,
       );
     }
 
     // 研究领域过滤
     if (params.fields && params.fields.length > 0) {
-      filtered = filtered.filter(entry => {
-        const entryText = `${entry.title} ${entry.abstract} ${entry.keywords?.join(' ')}`.toLowerCase();
-        return params.fields!.some(field => 
-          entryText.includes(field.toLowerCase())
+      filtered = filtered.filter((entry) => {
+        const entryText =
+          `${entry.title} ${entry.abstract} ${entry.keywords?.join(' ')}`.toLowerCase();
+        return params.fields!.some((field) =>
+          entryText.includes(field.toLowerCase()),
         );
       });
     }
@@ -564,7 +692,10 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 排序文献条目
    */
-  private sortEntries(entries: BibliographyEntry[], sortBy: string): BibliographyEntry[] {
+  private sortEntries(
+    entries: BibliographyEntry[],
+    sortBy: string,
+  ): BibliographyEntry[] {
     return entries.sort((a, b) => {
       switch (sortBy) {
         case 'date':
@@ -582,7 +713,9 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 管理文献数据库
    */
-  private async manageBibliography(params: BibliographyManageParams): Promise<BibliographyManageResult> {
+  private async manageBibliography(
+    params: BibliographyManageParams,
+  ): Promise<BibliographyManageResult> {
     const result = (() => {
       switch (params.action) {
         case 'add':
@@ -594,7 +727,10 @@ export class BibliographyManager extends BaseResearchTool<
         case 'list':
           return this.listEntries();
         case 'export':
-          return this.exportBibliography(params.format || CitationStyle.APA, params.filename);
+          return this.exportBibliography(
+            params.format || CitationStyle.APA,
+            params.filename,
+          );
         case 'import':
           return this.importBibliography(params.data!, params.format);
         default:
@@ -604,7 +740,9 @@ export class BibliographyManager extends BaseResearchTool<
 
     // 如果操作失败，抛出错误以便工具层处理
     if (!result.success) {
-      throw new Error(result.message || `Failed to execute action: ${params.action}`);
+      throw new Error(
+        result.message || `Failed to execute action: ${params.action}`,
+      );
     }
 
     return result;
@@ -613,7 +751,9 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 添加文献条目
    */
-  private addEntry(entry: Partial<BibliographyEntry>): BibliographyManageResult {
+  private addEntry(
+    entry: Partial<BibliographyEntry>,
+  ): BibliographyManageResult {
     const newEntry: BibliographyEntry = {
       id: `entry_${this.nextId++}`,
       title: entry.title || 'Untitled',
@@ -626,9 +766,9 @@ export class BibliographyManager extends BaseResearchTool<
       citationFormats: entry.citationFormats || {
         apa: '',
         mla: '',
-        ieee: ''
+        ieee: '',
       },
-      ...entry
+      ...entry,
     };
 
     this.bibliography.push(newEntry);
@@ -637,7 +777,7 @@ export class BibliographyManager extends BaseResearchTool<
       success: true,
       action: 'add',
       count: 1,
-      message: `Added entry: ${newEntry.title}`
+      message: `Added entry: ${newEntry.title}`,
     };
   }
 
@@ -645,13 +785,13 @@ export class BibliographyManager extends BaseResearchTool<
    * 删除文献条目
    */
   private removeEntry(entryId: string): BibliographyManageResult {
-    const index = this.bibliography.findIndex(entry => entry.id === entryId);
-    
+    const index = this.bibliography.findIndex((entry) => entry.id === entryId);
+
     if (index === -1) {
       return {
         success: false,
         action: 'remove',
-        message: `Entry not found: ${entryId}`
+        message: `Entry not found: ${entryId}`,
       };
     }
 
@@ -661,21 +801,24 @@ export class BibliographyManager extends BaseResearchTool<
       success: true,
       action: 'remove',
       count: 1,
-      message: `Removed entry: ${removed.title}`
+      message: `Removed entry: ${removed.title}`,
     };
   }
 
   /**
    * 更新文献条目
    */
-  private updateEntry(entryId: string, updates: Partial<BibliographyEntry>): BibliographyManageResult {
-    const entry = this.bibliography.find(e => e.id === entryId);
-    
+  private updateEntry(
+    entryId: string,
+    updates: Partial<BibliographyEntry>,
+  ): BibliographyManageResult {
+    const entry = this.bibliography.find((e) => e.id === entryId);
+
     if (!entry) {
       return {
         success: false,
         action: 'update',
-        message: `Entry not found: ${entryId}`
+        message: `Entry not found: ${entryId}`,
       };
     }
 
@@ -685,7 +828,7 @@ export class BibliographyManager extends BaseResearchTool<
       success: true,
       action: 'update',
       count: 1,
-      message: `Updated entry: ${entry.title}`
+      message: `Updated entry: ${entry.title}`,
     };
   }
 
@@ -698,15 +841,20 @@ export class BibliographyManager extends BaseResearchTool<
       action: 'list',
       count: this.bibliography.length,
       entries: [...this.bibliography],
-      message: `Found ${this.bibliography.length} entries`
+      message: `Found ${this.bibliography.length} entries`,
     };
   }
 
   /**
    * 导出文献数据库
    */
-  private exportBibliography(format: CitationStyle, filename?: string): BibliographyManageResult {
-    const citations = this.bibliography.map(entry => this.formatCitation(entry, format));
+  private exportBibliography(
+    format: CitationStyle,
+    filename?: string,
+  ): BibliographyManageResult {
+    const citations = this.bibliography.map((entry) =>
+      this.formatCitation(entry, format),
+    );
     const exportData = citations.join('\n\n');
 
     return {
@@ -714,33 +862,41 @@ export class BibliographyManager extends BaseResearchTool<
       action: 'export',
       count: this.bibliography.length,
       exportData,
-      message: `Exported ${this.bibliography.length} entries in ${format} format${filename ? ` to ${filename}` : ''}`
+      message: `Exported ${this.bibliography.length} entries in ${format} format${filename ? ` to ${filename}` : ''}`,
     };
   }
 
   /**
    * 导入文献数据库
    */
-  private importBibliography(data: string, format?: CitationStyle): BibliographyManageResult {
+  private importBibliography(
+    data: string,
+    format?: CitationStyle,
+  ): BibliographyManageResult {
     // 简单的导入实现（可以扩展支持各种格式）
-    const lines = data.split('\n').filter(line => line.trim());
+    const lines = data.split('\n').filter((line) => line.trim());
     const imported = lines.length;
 
     // 这里应该根据格式解析导入的数据
-    console.log(`Importing ${imported} entries in ${format || 'unknown'} format`);
+    console.log(
+      `Importing ${imported} entries in ${format || 'unknown'} format`,
+    );
 
     return {
       success: true,
       action: 'import',
       count: imported,
-      message: `Imported ${imported} entries`
+      message: `Imported ${imported} entries`,
     };
   }
 
   /**
    * 格式化引用
    */
-  private formatCitation(entry: BibliographyEntry, style: CitationStyle): string {
+  private formatCitation(
+    entry: BibliographyEntry,
+    style: CitationStyle,
+  ): string {
     const authors = entry.authors.join(', ');
     const year = entry.year;
     const title = entry.title;
@@ -748,13 +904,13 @@ export class BibliographyManager extends BaseResearchTool<
     switch (style) {
       case CitationStyle.APA:
         return `${authors} (${year}). ${title}.${entry.journal ? ` ${entry.journal}.` : ''}${entry.doi ? ` https://doi.org/${entry.doi}` : ''}`;
-      
+
       case CitationStyle.IEEE:
         return `${authors}, "${title}," ${entry.journal || entry.conference || ''}, ${year}.${entry.doi ? ` DOI: ${entry.doi}.` : ''}`;
-      
+
       case CitationStyle.MLA:
         return `${authors}. "${title}." ${entry.journal || ''} ${year}.${entry.url ? ` Web. ${entry.url}` : ''}`;
-      
+
       default:
         return `${authors}. ${title}. ${year}.`;
     }
@@ -763,10 +919,15 @@ export class BibliographyManager extends BaseResearchTool<
   /**
    * 创建标准的 BibliographyEntry
    */
-  private createBibliographyEntry(entry: Partial<BibliographyEntry>, source: string): BibliographyEntry {
+  private createBibliographyEntry(
+    entry: Partial<BibliographyEntry>,
+    source: string,
+  ): BibliographyEntry {
     const now = new Date();
     return {
-      id: entry.id || `${source}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id:
+        entry.id ||
+        `${source}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: entry.title || 'Unknown Title',
       authors: entry.authors || [],
       year: entry.year || new Date().getFullYear(),
@@ -785,8 +946,8 @@ export class BibliographyManager extends BaseResearchTool<
       citationFormats: {
         apa: this.generateAPACitation(entry),
         mla: this.generateMLACitation(entry),
-        ieee: this.generateIEEECitation(entry)
-      }
+        ieee: this.generateIEEECitation(entry),
+      },
     };
   }
 
@@ -798,7 +959,7 @@ export class BibliographyManager extends BaseResearchTool<
     const year = entry.year || 'n.d.';
     const title = entry.title || 'Untitled';
     const journal = entry.journal || entry.conference || 'Unpublished';
-    
+
     return `${authors} (${year}). ${title}. ${journal}.`;
   }
 
@@ -810,7 +971,7 @@ export class BibliographyManager extends BaseResearchTool<
     const title = entry.title || 'Untitled';
     const journal = entry.journal || entry.conference || 'Unpublished';
     const year = entry.year || 'n.d.';
-    
+
     return `${authors}. "${title}." ${journal}, ${year}.`;
   }
 
@@ -822,7 +983,7 @@ export class BibliographyManager extends BaseResearchTool<
     const title = entry.title || 'Untitled';
     const journal = entry.journal || entry.conference || 'Unpublished';
     const year = entry.year || 'n.d.';
-    
+
     return `${authors}, "${title}," ${journal}, ${year}.`;
   }
-} 
+}

@@ -25,13 +25,13 @@ function copyFiles(packageName, filesToCopy) {
   for (const [source, dest] of Object.entries(filesToCopy)) {
     const sourcePath = path.resolve(rootDir, source);
     const destPath = path.resolve(packageDir, dest);
-    
+
     // Skip if source file doesn't exist
     if (!fs.existsSync(sourcePath)) {
       console.log(`Skipping ${source} (file not found)`);
       continue;
     }
-    
+
     try {
       fs.copyFileSync(sourcePath, destPath);
       console.log(`Copied ${source} to packages/${packageName}/`);

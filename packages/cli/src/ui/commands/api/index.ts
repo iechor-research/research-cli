@@ -9,36 +9,36 @@ const API_CONFIG_FILE = path.join(API_CONFIG_DIR, 'api-config.json');
 
 // 支持的API提供商
 const SUPPORTED_APIS = {
-  'serpapi': {
+  serpapi: {
     name: 'SerpAPI',
     envVar: 'SERPAPI_KEY',
     description: 'Google Scholar and web search API',
-    urlPattern: 'https://serpapi.com/'
+    urlPattern: 'https://serpapi.com/',
   },
-  'gemini': {
+  gemini: {
     name: 'Gemini API',
     envVar: 'GEMINI_API_KEY',
     description: 'Google Gemini AI API',
-    urlPattern: 'https://aistudio.google.com/'
+    urlPattern: 'https://aistudio.google.com/',
   },
-  'google': {
+  google: {
     name: 'Google API',
     envVar: 'GOOGLE_API_KEY',
     description: 'Google Cloud API (Vertex AI)',
-    urlPattern: 'https://cloud.google.com/'
+    urlPattern: 'https://cloud.google.com/',
   },
-  'google_project': {
+  google_project: {
     name: 'Google Cloud Project',
     envVar: 'GOOGLE_CLOUD_PROJECT',
     description: 'Google Cloud Project ID',
-    urlPattern: 'https://cloud.google.com/'
+    urlPattern: 'https://cloud.google.com/',
   },
-  'google_location': {
+  google_location: {
     name: 'Google Cloud Location',
     envVar: 'GOOGLE_CLOUD_LOCATION',
     description: 'Google Cloud Location/Region',
-    urlPattern: 'https://cloud.google.com/'
-  }
+    urlPattern: 'https://cloud.google.com/',
+  },
 };
 
 interface APIConfig {
@@ -81,13 +81,14 @@ function writeAPIConfig(config: APIConfig): void {
 function getAPIValue(provider: string): string | undefined {
   const config = readAPIConfig();
   const providerConfig = config.apis[provider.toLowerCase()];
-  
+
   if (providerConfig?.apiKey || providerConfig?.value) {
     return providerConfig.apiKey || providerConfig.value;
   }
-  
+
   // 回退到环境变量
-  const apiInfo = SUPPORTED_APIS[provider.toLowerCase() as keyof typeof SUPPORTED_APIS];
+  const apiInfo =
+    SUPPORTED_APIS[provider.toLowerCase() as keyof typeof SUPPORTED_APIS];
   return apiInfo ? process.env[apiInfo.envVar] : undefined;
 }
 
@@ -103,9 +104,12 @@ export const apiCommand: SlashCommand = {
   name: 'api',
   description: 'Manage API keys and configuration',
   action: async (context: CommandContext, args: string) => {
-    const argsArray = args.trim().split(/\s+/).filter((arg: string) => arg.length > 0);
+    const argsArray = args
+      .trim()
+      .split(/\s+/)
+      .filter((arg: string) => arg.length > 0);
     const command = argsArray[0] || 'help';
-    
+
     try {
       switch (command) {
         case 'set': {
@@ -116,7 +120,9 @@ export const apiCommand: SlashCommand = {
               content: `Usage: /api set <provider> <value>
               
 Supported providers:
-${Object.entries(SUPPORTED_APIS).map(([key, info]) => `  ${key}: ${info.description}`).join('\n')}
+${Object.entries(SUPPORTED_APIS)
+  .map(([key, info]) => `  ${key}: ${info.description}`)
+  .join('\n')}
 
 Examples:
   /api set serpapi your-serpapi-key-here
@@ -124,10 +130,13 @@ Examples:
   /api set google_project your-project-id`,
             };
           }
-          
+
           const [, provider, value] = argsArray;
-          const apiInfo = SUPPORTED_APIS[provider.toLowerCase() as keyof typeof SUPPORTED_APIS];
-          
+          const apiInfo =
+            SUPPORTED_APIS[
+              provider.toLowerCase() as keyof typeof SUPPORTED_APIS
+            ];
+
           if (!apiInfo) {
             return {
               type: 'message',
@@ -137,23 +146,28 @@ Examples:
 Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
             };
           }
-          
+
           const config = readAPIConfig();
-          
+
           if (!config.apis[provider.toLowerCase()]) {
             config.apis[provider.toLowerCase()] = {};
           }
-          
+
           // 根据类型设置不同的字段
-          if (provider.toLowerCase().includes('key') || provider.toLowerCase() === 'serpapi' || provider.toLowerCase() === 'gemini') {
+          if (
+            provider.toLowerCase().includes('key') ||
+            provider.toLowerCase() === 'serpapi' ||
+            provider.toLowerCase() === 'gemini'
+          ) {
             config.apis[provider.toLowerCase()].apiKey = value;
           } else {
             config.apis[provider.toLowerCase()].value = value;
           }
-          
-          config.apis[provider.toLowerCase()].lastUpdated = new Date().toISOString();
+
+          config.apis[provider.toLowerCase()].lastUpdated =
+            new Date().toISOString();
           writeAPIConfig(config);
-          
+
           return {
             type: 'message',
             messageType: 'info',
@@ -169,10 +183,13 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
               content: 'Usage: /api get <provider>\nExample: /api get serpapi',
             };
           }
-          
+
           const [, provider] = argsArray;
-          const apiInfo = SUPPORTED_APIS[provider.toLowerCase() as keyof typeof SUPPORTED_APIS];
-          
+          const apiInfo =
+            SUPPORTED_APIS[
+              provider.toLowerCase() as keyof typeof SUPPORTED_APIS
+            ];
+
           if (!apiInfo) {
             return {
               type: 'message',
@@ -180,9 +197,9 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
               content: `Unknown API provider: ${provider}`,
             };
           }
-          
+
           const value = getAPIValue(provider);
-          
+
           if (!value) {
             return {
               type: 'message',
@@ -190,11 +207,14 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
               content: `${apiInfo.name} is not configured.`,
             };
           }
-          
-          const displayValue = provider.toLowerCase().includes('key') || provider.toLowerCase() === 'serpapi' || provider.toLowerCase() === 'gemini'
-            ? maskAPIKey(value)
-            : value;
-          
+
+          const displayValue =
+            provider.toLowerCase().includes('key') ||
+            provider.toLowerCase() === 'serpapi' ||
+            provider.toLowerCase() === 'gemini'
+              ? maskAPIKey(value)
+              : value;
+
           return {
             type: 'message',
             messageType: 'info',
@@ -205,7 +225,7 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
         case 'list': {
           const config = readAPIConfig();
           const configuredApis = Object.keys(config.apis);
-          
+
           if (configuredApis.length === 0) {
             return {
               type: 'message',
@@ -213,15 +233,18 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
               content: 'No APIs configured in configuration file.',
             };
           }
-          
-          const apiList = configuredApis.map(provider => {
-            const apiInfo = SUPPORTED_APIS[provider as keyof typeof SUPPORTED_APIS];
-            const value = getAPIValue(provider);
-            const status = value ? '✅ Configured' : '❌ Not set';
-            
-            return `  ${provider}: ${apiInfo?.name || 'Unknown'} - ${status}`;
-          }).join('\n');
-          
+
+          const apiList = configuredApis
+            .map((provider) => {
+              const apiInfo =
+                SUPPORTED_APIS[provider as keyof typeof SUPPORTED_APIS];
+              const value = getAPIValue(provider);
+              const status = value ? '✅ Configured' : '❌ Not set';
+
+              return `  ${provider}: ${apiInfo?.name || 'Unknown'} - ${status}`;
+            })
+            .join('\n');
+
           return {
             type: 'message',
             messageType: 'info',
@@ -234,13 +257,14 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
             return {
               type: 'message',
               messageType: 'error',
-              content: 'Usage: /api remove <provider>\nExample: /api remove serpapi',
+              content:
+                'Usage: /api remove <provider>\nExample: /api remove serpapi',
             };
           }
-          
+
           const [, provider] = argsArray;
           const config = readAPIConfig();
-          
+
           if (!config.apis[provider.toLowerCase()]) {
             return {
               type: 'message',
@@ -248,10 +272,10 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
               content: `${provider} is not configured.`,
             };
           }
-          
+
           delete config.apis[provider.toLowerCase()];
           writeAPIConfig(config);
-          
+
           return {
             type: 'message',
             messageType: 'info',
@@ -268,17 +292,23 @@ Supported providers: ${Object.keys(SUPPORTED_APIS).join(', ')}`,
         }
 
         case 'providers': {
-          const providerList = Object.entries(SUPPORTED_APIS).map(([key, info]) => {
-            const envValue = process.env[info.envVar];
-            const configValue = getAPIValue(key);
-            const status = configValue ? '✅ Configured' : envValue ? '🔄 Env only' : '❌ Not set';
-            
-            return `  ${key}: ${info.name}
+          const providerList = Object.entries(SUPPORTED_APIS)
+            .map(([key, info]) => {
+              const envValue = process.env[info.envVar];
+              const configValue = getAPIValue(key);
+              const status = configValue
+                ? '✅ Configured'
+                : envValue
+                  ? '🔄 Env only'
+                  : '❌ Not set';
+
+              return `  ${key}: ${info.name}
     Description: ${info.description}
     Environment Variable: ${info.envVar}
     Status: ${status}`;
-          }).join('\n\n');
-          
+            })
+            .join('\n\n');
+
           return {
             type: 'message',
             messageType: 'info',
@@ -320,4 +350,4 @@ Configuration is stored in: ${API_CONFIG_FILE}`,
       };
     }
   },
-}; 
+};

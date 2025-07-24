@@ -16,7 +16,8 @@ import { LLMInterfaceProvider } from './llm-interface-provider.js';
  * 模型提供商工厂实现
  */
 export class ModelProviderFactory implements IModelProviderFactory {
-  private providerFactories: Map<ModelProvider, () => IModelProvider> = new Map();
+  private providerFactories: Map<ModelProvider, () => IModelProvider> =
+    new Map();
 
   constructor() {
     this.registerDefaultProviders();
@@ -46,8 +47,11 @@ export class ModelProviderFactory implements IModelProviderFactory {
       ModelProvider.VERTEX_AI,
     ];
 
-    supportedProviders.forEach(provider => {
-      this.providerFactories.set(provider, () => new LLMInterfaceProvider(provider));
+    supportedProviders.forEach((provider) => {
+      this.providerFactories.set(
+        provider,
+        () => new LLMInterfaceProvider(provider),
+      );
     });
   }
 
@@ -57,7 +61,10 @@ export class ModelProviderFactory implements IModelProviderFactory {
   createProvider(provider: ModelProvider): IModelProvider {
     const factory = this.providerFactories.get(provider);
     if (!factory) {
-      throw new ConfigurationError(`Unsupported provider: ${provider}`, provider);
+      throw new ConfigurationError(
+        `Unsupported provider: ${provider}`,
+        provider,
+      );
     }
     return factory();
   }
@@ -72,7 +79,10 @@ export class ModelProviderFactory implements IModelProviderFactory {
   /**
    * 注册新的提供商
    */
-  registerProvider(provider: ModelProvider, factory: () => IModelProvider): void {
+  registerProvider(
+    provider: ModelProvider,
+    factory: () => IModelProvider,
+  ): void {
     this.providerFactories.set(provider, factory);
   }
 
@@ -94,4 +104,4 @@ export class ModelProviderFactory implements IModelProviderFactory {
 /**
  * 单例工厂实例
  */
-export const modelProviderFactory = new ModelProviderFactory(); 
+export const modelProviderFactory = new ModelProviderFactory();

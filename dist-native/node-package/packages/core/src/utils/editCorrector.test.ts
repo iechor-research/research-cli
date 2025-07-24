@@ -138,7 +138,9 @@ describe('editCorrector', () => {
     });
     it('should handle complex cases with mixed slashes and characters', () => {
       expect(
-        unescapeStringForResearchBug('\\\\\\\nLine1\\\nLine2\\tTab\\\\`Tick\\"'),
+        unescapeStringForResearchBug(
+          '\\\\\\\nLine1\\\nLine2\\tTab\\\\`Tick\\"',
+        ),
       ).toBe('\nLine1\nLine2\tTab`Tick"');
     });
     it('should handle escaped backslashes', () => {
