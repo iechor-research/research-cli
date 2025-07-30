@@ -1,0 +1,315 @@
+{
+  "timestamp": "2025-07-30T13:54:50.851Z",
+  "summary": {
+    "total": 18,
+    "passed": 0,
+    "failed": 18,
+    "passRate": "0.0",
+    "totalTimeMs": 1
+  },
+  "categories": {
+    "Core CLI Commands": {
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "name": "Help Command",
+          "command": "--help",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Core CLI Commands"
+        },
+        {
+          "name": "Version Command",
+          "command": "--version",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Core CLI Commands"
+        },
+        {
+          "name": "Basic Prompt Mode",
+          "command": "-p Hello, can you help me?",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Core CLI Commands"
+        }
+      ]
+    },
+    "Slash Commands": {
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "name": "Help Slash Command",
+          "command": "-p /help",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Slash Commands"
+        },
+        {
+          "name": "About Command",
+          "command": "-p /about",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Slash Commands"
+        },
+        {
+          "name": "Tools Command",
+          "command": "-p /tools",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Slash Commands"
+        }
+      ]
+    },
+    "Research Commands": {
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "name": "Research Help",
+          "command": "-p /research help",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Research Commands"
+        },
+        {
+          "name": "Research Search - Basic",
+          "command": "-p /research search \"test query\" --limit=1",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Research Commands"
+        },
+        {
+          "name": "Research Search - arXiv",
+          "command": "-p /research search \"machine learning\" --source=arxiv --limit=2",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Research Commands"
+        }
+      ]
+    },
+    "Paper Commands": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "tests": [
+        {
+          "name": "Paper Outline - Basic",
+          "command": "-p /paper outline \"Test Paper Title\"",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Paper Commands"
+        },
+        {
+          "name": "Paper Outline - Research Type",
+          "command": "-p /paper outline \"AI Research\" --type=research",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Paper Commands"
+        }
+      ]
+    },
+    "Submit Commands": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "tests": [
+        {
+          "name": "Submit Journal Matching",
+          "command": "-p /submit journal --topic=\"artificial intelligence\"",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Submit Commands"
+        },
+        {
+          "name": "Submit LaTeX Help",
+          "command": "-p /submit latex --help",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Submit Commands"
+        }
+      ]
+    },
+    "File Operations": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "tests": [
+        {
+          "name": "At Command - Current Directory",
+          "command": "-p @. What files are in this directory?",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "File Operations"
+        },
+        {
+          "name": "At Command - Specific File",
+          "command": "-p @package.json What is this file about?",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "File Operations"
+        }
+      ]
+    },
+    "Error Handling": {
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "name": "Invalid Command",
+          "command": "-p /nonexistent_command",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Error Handling"
+        },
+        {
+          "name": "Invalid File Reference",
+          "command": "-p @nonexistent_file.txt What is this?",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Error Handling"
+        },
+        {
+          "name": "Empty Research Query",
+          "command": "-p /research search \"\"",
+          "error": "Cannot access 'process' before initialization",
+          "passed": false,
+          "category": "Error Handling"
+        }
+      ]
+    }
+  },
+  "details": [
+    {
+      "name": "Help Command",
+      "command": "--help",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Core CLI Commands"
+    },
+    {
+      "name": "Version Command",
+      "command": "--version",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Core CLI Commands"
+    },
+    {
+      "name": "Basic Prompt Mode",
+      "command": "-p Hello, can you help me?",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Core CLI Commands"
+    },
+    {
+      "name": "Help Slash Command",
+      "command": "-p /help",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Slash Commands"
+    },
+    {
+      "name": "About Command",
+      "command": "-p /about",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Slash Commands"
+    },
+    {
+      "name": "Tools Command",
+      "command": "-p /tools",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Slash Commands"
+    },
+    {
+      "name": "Research Help",
+      "command": "-p /research help",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Research Commands"
+    },
+    {
+      "name": "Research Search - Basic",
+      "command": "-p /research search \"test query\" --limit=1",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Research Commands"
+    },
+    {
+      "name": "Research Search - arXiv",
+      "command": "-p /research search \"machine learning\" --source=arxiv --limit=2",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Research Commands"
+    },
+    {
+      "name": "Paper Outline - Basic",
+      "command": "-p /paper outline \"Test Paper Title\"",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Paper Commands"
+    },
+    {
+      "name": "Paper Outline - Research Type",
+      "command": "-p /paper outline \"AI Research\" --type=research",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Paper Commands"
+    },
+    {
+      "name": "Submit Journal Matching",
+      "command": "-p /submit journal --topic=\"artificial intelligence\"",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Submit Commands"
+    },
+    {
+      "name": "Submit LaTeX Help",
+      "command": "-p /submit latex --help",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Submit Commands"
+    },
+    {
+      "name": "At Command - Current Directory",
+      "command": "-p @. What files are in this directory?",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "File Operations"
+    },
+    {
+      "name": "At Command - Specific File",
+      "command": "-p @package.json What is this file about?",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "File Operations"
+    },
+    {
+      "name": "Invalid Command",
+      "command": "-p /nonexistent_command",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Error Handling"
+    },
+    {
+      "name": "Invalid File Reference",
+      "command": "-p @nonexistent_file.txt What is this?",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Error Handling"
+    },
+    {
+      "name": "Empty Research Query",
+      "command": "-p /research search \"\"",
+      "error": "Cannot access 'process' before initialization",
+      "passed": false,
+      "category": "Error Handling"
+    }
+  ]
+}
