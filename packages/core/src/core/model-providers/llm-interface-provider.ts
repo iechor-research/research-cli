@@ -438,19 +438,27 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     try {
       const config = this.getConfig();
       const messages = this.normalizeMessages(request.messages);
+      const model = request.model || config.model;
 
-      const response = await this.llmInterface.sendMessage(this.providerKey, {
+      // 构建请求参数，过滤掉不支持的参数
+      const requestParams: any = {
         messages,
-        model: request.model || config.model,
-        temperature: request.temperature ?? config.temperature,
+        model,
         max_tokens: request.maxTokens ?? config.maxTokens,
-        top_p: request.topP ?? config.topP,
-        frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
-        presence_penalty: request.presencePenalty ?? config.presencePenalty,
-        stop: request.stopSequences ?? config.stopSequences,
-      });
+      };
 
-      return this.normalizeResponse(response, request.model || config.model);
+      // 只为支持的模型添加 temperature 参数
+      if (!this.isDeepSeekReasonerModel(model)) {
+        requestParams.temperature = request.temperature ?? config.temperature;
+        requestParams.top_p = request.topP ?? config.topP;
+        requestParams.frequency_penalty = request.frequencyPenalty ?? config.frequencyPenalty;
+        requestParams.presence_penalty = request.presencePenalty ?? config.presencePenalty;
+        requestParams.stop = request.stopSequences ?? config.stopSequences;
+      }
+
+      const response = await this.llmInterface.sendMessage(this.providerKey, requestParams);
+
+      return this.normalizeResponse(response, model);
     } catch (error) {
       this.handleError(error);
     }
@@ -462,24 +470,32 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     try {
       const config = this.getConfig();
       const messages = this.normalizeMessages(request.messages);
+      const model = request.model || config.model;
 
-      const stream = await this.llmInterface.sendMessage(this.providerKey, {
+      // 构建请求参数，过滤掉不支持的参数
+      const requestParams: any = {
         messages,
-        model: request.model || config.model,
-        temperature: request.temperature ?? config.temperature,
+        model,
         max_tokens: request.maxTokens ?? config.maxTokens,
-        top_p: request.topP ?? config.topP,
-        frequency_penalty: request.frequencyPenalty ?? config.frequencyPenalty,
-        presence_penalty: request.presencePenalty ?? config.presencePenalty,
-        stop: request.stopSequences ?? config.stopSequences,
         stream: true,
-      });
+      };
+
+      // 只为支持的模型添加 temperature 参数
+      if (!this.isDeepSeekReasonerModel(model)) {
+        requestParams.temperature = request.temperature ?? config.temperature;
+        requestParams.top_p = request.topP ?? config.topP;
+        requestParams.frequency_penalty = request.frequencyPenalty ?? config.frequencyPenalty;
+        requestParams.presence_penalty = request.presencePenalty ?? config.presencePenalty;
+        requestParams.stop = request.stopSequences ?? config.stopSequences;
+      }
+
+      const stream = await this.llmInterface.sendMessage(this.providerKey, requestParams);
 
       let fullContent = '';
       for await (const chunk of stream) {
         const streamResponse = this.normalizeStreamResponse(
           chunk,
-          request.model || config.model,
+          model,
           fullContent,
         );
         fullContent = streamResponse.content;
@@ -492,6 +508,13 @@ export class LLMInterfaceProvider extends BaseModelProvider {
 
   protected async doGetModels(): Promise<ModelInfo[]> {
     return MODEL_INFO_MAP[this.name] || [];
+  }
+
+  /**
+   * 检查是否为 DeepSeek Reasoner 模型（不支持 temperature 等参数）
+   */
+  private isDeepSeekReasonerModel(model: string): boolean {
+    return model === 'deepseek-reasoner' || model.includes('deepseek-r1');
   }
 
   protected doValidateConfig(config: ModelConfig): boolean {

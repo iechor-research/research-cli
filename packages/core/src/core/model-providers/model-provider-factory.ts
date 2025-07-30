@@ -11,6 +11,7 @@ import {
   ConfigurationError,
 } from './types.js';
 import { LLMInterfaceProvider } from './llm-interface-provider.js';
+import { DeepSeekProvider } from './deepseek-provider.js';
 
 /**
  * 模型提供商工厂实现
@@ -48,10 +49,14 @@ export class ModelProviderFactory implements IModelProviderFactory {
     ];
 
     supportedProviders.forEach((provider) => {
-      this.providerFactories.set(
-        provider,
-        () => new LLMInterfaceProvider(provider),
-      );
+      if (provider === ModelProvider.DEEPSEEK) {
+        this.providerFactories.set(provider, () => new DeepSeekProvider());
+      } else {
+        this.providerFactories.set(
+          provider,
+          () => new LLMInterfaceProvider(provider),
+        );
+      }
     });
   }
 

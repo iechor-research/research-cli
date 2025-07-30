@@ -85,6 +85,7 @@ export interface ChatResponse {
     totalTokens: number;
   };
   finishReason?: 'stop' | 'length' | 'content_filter' | 'tool_calls';
+  reasoningContent?: string;
   metadata?: Record<string, any>;
 }
 
@@ -103,6 +104,7 @@ export interface StreamResponse {
     totalTokens: number;
   };
   finishReason?: 'stop' | 'length' | 'content_filter' | 'tool_calls';
+  reasoningContent?: string;
 }
 
 /**
