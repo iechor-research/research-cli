@@ -184,6 +184,65 @@ export const submitCommand: SlashCommand = {
       ): Promise<void | SlashCommandActionReturn> => {
         try {
           const parsed = parseCommandArgs(args);
+          
+          // Check for help flag before validating arguments
+          if (parsed.options.help || parsed.options.h) {
+            const helpText = buildHelpText({
+              name: 'submit latex',
+              description: 'Manage LaTeX projects for academic papers',
+              usage: '/submit latex <operation> <project-path> [options]',
+              examples: [
+                '/submit latex create ./my-paper --template=ieee_conference --title="My Research"',
+                '/submit latex compile ./my-paper --engine=PDFLATEX --bibtex',
+                '/submit latex clean ./my-paper',
+                '/submit latex check ./my-paper --strict',
+                '/submit latex template list',
+                '/submit latex package ./my-paper --output=./submission.zip',
+              ],
+              options: [
+                {
+                  name: 'template',
+                  description: 'LaTeX template to use (ieee_conference, acm_article, etc.)',
+                  type: 'string',
+                },
+                {
+                  name: 'title',
+                  description: 'Paper title',
+                  type: 'string',
+                },
+                {
+                  name: 'engine',
+                  description: 'LaTeX engine (PDFLATEX, XELATEX, LUALATEX)',
+                  type: 'string',
+                },
+                {
+                  name: 'bibtex',
+                  description: 'Run BibTeX during compilation',
+                  type: 'boolean',
+                },
+                {
+                  name: 'strict',
+                  description: 'Strict checking mode',
+                  type: 'boolean',
+                },
+                {
+                  name: 'output',
+                  description: 'Output directory or file',
+                  type: 'string',
+                },
+              ],
+            });
+
+            context.ui.addItem(
+              {
+                type: MessageType.INFO,
+                text: helpText,
+              },
+              Date.now(),
+            );
+            return;
+          }
+
           validateArguments(parsed.positional, 2, 'submit latex');
 
           const operation = parsed.positional[0];

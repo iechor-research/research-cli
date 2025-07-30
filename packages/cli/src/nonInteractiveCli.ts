@@ -102,6 +102,14 @@ export async function runNonInteractive(
   const abortController = new AbortController();
   let currentMessages: Content[] = [{ role: 'user', parts: [{ text: input }] }];
   let turnCount = 0;
+  
+  // Set up a timeout for non-interactive mode to prevent hanging
+  const NONINTERACTIVE_TIMEOUT_MS = 10000; // 10 seconds max for non-interactive
+  const timeoutId = setTimeout(() => {
+    console.error('Operation timed out after 10 seconds. This may be due to API quota limits or service unavailability.');
+    process.exit(1);
+  }, NONINTERACTIVE_TIMEOUT_MS);
+
   try {
     while (true) {
       turnCount++;
@@ -190,11 +198,13 @@ export async function runNonInteractive(
         }
         currentMessages = [{ role: 'user', parts: toolResponseParts }];
       } else {
+        clearTimeout(timeoutId); // Clear timeout on successful completion
         process.stdout.write('\n'); // Ensure a final newline
         return;
       }
     }
   } catch (error) {
+    clearTimeout(timeoutId); // Clear timeout on error
     console.error(
       parseAndFormatApiError(
         error,
@@ -203,6 +213,7 @@ export async function runNonInteractive(
     );
     process.exit(1);
   } finally {
+    clearTimeout(timeoutId); // Ensure timeout is always cleared
     if (isTelemetrySdkInitialized()) {
       await shutdownTelemetry();
     }

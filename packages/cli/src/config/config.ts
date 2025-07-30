@@ -59,10 +59,7 @@ export interface CliArgs {
 export async function parseArguments(): Promise<CliArgs> {
   const yargsInstance = yargs(hideBin(process.argv))
     .scriptName('research')
-    .usage(
-      '$0 [options]',
-      'Research CLI - Launch an interactive CLI, use -p/--prompt for non-interactive mode',
-    )
+    .usage('Usage: $0 [options]\n\nResearch CLI - Launch an interactive CLI, use -p/--prompt for non-interactive mode')
     .option('model', {
       alias: 'm',
       type: 'string',
