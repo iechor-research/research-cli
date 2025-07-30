@@ -8,6 +8,7 @@ import { ToolRegistry } from '../tool-registry.js';
 import { researchToolRegistry } from './registry.js';
 import { BaseTool, ToolResult } from '../tools.js';
 import { ResearchToolParams } from './types.js';
+import { initializeResearchTools } from './init.js';
 
 /**
  * 研究工具适配器
@@ -85,6 +86,17 @@ export class ResearchToolAdapter extends BaseTool<
  * 将研究工具注册到主工具注册中心
  */
 export function registerResearchTools(toolRegistry: ToolRegistry): void {
+  // Ensure research tools are initialized first
+  if (!researchToolRegistry.isInitialized()) {
+    try {
+      // Initialize research tools
+      initializeResearchTools(researchToolRegistry);
+    } catch (error) {
+      console.warn('Failed to initialize research tools:', error);
+      return;
+    }
+  }
+
   const researchTools = researchToolRegistry.getAllTools();
 
   for (const researchTool of researchTools) {

@@ -20,6 +20,7 @@ import {
 } from '@google/genai';
 
 import { parseAndFormatApiError } from './ui/utils/errorParsing.js';
+import { SlashCommandProcessor } from './services/SlashCommandProcessor.js';
 
 function getResponseText(response: GenerateContentResponse): string | null {
   if (response.candidates && response.candidates.length > 0) {
@@ -56,6 +57,43 @@ export async function runNonInteractive(
       process.exit(0);
     }
   });
+
+  // Check if input is a slash command
+  const trimmedInput = input.trim();
+  
+  if (trimmedInput.startsWith('/') || trimmedInput.startsWith('?')) {
+    const slashProcessor = new SlashCommandProcessor();
+    await slashProcessor.initialize();
+    
+    const result = await slashProcessor.processCommand(trimmedInput, {
+      config,
+      outputMessage: (message: string, type?: 'info' | 'error') => {
+        if (type === 'error') {
+          console.error(message);
+        } else {
+          console.log(message);
+        }
+      },
+    });
+
+    if (result.type === 'handled') {
+      if (result.message) {
+        if (result.messageType === 'error') {
+          console.error(result.message);
+        } else {
+          console.log(result.message);
+        }
+      }
+      return;
+    } else if (result.type === 'schedule_tool') {
+      // Handle tool scheduling if needed
+      console.log(`Tool scheduling not yet implemented: ${result.toolName}`);
+      return;
+    } else if (result.type === 'not_found') {
+      // If it's not a recognized slash command, fall through to AI processing
+      // This allows for commands like "/analyze this code" to be sent to AI
+    }
+  }
 
   const researchClient = config.getResearchClient();
   const toolRegistry: ToolRegistry = await config.getToolRegistry();
