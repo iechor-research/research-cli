@@ -26,6 +26,7 @@ export enum ModelProvider {
   PERPLEXITY = 'perplexity',
   BEDROCK = 'bedrock',
   VERTEX_AI = 'vertex_ai',
+  BAIDU = 'baidu',
 }
 
 /**

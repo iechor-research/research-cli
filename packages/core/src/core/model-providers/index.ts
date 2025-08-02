@@ -12,6 +12,7 @@ export { BaseModelProvider } from './base-provider.js';
 
 // 导出具体实现
 export { LLMInterfaceProvider } from './llm-interface-provider.js';
+export { BaiduProvider } from './baidu-provider.js';
 
 // 导出工厂和选择器
 export {

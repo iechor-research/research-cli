@@ -64,6 +64,7 @@ const ENV_VAR_MAPPING: Record<ModelProvider, string> = {
   [ModelProvider.PERPLEXITY]: 'PERPLEXITY_API_KEY',
   [ModelProvider.BEDROCK]: 'AWS_ACCESS_KEY_ID',
   [ModelProvider.VERTEX_AI]: 'GOOGLE_APPLICATION_CREDENTIALS',
+  [ModelProvider.BAIDU]: 'BAIDU_LLM_KEY',
 };
 
 /**
@@ -86,6 +87,7 @@ const DEFAULT_MODELS: Record<ModelProvider, string> = {
   [ModelProvider.PERPLEXITY]: 'llama-3.1-sonar-small-128k-online',
   [ModelProvider.BEDROCK]: 'anthropic.claude-3-haiku-20240307-v1:0',
   [ModelProvider.VERTEX_AI]: 'gemini-1.5-flash',
+  [ModelProvider.BAIDU]: 'ernie-4.5-turbo-128k',
 };
 
 /**

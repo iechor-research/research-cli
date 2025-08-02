@@ -39,6 +39,7 @@ const PROVIDER_MAPPING: Record<ModelProvider, string> = {
   [ModelProvider.PERPLEXITY]: 'perplexity',
   [ModelProvider.BEDROCK]: 'bedrock',
   [ModelProvider.VERTEX_AI]: 'vertex_ai',
+  [ModelProvider.BAIDU]: 'baidu',
 };
 
 /**
@@ -403,6 +404,7 @@ const MODEL_INFO_MAP: Record<ModelProvider, ModelInfo[]> = {
   [ModelProvider.PERPLEXITY]: [],
   [ModelProvider.BEDROCK]: [],
   [ModelProvider.VERTEX_AI]: [],
+  [ModelProvider.BAIDU]: [],
 };
 
 /**

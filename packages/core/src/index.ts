@@ -28,6 +28,7 @@ export * from './core/model-providers/base-provider.js';
 export * from './core/model-providers/llm-interface-provider.js';
 export * from './core/model-providers/model-provider-factory.js';
 export * from './core/model-providers/model-selector.js';
+export * from './core/model-providers/model-utils.js';
 
 export * from './code_assist/codeAssist.js';
 export * from './code_assist/oauth2.js';

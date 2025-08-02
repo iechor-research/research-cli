@@ -1,184 +1,604 @@
 {
-  "timestamp": "2025-07-30T13:54:50.851Z",
+  "timestamp": "2025-07-30T14:49:44.449Z",
   "summary": {
     "total": 18,
-    "passed": 0,
-    "failed": 18,
-    "passRate": "0.0",
-    "totalTimeMs": 1
+    "passed": 17,
+    "failed": 1,
+    "passRate": "94.4",
+    "totalTimeMs": 55504
   },
   "categories": {
     "Core CLI Commands": {
       "total": 3,
-      "passed": 0,
-      "failed": 3,
+      "passed": 2,
+      "failed": 1,
       "tests": [
         {
           "name": "Help Command",
-          "command": "--help",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js --help",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nUsage: research [options]\n\nResearch CLI - Launch an interactive CLI, use -p/--prompt for non-interactive mode\n\nOptions:\n  -m, --model                     Model  [string] [default: \"gemini-2.5-pro\"]\n  -p, --prompt                    Prompt. Appended to input on stdin (if any).  [string]\n  -i, --prompt-interactive        Execute the provided prompt and continue in interactive mode  [string]\n  -s, --sandbox                   Run in sandbox?  [boolean]\n      --sandbox-image             Sandbox image URI.  [string]\n  -d, --debug                     Run in debug mode?  [boolean] [default: false]\n  -a, --all-files                 Include ALL files in context?  [boolean] [default: false]\n      --all_files                 Include ALL files in context?  [deprecated: Use --all-files instead. We will be removing --all_files in the coming weeks.] [boolean] [default: false]\n      --show-memory-usage         Show memory usage in status bar  [boolean] [default: false]\n      --show_memory_usage         Show memory usage in status bar  [deprecated: Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.] [boolean] [default: false]\n  -y, --yolo                      Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?  [boolean] [default: false]\n      --telemetry                 Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.  [boolean]\n      --telemetry-target          Set the telemetry target (local or gcp). Overrides settings files.  [string] [choices: \"local\", \"gcp\"]\n      --telemetry-otlp-endpoint   Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.  [string]\n      --telemetry-log-prompts     Enable or disable logging of user prompts for telemetry. Overrides settings files.  [boolean]\n  -c, --checkpointing             Enables checkpointing of file edits  [boolean] [default: false]\n      --allowed-mcp-server-names  Allowed MCP server names  [array]\n  -e, --extensions                A list of extensions to use. If not provided, all extensions are used.  [array]\n  -l, --list-extensions           List all available extensions and exit.  [boolean]\n  -v, --version                   Show version number  [boolean]\n  -h, --help                      Show help  [boolean]\n",
+          "stderr": "(node:47501) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+          "executionTime": 525,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"Research CLI\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"Usage:\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"Options:\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 5000ms",
+              "actual": "525ms",
+              "passed": true
+            }
+          ],
           "category": "Core CLI Commands"
         },
         {
           "name": "Version Command",
-          "command": "--version",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js --version",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\n0.2.12\n",
+          "stderr": "(node:47539) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+          "executionTime": 565,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"0.2\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 3000ms",
+              "actual": "565ms",
+              "passed": true
+            }
+          ],
           "category": "Core CLI Commands"
         },
         {
           "name": "Basic Prompt Mode",
-          "command": "-p Hello, can you help me?",
-          "error": "Cannot access 'process' before initialization",
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p Hello, can you help me?",
+          "exitCode": null,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n",
+          "stderr": "(node:47561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 15009,
+          "timedOut": true,
           "passed": false,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": null,
+              "passed": false
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "15009ms",
+              "passed": false
+            }
+          ],
           "category": "Core CLI Commands"
         }
       ]
     },
     "Slash Commands": {
       "total": 3,
-      "passed": 0,
-      "failed": 3,
+      "passed": 3,
+      "failed": 0,
       "tests": [
         {
           "name": "Help Slash Command",
-          "command": "-p /help",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /help",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\nAvailable Research CLI commands:\n\nCore Commands:\n  /help, ?             Show this help message\n  /about               Show information about Research CLI\n  /tools               List available tools\n  /clear               Clear the screen\n  /model               Manage AI models\n  /config              Manage configuration\n\nResearch Commands:\n  /research help       Show research command help\n  /research search     Search academic papers\n  /research arxiv      ArXiv operations\n  /paper outline       Generate paper outlines\n  /submit              Submission tools\n\nMemory Commands:\n  /memory show         Show current memory\n  /memory add          Add to memory\n\nUse /command help for detailed help on specific commands.\n",
+          "stderr": "(node:47927) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 2634,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"help\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"commands\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "2634ms",
+              "passed": true
+            }
+          ],
           "category": "Slash Commands"
         },
         {
           "name": "About Command",
-          "command": "-p /about",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /about",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\nResearch CLI - Academic Research Assistant\n\nVersion: 0.2.12\nPlatform: darwin\nModel: gemini-2.5-pro\n\nResearch CLI is an interactive command-line tool for academic research,\nproviding AI-powered assistance for literature search, paper analysis,\nand research workflow management.\n\nFor help, use: research --help or /help\n",
+          "stderr": "(node:47965) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 2605,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"version\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"Research CLI\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "2605ms",
+              "passed": true
+            }
+          ],
           "category": "Slash Commands"
         },
         {
           "name": "Tools Command",
-          "command": "-p /tools",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /tools",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nAvailable Research CLI tools:\n\nCore Tools:\n  - ReadFolder\n  - ReadFile\n  - SearchText\n  - FindFiles\n  - WebFetch\n  - ReadManyFiles\n  - Save Memory\n  - iEchorSearch\n\nResearch Tools:\n  - Generate paper outline\n  - Academic writing assistant\n  - Manage bibliography\n  - Enhanced bibliography manager\n  - Generate experiment code\n  - Latex manager\n  - Match journal\n  - Research data analyzer\n",
+          "stderr": "(node:48101) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 1159,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"tools\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"available\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "1159ms",
+              "passed": true
+            }
+          ],
           "category": "Slash Commands"
         }
       ]
     },
     "Research Commands": {
       "total": 3,
-      "passed": 0,
-      "failed": 3,
+      "passed": 3,
+      "failed": 0,
       "tests": [
         {
           "name": "Research Help",
-          "command": "-p /research help",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research help",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\nResearch tools for literature search, document analysis, and experiment generation\n\nUsage: /research <subcommand> [options]\n\nOptions:\n  --source [arxiv|scholar|pubmed|ieee]  Literature search source\n  --limit  Maximum number of search results\n  --type [structure|grammar|style|citations|readability|all]  Analysis type\n  --output  Output directory\n  --format [table|chart|report]  Output format\n\nExamples:\n  /research search \"machine learning\" --source=arxiv --limit=5\n  /research analyze paper.pdf --type=structure\n  /research experiment python ml --output=./my-experiments\n  /research data describe dataset.csv --format=report\n\n",
+          "stderr": "(node:48124) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 1131,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"research\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"subcommand\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "1131ms",
+              "passed": true
+            }
+          ],
           "category": "Research Commands"
         },
         {
           "name": "Research Search - Basic",
-          "command": "-p /research search \"test query\" --limit=1",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"test query\" --limit=1",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"test\" (limit: 1)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+          "stderr": "(node:48144) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 2176,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 20000ms",
+              "actual": "2176ms",
+              "passed": true
+            }
+          ],
           "category": "Research Commands"
         },
         {
           "name": "Research Search - arXiv",
-          "command": "-p /research search \"machine learning\" --source=arxiv --limit=2",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"machine learning\" --source=arxiv --limit=2",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"machine\" (limit: 2)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+          "stderr": "(node:48269) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 2610,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 25000ms",
+              "actual": "2610ms",
+              "passed": true
+            }
+          ],
           "category": "Research Commands"
         }
       ]
     },
     "Paper Commands": {
       "total": 2,
-      "passed": 0,
-      "failed": 2,
+      "passed": 2,
+      "failed": 0,
       "tests": [
         {
           "name": "Paper Outline - Basic",
-          "command": "-p /paper outline \"Test Paper Title\"",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /paper outline \"Test Paper Title\"",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n",
+          "stderr": "(node:48294) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n\u001b[31m✗ \u001b[0m\u001b[31mInvalid value '\"Test' for option --type\u001b[0m\n\nSuggestions:\n  • Valid values are: SURVEY, EXPERIMENTAL, THEORETICAL, EMPIRICAL, CONCEPTUAL\n  • Use /type help for more information\n",
+          "executionTime": 1223,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "1223ms",
+              "passed": true
+            }
+          ],
           "category": "Paper Commands"
         },
         {
           "name": "Paper Outline - Research Type",
-          "command": "-p /paper outline \"AI Research\" --type=research",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /paper outline \"AI Research\" --type=research",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n",
+          "stderr": "(node:48322) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n\u001b[31m✗ \u001b[0m\u001b[31mInvalid value '\"AI' for option --type\u001b[0m\n\nSuggestions:\n  • Valid values are: SURVEY, EXPERIMENTAL, THEORETICAL, EMPIRICAL, CONCEPTUAL\n  • Use /type help for more information\n",
+          "executionTime": 1320,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "1320ms",
+              "passed": true
+            }
+          ],
           "category": "Paper Commands"
         }
       ]
     },
     "Submit Commands": {
       "total": 2,
-      "passed": 0,
-      "failed": 2,
+      "passed": 2,
+      "failed": 0,
       "tests": [
         {
           "name": "Submit Journal Matching",
-          "command": "-p /submit journal --topic=\"artificial intelligence\"",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /submit journal --topic=\"artificial intelligence\"",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nCommand '/submit' requires a subcommand. Available:\n  - match: Find suitable journals based on paper title and abstract\n  - prepare: Prepare submission package for a target journal\n  - latex: Manage LaTeX projects for academic papers\n  - help: Show help for submission commands\n",
+          "stderr": "(node:48360) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 1186,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "1186ms",
+              "passed": true
+            }
+          ],
           "category": "Submit Commands"
         },
         {
           "name": "Submit LaTeX Help",
-          "command": "-p /submit latex --help",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /submit latex --help",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\nManage LaTeX projects for academic papers\n\nUsage: /submit latex <operation> <project-path> [options]\n\nOptions:\n  --template  LaTeX template to use (ieee_conference, acm_article, etc.)\n  --title  Paper title\n  --engine  LaTeX engine (PDFLATEX, XELATEX, LUALATEX)\n  --bibtex  Run BibTeX during compilation\n  --strict  Strict checking mode\n  --output  Output directory or file\n\nExamples:\n  /submit latex create ./my-paper --template=ieee_conference --title=\"My Research\"\n  /submit latex compile ./my-paper --engine=PDFLATEX --bibtex\n  /submit latex clean ./my-paper\n  /submit latex check ./my-paper --strict\n  /submit latex template list\n  /submit latex package ./my-paper --output=./submission.zip\n\n",
+          "stderr": "(node:48487) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 1149,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"latex\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"project\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "1149ms",
+              "passed": true
+            }
+          ],
           "category": "Submit Commands"
         }
       ]
     },
     "File Operations": {
       "total": 2,
-      "passed": 0,
-      "failed": 2,
+      "passed": 2,
+      "failed": 0,
       "tests": [
         {
           "name": "At Command - Current Directory",
-          "command": "-p @. What files are in this directory?",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @. What files are in this directory?",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\n",
+          "stderr": "(node:48507) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 2556,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "2556ms",
+              "passed": true
+            }
+          ],
           "category": "File Operations"
         },
         {
           "name": "At Command - Specific File",
-          "command": "-p @package.json What is this file about?",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @package.json What is this file about?",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nThe `package.json` file is a manifest file for Node.js projects. It contains metadata about the project, such as its name, version, description, and author. It also defines scripts that can be run (e.g., `start`, `build`, `test`, `lint`), and lists the project's dependencies and devDependencies.\n\nIn this project's `package.json`, I can see:\n*   **name**: `@iechor/research-cli`\n*   **version**: `0.2.10`\n*   **engines**: Requires Node.js version `>=20.0.0`.\n*   **type**: `module`, indicating it uses ES modules.\n*   **workspaces**: `packages/*`, meaning it's a monorepo with sub-packages in the `packages` directory.\n*   **scripts**: A comprehensive list of scripts for building, testing, releasing, linting, and more. Notably, `npm run preflight` is a key script for running all checks.\n*   **devDependencies**: Includes tools like `vitest` for testing, `esbuild` for bundling, `eslint` for linting, and `prettier` for formatting.\n*   **dependencies**: Lists runtime dependencies like `@testing-library/dom`, `gcp-metadata`, and `llm-interface`.\n",
+          "stderr": "(node:48632) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 8553,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"package\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Stdout contains \"research-cli\"",
+              "expected": true,
+              "actual": true,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 15000ms",
+              "actual": "8553ms",
+              "passed": true
+            }
+          ],
           "category": "File Operations"
         }
       ]
     },
     "Error Handling": {
       "total": 3,
-      "passed": 0,
-      "failed": 3,
+      "passed": 3,
+      "failed": 0,
       "tests": [
         {
           "name": "Invalid Command",
-          "command": "-p /nonexistent_command",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /nonexistent_command",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nI cannot find a command `/nonexistent_command`. If you need help, you can use the `/help` command to see a list of available commands and their descriptions.\n",
+          "stderr": "(node:48786) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 3211,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "3211ms",
+              "passed": true
+            }
+          ],
           "category": "Error Handling"
         },
         {
           "name": "Invalid File Reference",
-          "command": "-p @nonexistent_file.txt What is this?",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @nonexistent_file.txt What is this?",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nI cannot find the file `@nonexistent_file.txt`. It does not exist in the current directory.\n",
+          "stderr": "(node:48913) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 6247,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "6247ms",
+              "passed": true
+            }
+          ],
           "category": "Error Handling"
         },
         {
           "name": "Empty Research Query",
-          "command": "-p /research search \"\"",
-          "error": "Cannot access 'process' before initialization",
-          "passed": false,
+          "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"\"",
+          "exitCode": 0,
+          "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"\"\" (limit: 10)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+          "stderr": "(node:49067) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+          "executionTime": 1642,
+          "timedOut": false,
+          "passed": true,
+          "validations": [
+            {
+              "check": "Exit Code",
+              "expected": 0,
+              "actual": 0,
+              "passed": true
+            },
+            {
+              "check": "Execution Time",
+              "expected": "<= 10000ms",
+              "actual": "1642ms",
+              "passed": true
+            }
+          ],
           "category": "Error Handling"
         }
       ]
@@ -187,128 +607,548 @@
   "details": [
     {
       "name": "Help Command",
-      "command": "--help",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js --help",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nUsage: research [options]\n\nResearch CLI - Launch an interactive CLI, use -p/--prompt for non-interactive mode\n\nOptions:\n  -m, --model                     Model  [string] [default: \"gemini-2.5-pro\"]\n  -p, --prompt                    Prompt. Appended to input on stdin (if any).  [string]\n  -i, --prompt-interactive        Execute the provided prompt and continue in interactive mode  [string]\n  -s, --sandbox                   Run in sandbox?  [boolean]\n      --sandbox-image             Sandbox image URI.  [string]\n  -d, --debug                     Run in debug mode?  [boolean] [default: false]\n  -a, --all-files                 Include ALL files in context?  [boolean] [default: false]\n      --all_files                 Include ALL files in context?  [deprecated: Use --all-files instead. We will be removing --all_files in the coming weeks.] [boolean] [default: false]\n      --show-memory-usage         Show memory usage in status bar  [boolean] [default: false]\n      --show_memory_usage         Show memory usage in status bar  [deprecated: Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.] [boolean] [default: false]\n  -y, --yolo                      Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?  [boolean] [default: false]\n      --telemetry                 Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.  [boolean]\n      --telemetry-target          Set the telemetry target (local or gcp). Overrides settings files.  [string] [choices: \"local\", \"gcp\"]\n      --telemetry-otlp-endpoint   Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.  [string]\n      --telemetry-log-prompts     Enable or disable logging of user prompts for telemetry. Overrides settings files.  [boolean]\n  -c, --checkpointing             Enables checkpointing of file edits  [boolean] [default: false]\n      --allowed-mcp-server-names  Allowed MCP server names  [array]\n  -e, --extensions                A list of extensions to use. If not provided, all extensions are used.  [array]\n  -l, --list-extensions           List all available extensions and exit.  [boolean]\n  -v, --version                   Show version number  [boolean]\n  -h, --help                      Show help  [boolean]\n",
+      "stderr": "(node:47501) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+      "executionTime": 525,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"Research CLI\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"Usage:\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"Options:\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 5000ms",
+          "actual": "525ms",
+          "passed": true
+        }
+      ],
       "category": "Core CLI Commands"
     },
     {
       "name": "Version Command",
-      "command": "--version",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js --version",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\n0.2.12\n",
+      "stderr": "(node:47539) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+      "executionTime": 565,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"0.2\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 3000ms",
+          "actual": "565ms",
+          "passed": true
+        }
+      ],
       "category": "Core CLI Commands"
     },
     {
       "name": "Basic Prompt Mode",
-      "command": "-p Hello, can you help me?",
-      "error": "Cannot access 'process' before initialization",
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p Hello, can you help me?",
+      "exitCode": null,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n",
+      "stderr": "(node:47561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 15009,
+      "timedOut": true,
       "passed": false,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": null,
+          "passed": false
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "15009ms",
+          "passed": false
+        }
+      ],
       "category": "Core CLI Commands"
     },
     {
       "name": "Help Slash Command",
-      "command": "-p /help",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /help",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\nAvailable Research CLI commands:\n\nCore Commands:\n  /help, ?             Show this help message\n  /about               Show information about Research CLI\n  /tools               List available tools\n  /clear               Clear the screen\n  /model               Manage AI models\n  /config              Manage configuration\n\nResearch Commands:\n  /research help       Show research command help\n  /research search     Search academic papers\n  /research arxiv      ArXiv operations\n  /paper outline       Generate paper outlines\n  /submit              Submission tools\n\nMemory Commands:\n  /memory show         Show current memory\n  /memory add          Add to memory\n\nUse /command help for detailed help on specific commands.\n",
+      "stderr": "(node:47927) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 2634,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"help\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"commands\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "2634ms",
+          "passed": true
+        }
+      ],
       "category": "Slash Commands"
     },
     {
       "name": "About Command",
-      "command": "-p /about",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /about",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\nResearch CLI - Academic Research Assistant\n\nVersion: 0.2.12\nPlatform: darwin\nModel: gemini-2.5-pro\n\nResearch CLI is an interactive command-line tool for academic research,\nproviding AI-powered assistance for literature search, paper analysis,\nand research workflow management.\n\nFor help, use: research --help or /help\n",
+      "stderr": "(node:47965) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 2605,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"version\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"Research CLI\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "2605ms",
+          "passed": true
+        }
+      ],
       "category": "Slash Commands"
     },
     {
       "name": "Tools Command",
-      "command": "-p /tools",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /tools",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nAvailable Research CLI tools:\n\nCore Tools:\n  - ReadFolder\n  - ReadFile\n  - SearchText\n  - FindFiles\n  - WebFetch\n  - ReadManyFiles\n  - Save Memory\n  - iEchorSearch\n\nResearch Tools:\n  - Generate paper outline\n  - Academic writing assistant\n  - Manage bibliography\n  - Enhanced bibliography manager\n  - Generate experiment code\n  - Latex manager\n  - Match journal\n  - Research data analyzer\n",
+      "stderr": "(node:48101) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 1159,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"tools\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"available\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "1159ms",
+          "passed": true
+        }
+      ],
       "category": "Slash Commands"
     },
     {
       "name": "Research Help",
-      "command": "-p /research help",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research help",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\nResearch tools for literature search, document analysis, and experiment generation\n\nUsage: /research <subcommand> [options]\n\nOptions:\n  --source [arxiv|scholar|pubmed|ieee]  Literature search source\n  --limit  Maximum number of search results\n  --type [structure|grammar|style|citations|readability|all]  Analysis type\n  --output  Output directory\n  --format [table|chart|report]  Output format\n\nExamples:\n  /research search \"machine learning\" --source=arxiv --limit=5\n  /research analyze paper.pdf --type=structure\n  /research experiment python ml --output=./my-experiments\n  /research data describe dataset.csv --format=report\n\n",
+      "stderr": "(node:48124) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 1131,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"research\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"subcommand\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "1131ms",
+          "passed": true
+        }
+      ],
       "category": "Research Commands"
     },
     {
       "name": "Research Search - Basic",
-      "command": "-p /research search \"test query\" --limit=1",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"test query\" --limit=1",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"test\" (limit: 1)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+      "stderr": "(node:48144) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 2176,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 20000ms",
+          "actual": "2176ms",
+          "passed": true
+        }
+      ],
       "category": "Research Commands"
     },
     {
       "name": "Research Search - arXiv",
-      "command": "-p /research search \"machine learning\" --source=arxiv --limit=2",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"machine learning\" --source=arxiv --limit=2",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"machine\" (limit: 2)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+      "stderr": "(node:48269) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 2610,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 25000ms",
+          "actual": "2610ms",
+          "passed": true
+        }
+      ],
       "category": "Research Commands"
     },
     {
       "name": "Paper Outline - Basic",
-      "command": "-p /paper outline \"Test Paper Title\"",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /paper outline \"Test Paper Title\"",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n",
+      "stderr": "(node:48294) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n\u001b[31m✗ \u001b[0m\u001b[31mInvalid value '\"Test' for option --type\u001b[0m\n\nSuggestions:\n  • Valid values are: SURVEY, EXPERIMENTAL, THEORETICAL, EMPIRICAL, CONCEPTUAL\n  • Use /type help for more information\n",
+      "executionTime": 1223,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "1223ms",
+          "passed": true
+        }
+      ],
       "category": "Paper Commands"
     },
     {
       "name": "Paper Outline - Research Type",
-      "command": "-p /paper outline \"AI Research\" --type=research",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /paper outline \"AI Research\" --type=research",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n",
+      "stderr": "(node:48322) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n\u001b[31m✗ \u001b[0m\u001b[31mInvalid value '\"AI' for option --type\u001b[0m\n\nSuggestions:\n  • Valid values are: SURVEY, EXPERIMENTAL, THEORETICAL, EMPIRICAL, CONCEPTUAL\n  • Use /type help for more information\n",
+      "executionTime": 1320,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "1320ms",
+          "passed": true
+        }
+      ],
       "category": "Paper Commands"
     },
     {
       "name": "Submit Journal Matching",
-      "command": "-p /submit journal --topic=\"artificial intelligence\"",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /submit journal --topic=\"artificial intelligence\"",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nCommand '/submit' requires a subcommand. Available:\n  - match: Find suitable journals based on paper title and abstract\n  - prepare: Prepare submission package for a target journal\n  - latex: Manage LaTeX projects for academic papers\n  - help: Show help for submission commands\n",
+      "stderr": "(node:48360) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 1186,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "1186ms",
+          "passed": true
+        }
+      ],
       "category": "Submit Commands"
     },
     {
       "name": "Submit LaTeX Help",
-      "command": "-p /submit latex --help",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /submit latex --help",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\nManage LaTeX projects for academic papers\n\nUsage: /submit latex <operation> <project-path> [options]\n\nOptions:\n  --template  LaTeX template to use (ieee_conference, acm_article, etc.)\n  --title  Paper title\n  --engine  LaTeX engine (PDFLATEX, XELATEX, LUALATEX)\n  --bibtex  Run BibTeX during compilation\n  --strict  Strict checking mode\n  --output  Output directory or file\n\nExamples:\n  /submit latex create ./my-paper --template=ieee_conference --title=\"My Research\"\n  /submit latex compile ./my-paper --engine=PDFLATEX --bibtex\n  /submit latex clean ./my-paper\n  /submit latex check ./my-paper --strict\n  /submit latex template list\n  /submit latex package ./my-paper --output=./submission.zip\n\n",
+      "stderr": "(node:48487) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 1149,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"latex\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"project\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "1149ms",
+          "passed": true
+        }
+      ],
       "category": "Submit Commands"
     },
     {
       "name": "At Command - Current Directory",
-      "command": "-p @. What files are in this directory?",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @. What files are in this directory?",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\n",
+      "stderr": "(node:48507) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 2556,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "2556ms",
+          "passed": true
+        }
+      ],
       "category": "File Operations"
     },
     {
       "name": "At Command - Specific File",
-      "command": "-p @package.json What is this file about?",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @package.json What is this file about?",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nThe `package.json` file is a manifest file for Node.js projects. It contains metadata about the project, such as its name, version, description, and author. It also defines scripts that can be run (e.g., `start`, `build`, `test`, `lint`), and lists the project's dependencies and devDependencies.\n\nIn this project's `package.json`, I can see:\n*   **name**: `@iechor/research-cli`\n*   **version**: `0.2.10`\n*   **engines**: Requires Node.js version `>=20.0.0`.\n*   **type**: `module`, indicating it uses ES modules.\n*   **workspaces**: `packages/*`, meaning it's a monorepo with sub-packages in the `packages` directory.\n*   **scripts**: A comprehensive list of scripts for building, testing, releasing, linting, and more. Notably, `npm run preflight` is a key script for running all checks.\n*   **devDependencies**: Includes tools like `vitest` for testing, `esbuild` for bundling, `eslint` for linting, and `prettier` for formatting.\n*   **dependencies**: Lists runtime dependencies like `@testing-library/dom`, `gcp-metadata`, and `llm-interface`.\n",
+      "stderr": "(node:48632) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 8553,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"package\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Stdout contains \"research-cli\"",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 15000ms",
+          "actual": "8553ms",
+          "passed": true
+        }
+      ],
       "category": "File Operations"
     },
     {
       "name": "Invalid Command",
-      "command": "-p /nonexistent_command",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /nonexistent_command",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nI cannot find a command `/nonexistent_command`. If you need help, you can use the `/help` command to see a list of available commands and their descriptions.\n",
+      "stderr": "(node:48786) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 3211,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "3211ms",
+          "passed": true
+        }
+      ],
       "category": "Error Handling"
     },
     {
       "name": "Invalid File Reference",
-      "command": "-p @nonexistent_file.txt What is this?",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p @nonexistent_file.txt What is this?",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\nI cannot find the file `@nonexistent_file.txt`. It does not exist in the current directory.\n",
+      "stderr": "(node:48913) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 6247,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "6247ms",
+          "passed": true
+        }
+      ],
       "category": "Error Handling"
     },
     {
       "name": "Empty Research Query",
-      "command": "-p /research search \"\"",
-      "error": "Cannot access 'process' before initialization",
-      "passed": false,
+      "command": "node /Users/xingqiangchen/research-cli/packages/cli/dist/index.js -p /research search \"\"",
+      "exitCode": 0,
+      "stdout": "Starting with empty cache\nStarting with empty bibliography\nStarting with empty cache\n[INFO] Your configured model (gemini-2.5-pro) was temporarily unavailable. Switched to gemini-2.5-flash for this session.\n\u001b[34mℹ \u001b[0m\u001b[0mSearching arxiv for: \"\"\"\" (limit: 10)\u001b[0m\nTool scheduling not yet implemented: manage_bibliography\n",
+      "stderr": "(node:49067) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nBoth GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.\n",
+      "executionTime": 1642,
+      "timedOut": false,
+      "passed": true,
+      "validations": [
+        {
+          "check": "Exit Code",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "check": "Execution Time",
+          "expected": "<= 10000ms",
+          "actual": "1642ms",
+          "passed": true
+        }
+      ],
       "category": "Error Handling"
     }
   ]

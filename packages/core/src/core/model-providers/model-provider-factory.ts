@@ -12,6 +12,7 @@ import {
 } from './types.js';
 import { LLMInterfaceProvider } from './llm-interface-provider.js';
 import { DeepSeekProvider } from './deepseek-provider.js';
+import { BaiduProvider } from './baidu-provider.js';
 
 /**
  * 模型提供商工厂实现
@@ -46,11 +47,14 @@ export class ModelProviderFactory implements IModelProviderFactory {
       ModelProvider.PERPLEXITY,
       ModelProvider.BEDROCK,
       ModelProvider.VERTEX_AI,
+      ModelProvider.BAIDU,
     ];
 
     supportedProviders.forEach((provider) => {
       if (provider === ModelProvider.DEEPSEEK) {
         this.providerFactories.set(provider, () => new DeepSeekProvider());
+      } else if (provider === ModelProvider.BAIDU) {
+        this.providerFactories.set(provider, () => new BaiduProvider());
       } else {
         this.providerFactories.set(
           provider,

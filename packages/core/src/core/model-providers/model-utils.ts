@@ -93,6 +93,19 @@ const MODEL_TO_PROVIDER_MAP: Record<string, ModelProvider> = {
   'mistral-small-latest': ModelProvider.MISTRAL,
   'mistral-medium-latest': ModelProvider.MISTRAL,
   'mistral-large-latest': ModelProvider.MISTRAL,
+
+  // Baidu ERNIE models
+  'ernie-4.5-turbo-128k': ModelProvider.BAIDU,
+  'ernie-4.5-turbo-128k-preview': ModelProvider.BAIDU,
+  'ernie-4.0-turbo-8k': ModelProvider.BAIDU,
+  'ernie-4.0-8k': ModelProvider.BAIDU,
+  'ernie-3.5-8k': ModelProvider.BAIDU,
+  'ernie-3.5-4k': ModelProvider.BAIDU,
+  'ernie-turbo-8k': ModelProvider.BAIDU,
+  'ernie-speed-128k': ModelProvider.BAIDU,
+  'ernie-speed-8k': ModelProvider.BAIDU,
+  'ernie-lite-8k': ModelProvider.BAIDU,
+  'ernie-tiny-8k': ModelProvider.BAIDU,
 };
 
 /**
@@ -109,6 +122,7 @@ const PROVIDER_PATTERNS: Array<{ pattern: RegExp; provider: ModelProvider }> = [
   { pattern: /^llama-/i, provider: ModelProvider.GROQ },
   { pattern: /^mixtral-/i, provider: ModelProvider.GROQ },
   { pattern: /^mistral-/i, provider: ModelProvider.MISTRAL },
+  { pattern: /^ernie-/i, provider: ModelProvider.BAIDU },
 ];
 
 /**
@@ -190,6 +204,19 @@ export function getModelTokenLimit(modelName: string): number {
       
     case ModelProvider.MISTRAL:
       return 32768;
+      
+    case ModelProvider.BAIDU:
+      if (modelName.includes('ernie-4.5-turbo-128k')) return 131072; // 128K tokens
+      if (modelName.includes('ernie-4.0-turbo-8k')) return 8192;
+      if (modelName.includes('ernie-4.0-8k')) return 8192;
+      if (modelName.includes('ernie-3.5-8k')) return 8192;
+      if (modelName.includes('ernie-3.5-4k')) return 4096;
+      if (modelName.includes('ernie-turbo-8k')) return 8192;
+      if (modelName.includes('ernie-speed-128k')) return 131072;
+      if (modelName.includes('ernie-speed-8k')) return 8192;
+      if (modelName.includes('ernie-lite-8k')) return 8192;
+      if (modelName.includes('ernie-tiny-8k')) return 8192;
+      return 8192; // 默认8K tokens
       
     default:
       return 4096;
