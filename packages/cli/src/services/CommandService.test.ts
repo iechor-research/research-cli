@@ -49,8 +49,8 @@ describe('CommandService', () => {
         await commandService.loadCommands();
         const tree = commandService.getCommands();
 
-        // Post-condition assertions - now includes more commands
-        expect(tree.length).toBe(11);
+        // Post-condition assertions - now includes more commands (7 core + 4 research + 2 panel = 13)
+        expect(tree.length).toBe(13);
 
         const commandNames = tree.map((cmd) => cmd.name);
         expect(commandNames).toContain('memory');
@@ -67,14 +67,14 @@ describe('CommandService', () => {
       it('should overwrite any existing commands when called again', async () => {
         // Load once
         await commandService.loadCommands();
-        expect(commandService.getCommands().length).toBe(11);
+        expect(commandService.getCommands().length).toBe(13);
 
         // Load again
         await commandService.loadCommands();
         const tree = commandService.getCommands();
 
         // Should not append, but overwrite
-        expect(tree.length).toBe(11);
+        expect(tree.length).toBe(13);
       });
     });
 
@@ -86,7 +86,7 @@ describe('CommandService', () => {
         await commandService.loadCommands();
 
         const loadedTree = commandService.getCommands();
-        expect(loadedTree.length).toBe(11);
+        expect(loadedTree.length).toBe(13);
         // Just check that the core commands are present
         // Research commands are tested separately
         const commandNames = loadedTree.map((cmd) => cmd.name);
