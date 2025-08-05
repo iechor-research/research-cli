@@ -12,7 +12,13 @@ describe('helpCommand', () => {
   let mockContext: CommandContext;
 
   beforeEach(() => {
-    mockContext = {} as unknown as CommandContext;
+    mockContext = {
+      services: {
+        logger: {
+          sessionId: 'test-session'
+        }
+      }
+    } as unknown as CommandContext;
   });
 
   it("should return a dialog action and log a debug message for '/help'", () => {
