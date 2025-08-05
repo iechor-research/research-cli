@@ -1,0 +1,218 @@
+name: Cross-Platform Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS builds (like Hyper)
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            name: macOS Intel
+            artifact: research-cli-darwin-x64
+            
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: macOS Apple Silicon
+            artifact: research-cli-darwin-arm64
+            
+          # Windows builds (native compilation)
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: Windows x64
+            artifact: research-cli-win32-x64.exe
+            
+          # Linux builds
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: Linux x64
+            artifact: research-cli-linux-x64
+            
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            name: Linux ARM64
+            artifact: research-cli-linux-arm64
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+        
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libssl-dev pkg-config
+        
+    - name: Install cross-compilation tools (Linux ARM64)
+      if: matrix.target == 'aarch64-unknown-linux-gnu'
+      run: |
+        sudo apt-get install -y gcc-aarch64-linux-gnu
+        echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build core application
+      run: npm run build
+      
+    - name: Build native binary
+      run: |
+        cd src-tauri
+        cargo build --release --target ${{ matrix.target }}
+        
+    - name: Prepare artifacts (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p dist-release
+        cp src-tauri/target/${{ matrix.target }}/release/research-cli dist-release/${{ matrix.artifact }}
+        chmod +x dist-release/${{ matrix.artifact }}
+        
+    - name: Prepare artifacts (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        mkdir dist-release
+        cp src-tauri/target/${{ matrix.target }}/release/research-cli.exe dist-release/${{ matrix.artifact }}
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: dist-release/${{ matrix.artifact }}
+        
+  build-desktop-apps:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Electron builds (like Hyper)
+          - os: macos-latest
+            name: Electron macOS
+            command: npx electron-builder --mac --publish=never
+            
+          - os: windows-latest
+            name: Electron Windows
+            command: npx electron-builder --win --publish=never
+            
+          - os: ubuntu-latest
+            name: Electron Linux
+            command: npx electron-builder --linux --publish=never
+            
+          # Tauri builds (only on macOS for now)
+          - os: macos-latest
+            name: Tauri macOS
+            command: npm run tauri:build
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Setup Rust (for Tauri)
+      if: contains(matrix.name, 'Tauri')
+      uses: dtolnay/rust-toolchain@stable
+      
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libssl-dev pkg-config
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build core application
+      run: npm run build
+      
+    - name: Build desktop app
+      run: ${{ matrix.command }}
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        
+    - name: Upload Electron artifacts
+      if: contains(matrix.name, 'Electron')
+      uses: actions/upload-artifact@v4
+      with:
+        name: electron-${{ matrix.os }}
+        path: dist-electron/
+        
+    - name: Upload Tauri artifacts
+      if: contains(matrix.name, 'Tauri')
+      uses: actions/upload-artifact@v4
+      with:
+        name: tauri-${{ matrix.os }}
+        path: src-tauri/target/release/bundle/
+        
+  create-release:
+    needs: [build-matrix, build-desktop-apps]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+        
+    - name: Create release directory
+      run: |
+        mkdir -p release
+        find artifacts -type f -exec cp {} release/ \;
+        ls -la release/
+        
+    - name: Generate release notes
+      run: |
+        echo "# Research CLI Release" > release-notes.md
+        echo "" >> release-notes.md
+        echo "## Available Downloads" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "### Native Binaries (Recommended)" >> release-notes.md
+        echo "- Smallest size (~8MB)" >> release-notes.md
+        echo "- Fastest startup" >> release-notes.md
+        echo "- No dependencies" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "### Desktop Applications" >> release-notes.md
+        echo "- Full GUI experience" >> release-notes.md
+        echo "- System integration" >> release-notes.md
+        echo "- Auto-updater support" >> release-notes.md
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: release/*
+        body_path: release-notes.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,246 @@
+name: Build Multi-Platform Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., v0.2.14)'
+        required: true
+        default: 'v0.2.14'
+
+jobs:
+  # 构建原生二进制文件
+  build-native:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            name: linux-x64
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            name: linux-arm64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            name: darwin-x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: darwin-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: win32-x64
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build core application
+      run: npm run build
+    
+    - name: Build native binary
+      run: |
+        cd src-tauri
+        cargo build --release --target ${{ matrix.target }}
+    
+    - name: Prepare binary
+      shell: bash
+      run: |
+        mkdir -p dist-native
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          cp src-tauri/target/${{ matrix.target }}/release/research-cli.exe dist-native/research-cli-${{ matrix.name }}.exe
+        else
+          cp src-tauri/target/${{ matrix.target }}/release/research-cli dist-native/research-cli-${{ matrix.name }}
+        fi
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-${{ matrix.name }}
+        path: dist-native/
+
+  # 构建 Tauri 应用包
+  build-tauri:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+          - os: macos-latest
+            name: macos
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+    
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build Tauri app
+      run: npm run tauri:build
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: tauri-${{ matrix.name }}
+        path: |
+          src-tauri/target/release/bundle/
+
+  # 构建 Electron 包
+  build-electron:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+          - os: macos-latest
+            name: macos
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install electron-builder
+      run: npm install --save-dev electron-builder
+    
+    - name: Build Electron packages
+      run: npm run build:electron-packages
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: electron-${{ matrix.name }}
+        path: dist-electron/
+
+  # 创建发布
+  create-release:
+    needs: [build-native, build-tauri, build-electron]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+    
+    - name: Organize artifacts
+      run: |
+        mkdir -p release-assets
+        
+        # 复制原生二进制文件
+        find artifacts/native-* -name "research-cli-*" -exec cp {} release-assets/ \;
+        
+        # 复制 Tauri 包
+        find artifacts/tauri-* -type f \( -name "*.deb" -o -name "*.rpm" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.msi" \) -exec cp {} release-assets/ \;
+        
+        # 复制 Electron 包
+        find artifacts/electron-* -type f \( -name "*.deb" -o -name "*.rpm" -o -name "*.AppImage" -o -name "*.dmg" -o -name "*.exe" -o -name "*.zip" \) -exec cp {} release-assets/ \;
+        
+        # 列出所有文件
+        ls -la release-assets/
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Generate release notes
+      run: |
+        npm run build:all-platforms || true
+        cp dist-release/RELEASE_NOTES.md release-assets/
+        cp dist-release/install.sh release-assets/
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name || github.event.inputs.version }}
+        name: Research CLI ${{ github.ref_name || github.event.inputs.version }}
+        body_path: release-assets/RELEASE_NOTES.md
+        files: |
+          release-assets/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 发布到 NPM
+  publish-npm:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build packages
+      run: npm run build:packages
+    
+    - name: Publish to NPM
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
