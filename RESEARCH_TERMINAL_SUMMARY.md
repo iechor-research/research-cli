@@ -164,12 +164,28 @@ research-terminal/
 
 ## 使用方法
 
-### 开发模式
+### 安装依赖
 ```bash
 cd research-terminal
+
+# 选项 1: 使用 yarn（推荐）
+yarn install
+
+# 选项 2: 使用 npm
 npm install --legacy-peer-deps
-npm run dev  # 终端1
-npm run app  # 终端2
+
+# 如果遇到问题，尝试：
+npm install --force
+```
+
+### 开发模式
+```bash
+# 方法 1: 使用启动脚本
+./start.sh
+
+# 方法 2: 手动启动
+npm run dev  # 终端1：开发服务器
+npm run app  # 终端2：启动应用
 ```
 
 ### 构建
@@ -178,6 +194,12 @@ cd research-terminal
 ./build-research.sh
 npm run dist
 ```
+
+### 故障排除
+如果遇到依赖问题：
+1. 清理缓存：`npm cache clean --force`
+2. 删除并重装：`rm -rf node_modules package-lock.json && npm install --legacy-peer-deps`
+3. 安装缺失的工具：`npm install --save-dev concurrently`
 
 ## 特色功能
 
