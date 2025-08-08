@@ -2,7 +2,7 @@
 
 /**
  * Research Terminal Builder
- * Creates a Hyper-like terminal for research workflows
+ * Creates a iEchor-like terminal for research workflows
  */
 
 import { execSync } from 'child_process';
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🔬 Building Research Terminal (Hyper-Style)\n');
+console.log('🔬 Building Research Terminal (iEchor-Style)\n');
 
 const terminalDir = path.join(__dirname, '..', 'research-terminal');
 const originalDir = process.cwd();
@@ -351,7 +351,7 @@ async function build() {
     
     console.log('\\n💡 Features:');
     console.log('   🔬 Research Panel with CLI integration');
-    console.log('   🎨 Hyper-inspired beautiful UI');
+    console.log('   🎨 iEchor-inspired beautiful UI');
     console.log('   ⚡ Fast terminal with research tools');
     console.log('   🔧 Extensible plugin system');
   }

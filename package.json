@@ -33,7 +33,7 @@
     "build:cross-platform": "node scripts/build-cross-platform.js",
     "build:electron-packages": "node scripts/build-electron-packages.js",
     "build:all-platforms": "node scripts/build-all-platforms.js",
-    "build:hyper-style": "node scripts/build-hyper-style.js",
+    "build:iechor-style": "node scripts/build-iechor-style.js",
     "build:windows-fix": "node scripts/build-windows-fix.js",
     "build:simple": "node scripts/build-simple.js",
     "fix-build": "node scripts/fix-build-issues.js",
@@ -74,7 +74,7 @@
     "release:version": "node scripts/version.js",
     "telemetry": "node scripts/telemetry.js",
     "clean": "node scripts/clean.js",
-    "build:electron-safe": "node scripts/build-hyper-style.js --electron-only"
+    "build:electron-safe": "node scripts/build-iechor-style.js --electron-only"
   },
   "bin": {
     "research": "bundle/research.js"

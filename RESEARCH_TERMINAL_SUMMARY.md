@@ -37,7 +37,7 @@ Research Terminal 是基于 Hyper 终端重构的 AI 研究终端，完美集成
    - 快捷操作面板：常用命令快速访问
 
 2. **容器集成**
-   - 文件：`lib/containers/research-hyper.tsx`
+   - 文件：`lib/containers/research-iechor.tsx`
    - 包装原始 Hyper 组件
    - 添加 Research 功能层
 
@@ -121,7 +121,7 @@ research-terminal/
 │   │   ├── research-config.tsx
 │   │   └── research-docs.tsx
 │   ├── containers/          # 容器组件
-│   │   └── research-hyper.tsx
+│   │   └── research-iechor.tsx
 │   └── hooks/               # React Hooks
 │       └── use-research-terminal.ts # 终端集成 Hook
 ├── .research-terminal.js    # 默认配置

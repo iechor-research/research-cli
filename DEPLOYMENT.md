@@ -54,7 +54,7 @@ curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 yum install -y nodejs
 
 # 修复 package.json 中的包名错误
-sed -i 's/hast-to-research-cliscript/hast-to-hyperscript/g' package.json
+sed -i 's/hast-to-research-cliscript/hast-to-iechorscript/g' package.json
 
 # 安装项目依赖
 npm install --legacy-peer-deps
@@ -221,7 +221,7 @@ chmod +x /var/www/deploy-research-cli.sh
 本地开发环境存在以下问题：
 
 1. **React 版本冲突**: 根目录和 packages/web 存在不同版本的 React
-2. **依赖缺失**: 缺少 @next/mdx 和 hast-to-hyperscript 等依赖
+2. **依赖缺失**: 缺少 @next/mdx 和 hast-to-iechorscript 等依赖
 3. **文件缺失**: packages/web 目录已被删除
 
 ### 本地开发方案
@@ -256,7 +256,7 @@ npm run dev
    npm install @next/mdx --legacy-peer-deps
 
    # 修复包名错误
-   sed -i 's/hast-to-research-cliscript/hast-to-hyperscript/g' package.json
+   sed -i 's/hast-to-research-cliscript/hast-to-iechorscript/g' package.json
    ```
 
 3. **模块版本冲突**

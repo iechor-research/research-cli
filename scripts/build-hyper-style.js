@@ -2,8 +2,8 @@
 
 /**
  * Research CLI Multi-Platform Builder
- * Inspired by Hyper Terminal's build system
- * https://github.com/vercel/hyper
+ * Inspired by iEchor Terminal's build system
+ * https://github.com/vercel/iechor
  */
 
 import { execSync } from 'child_process';
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🚀 Research CLI Multi-Platform Builder (Hyper-Style)\n');
+console.log('🚀 Research CLI Multi-Platform Builder (iEchor-Style)\n');
 
 // 读取package.json获取版本
 const packageJson = JSON.parse(
@@ -22,11 +22,11 @@ const packageJson = JSON.parse(
 );
 const version = packageJson.version;
 
-console.log(`📦 Building version ${version} with Hyper-inspired strategy...\n`);
+console.log(`📦 Building version ${version} with iEchor-inspired strategy...\n`);
 
-// 构建策略配置 (参考 Hyper 的方法)
+// 构建策略配置 (参考 iEchor 的方法)
 const buildStrategies = {
-  // 1. 核心构建 - 类似 Hyper 的 webpack 构建
+  // 1. 核心构建 - 类似 iEchor 的 webpack 构建
   core: {
     name: 'Core Application',
     description: 'Build core application bundle',
@@ -43,7 +43,7 @@ const buildStrategies = {
     skipOnError: true // 跳过交叉编译错误
   },
   
-  // 3. 桌面应用 - 类似 Hyper 的 Electron 方式
+  // 3. 桌面应用 - 类似 iEchor 的 Electron 方式
   desktop: {
     name: 'Desktop Applications',
     description: 'Full-featured desktop apps',
@@ -99,7 +99,7 @@ const electronBuildSafe = async () => {
 
 // 添加安全的 Electron 构建命令
 if (!packageJson.scripts['build:electron-safe']) {
-  packageJson.scripts['build:electron-safe'] = 'node scripts/build-hyper-style.js --electron-only';
+  packageJson.scripts['build:electron-safe'] = 'node scripts/build-iechor-style.js --electron-only';
   fs.writeFileSync(
     path.join(__dirname, '..', 'package.json'), 
     JSON.stringify(packageJson, null, 2) + '\n'
@@ -172,13 +172,13 @@ for (const strategy of buildStrategies.desktop.strategies) {
   }
 }
 
-// 生成构建报告 (类似 Hyper 的方式)
+// 生成构建报告 (类似 iEchor 的方式)
 const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
 const successful = buildResults.filter(r => r.success).length;
 const failed = buildResults.filter(r => !r.success && !r.skipped).length;
 const skipped = buildResults.filter(r => r.skipped).length;
 
-console.log('📋 Build Summary (Hyper-Style):');
+console.log('📋 Build Summary (iEchor-Style):');
 console.log('=================================');
 console.log(`⏱️  Total build time: ${totalTime}s`);
 console.log(`✅ Successful builds: ${successful}`);
@@ -201,7 +201,7 @@ console.log('   2. Check src-tauri/target/release/bundle/ for Tauri apps');
 console.log('   3. Check dist-electron/ for Electron packages');
 console.log('   4. Use GitHub Actions for complete cross-platform builds');
 
-// 创建安装指南 (类似 Hyper 的文档)
+// 创建安装指南 (类似 iEchor 的文档)
 const installGuide = `# Research CLI Installation Guide
 
 ## Quick Install (Recommended)

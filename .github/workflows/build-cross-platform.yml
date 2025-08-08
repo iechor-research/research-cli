@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macOS builds (like Hyper)
+          # macOS builds (like iEchor)
           - os: macos-latest
             target: x86_64-apple-darwin
             name: macOS Intel
@@ -105,7 +105,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Electron builds (like Hyper)
+          # Electron builds (like iEchor)
           - os: macos-latest
             name: Electron macOS
             command: npx electron-builder --mac --publish=never
