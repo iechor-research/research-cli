@@ -13,6 +13,7 @@ import {
 import { LLMInterfaceProvider } from './llm-interface-provider.js';
 import { DeepSeekProvider } from './deepseek-provider.js';
 import { BaiduProvider } from './baidu-provider.js';
+import { MoonshotProvider } from './moonshot-provider.js';
 
 /**
  * 模型提供商工厂实现
@@ -48,6 +49,7 @@ export class ModelProviderFactory implements IModelProviderFactory {
       ModelProvider.BEDROCK,
       ModelProvider.VERTEX_AI,
       ModelProvider.BAIDU,
+      ModelProvider.MOONSHOT,
     ];
 
     supportedProviders.forEach((provider) => {
@@ -55,6 +57,8 @@ export class ModelProviderFactory implements IModelProviderFactory {
         this.providerFactories.set(provider, () => new DeepSeekProvider());
       } else if (provider === ModelProvider.BAIDU) {
         this.providerFactories.set(provider, () => new BaiduProvider());
+      } else if (provider === ModelProvider.MOONSHOT) {
+        this.providerFactories.set(provider, () => new MoonshotProvider());
       } else {
         this.providerFactories.set(
           provider,

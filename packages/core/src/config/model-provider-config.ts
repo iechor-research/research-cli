@@ -65,12 +65,13 @@ const ENV_VAR_MAPPING: Record<ModelProvider, string> = {
   [ModelProvider.BEDROCK]: 'AWS_ACCESS_KEY_ID',
   [ModelProvider.VERTEX_AI]: 'GOOGLE_APPLICATION_CREDENTIALS',
   [ModelProvider.BAIDU]: 'BAIDU_LLM_KEY',
+  [ModelProvider.MOONSHOT]: 'MOONSHOT_API_KEY',
 };
 
 /**
  * 默认模型映射
  */
-const DEFAULT_MODELS: Record<ModelProvider, string> = {
+export const DEFAULT_MODELS: Record<ModelProvider, string> = {
   [ModelProvider.OPENAI]: 'gpt-4o-mini',
   [ModelProvider.ANTHROPIC]: 'claude-3-5-haiku-20241022',
   [ModelProvider.DEEPSEEK]: 'deepseek-chat',
@@ -88,6 +89,7 @@ const DEFAULT_MODELS: Record<ModelProvider, string> = {
   [ModelProvider.BEDROCK]: 'anthropic.claude-3-haiku-20240307-v1:0',
   [ModelProvider.VERTEX_AI]: 'gemini-1.5-flash',
   [ModelProvider.BAIDU]: 'ernie-4.5-turbo-128k',
+  [ModelProvider.MOONSHOT]: 'kimi-k2-0711-preview',
 };
 
 /**

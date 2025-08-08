@@ -106,6 +106,9 @@ const MODEL_TO_PROVIDER_MAP: Record<string, ModelProvider> = {
   'ernie-speed-8k': ModelProvider.BAIDU,
   'ernie-lite-8k': ModelProvider.BAIDU,
   'ernie-tiny-8k': ModelProvider.BAIDU,
+
+  // Moonshot Kimi models
+  'kimi-k2-0711-preview': ModelProvider.MOONSHOT,
 };
 
 /**
@@ -123,6 +126,7 @@ const PROVIDER_PATTERNS: Array<{ pattern: RegExp; provider: ModelProvider }> = [
   { pattern: /^mixtral-/i, provider: ModelProvider.GROQ },
   { pattern: /^mistral-/i, provider: ModelProvider.MISTRAL },
   { pattern: /^ernie-/i, provider: ModelProvider.BAIDU },
+  { pattern: /^kimi-/i, provider: ModelProvider.MOONSHOT },
 ];
 
 /**
@@ -217,6 +221,10 @@ export function getModelTokenLimit(modelName: string): number {
       if (modelName.includes('ernie-lite-8k')) return 8192;
       if (modelName.includes('ernie-tiny-8k')) return 8192;
       return 8192; // 默认8K tokens
+      
+    case ModelProvider.MOONSHOT:
+      if (modelName.includes('kimi-k2-0711-preview')) return 128000; // 128K tokens
+      return 128000; // 默认128K tokens
       
     default:
       return 4096;

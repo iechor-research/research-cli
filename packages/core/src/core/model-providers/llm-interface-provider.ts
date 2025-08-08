@@ -40,6 +40,7 @@ const PROVIDER_MAPPING: Record<ModelProvider, string> = {
   [ModelProvider.BEDROCK]: 'bedrock',
   [ModelProvider.VERTEX_AI]: 'vertex_ai',
   [ModelProvider.BAIDU]: 'baidu',
+  [ModelProvider.MOONSHOT]: 'openai', // 备用映射，实际使用独立的 MoonshotProvider
 };
 
 /**
@@ -405,6 +406,7 @@ const MODEL_INFO_MAP: Record<ModelProvider, ModelInfo[]> = {
   [ModelProvider.BEDROCK]: [],
   [ModelProvider.VERTEX_AI]: [],
   [ModelProvider.BAIDU]: [],
+  [ModelProvider.MOONSHOT]: [], // 空数组，实际模型信息在 MoonshotProvider 中定义
 };
 
 /**
@@ -432,6 +434,9 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     if (config.apiKey) {
       LLMInterface.setApiKey({ [this.providerKey]: config.apiKey });
     }
+
+    // 注意：Moonshot 需要自定义 baseURL，但 llm-interface 可能不支持
+    // 如果需要完整支持，应该考虑创建独立的 MoonshotProvider
 
     this.llmInterface = LLMInterface;
   }

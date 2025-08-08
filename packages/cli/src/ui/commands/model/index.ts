@@ -77,6 +77,8 @@ function getApiKey(provider: string): string | undefined {
     fireworks: 'FIREWORKS_API_KEY',
     replicate: 'REPLICATE_API_KEY',
     perplexity: 'PERPLEXITY_API_KEY',
+    baidu: 'BAIDU_LLM_KEY',
+    moonshot: 'MOONSHOT_API_KEY',
   };
 
   const envVar = envVarMapping[provider.toLowerCase()];
@@ -116,6 +118,55 @@ export const modelCommand: SlashCommand = {
           }
           selector.addProviderConfig(providerConfig);
         }
+      }
+
+      // 额外检查配置文件中的提供商（可能没有在manager中）
+      const config = readConfig();
+      if (config.providers) {
+        Object.keys(config.providers).forEach((providerName) => {
+          const provider = core.ModelProvider[
+            providerName.toUpperCase() as keyof typeof core.ModelProvider
+          ];
+          
+          if (provider && !providers.includes(provider)) {
+            // 这个提供商在配置文件中但不在manager中，手动添加
+            const apiKey = getApiKey(providerName);
+            if (apiKey) {
+              // 使用默认模型映射
+              const defaultModels: Record<string, string> = {
+                'openai': 'gpt-4o-mini',
+                'anthropic': 'claude-3-5-haiku-20241022',
+                'deepseek': 'deepseek-chat',
+                'qwen': 'qwen-turbo',
+                'gemini': 'gemini-1.5-flash',
+                'groq': 'llama-3.1-8b-instant',
+                'mistral': 'mistral-small-latest',
+                'cohere': 'command-r-plus',
+                'huggingface': 'microsoft/DialoGPT-medium',
+                'ollama': 'llama2',
+                'together': 'meta-llama/Llama-2-7b-chat-hf',
+                'fireworks': 'accounts/fireworks/models/llama-v2-7b-chat',
+                'replicate': 'meta/llama-2-7b-chat',
+                'perplexity': 'llama-3.1-sonar-small-128k-online',
+                'bedrock': 'anthropic.claude-3-haiku-20240307-v1:0',
+                'vertex_ai': 'gemini-1.5-flash',
+                'baidu': 'ernie-4.5-turbo-128k',
+                'moonshot': 'kimi-k2-0711-preview',
+              };
+
+              const providerConfig: any = {
+                provider,
+                model: defaultModels[providerName] || '',
+                apiKey,
+                temperature: 0.7,
+                maxTokens: 2048,
+                topP: 1.0,
+                timeout: 30000,
+              };
+              selector.addProviderConfig(providerConfig);
+            }
+          }
+        });
       }
 
       switch (command) {
@@ -290,10 +341,22 @@ Examples:
             )
             .join('\n');
 
+          // 检查是否有百度模型在列表中，但是显示需要配置的提示
+          const baiduModels = models.filter((model: any) => model.provider === 'baidu');
+          let configNote = '';
+          
+          if (baiduModels.length > 0) {
+            // 检查是否有配置百度API密钥
+            const baiduKey = getApiKey('baidu');
+            if (!baiduKey) {
+              configNote = '\n\n📋 配置提示:\n• 百度模型需要API密钥，格式: bce-v3/ACCESS_KEY/SECRET_KEY\n• 使用命令: /model config set baidu bce-v3/your-access-key/your-secret-key\n• 获取密钥: https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb';
+            }
+          }
+
           return {
             type: 'message',
             messageType: 'info',
-            content: `Available Models:\n${modelList}`,
+            content: `Available Models:\n${modelList}${configNote}`,
           };
         }
 
@@ -354,40 +417,63 @@ Examples:
             };
           }
 
-          // 首先更新ModelSelector
-          const providerEnum =
-            core.ModelProvider[
-              provider.toUpperCase() as keyof typeof core.ModelProvider
-            ];
-          await selector.selectModel(providerEnum, modelId);
+          try {
+            // 首先更新ModelSelector
+            const providerEnum =
+              core.ModelProvider[
+                provider.toUpperCase() as keyof typeof core.ModelProvider
+              ];
+            await selector.selectModel(providerEnum, modelId);
 
-          // 然后更新Research CLI的核心Config
-          const config = context.services.config;
-          if (config) {
-            // 构建模型名称 - 根据提供商类型使用不同的格式
-            let modelName: string;
+            // 然后更新Research CLI的核心Config
+            const config = context.services.config;
+            if (config) {
+              // 构建模型名称 - 根据提供商类型使用不同的格式
+              let modelName: string;
 
-            // 对于Gemini模型，使用Gemini格式
-            if (provider.toLowerCase() === 'gemini') {
-              modelName = modelId; // 直接使用模型ID，如 'gemini-1.5-pro'
+              // 对于Gemini模型，使用Gemini格式
+              if (provider.toLowerCase() === 'gemini') {
+                modelName = modelId; // 直接使用模型ID，如 'gemini-1.5-pro'
+              } else {
+                // 对于其他提供商，可能需要不同的格式
+                // 这里先使用简单的格式，后续可以根据需要调整
+                modelName = modelId;
+              }
+
+              config.setModel(modelName);
+
+              return {
+                type: 'message',
+                messageType: 'info',
+                content: `Successfully switched to ${selectedModel.name} (${provider}/${modelId})\nCore model updated to: ${modelName}`,
+              };
             } else {
-              // 对于其他提供商，可能需要不同的格式
-              // 这里先使用简单的格式，后续可以根据需要调整
-              modelName = modelId;
+              return {
+                type: 'message',
+                messageType: 'error',
+                content: 'Unable to access configuration service',
+              };
             }
-
-            config.setModel(modelName);
-
-            return {
-              type: 'message',
-              messageType: 'info',
-              content: `Successfully switched to ${selectedModel.name} (${provider}/${modelId})\nCore model updated to: ${modelName}`,
-            };
-          } else {
+          } catch (error: any) {
+            // 处理选择模型时的错误（如认证失败）
+            console.warn('Model selection warning:', error);
+            
+            // 即使有认证错误，仍然尝试设置模型
+            const config = context.services.config;
+            if (config) {
+              let modelName: string;
+              if (provider.toLowerCase() === 'gemini') {
+                modelName = modelId;
+              } else {
+                modelName = modelId;
+              }
+              config.setModel(modelName);
+            }
+            
             return {
               type: 'message',
               messageType: 'error',
-              content: 'Unable to access configuration service',
+              content: `Model selected with authentication warning: ${selectedModel.name} (${provider}/${modelId})\n\n⚠️  Warning: API key may be invalid or provider authentication failed.\n• Use: /model config set ${provider} <valid-api-key>\n• For Baidu: Format should be bce-v3/ACCESS_KEY/SECRET_KEY\n• Get key: https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb`,
             };
           }
         }
