@@ -74,7 +74,17 @@
     "release:version": "node scripts/version.js",
     "telemetry": "node scripts/telemetry.js",
     "clean": "node scripts/clean.js",
-    "build:electron-safe": "node scripts/build-iechor-style.js --electron-only"
+    "build:electron-safe": "node scripts/build-iechor-style.js --electron-only",
+    "build:standalone": "node scripts/build-standalone-package.js",
+    "build:standalone-simple": "node scripts/build-simple-standalone-package.js",
+    "build:cross-platform": "node scripts/build-cross-platform-packages.js",
+    "release": "node scripts/release.js",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "test:cross-platform": "node scripts/test-cross-platform-build.js",
+    "gh:release": "node scripts/create-github-release.js",
+    "gh:release-draft": "node scripts/create-github-release.js --draft"
   },
   "bin": {
     "research": "bundle/research.js"

@@ -1,218 +1,337 @@
-name: Cross-Platform Build
+name: Build Cross-Platform Packages
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., v1.0.0)'
+        required: true
+        default: 'v0.3.1'
 
 jobs:
-  build-matrix:
+  build:
+    name: Build ${{ matrix.platform }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
     strategy:
-      fail-fast: false
       matrix:
         include:
-          # macOS builds (like iEchor)
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            name: macOS Intel
-            artifact: research-cli-darwin-x64
-            
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            name: macOS Apple Silicon
-            artifact: research-cli-darwin-arm64
-            
-          # Windows builds (native compilation)
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            name: Windows x64
-            artifact: research-cli-win32-x64.exe
-            
           # Linux builds
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            name: Linux x64
-            artifact: research-cli-linux-x64
-            
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            name: Linux ARM64
-            artifact: research-cli-linux-arm64
+          - platform: linux
+            arch: x64
+            runner: ubuntu-latest
+          - platform: linux
+            arch: arm64
+            runner: ubuntu-latest
+          
+          # macOS builds
+          - platform: darwin
+            arch: x64
+            runner: macos-13  # Intel runner
+          - platform: darwin
+            arch: arm64
+            runner: macos-latest  # M1 runner
+          
+          # Windows builds
+          - platform: win32
+            arch: x64
+            runner: windows-latest
+          - platform: win32
+            arch: arm64
+            runner: windows-latest
 
-    runs-on: ${{ matrix.os }}
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: ${{ matrix.target }}
-        
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential libssl-dev pkg-config
-        
-    - name: Install cross-compilation tools (Linux ARM64)
-      if: matrix.target == 'aarch64-unknown-linux-gnu'
-      run: |
-        sudo apt-get install -y gcc-aarch64-linux-gnu
-        echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build core application
-      run: npm run build
-      
-    - name: Build native binary
-      run: |
-        cd src-tauri
-        cargo build --release --target ${{ matrix.target }}
-        
-    - name: Prepare artifacts (Unix)
-      if: matrix.os != 'windows-latest'
-      run: |
-        mkdir -p dist-release
-        cp src-tauri/target/${{ matrix.target }}/release/research-cli dist-release/${{ matrix.artifact }}
-        chmod +x dist-release/${{ matrix.artifact }}
-        
-    - name: Prepare artifacts (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        mkdir dist-release
-        cp src-tauri/target/${{ matrix.target }}/release/research-cli.exe dist-release/${{ matrix.artifact }}
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.artifact }}
-        path: dist-release/${{ matrix.artifact }}
-        
-  build-desktop-apps:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Electron builds (like iEchor)
-          - os: macos-latest
-            name: Electron macOS
-            command: npx electron-builder --mac --publish=never
-            
-          - os: windows-latest
-            name: Electron Windows
-            command: npx electron-builder --win --publish=never
-            
-          - os: ubuntu-latest
-            name: Electron Linux
-            command: npx electron-builder --linux --publish=never
-            
-          # Tauri builds (only on macOS for now)
-          - os: macos-latest
-            name: Tauri macOS
-            command: npm run tauri:build
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    runs-on: ${{ matrix.os }}
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        
-    - name: Setup Rust (for Tauri)
-      if: contains(matrix.name, 'Tauri')
-      uses: dtolnay/rust-toolchain@stable
-      
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential libssl-dev pkg-config
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build core application
-      run: npm run build
-      
-    - name: Build desktop app
-      run: ${{ matrix.command }}
-      env:
-        CSC_IDENTITY_AUTO_DISCOVERY: false
-        
-    - name: Upload Electron artifacts
-      if: contains(matrix.name, 'Electron')
-      uses: actions/upload-artifact@v4
-      with:
-        name: electron-${{ matrix.os }}
-        path: dist-electron/
-        
-    - name: Upload Tauri artifacts
-      if: contains(matrix.name, 'Tauri')
-      uses: actions/upload-artifact@v4
-      with:
-        name: tauri-${{ matrix.os }}
-        path: src-tauri/target/release/bundle/
-        
-  create-release:
-    needs: [build-matrix, build-desktop-apps]
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Build platform package
+        shell: bash
+        run: |
+          # Create single platform build script
+          cat > build-single-platform.js << 'EOF'
+          #!/usr/bin/env node
+          
+          import { execSync } from 'child_process';
+          import { existsSync, mkdirSync, copyFileSync, writeFileSync, rmSync, cpSync, readFileSync } from 'fs';
+          import { join, dirname } from 'path';
+          import { fileURLToPath } from 'url';
+          
+          const __dirname = dirname(fileURLToPath(import.meta.url));
+          const rootDir = __dirname;
+          const platform = process.env.TARGET_PLATFORM;
+          const arch = process.env.TARGET_ARCH;
+          const nodeVersion = 'v20.18.1';
+          
+          console.log(`Building for ${platform}-${arch}...`);
+          
+          const packageName = `research-cli-${platform}-${arch}`;
+          const packageDir = join(rootDir, packageName);
+          const cliPackageDir = join(rootDir, 'packages', 'cli');
+          
+          // Create package directory
+          mkdirSync(packageDir, { recursive: true });
+          
+          // Copy built CLI files
+          const cliDistDir = join(cliPackageDir, 'dist');
+          if (existsSync(cliDistDir)) {
+            cpSync(cliDistDir, join(packageDir, 'dist'), { recursive: true });
+          }
+          
+          // Copy CLI bin files
+          const cliBinDir = join(cliPackageDir, 'bin');
+          if (existsSync(cliBinDir)) {
+            cpSync(cliBinDir, join(packageDir, 'bin'), { recursive: true });
+          }
+          
+          // Install production dependencies
+          const tempPackageJson = {
+            "name": packageName,
+            "version": "1.0.0",
+            "type": "module",
+            "dependencies": {}
+          };
+          
+          const cliPackageJsonPath = join(cliPackageDir, 'package.json');
+          if (existsSync(cliPackageJsonPath)) {
+            const cliPackageJson = JSON.parse(readFileSync(cliPackageJsonPath, 'utf8'));
+            tempPackageJson.dependencies = cliPackageJson.dependencies || {};
+          }
+          
+          writeFileSync(join(packageDir, 'package.json'), JSON.stringify(tempPackageJson, null, 2));
+          
+          try {
+            execSync('npm install --production --no-optional', { 
+              cwd: packageDir,
+              stdio: 'inherit'
+            });
+          } catch (error) {
+            console.warn('Warning: npm install failed, continuing...');
+          }
+          
+          // Download Node.js binary
+          const ext = platform === 'win32' ? '.exe' : '';
+          const nodeBinaryName = `node${ext}`;
+          
+          try {
+            console.log('Downloading Node.js binary...');
+            
+            if (platform === 'win32') {
+              const windowsUrl = `https://nodejs.org/dist/${nodeVersion}/node-${nodeVersion}-win-${arch}.zip`;
+              execSync(`curl -L "${windowsUrl}" -o node.zip`);
+              execSync(`unzip -q node.zip`);
+              
+              const extractedDir = `node-${nodeVersion}-win-${arch}`;
+              if (existsSync(join(extractedDir, 'node.exe'))) {
+                copyFileSync(join(extractedDir, 'node.exe'), join(packageDir, nodeBinaryName));
+              }
+              execSync(`rm -rf node.zip ${extractedDir}`);
+            } else {
+              const nodeUrl = `https://nodejs.org/dist/${nodeVersion}/node-${nodeVersion}-${platform}-${arch}.tar.gz`;
+              execSync(`curl -L "${nodeUrl}" | tar -xz`);
+              
+              const extractedDir = `node-${nodeVersion}-${platform}-${arch}`;
+              if (existsSync(join(extractedDir, 'bin', 'node'))) {
+                copyFileSync(join(extractedDir, 'bin', 'node'), join(packageDir, nodeBinaryName));
+                execSync(`chmod +x "${join(packageDir, nodeBinaryName)}"`);
+              }
+              execSync(`rm -rf ${extractedDir}`);
+            }
+            
+            console.log('Node.js binary downloaded successfully');
+          } catch (error) {
+            console.error('Failed to download Node.js binary:', error.message);
+          }
+          
+          // Create wrapper script
+          if (platform === 'win32') {
+            const batchScript = `@echo off
+          setlocal
+          
+          set SCRIPT_DIR=%~dp0
+          set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
+          
+          set NODE_BIN=%SCRIPT_DIR%\\node.exe
+          set MAIN_JS=%SCRIPT_DIR%\\dist\\index.js
+          
+          if not exist "%NODE_BIN%" (
+              echo Error: Node.js binary not found
+              exit /b 1
+          )
+          
+          set NODE_PATH=%SCRIPT_DIR%\\node_modules;%NODE_PATH%
+          "%NODE_BIN%" "%MAIN_JS%" %*`;
+            
+            writeFileSync(join(packageDir, 'research-cli.bat'), batchScript);
+          } else {
+            const shellScript = `#!/usr/bin/env bash
+          set -euo pipefail
+          
+          SCRIPT_DIR="$(dirname "$(realpath "$0" || readlink "$0" || echo "$0")")"
+          NODE_BIN="$SCRIPT_DIR/node"
+          MAIN_JS="$SCRIPT_DIR/dist/index.js"
+          
+          if [ ! -f "$NODE_BIN" ]; then
+            echo "Error: Node.js binary not found"
+            exit 1
+          fi
+          
+          export NODE_PATH="$SCRIPT_DIR/node_modules:\${NODE_PATH:-}"
+          exec "$NODE_BIN" "$MAIN_JS" "$@"`;
+            
+            writeFileSync(join(packageDir, 'research-cli'), shellScript);
+            execSync(`chmod +x "${join(packageDir, 'research-cli')}"`);
+          }
+          
+          // Update package.json
+          const finalPackageJson = {
+            "type": "module",
+            "name": `@iechor/research-cli-${platform}-${arch}`,
+            "version": "0.3.1",
+            "private": true,
+            "description": `Standalone Research CLI for ${platform}-${arch}`,
+            "main": "dist/index.js",
+            "bin": {
+              "research-cli": platform === 'win32' ? "./research-cli.bat" : "./research-cli"
+            },
+            "os": [platform],
+            "cpu": [arch]
+          };
+          
+          writeFileSync(join(packageDir, 'package.json'), JSON.stringify(finalPackageJson, null, 2));
+          
+          // Create archive
+          const archiveExt = platform === 'win32' ? 'zip' : 'tar.gz';
+          const archiveName = `${packageName}.${archiveExt}`;
+          
+          if (platform === 'win32') {
+            try {
+              execSync(`powershell Compress-Archive -Path "${packageName}" -DestinationPath "${archiveName}"`);
+            } catch {
+              execSync(`tar -czf "${packageName}.tar.gz" "${packageName}"`);
+            }
+          } else {
+            execSync(`tar -czf "${archiveName}" "${packageName}"`);
+          }
+          
+          console.log(`Package created: ${archiveName}`);
+          EOF
+          
+          # Run the build
+          TARGET_PLATFORM=${{ matrix.platform }} TARGET_ARCH=${{ matrix.arch }} node build-single-platform.js
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-cli-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            research-cli-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz
+            research-cli-${{ matrix.platform }}-${{ matrix.arch }}.zip
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts/
-        
-    - name: Create release directory
-      run: |
-        mkdir -p release
-        find artifacts -type f -exec cp {} release/ \;
-        ls -la release/
-        
-    - name: Generate release notes
-      run: |
-        echo "# Research CLI Release" > release-notes.md
-        echo "" >> release-notes.md
-        echo "## Available Downloads" >> release-notes.md
-        echo "" >> release-notes.md
-        echo "### Native Binaries (Recommended)" >> release-notes.md
-        echo "- Smallest size (~8MB)" >> release-notes.md
-        echo "- Fastest startup" >> release-notes.md
-        echo "- No dependencies" >> release-notes.md
-        echo "" >> release-notes.md
-        echo "### Desktop Applications" >> release-notes.md
-        echo "- Full GUI experience" >> release-notes.md
-        echo "- System integration" >> release-notes.md
-        echo "- Auto-updater support" >> release-notes.md
-        
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: release/*
-        body_path: release-notes.md
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./releases
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find ./releases -name "*.tar.gz" -o -name "*.zip" | xargs -I {} cp {} release-files/
+          
+          # Create checksums
+          cd release-files
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" >> checksums.txt
+            fi
+          done
+          
+          echo "Release files:"
+          ls -la
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Research CLI ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-files/*
+          body: |
+            ## Research CLI ${{ steps.version.outputs.version }}
+            
+            ### 📦 Available Packages
+            
+            | Platform | Architecture | Download |
+            |----------|--------------|----------|
+            | Linux | x64 | `research-cli-linux-x64.tar.gz` |
+            | Linux | ARM64 | `research-cli-linux-arm64.tar.gz` |
+            | macOS | x64 (Intel) | `research-cli-darwin-x64.tar.gz` |
+            | macOS | ARM64 (M1/M2) | `research-cli-darwin-arm64.tar.gz` |
+            | Windows | x64 | `research-cli-win32-x64.zip` |
+            | Windows | ARM64 | `research-cli-win32-arm64.zip` |
+            
+            ### 🚀 Installation
+            
+            **Linux/macOS:**
+            ```bash
+            # Download for your platform
+            curl -L https://github.com/iechor-research/research-cli/releases/download/${{ steps.version.outputs.version }}/research-cli-linux-x64.tar.gz -o research-cli.tar.gz
+            
+            # Extract and install
+            tar -xzf research-cli.tar.gz
+            sudo cp research-cli-linux-x64/research-cli /usr/local/bin/
+            
+            # Test installation
+            research-cli --version
+            ```
+            
+            **Windows:**
+            ```powershell
+            # Download and extract the zip file for your architecture
+            # Run research-cli.bat from the extracted folder
+            ```
+            
+            ### ✅ Verification
+            
+            All packages include SHA256 checksums in `checksums.txt`. Verify your download:
+            ```bash
+            shasum -a 256 -c checksums.txt
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
