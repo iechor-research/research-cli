@@ -97,9 +97,9 @@ main() {
     # Download
     local archive_name download_url
     if [[ "$platform" == win32-* ]]; then
-        archive_name="research-cli-standalone-${platform}.zip"
+        archive_name="research-cli-${platform}.zip"
     else
-        archive_name="research-cli-standalone-${platform}.tar.gz"
+        archive_name="research-cli-${platform}.tar.gz"
     fi
     
     download_url="https://github.com/$REPO/releases/download/$version/$archive_name"
