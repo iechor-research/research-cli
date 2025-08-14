@@ -77,19 +77,17 @@ detect_platform() {
 get_latest_version() {
     local version
     
-    log_info "Fetching latest release information..."
-    
     if command -v curl >/dev/null 2>&1; then
         version=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | cut -d'"' -f4)
     elif command -v wget >/dev/null 2>&1; then
         version=$(wget -qO- "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | cut -d'"' -f4)
     else
-        log_error "curl or wget is required to download Research CLI"
+        log_error "curl or wget is required to download Research CLI" >&2
         exit 1
     fi
     
     if [ -z "$version" ]; then
-        log_error "Failed to get latest version"
+        log_error "Failed to get latest version" >&2
         exit 1
     fi
     
@@ -299,6 +297,7 @@ EOF
         version="$VERSION"
         log_info "Using specified version: $version"
     else
+        log_info "Fetching latest release information..."
         version=$(get_latest_version)
         if [ -n "$version" ]; then
             log_info "Latest version: $version"
