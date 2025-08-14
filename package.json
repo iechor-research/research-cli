@@ -1,6 +1,6 @@
 {
   "name": "@iechor/research-cli",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "AI-powered research and development CLI tool for developers",
   "author": "IECHOR Research <research@iechor.com>",
   "engines": {
@@ -30,7 +30,7 @@
     "build:packages": "npm run build --workspaces",
     "build:sandbox": "node scripts/build_sandbox.js --skip-npm-install-build",
     "build:native": "node scripts/build-native-wrapper.js",
-    "build:cross-platform": "node scripts/build-cross-platform.js",
+    "build:cross-platform": "node scripts/build-cross-platform-packages.js",
     "build:electron-packages": "node scripts/build-electron-packages.js",
     "build:all-platforms": "node scripts/build-all-platforms.js",
     "build:iechor-style": "node scripts/build-iechor-style.js",
@@ -77,7 +77,6 @@
     "build:electron-safe": "node scripts/build-iechor-style.js --electron-only",
     "build:standalone": "node scripts/build-standalone-package.js",
     "build:standalone-simple": "node scripts/build-simple-standalone-package.js",
-    "build:cross-platform": "node scripts/build-cross-platform-packages.js",
     "release": "node scripts/release.js",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
