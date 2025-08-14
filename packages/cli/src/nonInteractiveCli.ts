@@ -22,6 +22,54 @@ import {
 import { parseAndFormatApiError } from './ui/utils/errorParsing.js';
 import { SlashCommandProcessor } from './services/SlashCommandProcessor.js';
 
+/**
+ * Execute a tool in non-interactive mode
+ */
+async function executeToolInNonInteractiveMode(
+  config: Config,
+  toolName: string,
+  toolArgs: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const toolRegistry = await config.getToolRegistry();
+    const tool = toolRegistry.getTool(toolName);
+    
+    if (!tool) {
+      console.error(`Error: Tool "${toolName}" not found in registry.`);
+      return;
+    }
+
+    console.log(`🔧 Executing tool: ${toolName}`);
+    
+    // Execute the tool
+    const result = await tool.execute(toolArgs, new AbortController().signal);
+    
+    // Display the tool output
+    if (result.llmContent) {
+      if (typeof result.llmContent === 'string') {
+        console.log(result.llmContent);
+      } else if (Array.isArray(result.llmContent) && result.llmContent.length > 0) {
+        for (const content of result.llmContent) {
+          if (typeof content === 'object' && content && 'text' in content && content.text) {
+            console.log(content.text);
+          }
+        }
+      }
+    } else if (result.returnDisplay) {
+      console.log(result.returnDisplay);
+    } else {
+      console.log(`Tool "${toolName}" executed successfully.`);
+    }
+    
+    if (result.summary) {
+      console.log(`\n📋 Summary: ${result.summary}`);
+    }
+    
+  } catch (error) {
+    console.error(`Error executing tool "${toolName}":`, error instanceof Error ? error.message : 'Unknown error');
+  }
+}
+
 function getResponseText(response: GenerateContentResponse): string | null {
   if (response.candidates && response.candidates.length > 0) {
     const candidate = response.candidates[0];
@@ -86,8 +134,8 @@ export async function runNonInteractive(
       }
       return;
     } else if (result.type === 'schedule_tool') {
-      // Handle tool scheduling if needed
-      console.log(`Tool scheduling not yet implemented: ${result.toolName}`);
+      // Handle tool scheduling for non-interactive mode
+      await executeToolInNonInteractiveMode(config, result.toolName!, result.toolArgs || {});
       return;
     } else if (result.type === 'not_found') {
       // If it's not a recognized slash command, fall through to AI processing

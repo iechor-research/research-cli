@@ -63,11 +63,10 @@ describe('researchCommand', () => {
 
         expect(result).toEqual({
           type: 'tool',
-          toolName: 'manage_bibliography',
+          toolName: 'research_manage_bibliography',
           toolArgs: {
-            operation: 'search',
             query: 'machine',
-            sources: ['arxiv'],
+            databases: ['arxiv'],
             maxResults: 5,
           },
         });

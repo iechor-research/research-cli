@@ -34,7 +34,7 @@ import type { ResearchToolRegistry } from '@iechor/research-cli-core';
  * /research 命令实现
  *
  * 子命令：
- * - search <query> [--source=arxiv|scholar] [--limit=10] - 文献搜索
+ * - search <query> [--db=arxiv,pubmed,ieee] [--source=arxiv|scholar] [--limit=10] - 文献搜索
  * - analyze <file> [--type=structure|grammar|style] - 文档分析
  * - experiment <language> <method> - 生成实验代码
  * - data <operation> <file> - 数据分析
@@ -56,20 +56,25 @@ export const researchCommand: SlashCommand = {
           validateArguments(parsed.positional, 1, 'research search');
 
           const query = parsed.positional[0];
-          const source = getOptionValue(parsed.options, 'source', 'arxiv');
+          const dbParam = getOptionValue(parsed.options, 'db', '') || getOptionValue(parsed.options, 'source', 'arxiv');
           const limit = getOptionValue(parsed.options, 'limit', 10);
 
-          validateOption(
-            source,
-            ['arxiv', 'scholar', 'pubmed', 'ieee'],
-            'source',
-          );
+          // Handle multiple databases from --db parameter
+          const databases = dbParam.includes(',') 
+            ? dbParam.split(',').map(db => db.trim())
+            : [dbParam];
+
+          // Validate each database
+          const validDatabases = ['arxiv', 'scholar', 'pubmed', 'ieee'];
+          for (const db of databases) {
+            validateOption(db, validDatabases, 'database');
+          }
 
           context.ui.addItem(
             {
               type: MessageType.INFO,
               text: formatInfo(
-                `Searching ${source} for: "${query}" (limit: ${limit})`,
+                `Searching ${databases.join(', ')} for: "${query}" (limit: ${limit})`,
               ),
             },
             Date.now(),
@@ -77,11 +82,10 @@ export const researchCommand: SlashCommand = {
 
           return {
             type: 'tool',
-            toolName: 'manage_bibliography',
+            toolName: 'research_manage_bibliography',
             toolArgs: {
-              operation: 'search',
               query,
-              sources: [source],
+              databases: databases,
               maxResults: limit,
             },
           };
@@ -474,7 +478,7 @@ export const researchCommand: SlashCommand = {
             'Research tools for literature search, document analysis, and experiment generation',
           usage: '/research <subcommand> [options]',
           examples: [
-            '/research search "machine learning" --source=arxiv --limit=5',
+            '/research search "machine learning" --db=arxiv,pubmed --limit=5',
             '/research analyze paper.pdf --type=structure',
             '/research experiment python ml --output=./my-experiments',
             '/research data describe dataset.csv --format=report',

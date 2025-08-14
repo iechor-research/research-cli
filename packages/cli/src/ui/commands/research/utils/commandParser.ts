@@ -18,13 +18,10 @@ export interface ParsedArgs {
 }
 
 /**
- * 解析命令行参数字符串
+ * 解析命令行参数字符串，支持引号包围的参数
  */
 export function parseCommandArgs(argsString: string): ParsedArgs {
-  const args = argsString
-    .trim()
-    .split(/\s+/)
-    .filter((arg) => arg.length > 0);
+  const args = parseArgsWithQuotes(argsString.trim());
   const positional: string[] = [];
   const options: Record<string, string | boolean> = {};
 
@@ -62,6 +59,48 @@ export function parseCommandArgs(argsString: string): ParsedArgs {
   }
 
   return { positional, options };
+}
+
+/**
+ * 解析参数字符串，正确处理引号包围的参数
+ */
+function parseArgsWithQuotes(input: string): string[] {
+  const args: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let quoteChar = '';
+  
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+    const nextChar = input[i + 1];
+    
+    if (!inQuotes) {
+      if (char === '"' || char === "'") {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (char === ' ' || char === '\t') {
+        if (current.length > 0) {
+          args.push(current);
+          current = '';
+        }
+      } else {
+        current += char;
+      }
+    } else {
+      if (char === quoteChar) {
+        inQuotes = false;
+        quoteChar = '';
+      } else {
+        current += char;
+      }
+    }
+  }
+  
+  if (current.length > 0) {
+    args.push(current);
+  }
+  
+  return args.filter(arg => arg.length > 0);
 }
 
 /**
