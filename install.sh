@@ -133,10 +133,13 @@ main() {
     fi
     
     # Check extraction
-    if [ ! -d "dist-package" ]; then
+    extracted_dir=$(find . -maxdepth 1 -name "research-cli-*" -type d | head -1)
+    if [ -z "$extracted_dir" ]; then
         log_error "Extraction failed"
         exit 1
     fi
+    # Rename to expected directory name
+    mv "$extracted_dir" "dist-package"
     
     log_success "Extraction completed"
     
