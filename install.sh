@@ -138,7 +138,7 @@ download_and_extract() {
         tar -xzf "$archive_name"
     fi
     
-    extract_dir="research-cli-standalone-${platform}"
+    extract_dir="dist-package"
     if [ ! -d "$extract_dir" ]; then
         log_error "Extraction failed: directory $extract_dir not found"
         exit 1
