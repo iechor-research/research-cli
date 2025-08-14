@@ -103,9 +103,9 @@ download_and_extract() {
     local download_url archive_name extract_dir
     
     if [[ "$platform" == win32-* ]]; then
-        archive_name="research-cli-${platform}.zip"
+        archive_name="research-cli-standalone-${platform}.zip"
     else
-        archive_name="research-cli-${platform}.tar.gz"
+        archive_name="research-cli-standalone-${platform}.tar.gz"
     fi
     
     download_url="https://github.com/$REPO/releases/download/$version/$archive_name"
@@ -140,7 +140,7 @@ download_and_extract() {
         tar -xzf "$archive_name"
     fi
     
-    extract_dir="research-cli-${platform}"
+    extract_dir="research-cli-standalone-${platform}"
     if [ ! -d "$extract_dir" ]; then
         log_error "Extraction failed: directory $extract_dir not found"
         exit 1
