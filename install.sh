@@ -1,105 +1,101 @@
 #!/usr/bin/env bash
 
-# Research CLI Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
+# Research CLI Simple Installer
+# Usage: curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install-simple.sh | bash
 
 set -euo pipefail
 
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Configuration
 REPO="iechor-research/research-cli"
 BINARY_NAME="research-cli"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
-TEMP_DIR=$(mktemp -d)
-
-# Cleanup function
-cleanup() {
-    rm -rf "$TEMP_DIR"
-}
-trap cleanup EXIT
 
 # Logging functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Print banner
-print_banner() {
-    cat << 'EOF'
+# Banner
+echo -e "${BLUE}"
+cat << 'EOF'
 ╔══════════════════════════════════════════════════════════════╗
 ║                     Research CLI Installer                   ║
 ║                                                              ║
 ║  AI-powered research and development CLI tool for developers ║
 ╚══════════════════════════════════════════════════════════════╝
 EOF
-}
+echo -e "${NC}"
 
-# Detect platform and architecture
+# Detect platform
 detect_platform() {
     local os arch
-    
     case "$(uname -s)" in
         Linux*)     os="linux" ;;
         Darwin*)    os="darwin" ;;
         CYGWIN*|MINGW*|MSYS*) os="win32" ;;
-        *)          log_error "Unsupported operating system: $(uname -s)"; exit 1 ;;
+        *)          log_error "Unsupported OS: $(uname -s)"; exit 1 ;;
     esac
     
     case "$(uname -m)" in
         x86_64|amd64)   arch="x64" ;;
         arm64|aarch64)  arch="arm64" ;;
-        armv7l)         arch="arm64" ;; # Fallback for some ARM systems
         *)              log_error "Unsupported architecture: $(uname -m)"; exit 1 ;;
     esac
     
     echo "${os}-${arch}"
 }
 
-# Get latest release version
+# Get latest version
 get_latest_version() {
-    local version
-    
     if command -v curl >/dev/null 2>&1; then
-        version=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | cut -d'"' -f4)
+        curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | \
+        grep '"tag_name"' | cut -d'"' -f4
     elif command -v wget >/dev/null 2>&1; then
-        version=$(wget -qO- "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | cut -d'"' -f4)
+        wget -qO- "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | \
+        grep '"tag_name"' | cut -d'"' -f4
     else
-        log_error "curl or wget is required to download Research CLI" >&2
+        log_error "curl or wget is required"
         exit 1
     fi
-    
-    if [ -z "$version" ]; then
-        log_error "Failed to get latest version" >&2
-        exit 1
-    fi
-    
-    echo "$version"
 }
 
-# Download and extract package
-download_and_extract() {
-    local version="$1"
-    local platform="$2"
-    local download_url archive_name extract_dir
+# Main installation
+main() {
+    # Detect platform
+    local platform
+    platform=$(detect_platform)
+    log_info "Detected platform: $platform"
     
+    # Get version
+    local version
+    if [ -n "${VERSION:-}" ]; then
+        version="$VERSION"
+        log_info "Using specified version: $version"
+    else
+        log_info "Fetching latest release..."
+        version=$(get_latest_version)
+        if [ -z "$version" ]; then
+            log_error "Could not determine version"
+            exit 1
+        fi
+        log_info "Latest version: $version"
+    fi
+    
+    # Create temp directory
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    # Download
+    local archive_name download_url
     if [[ "$platform" == win32-* ]]; then
         archive_name="research-cli-standalone-${platform}.zip"
     else
@@ -107,232 +103,100 @@ download_and_extract() {
     fi
     
     download_url="https://github.com/$REPO/releases/download/$version/$archive_name"
-    
-    log_info "Downloading Research CLI $version for $platform..."
-    log_info "URL: $download_url"
-    
-    cd "$TEMP_DIR"
+    log_info "Downloading from: $download_url"
     
     if command -v curl >/dev/null 2>&1; then
         if ! curl -fsSL -o "$archive_name" "$download_url"; then
-            log_error "Failed to download Research CLI"
+            log_error "Download failed"
             exit 1
         fi
     elif command -v wget >/dev/null 2>&1; then
         if ! wget -q -O "$archive_name" "$download_url"; then
-            log_error "Failed to download Research CLI"
+            log_error "Download failed"
             exit 1
         fi
     fi
     
-    log_info "Extracting archive..."
+    log_success "Download completed"
     
+    # Extract
+    log_info "Extracting..."
     if [[ "$archive_name" == *.zip ]]; then
         if command -v unzip >/dev/null 2>&1; then
             unzip -q "$archive_name"
         else
-            log_error "unzip is required to extract Windows packages"
+            log_error "unzip required for Windows packages"
             exit 1
         fi
     else
         tar -xzf "$archive_name"
     fi
     
-    extract_dir="dist-package"
-    if [ ! -d "$extract_dir" ]; then
-        log_error "Extraction failed: directory $extract_dir not found"
+    # Check extraction
+    if [ ! -d "dist-package" ]; then
+        log_error "Extraction failed"
         exit 1
     fi
     
-    echo "$extract_dir"
-}
-
-# Install binary
-install_binary() {
-    local extract_dir="$1"
-    local platform="$2"
-    local binary_path install_path
+    log_success "Extraction completed"
     
-    if [[ "$platform" == win32-* ]]; then
-        binary_path="$extract_dir/research-cli.bat"
-    else
-        binary_path="$extract_dir/research-cli"
-    fi
+    # Install
+    log_info "Installing to $INSTALL_DIR..."
     
-    if [ ! -f "$binary_path" ]; then
-        log_error "Binary not found: $binary_path"
-        exit 1
-    fi
-    
-    # Determine install path
-    if [ -w "$INSTALL_DIR" ]; then
-        install_path="$INSTALL_DIR/$BINARY_NAME"
-    else
-        log_info "No write permission to $INSTALL_DIR, trying with sudo..."
-        if command -v sudo >/dev/null 2>&1; then
-            install_path="$INSTALL_DIR/$BINARY_NAME"
-        else
-            log_warn "sudo not available, installing to ~/bin instead"
-            INSTALL_DIR="$HOME/bin"
+    # Create install directory if needed
+    if [ ! -d "$INSTALL_DIR" ]; then
+        if [ -w "$(dirname "$INSTALL_DIR")" ]; then
             mkdir -p "$INSTALL_DIR"
-            install_path="$INSTALL_DIR/$BINARY_NAME"
+        else
+            log_info "Creating directory with sudo..."
+            sudo mkdir -p "$INSTALL_DIR"
         fi
     fi
     
-    log_info "Installing Research CLI to $install_path..."
-    
-    # Copy the entire directory to preserve dependencies
-    local target_dir
-    target_dir="$(dirname "$install_path")/research-cli-bundle"
-    
-    if [ -w "$(dirname "$install_path")" ]; then
-        cp -r "$extract_dir" "$target_dir"
-        ln -sf "$target_dir/research-cli" "$install_path" 2>/dev/null || cp "$target_dir/research-cli" "$install_path"
+    # Install the bundle
+    local bundle_dir="$INSTALL_DIR/research-cli-bundle"
+    if [ -w "$INSTALL_DIR" ]; then
+        cp -r "dist-package" "$bundle_dir"
+        ln -sf "$bundle_dir/research-cli" "$INSTALL_DIR/$BINARY_NAME"
     else
-        sudo cp -r "$extract_dir" "$target_dir"
-        sudo ln -sf "$target_dir/research-cli" "$install_path" 2>/dev/null || sudo cp "$target_dir/research-cli" "$install_path"
+        log_info "Installing with sudo..."
+        sudo cp -r "dist-package" "$bundle_dir"
+        sudo ln -sf "$bundle_dir/research-cli" "$INSTALL_DIR/$BINARY_NAME"
     fi
     
     # Make executable
-    if [ -w "$install_path" ]; then
-        chmod +x "$install_path"
+    if [ -w "$INSTALL_DIR/$BINARY_NAME" ]; then
+        chmod +x "$INSTALL_DIR/$BINARY_NAME"
     else
-        sudo chmod +x "$install_path"
+        sudo chmod +x "$INSTALL_DIR/$BINARY_NAME"
     fi
     
-    echo "$install_path"
-}
-
-# Verify installation
-verify_installation() {
-    local install_path="$1"
+    log_success "Installation completed!"
     
-    log_info "Verifying installation..."
-    
-    if [ -x "$install_path" ]; then
-        local version_output
-        if version_output=$("$install_path" --version 2>&1); then
-            log_success "Research CLI installed successfully!"
-            log_success "Version: $version_output"
-            return 0
-        else
-            log_warn "Binary installed but version check failed: $version_output"
-            return 1
-        fi
+    # Test installation
+    log_info "Testing installation..."
+    if "$INSTALL_DIR/$BINARY_NAME" --version >/dev/null 2>&1; then
+        local installed_version
+        installed_version=$("$INSTALL_DIR/$BINARY_NAME" --version 2>/dev/null | head -1)
+        log_success "Research CLI installed successfully!"
+        log_success "Version: $installed_version"
+        log_success "Location: $INSTALL_DIR/$BINARY_NAME"
     else
-        log_error "Installation verification failed: $install_path is not executable"
-        return 1
+        log_warn "Installation completed but version check failed"
     fi
-}
-
-# Add to PATH if needed
-add_to_path() {
-    local install_dir="$1"
     
-    if [[ ":$PATH:" != *":$install_dir:"* ]]; then
-        log_info "Adding $install_dir to PATH..."
-        
-        # Determine shell config file
-        local shell_config
-        case "$SHELL" in
-            */bash) shell_config="$HOME/.bashrc" ;;
-            */zsh)  shell_config="$HOME/.zshrc" ;;
-            */fish) shell_config="$HOME/.config/fish/config.fish" ;;
-            *)      shell_config="$HOME/.profile" ;;
-        esac
-        
-        if [ -f "$shell_config" ]; then
-            echo "" >> "$shell_config"
-            echo "# Added by Research CLI installer" >> "$shell_config"
-            echo "export PATH=\"$install_dir:\$PATH\"" >> "$shell_config"
-            log_success "Added to PATH in $shell_config"
-            log_info "Please run: source $shell_config"
-        else
-            log_warn "Could not add to PATH automatically. Please add $install_dir to your PATH manually."
-        fi
-    fi
-}
-
-# Main installation function
-main() {
-    local version platform extract_dir install_path
-    
-    print_banner
+    # Show usage
     echo
+    log_info "🚀 Get started:"
+    log_info "   $BINARY_NAME --help"
+    log_info "   $BINARY_NAME --version"
+    log_info "   $BINARY_NAME -p \"Hello, Research CLI!\""
+    echo
+    log_info "📖 Documentation: https://github.com/$REPO"
     
-    # Check for help flag
-    if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
-        cat << EOF
-Research CLI Installer
-
-USAGE:
-    curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
-    
-    # Or with custom install directory:
-    INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
-
-ENVIRONMENT VARIABLES:
-    INSTALL_DIR    Directory to install the binary (default: /usr/local/bin)
-
-EXAMPLES:
-    # Install to /usr/local/bin (requires sudo)
-    curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
-    
-    # Install to ~/bin (user directory)
-    INSTALL_DIR=~/bin curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
-    
-    # Install specific version
-    VERSION=v0.3.1 curl -fsSL https://raw.githubusercontent.com/iechor-research/research-cli/main/install.sh | bash
-
-EOF
-        exit 0
-    fi
-    
-    # Detect platform
-    platform=$(detect_platform)
-    log_info "Detected platform: $platform"
-    
-    # Get version
-    if [ -n "${VERSION:-}" ]; then
-        version="$VERSION"
-        log_info "Using specified version: $version"
-    else
-        log_info "Fetching latest release information..."
-        version=$(get_latest_version)
-        if [ -n "$version" ]; then
-            log_info "Latest version: $version"
-        else
-            log_error "Could not determine latest version"
-            exit 1
-        fi
-    fi
-    
-    # Download and extract
-    extract_dir=$(download_and_extract "$version" "$platform")
-    
-    # Install
-    install_path=$(install_binary "$extract_dir" "$platform")
-    
-    # Verify
-    if verify_installation "$install_path"; then
-        log_success "Installation completed successfully!"
-        
-        # Add to PATH if needed
-        if [[ "$INSTALL_DIR" != "/usr/local/bin" ]] && [[ "$INSTALL_DIR" != "/usr/bin" ]]; then
-            add_to_path "$INSTALL_DIR"
-        fi
-        
-        echo
-        log_info "🚀 Get started with Research CLI:"
-        log_info "   $BINARY_NAME --help"
-        log_info "   $BINARY_NAME --version"
-        log_info ""
-        log_info "📖 Documentation: https://github.com/$REPO"
-        
-    else
-        log_error "Installation failed"
-        exit 1
-    fi
+    # Cleanup
+    cd /
+    rm -rf "$temp_dir"
 }
 
 # Run main function

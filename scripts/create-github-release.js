@@ -22,9 +22,9 @@ const rootDir = join(__dirname, '..');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const version = args[0] || 'v0.3.1';
 const isDraft = args.includes('--draft');
 const isPrerelease = args.includes('--prerelease');
+const version = args.find(arg => !arg.startsWith('--')) || 'v0.3.1';
 
 console.log('🚀 Creating GitHub Release');
 console.log(`📦 Version: ${version}`);
@@ -163,8 +163,7 @@ async function createRelease(version, releaseNotes) {
   
   const releaseArgs = [
     'gh', 'release', 'create', version,
-    '--title', `Research CLI ${version}`,
-    '--notes', releaseNotes
+    '--title', `Research CLI ${version}`
   ];
 
   if (isDraft) {
@@ -174,6 +173,10 @@ async function createRelease(version, releaseNotes) {
   if (isPrerelease) {
     releaseArgs.push('--prerelease');
   }
+  
+  // Add notes as separate arguments to avoid shell escaping issues
+  releaseArgs.push('--notes');
+  releaseArgs.push(releaseNotes);
 
   // Add current platform package if it exists
   const currentPlatform = process.platform === 'darwin' ? 
@@ -202,7 +205,13 @@ async function createRelease(version, releaseNotes) {
   }
 
   try {
-    execSync(releaseArgs.join(' '), { stdio: 'inherit', cwd: rootDir });
+    // Use spawn-like approach to avoid shell escaping issues
+    const [command, ...args] = releaseArgs;
+    execSync(`"${command}" ${args.map(arg => `"${arg.replace(/"/g, '\\"')}"`).join(' ')}`, { 
+      stdio: 'inherit', 
+      cwd: rootDir,
+      shell: true
+    });
     console.log('✅ GitHub release created successfully!');
     return true;
   } catch (error) {
