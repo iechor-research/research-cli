@@ -15,6 +15,8 @@ import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
 import { LaTeXManager } from './submission/latex-manager.js';
 import { JournalMatcher } from './submission/journal-matcher.js';
 import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
+import { LiteratureInvestigator } from './investigation/literature-investigator.js';
+import { KeywordSequenceTool } from './investigation/keyword-sequence-tool.js';
 
 /**
  * 初始化所有研究工具
@@ -46,6 +48,10 @@ export function initializeResearchTools(registry: ResearchToolRegistry): void {
 
   // Data analysis
   registry.registerTool(new ResearchDataAnalyzer());
+
+  // Investigation Tools
+  registry.registerTool(new LiteratureInvestigator());
+  registry.registerTool(new KeywordSequenceTool());
 
   // 标记为已初始化
   registry.setInitialized(true);
@@ -86,6 +92,8 @@ export function validateToolRegistration(): boolean {
     'research_data_analyzer',
     'latex_manager',
     'match_journal',
+    'literature_investigator',
+    'keyword_sequence_generator',
   ];
 
   const registeredTools = registry.getToolNames();

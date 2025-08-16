@@ -531,5 +531,191 @@ export const researchCommand: SlashCommand = {
         );
       },
     },
+
+    {
+      name: 'investigate',
+      description: 'Comprehensive literature investigation with keyword-driven search and analysis',
+      action: async (
+        context: CommandContext,
+        args: string,
+      ): Promise<void | SlashCommandActionReturn> => {
+        try {
+          const parsed = parseCommandArgs(args);
+          
+          if (parsed.positional.length === 0) {
+            context.ui.addItem(
+              {
+                type: MessageType.ERROR,
+                text: formatError(
+                  'investigate subcommand required. Use: topic, keywords, classify, trends, or help'
+                ),
+              },
+              Date.now(),
+            );
+            return;
+          }
+
+          const subcommand = parsed.positional[0];
+          const remainingArgs = parsed.positional.slice(1).join(' ');
+          
+          // Build args string for subcommand
+          let subcommandArgs = remainingArgs;
+          Object.entries(parsed.options).forEach(([key, value]) => {
+            if (typeof value === 'boolean') {
+              subcommandArgs += ` --${key}`;
+            } else {
+              subcommandArgs += ` --${key}="${value}"`;
+            }
+          });
+
+          switch (subcommand) {
+            case 'topic':
+              if (remainingArgs.length === 0) {
+                context.ui.addItem(
+                  {
+                    type: MessageType.ERROR,
+                    text: formatError('Topic title is required. Usage: /research investigate topic "research question" --domain=domain'),
+                  },
+                  Date.now(),
+                );
+                return;
+              }
+              
+              const domain = getOptionValue(parsed.options, 'domain', '');
+              if (!domain) {
+                context.ui.addItem(
+                  {
+                    type: MessageType.ERROR,
+                    text: formatError('Domain is required. Use --domain to specify research domain.'),
+                  },
+                  Date.now(),
+                );
+                return;
+              }
+
+              return {
+                type: 'tool',
+                toolName: 'research_literature_investigator',
+                toolArgs: {
+                  topic: {
+                    title: remainingArgs,
+                    domain: domain,
+                  },
+                  totalMaxPapers: getOptionValue(parsed.options, 'max-papers', 80),
+                  databases: String(getOptionValue(parsed.options, 'databases', 'arxiv,scholar,pubmed')).split(','),
+                },
+              };
+
+            case 'keywords':
+              if (remainingArgs.length === 0) {
+                context.ui.addItem(
+                  {
+                    type: MessageType.ERROR,
+                    text: formatError('Topic title is required. Usage: /research investigate keywords "research topic" --domain=domain'),
+                  },
+                  Date.now(),
+                );
+                return;
+              }
+
+              const keywordDomain = getOptionValue(parsed.options, 'domain', '');
+              if (!keywordDomain) {
+                context.ui.addItem(
+                  {
+                    type: MessageType.ERROR,
+                    text: formatError('Domain is required. Use --domain to specify research domain.'),
+                  },
+                  Date.now(),
+                );
+                return;
+              }
+
+              return {
+                type: 'tool',
+                toolName: 'research_keyword_sequence_generator',
+                toolArgs: {
+                  topic: {
+                    title: remainingArgs,
+                    domain: keywordDomain,
+                  },
+                  maxSequences: getOptionValue(parsed.options, 'count', 10),
+                },
+              };
+
+            case 'help':
+              const helpText = `
+Research Investigation Tool
+
+DESCRIPTION:
+  Comprehensive literature investigation with keyword-driven search and analysis
+
+SUBCOMMANDS:
+  topic     - Investigate a research topic with interactive keyword selection
+  keywords  - Generate keyword sequences for a research topic  
+  classify  - Classify and categorize research papers
+  trends    - Analyze research trends and identify gaps
+
+USAGE:
+  /research investigate topic "research question" --domain=domain [options]
+  /research investigate keywords "research topic" --domain=domain [options]
+  /research investigate classify [query] [options]
+  /research investigate trends [query] [options]
+
+TOPIC OPTIONS:
+  --domain        Research domain (required)
+  --max-papers    Maximum papers to investigate (default: 80)
+  --timeframe     Publication timeframe (e.g., 2020-2024)
+  --methodology   Comma-separated methodologies
+  --context       Comma-separated context terms
+  --databases     Comma-separated databases (default: arxiv,scholar,pubmed)
+  --interactive   Enable interactive mode (default: true)
+
+KEYWORDS OPTIONS:
+  --domain        Research domain (required)
+  --description   Detailed topic description
+  --count         Number of sequences to generate (default: 10)
+
+EXAMPLES:
+  /research investigate topic "machine learning in healthcare" --domain=artificial_intelligence --max-papers=50
+  /research investigate keywords "quantum computing applications" --domain=physics --count=8
+
+DOMAINS:
+  computer_science, machine_learning, artificial_intelligence, biology, medicine,
+  biomedical, physics, chemistry, psychology, sociology, economics
+              `;
+
+              context.ui.addItem(
+                {
+                  type: MessageType.INFO,
+                  text: helpText,
+                },
+                Date.now(),
+              );
+              return;
+
+            default:
+              context.ui.addItem(
+                {
+                  type: MessageType.ERROR,
+                  text: formatError(`Unknown investigate subcommand: ${subcommand}. Use: topic, keywords, classify, trends, or help`),
+                },
+                Date.now(),
+              );
+          }
+        } catch (error) {
+          const errorResult = handleResearchError(error);
+          context.ui.addItem(
+            {
+              type: MessageType.ERROR,
+              text:
+                errorResult.message +
+                '\n\nSuggestions:\n' +
+                errorResult.suggestions.map((s) => `  • ${s}`).join('\n'),
+            },
+            Date.now(),
+          );
+        }
+      },
+    },
   ],
 };
