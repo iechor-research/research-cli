@@ -1,0 +1,165 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+% 页面设置
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=red}
+
+% 自定义命令
+\newcommand{\qianwen}{\textcolor{blue}{\textbf{Qianwen}}}
+
+\title{\qianwen\ 模式下的 LaTeX 学术写作}
+\author{
+    Qianwen AI 研究团队 \\
+    \texttt{research@qianwen.ai}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+本文演示了在 \qianwen\ 模式下进行 LaTeX 学术写作的完整流程。我们展示了如何使用 research-cli 工具创建、管理和编译 LaTeX 项目，特别关注中文学术写作的需求和最佳实践。
+\end{abstract}
+
+\tableofcontents
+
+\section{引言}
+
+\qianwen\ 是一个强大的大语言模型，在学术写作和 LaTeX 文档处理方面具有独特优势。本文档展示了如何充分利用这些功能。
+
+\subsection{主要特性}
+
+\begin{itemize}
+    \item 中英文混合排版支持
+    \item 智能模板选择和自定义
+    \item 自动化编译和错误诊断
+    \item 数学公式智能处理
+\end{itemize}
+
+\section{数学公式示例}
+
+\subsection{基础公式}
+
+爱因斯坦质能方程：
+\begin{equation}
+    E = mc^2
+    \label{eq:einstein}
+\end{equation}
+
+\subsection{复杂数学表达式}
+
+机器学习中的损失函数：
+\begin{align}
+    \mathcal{L}(\theta) &= \frac{1}{n} \sum_{i=1}^{n} \ell(f_\theta(x_i), y_i) \\
+    &= \frac{1}{n} \sum_{i=1}^{n} -\log p(y_i | x_i; \theta)
+\end{align}
+
+注意力机制计算：
+\begin{equation}
+    \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+
+\section{图表支持}
+
+\subsection{简单图形}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+    \draw[->] (0,0) -- (4,0) node[right] {$x$};
+    \draw[->] (0,0) -- (0,3) node[above] {$y$};
+    \draw[domain=0:3.5, smooth, variable=\x, blue, thick] 
+        plot ({\x}, {\x*\x/4});
+    \node at (2, 2.5) {$y = \frac{x^2}{4}$};
+\end{tikzpicture}
+\caption{\qianwen\ 生成的数学函数图像}
+\label{fig:parabola}
+\end{figure}
+
+\section{代码展示}
+
+\qianwen\ 支持代码块的智能格式化：
+
+\begin{verbatim}
+def qianwen_latex_demo():
+    """Qianwen LaTeX 演示函数"""
+    print("欢迎使用 Qianwen 模式！")
+    return "LaTeX 项目创建成功"
+\end{verbatim}
+
+\section{表格示例}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{功能} & \textbf{支持程度} & \textbf{备注} \\
+\hline
+中文排版 & 完全支持 & 使用 ctex 宏包 \\
+数学公式 & 完全支持 & amsmath 增强 \\
+图片插入 & 完全支持 & graphicx 宏包 \\
+参考文献 & 完全支持 & BibTeX 集成 \\
+\hline
+\end{tabular}
+\caption{\qianwen\ LaTeX 功能支持情况}
+\label{tab:features}
+\end{table}
+
+\section{最佳实践}
+
+\subsection{中文学术写作建议}
+
+\begin{enumerate}
+    \item 使用 \texttt{xelatex} 编译器处理中文字体
+    \item 合理设置页面边距和行距
+    \item 使用语义化的章节结构
+    \item 保持数学符号的一致性
+\end{enumerate}
+
+\subsection{\qianwen\ 模式优势}
+
+\begin{itemize}
+    \item 智能错误检测和修复建议
+    \item 自动化的格式优化
+    \item 上下文感知的内容生成
+    \item 多语言混排支持
+\end{itemize}
+
+\section{结论}
+
+本文展示了 \qianwen\ 模式在 LaTeX 学术写作中的强大功能。通过 research-cli 工具，用户可以：
+
+\begin{itemize}
+    \item 快速创建专业的学术文档
+    \item 享受智能化的编译和诊断服务
+    \item 获得中英文混合排版的完美支持
+    \item 利用 AI 辅助进行内容创作和格式优化
+\end{itemize}
+
+未来，我们将继续改进 \qianwen\ 的 LaTeX 支持，为学术研究者提供更加便捷和强大的写作工具。
+
+\section*{致谢}
+
+感谢 \qianwen\ 团队在自然语言处理和文档生成方面的杰出贡献。
+
+% 参考文献
+\begin{thebibliography}{9}
+\bibitem{latex}
+Leslie Lamport. \textit{LaTeX: A Document Preparation System}. Addison-Wesley, 1994.
+
+\bibitem{qianwen}
+Qianwen Team. \textit{Qianwen: A Large Language Model for Academic Writing}. arXiv preprint, 2024.
+
+\bibitem{ctex}
+ctex-kit Team. \textit{ctex: LaTeX Classes and Packages for Chinese Typesetting}. CTAN, 2023.
+\end{thebibliography}
+
+\end{document}
