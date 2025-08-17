@@ -1,6 +1,6 @@
 {
   "name": "@iechor/research-cli",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "AI-powered research and development CLI tool for developers",
   "author": "IECHOR Research <research@iechor.com>",
   "engines": {
