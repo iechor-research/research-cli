@@ -19,12 +19,11 @@ import {
 
 /**
  * 百度千帆模型提供者实现 (OpenAI兼容API)
+ * 基于新的OpenAI兼容接口，使用直接的API密钥认证
  */
 export class BaiduProvider implements IModelProvider {
   readonly name = ModelProvider.BAIDU;
   private config: ModelConfig | null = null;
-  private accessToken: string | null = null;
-  private tokenExpireTime: number = 0;
 
   /**
    * 静态模型信息列表
@@ -66,15 +65,15 @@ export class BaiduProvider implements IModelProvider {
       supportedFeatures: ['streaming'],
     },
     {
-      id: 'ernie-3.5-4k',
-      name: 'ERNIE 3.5 4K',
+      id: 'ernie-3.5-8k-preview',
+      name: 'ERNIE 3.5 8K Preview',
       provider: ModelProvider.BAIDU,
-      contextLength: 4000,
+      contextLength: 8000,
       supportedFeatures: ['streaming'],
     },
     {
-      id: 'ernie-turbo-8k',
-      name: 'ERNIE Turbo 8K',
+      id: 'ernie-lite-8k',
+      name: 'ERNIE Lite 8K',
       provider: ModelProvider.BAIDU,
       contextLength: 8000,
       supportedFeatures: ['streaming'],
@@ -94,311 +93,45 @@ export class BaiduProvider implements IModelProvider {
       supportedFeatures: ['streaming'],
     },
     {
-      id: 'ernie-lite-8k',
-      name: 'ERNIE Lite 8K',
-      provider: ModelProvider.BAIDU,
-      contextLength: 8000,
-      supportedFeatures: ['streaming'],
-    },
-    {
       id: 'ernie-tiny-8k',
       name: 'ERNIE Tiny 8K',
       provider: ModelProvider.BAIDU,
       contextLength: 8000,
       supportedFeatures: ['streaming'],
     },
+    {
+      id: 'ernie-character-8k',
+      name: 'ERNIE Character 8K',
+      provider: ModelProvider.BAIDU,
+      contextLength: 8000,
+      supportedFeatures: ['streaming'],
+    },
+    {
+      id: 'ernie-func-8k',
+      name: 'ERNIE Function 8K',
+      provider: ModelProvider.BAIDU,
+      contextLength: 8000,
+      supportedFeatures: ['streaming', 'tools'],
+    },
   ];
 
   /**
-   * 获取access_token
+   * 百度千帆API的基础URL
    */
-  private async getAccessToken(): Promise<string> {
-    if (!this.config?.apiKey) {
-      throw new AuthenticationError('BAIDU_LLM_KEY is required', this.name);
-    }
-
-    // 验证API密钥格式: bce-v3/ACCESS_KEY/SECRET_KEY
-    const keyParts = this.config.apiKey.split('/');
-    if (keyParts.length !== 3 || keyParts[0] !== 'bce-v3') {
-      throw new AuthenticationError(
-        'Invalid BAIDU_LLM_KEY format. Expected: bce-v3/ACCESS_KEY/SECRET_KEY',
-        this.name,
-      );
-    }
-
-    const [, apiKey, secretKey] = keyParts;
-
-    // 检查是否有有效的access_token
-    if (this.accessToken && Date.now() < this.tokenExpireTime) {
-      return this.accessToken;
-    }
-
-    // 获取新的access_token
-    try {
-      const tokenUrl = `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`;
-      
-      const response = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new AuthenticationError(
-          `Failed to get Baidu access token: ${response.statusText}`,
-          this.name,
-        );
-      }
-
-      const tokenData = await response.json();
-      
-      if (tokenData.error) {
-        throw new AuthenticationError(
-          `Baidu authentication error: ${tokenData.error_description || tokenData.error}`,
-          this.name,
-        );
-      }
-
-      this.accessToken = tokenData.access_token;
-      // 提前5分钟刷新token
-      this.tokenExpireTime = Date.now() + (tokenData.expires_in - 300) * 1000;
-      
-      return this.accessToken!;
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        throw error;
-      }
-      throw new AuthenticationError(
-        `Failed to authenticate with Baidu: ${error}`,
-        this.name,
-      );
-    }
-  }
+  private readonly baseUrl = 'https://qianfan.baidubce.com/v2';
 
   /**
-   * 转换OpenAI兼容API响应格式
-   */
-  private convertOpenAIResponse(response: any, model: string): ChatResponse {
-    const choice = response.choices?.[0];
-    if (!choice) {
-      throw new APIError('No response choices returned', this.name);
-    }
-
-    return {
-      content: choice.message?.content || '',
-      model,
-      provider: this.name,
-      usage: response.usage ? {
-        promptTokens: response.usage.prompt_tokens,
-        completionTokens: response.usage.completion_tokens,
-        totalTokens: response.usage.total_tokens,
-      } : undefined,
-      finishReason: this.mapFinishReason(choice.finish_reason),
-    };
-  }
-
-  /**
-   * 映射结束原因
-   */
-  private mapFinishReason(reason: string): ChatResponse['finishReason'] {
-    switch (reason) {
-      case 'stop':
-      case 'normal':
-        return 'stop';
-      case 'length':
-        return 'length';
-      case 'content_filter':
-        return 'content_filter';
-      case 'function_call':
-      case 'tool_calls':
-        return 'tool_calls';
-      default:
-        return 'stop';
-    }
-  }
-
-  /**
-   * 初始化提供商
+   * 初始化提供者
    */
   async initialize(config: ModelConfig): Promise<void> {
     this.config = config;
-    
-    // 验证配置
-    if (!this.validateConfig(config)) {
-      throw new ConfigurationError('Invalid Baidu provider configuration', this.name);
-    }
-
-    // 验证API密钥格式
-    try {
-      await this.getAccessToken();
-    } catch (error) {
-      throw new AuthenticationError(
-        `Failed to initialize Baidu provider: ${error}`,
-        this.name,
-      );
+    if (!this.config?.apiKey) {
+      throw new AuthenticationError('BAIDU_LLM_KEY is required', this.name);
     }
   }
 
   /**
-   * 发送聊天请求
-   */
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    if (!this.config) {
-      throw new ConfigurationError('Provider not initialized', this.name);
-    }
-
-    const model = request.model || this.config.model;
-    const accessToken = await this.getAccessToken();
-    
-    const openAIRequest = {
-      model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-      top_p: request.topP,
-      stop: request.stopSequences,
-      stream: false,
-    };
-
-    const url = `https://qianfan.baidubce.com/v2/chat/completions?access_token=${accessToken}`;
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(openAIRequest),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new APIError(
-          `Baidu API error: ${errorData.message || response.statusText}`,
-          this.name,
-          response.status,
-        );
-      }
-
-      const data = await response.json();
-      return this.convertOpenAIResponse(data, model);
-    } catch (error) {
-      if (error instanceof APIError) {
-        throw error;
-      }
-      throw new APIError(`Baidu request failed: ${error}`, this.name);
-    }
-  }
-
-  /**
-   * 发送流式聊天请求
-   */
-  async *streamChat(request: ChatRequest): AsyncGenerator<StreamResponse> {
-    if (!this.config) {
-      throw new ConfigurationError('Provider not initialized', this.name);
-    }
-
-    const model = request.model || this.config.model;
-    const accessToken = await this.getAccessToken();
-    
-    const openAIRequest = {
-      model,
-      messages: request.messages,
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-      top_p: request.topP,
-      stop: request.stopSequences,
-      stream: true,
-    };
-
-    const url = `https://qianfan.baidubce.com/v2/chat/completions?access_token=${accessToken}`;
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(openAIRequest),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new APIError(
-          `Baidu API error: ${errorData.message || response.statusText}`,
-          this.name,
-          response.status,
-        );
-      }
-
-      if (!response.body) {
-        throw new APIError('No response body', this.name);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(line => line.trim());
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') return;
-
-              try {
-                const parsed = JSON.parse(data);
-                const choice = parsed.choices?.[0];
-                if (choice?.delta?.content) {
-                  yield {
-                    content: choice.delta.content,
-                    delta: choice.delta.content,
-                    model,
-                    provider: this.name,
-                    done: false,
-                  };
-                }
-                
-                if (choice?.finish_reason) {
-                  yield {
-                    content: '',
-                    delta: '',
-                    model,
-                    provider: this.name,
-                    done: true,
-                    usage: parsed.usage ? {
-                      promptTokens: parsed.usage.prompt_tokens,
-                      completionTokens: parsed.usage.completion_tokens,
-                      totalTokens: parsed.usage.total_tokens,
-                    } : undefined,
-                  };
-                  return;
-                }
-              } catch (e) {
-                // 忽略解析错误，继续处理下一行
-              }
-            }
-          }
-        }
-      } finally {
-        reader.releaseLock();
-      }
-    } catch (error) {
-      if (error instanceof APIError) {
-        throw error;
-      }
-      throw new APIError(`Baidu stream request failed: ${error}`, this.name);
-    }
-  }
-
-  /**
-   * 获取可用模型列表
+   * 获取支持的模型列表
    */
   async getModels(): Promise<ModelInfo[]> {
     return BaiduProvider.SUPPORTED_MODELS;
@@ -408,14 +141,7 @@ export class BaiduProvider implements IModelProvider {
    * 验证配置
    */
   validateConfig(config: ModelConfig): boolean {
-    return !!(config?.apiKey && typeof config.apiKey === 'string');
-  }
-
-  /**
-   * 获取当前配置
-   */
-  getCurrentConfig(): ModelConfig | null {
-    return this.config;
+    return !!(config.apiKey && config.provider === ModelProvider.BAIDU);
   }
 
   /**
@@ -423,6 +149,7 @@ export class BaiduProvider implements IModelProvider {
    */
   getDefaultConfig(): Partial<ModelConfig> {
     return {
+      provider: ModelProvider.BAIDU,
       model: 'ernie-4.5-turbo-128k',
       temperature: 0.7,
       maxTokens: 4000,
@@ -433,14 +160,235 @@ export class BaiduProvider implements IModelProvider {
    * 检查是否支持特定功能
    */
   supportsFeature(feature: string): boolean {
-    const supportedFeatures = ['streaming', 'tools', 'chat'];
+    const supportedFeatures = ['streaming', 'tools'];
     return supportedFeatures.includes(feature);
   }
 
   /**
-   * 重置提供商状态
+   * 获取API密钥
    */
-  reset(): void {
-    this.config = null;
+  private getApiKey(): string {
+    if (!this.config?.apiKey) {
+      throw new AuthenticationError('BAIDU_LLM_KEY is required', this.name);
+    }
+    return this.config.apiKey;
+  }
+
+  /**
+   * 发送聊天请求
+   */
+  async chat(request: ChatRequest): Promise<ChatResponse> {
+    try {
+      const apiKey = this.getApiKey();
+      
+      // 构建请求体，基于OpenAI兼容格式
+      const requestBody: any = {
+        model: request.model,
+        messages: request.messages,
+        max_tokens: request.maxTokens,
+        temperature: request.temperature,
+        top_p: request.topP,
+        stream: false,
+      };
+
+      // 添加百度特有的参数（暂时不支持tools）
+
+      // 百度特有的参数
+      requestBody.web_search = {
+        enable: false,
+        enable_citation: false,
+        enable_trace: false,
+      };
+      requestBody.plugin_options = {};
+
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new APIError(
+          `Baidu API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`,
+          this.name,
+          response.status,
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new APIError(
+          `Baidu API error: ${data.error.message || data.error}`,
+          this.name,
+        );
+      }
+
+      return {
+        content: data.choices[0]?.message?.content || '',
+        model: data.model || request.model || 'ernie-4.5-turbo-128k',
+        provider: ModelProvider.BAIDU,
+        usage: {
+          promptTokens: data.usage?.prompt_tokens || 0,
+          completionTokens: data.usage?.completion_tokens || 0,
+          totalTokens: data.usage?.total_tokens || 0,
+        },
+        finishReason: this.mapFinishReason(data.choices[0]?.finish_reason),
+      };
+    } catch (error) {
+      if (error instanceof APIError || error instanceof AuthenticationError) {
+        throw error;
+      }
+      throw new APIError(
+        `Baidu provider error: ${error instanceof Error ? error.message : error}`,
+        this.name,
+      );
+    }
+  }
+
+  /**
+   * 发送流式聊天请求
+   */
+  async *streamChat(request: ChatRequest): AsyncGenerator<StreamResponse> {
+    try {
+      const apiKey = this.getApiKey();
+      
+      // 构建请求体，基于OpenAI兼容格式
+      const requestBody: any = {
+        model: request.model,
+        messages: request.messages,
+        max_tokens: request.maxTokens,
+        temperature: request.temperature,
+        top_p: request.topP,
+        stream: true,
+      };
+
+      // 添加百度特有的参数（暂时不支持tools）
+
+      // 百度特有的参数
+      requestBody.web_search = {
+        enable: false,
+        enable_citation: false,
+        enable_trace: false,
+      };
+      requestBody.plugin_options = {};
+
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new APIError(
+          `Baidu API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`,
+          this.name,
+          response.status,
+        );
+      }
+
+      if (!response.body) {
+        throw new APIError('No response body received', this.name);
+      }
+
+      // 直接yield流式数据
+      yield* this.createStreamReader(response.body);
+    } catch (error) {
+      if (error instanceof APIError || error instanceof AuthenticationError) {
+        throw error;
+      }
+      throw new APIError(
+        `Baidu provider error: ${error instanceof Error ? error.message : error}`,
+        this.name,
+      );
+    }
+  }
+
+  /**
+   * 创建流式响应读取器
+   */
+  private async *createStreamReader(
+    body: ReadableStream<Uint8Array>,
+  ): AsyncIterable<StreamResponse> {
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine || trimmedLine === 'data: [DONE]') continue;
+
+          if (trimmedLine.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(trimmedLine.slice(6));
+
+              if (data.error) {
+                throw new APIError(
+                  `Baidu streaming error: ${data.error.message || data.error}`,
+                  this.name,
+                );
+              }
+
+              const choice = data.choices?.[0];
+              if (choice) {
+                const deltaContent = choice.delta?.content || '';
+                yield {
+                  content: deltaContent,
+                  delta: deltaContent,
+                  done: choice.finish_reason === 'stop' || choice.finish_reason === 'length',
+                  model: data.model || 'ernie-4.5-turbo-128k',
+                  provider: ModelProvider.BAIDU,
+                  usage: data.usage ? {
+                    promptTokens: data.usage.prompt_tokens || 0,
+                    completionTokens: data.usage.completion_tokens || 0,
+                    totalTokens: data.usage.total_tokens || 0,
+                  } : undefined,
+                  finishReason: choice.finish_reason ? this.mapFinishReason(choice.finish_reason) : undefined,
+                };
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse streaming response:', trimmedLine);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  /**
+   * 映射完成原因
+   */
+  private mapFinishReason(reason: string | undefined): 'stop' | 'length' | 'content_filter' | 'tool_calls' | undefined {
+    switch (reason) {
+      case 'stop':
+        return 'stop';
+      case 'length':
+        return 'length';
+      case 'tool_calls':
+        return 'tool_calls';
+      case 'content_filter':
+        return 'content_filter';
+      default:
+        return undefined;
+    }
   }
 }
