@@ -204,6 +204,27 @@ export async function createContentGenerator(
 }
 
 /**
+ * 从配置文件读取API key
+ */
+function getApiKeyFromConfig(provider: string): string | undefined {
+  try {
+    const os = require('node:os');
+    const fs = require('node:fs');
+    const path = require('node:path');
+    
+    const configFile = path.join(os.homedir(), '.research-cli', 'model-config.json');
+    if (fs.existsSync(configFile)) {
+      const content = fs.readFileSync(configFile, 'utf-8');
+      const config = JSON.parse(content);
+      return config.providers?.[provider.toLowerCase()]?.apiKey;
+    }
+  } catch (error) {
+    // 忽略配置文件读取错误
+  }
+  return undefined;
+}
+
+/**
  * 配置各个提供商的API密钥和设置
  */
 async function configureProviders(
@@ -211,7 +232,7 @@ async function configureProviders(
   gcConfig: Config
 ): Promise<void> {
   // 配置 DeepSeek
-  const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+  const deepseekApiKey = getApiKeyFromConfig('deepseek') || process.env.DEEPSEEK_API_KEY;
   if (deepseekApiKey) {
     generator.configureProvider(ModelProvider.DEEPSEEK, {
       apiKey: deepseekApiKey,
@@ -219,7 +240,7 @@ async function configureProviders(
   }
 
   // 配置 OpenAI
-  const openaiApiKey = process.env.OPENAI_API_KEY;
+  const openaiApiKey = getApiKeyFromConfig('openai') || process.env.OPENAI_API_KEY;
   if (openaiApiKey) {
     generator.configureProvider(ModelProvider.OPENAI, {
       apiKey: openaiApiKey,
@@ -227,7 +248,7 @@ async function configureProviders(
   }
 
   // 配置 Anthropic
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+  const anthropicApiKey = getApiKeyFromConfig('anthropic') || process.env.ANTHROPIC_API_KEY;
   if (anthropicApiKey) {
     generator.configureProvider(ModelProvider.ANTHROPIC, {
       apiKey: anthropicApiKey,
@@ -235,7 +256,7 @@ async function configureProviders(
   }
 
   // 配置 Qwen
-  const qwenApiKey = process.env.QWEN_API_KEY;
+  const qwenApiKey = getApiKeyFromConfig('qwen') || process.env.QWEN_API_KEY;
   if (qwenApiKey) {
     generator.configureProvider(ModelProvider.QWEN, {
       apiKey: qwenApiKey,
@@ -243,7 +264,7 @@ async function configureProviders(
   }
 
   // 配置 Groq
-  const groqApiKey = process.env.GROQ_API_KEY;
+  const groqApiKey = getApiKeyFromConfig('groq') || process.env.GROQ_API_KEY;
   if (groqApiKey) {
     generator.configureProvider(ModelProvider.GROQ, {
       apiKey: groqApiKey,
@@ -251,10 +272,90 @@ async function configureProviders(
   }
 
   // 配置 Mistral
-  const mistralApiKey = process.env.MISTRAL_API_KEY;
+  const mistralApiKey = getApiKeyFromConfig('mistral') || process.env.MISTRAL_API_KEY;
   if (mistralApiKey) {
     generator.configureProvider(ModelProvider.MISTRAL, {
       apiKey: mistralApiKey,
+    });
+  }
+
+  // 配置 Baidu
+  const baiduApiKey = getApiKeyFromConfig('baidu') || process.env.BAIDU_LLM_KEY;
+  if (baiduApiKey) {
+    generator.configureProvider(ModelProvider.BAIDU, {
+      apiKey: baiduApiKey,
+    });
+  }
+
+  // 配置 Moonshot
+  const moonshotApiKey = getApiKeyFromConfig('moonshot') || process.env.MOONSHOT_API_KEY;
+  if (moonshotApiKey) {
+    generator.configureProvider(ModelProvider.MOONSHOT, {
+      apiKey: moonshotApiKey,
+    });
+  }
+
+  // 配置 Gemini
+  const geminiApiKey = getApiKeyFromConfig('gemini') || process.env.GEMINI_API_KEY;
+  if (geminiApiKey) {
+    generator.configureProvider(ModelProvider.GEMINI, {
+      apiKey: geminiApiKey,
+    });
+  }
+
+  // 配置 Cohere
+  const cohereApiKey = getApiKeyFromConfig('cohere') || process.env.COHERE_API_KEY;
+  if (cohereApiKey) {
+    generator.configureProvider(ModelProvider.COHERE, {
+      apiKey: cohereApiKey,
+    });
+  }
+
+  // 配置 HuggingFace
+  const huggingfaceApiKey = getApiKeyFromConfig('huggingface') || process.env.HUGGINGFACE_API_KEY;
+  if (huggingfaceApiKey) {
+    generator.configureProvider(ModelProvider.HUGGINGFACE, {
+      apiKey: huggingfaceApiKey,
+    });
+  }
+
+  // 配置 Ollama
+  const ollamaApiKey = getApiKeyFromConfig('ollama') || process.env.OLLAMA_API_KEY;
+  if (ollamaApiKey) {
+    generator.configureProvider(ModelProvider.OLLAMA, {
+      apiKey: ollamaApiKey,
+    });
+  }
+
+  // 配置 Together
+  const togetherApiKey = getApiKeyFromConfig('together') || process.env.TOGETHER_API_KEY;
+  if (togetherApiKey) {
+    generator.configureProvider(ModelProvider.TOGETHER, {
+      apiKey: togetherApiKey,
+    });
+  }
+
+  // 配置 Fireworks
+  const fireworksApiKey = getApiKeyFromConfig('fireworks') || process.env.FIREWORKS_API_KEY;
+  if (fireworksApiKey) {
+    generator.configureProvider(ModelProvider.FIREWORKS, {
+      apiKey: fireworksApiKey,
+    });
+  }
+
+  // 配置 Replicate
+  const replicateApiKey = getApiKeyFromConfig('replicate') || process.env.REPLICATE_API_KEY;
+  if (replicateApiKey) {
+    generator.configureProvider(ModelProvider.REPLICATE, {
+      apiKey: replicateApiKey,
+    });
+  }
+
+  // 配置 Perplexity
+  const perplexityApiKey = getApiKeyFromConfig('perplexity') || process.env.PERPLEXITY_API_KEY;
+  if (perplexityApiKey) {
+    generator.configureProvider(ModelProvider.PERPLEXITY, {
+      apiKey: perplexityApiKey,
     });
   }
 }
