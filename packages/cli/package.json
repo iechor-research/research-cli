@@ -29,7 +29,7 @@
     "sandboxImageUri": "us-docker.pkg.dev/research-code-dev/research-cli/sandbox:0.2.0"
   },
   "dependencies": {
-    "@iechor/research-cli-core": "^0.4.1",
+    "@iechor/research-cli-core": "^0.4.4",
     "@types/update-notifier": "^6.0.8",
     "command-exists": "^1.2.9",
     "diff": "^7.0.0",
