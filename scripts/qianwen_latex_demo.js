@@ -35,8 +35,8 @@ class QianwenLatexDemo {
     
     try {
       // 尝试导入实际的 LaTeX 管理器
-      const { LaTeXManager } = await import('./packages/core/dist/src/tools/research/submission/latex-manager.js');
-      const { DocumentType, LaTeXEngine } = await import('./packages/core/dist/src/tools/research/types.js');
+      const { LaTeXManager } = await import('../packages/core/dist/src/tools/research/submission/latex-manager.js');
+      const { DocumentType, LaTeXEngine } = await import('../packages/core/dist/src/tools/research/types.js');
       
       console.log('✅ 成功导入 LaTeX 管理器');
       console.log('📋 可用文档类型:', Object.keys(DocumentType).slice(0, 5).join(', '), '...');
