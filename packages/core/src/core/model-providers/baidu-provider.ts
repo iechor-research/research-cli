@@ -23,6 +23,8 @@ import {
 export class BaiduProvider implements IModelProvider {
   readonly name = ModelProvider.BAIDU;
   private config: ModelConfig | null = null;
+  private accessToken: string | null = null;
+  private tokenExpireTime: number = 0;
 
   /**
    * 静态模型信息列表
@@ -108,9 +110,9 @@ export class BaiduProvider implements IModelProvider {
   ];
 
   /**
-   * 获取API密钥（OpenAI兼容格式）
+   * 获取access_token
    */
-  private async getApiKey(): Promise<string> {
+  private async getAccessToken(): Promise<string> {
     if (!this.config?.apiKey) {
       throw new AuthenticationError('BAIDU_LLM_KEY is required', this.name);
     }
@@ -124,7 +126,54 @@ export class BaiduProvider implements IModelProvider {
       );
     }
 
-    return this.config.apiKey;
+    const [, apiKey, secretKey] = keyParts;
+
+    // 检查是否有有效的access_token
+    if (this.accessToken && Date.now() < this.tokenExpireTime) {
+      return this.accessToken;
+    }
+
+    // 获取新的access_token
+    try {
+      const tokenUrl = `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`;
+      
+      const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new AuthenticationError(
+          `Failed to get Baidu access token: ${response.statusText}`,
+          this.name,
+        );
+      }
+
+      const tokenData = await response.json();
+      
+      if (tokenData.error) {
+        throw new AuthenticationError(
+          `Baidu authentication error: ${tokenData.error_description || tokenData.error}`,
+          this.name,
+        );
+      }
+
+      this.accessToken = tokenData.access_token;
+      // 提前5分钟刷新token
+      this.tokenExpireTime = Date.now() + (tokenData.expires_in - 300) * 1000;
+      
+      return this.accessToken!;
+    } catch (error) {
+      if (error instanceof AuthenticationError) {
+        throw error;
+      }
+      throw new AuthenticationError(
+        `Failed to authenticate with Baidu: ${error}`,
+        this.name,
+      );
+    }
   }
 
   /**
@@ -182,7 +231,7 @@ export class BaiduProvider implements IModelProvider {
 
     // 验证API密钥格式
     try {
-      await this.getApiKey();
+      await this.getAccessToken();
     } catch (error) {
       throw new AuthenticationError(
         `Failed to initialize Baidu provider: ${error}`,
@@ -200,7 +249,7 @@ export class BaiduProvider implements IModelProvider {
     }
 
     const model = request.model || this.config.model;
-    const apiKey = await this.getApiKey();
+    const accessToken = await this.getAccessToken();
     
     const openAIRequest = {
       model,
@@ -212,14 +261,13 @@ export class BaiduProvider implements IModelProvider {
       stream: false,
     };
 
-    const url = 'https://qianfan.baidubce.com/v2/chat/completions';
+    const url = `https://qianfan.baidubce.com/v2/chat/completions?access_token=${accessToken}`;
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify(openAIRequest),
       });
@@ -252,7 +300,7 @@ export class BaiduProvider implements IModelProvider {
     }
 
     const model = request.model || this.config.model;
-    const apiKey = await this.getApiKey();
+    const accessToken = await this.getAccessToken();
     
     const openAIRequest = {
       model,
@@ -264,14 +312,13 @@ export class BaiduProvider implements IModelProvider {
       stream: true,
     };
 
-    const url = 'https://qianfan.baidubce.com/v2/chat/completions';
+    const url = `https://qianfan.baidubce.com/v2/chat/completions?access_token=${accessToken}`;
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify(openAIRequest),
       });
