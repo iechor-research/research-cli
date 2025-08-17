@@ -41,11 +41,47 @@ The Research CLI has been enhanced with powerful academic research tools:
 
 With the Research CLI you can also:
 
+- **Multi-Model Support**: Choose from multiple AI providers including OpenAI, Anthropic, Research, Baidu, DeepSeek, Qwen, and more
 - Query and edit large codebases in and beyond Research's 1M token context window.
 - Generate new apps from PDFs or sketches, using Research's multimodal capabilities.
 - Automate operational tasks, like querying pull requests or handling complex rebases.
 - Use tools and MCP servers to connect new capabilities, including [media generation with Imagen, Veo or Lyria](https://github.com/iEchorCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
 - Ground your queries with the [iEchor Search](https://ai.iechor.dev/research-api/docs/grounding) tool, built in to Research.
+
+## 🤖 Supported AI Providers
+
+The Research CLI supports multiple AI model providers:
+
+- **OpenAI**: GPT-4, GPT-3.5, etc.
+- **Anthropic**: Claude-3.5 Sonnet, Claude-3 Opus, etc.
+- **Research**: Research 2.5 Pro, Research 1.5 Pro, etc.
+- **Baidu**: ERNIE 4.5 Turbo, ERNIE 4.0, ERNIE 3.5, etc.
+- **DeepSeek**: DeepSeek Chat, DeepSeek Coder
+- **Qwen**: Qwen models from Alibaba Cloud
+- **Groq**: High-speed inference models
+- **Mistral**: Mistral 7B, Mixtral, etc.
+- **Cohere**: Command models
+- **Moonshot**: Kimi models
+- And many more...
+
+### Model Configuration
+
+Configure your preferred AI provider:
+
+```bash
+# Set API keys for different providers
+/model config set openai YOUR_OPENAI_API_KEY
+/model config set baidu bce-v3/ACCESS_KEY/SECRET_KEY
+/model config set deepseek YOUR_DEEPSEEK_API_KEY
+
+# Select your preferred model
+/model select baidu ernie-4.5-turbo-128k
+/model select openai gpt-4
+/model select anthropic claude-3-5-sonnet-20241022
+
+# List available models
+/model list
+```
 
 ## Quickstart
 
@@ -65,8 +101,16 @@ With the Research CLI you can also:
 
 3. **Pick a color theme**
 4. **Authenticate:** When prompted, sign in with your personal iEchor account. This will grant you up to 60 model requests per minute and 1,000 model requests per day using Research.
+5. **Configure your AI provider (optional):** Use `/model config set` to configure additional AI providers like Baidu, OpenAI, or DeepSeek.
 
 You are now ready to use the Research CLI for both development and academic research!
+
+## 🆕 What's New in v0.4.4
+
+- ✅ **Fixed Baidu API Integration**: Now fully compatible with Baidu Qianfan's OpenAI-compatible API format
+- 🚀 **Enhanced Multi-Provider Support**: Improved configuration and model selection for all supported providers
+- 🔧 **Simplified Authentication**: Direct API key authentication for Baidu without complex OAuth flows
+- 📈 **Better Error Handling**: More informative error messages for API configuration issues
 
 ## 🎓 Research Workflow Example
 
@@ -92,6 +136,41 @@ research
 # Prepare submission
 /submit prepare --project ./my-paper --journal "Nature Machine Intelligence"
 ```
+
+### Use Alternative AI Providers:
+
+#### Baidu Qianfan (百度千帆)
+
+Use Baidu's ERNIE models for Chinese language support and competitive performance:
+
+1. Get your API key from [Baidu BCE Console](https://console.bce.baidu.com/iam/#/iam/apikey/list)
+2. Configure it in the CLI:
+
+   ```bash
+   research
+   /model config set baidu bce-v3/YOUR_ACCESS_KEY/YOUR_SECRET_KEY
+   /model select baidu ernie-4.5-turbo-128k
+   ```
+
+#### OpenAI
+
+1. Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Configure it:
+
+   ```bash
+   /model config set openai YOUR_OPENAI_API_KEY
+   /model select openai gpt-4
+   ```
+
+#### DeepSeek
+
+1. Get your API key from [DeepSeek Platform](https://platform.deepseek.com/api_keys)
+2. Configure it:
+
+   ```bash
+   /model config set deepseek YOUR_DEEPSEEK_API_KEY
+   /model select deepseek deepseek-chat
+   ```
 
 ### Use a Research API key:
 
