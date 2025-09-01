@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-09-01T03:08:41.092Z",
+  "system": "Research CLI Upstream Merging System",
+  "version": "0.4.5",
+  "forkPoint": {
+    "commit": "26a79fec",
+    "date": "2025-07-13",
+    "description": "feat: Add GEMINI_DEFAULT_AUTH_TYPE support"
+  },
+  "configuration": {
+    "upstreamBranch": "upstream/main",
+    "batchSize": 10,
+    "priorityCategories": 9,
+    "brandingReplacements": 27,
+    "filePatterns": 13,
+    "excludePatterns": 9
+  },
+  "scripts": [
+    "merge-upstream.sh",
+    "merge-upstream-batch.sh",
+    "replace-gemini-branding.sh",
+    "monitor-upstream.js",
+    "merge-package-json.js",
+    "upstream-config.js",
+    "test-upstream-config.js"
+  ],
+  "status": "Ready for upstream merging"
+}

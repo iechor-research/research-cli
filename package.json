@@ -34,9 +34,9 @@
     "build:electron-packages": "node scripts/build-electron-packages.js",
     "build:all-platforms": "node scripts/build-all-platforms.js",
     "build:iechor-style": "node scripts/build-iechor-style.js",
-    "build:windows-fix": "node scripts/build-windows-fix.js",
-    "build:simple": "node scripts/build-simple.js",
-    "fix-build": "node scripts/fix-build-issues.js",
+   
+
+
     "build:correct": "node scripts/build-correct.js",
     "build:terminal": "node scripts/build-research-terminal.js",
     "generate:icons": "node scripts/generate-icons.js",
@@ -94,8 +94,6 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@tauri-apps/api": "^2.6.0",
-    "@tauri-apps/cli": "^2.6.2",
     "@types/micromatch": "^4.0.9",
     "@types/mime-types": "^3.0.1",
     "@types/minimatch": "^5.1.2",

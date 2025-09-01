@@ -69,7 +69,7 @@ async function buildPackages() {
   
   try {
     // Build current platform first for testing
-    execSync('npm run build:standalone-simple', { stdio: 'inherit', cwd: rootDir });
+    execSync('npm run build:standalone', { stdio: 'inherit', cwd: rootDir });
     console.log('✅ Current platform package built');
     
     // Note: For a real release, you would want to build all platforms
