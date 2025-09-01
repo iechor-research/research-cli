@@ -241,7 +241,7 @@ function checkMergeReadiness() {
     {
       name: 'Upstream Remote',
       command: 'git remote get-url upstream',
-      success: (output) => output.includes('google-gemini/gemini-cli'),
+      success: (output) => output && output.includes('google-gemini/gemini-cli'),
       message: 'Upstream remote configured'
     },
     {
