@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-01T03:07:34.819Z",
+  "timestamp": "2025-09-01T03:13:33.019Z",
   "researchCliVersion": "0.4.5",
   "upstreamVersion": "v0.1.12",
   "commitCount": 807,
@@ -882,5 +882,5 @@
       ]
     }
   ],
-  "mergeReady": false
+  "mergeReady": true
 }
