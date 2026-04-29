@@ -1,0 +1,127 @@
+name: Upstream Sync 🔄
+
+# Phase 0 of the upstream sync plan: keep tabs on google-gemini/gemini-cli@main
+# without actually merging code. This workflow:
+#
+#   1. Fetches upstream/main into a temporary remote.
+#   2. Force-mirrors it onto the `upstream-mirror` branch in this repo so
+#      reviewers can diff against a stable ref.
+#   3. Regenerates `upstream-monitor-report.json` via scripts/monitor-upstream.js.
+#   4. If the report's meaningful content changed, opens (or updates) a PR.
+#
+# It does NOT touch any business code.
+#
+# See docs/upstream-sync/README.md for the bigger picture.
+
+on:
+  schedule:
+    # Every Monday at 03:00 UTC.
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      open_pr:
+        description: 'Open a PR with the refreshed report (yes/no)'
+        required: false
+        default: 'yes'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Mirror upstream and refresh report
+    if: ${{ github.repository == 'iechor-research/research-cli' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # We need a token that can push the upstream-mirror branch.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Add upstream remote and fetch
+        run: |
+          set -euo pipefail
+          if ! git remote get-url upstream >/dev/null 2>&1; then
+            git remote add upstream https://github.com/google-gemini/gemini-cli.git
+          fi
+          git fetch --no-tags upstream main
+          echo "UPSTREAM_HEAD=$(git rev-parse upstream/main)" >> "$GITHUB_ENV"
+          echo "UPSTREAM_HEAD_SHORT=$(git rev-parse --short upstream/main)" >> "$GITHUB_ENV"
+
+      - name: Mirror upstream/main to upstream-mirror branch
+        run: |
+          set -euo pipefail
+          # Force-push upstream/main onto our refs/heads/upstream-mirror.
+          # This branch exists purely as a stable diff target; it intentionally
+          # has no relationship to the default branch's history.
+          git push --force origin "refs/remotes/upstream/main:refs/heads/upstream-mirror"
+
+      - name: Regenerate upstream-monitor-report.json
+        run: |
+          set -euo pipefail
+          # Fetch already done above; tell the script not to fetch again.
+          node scripts/monitor-upstream.js --ci --skip-fetch
+
+      - name: Detect meaningful changes
+        id: diff
+        run: |
+          set -euo pipefail
+          # Ignore the `timestamp` field so we don't open a PR every Monday for
+          # nothing. Compare a normalised version of the file with HEAD.
+          if ! git diff --quiet -- upstream-monitor-report.json; then
+            python3 - <<'PY'
+          import json, subprocess, sys
+          head = json.loads(subprocess.check_output(['git', 'show', 'HEAD:upstream-monitor-report.json']))
+          new = json.loads(open('upstream-monitor-report.json').read())
+          for d in (head, new):
+              d.pop('timestamp', None)
+          changed = head != new
+          open('/tmp/changed', 'w').write('true' if changed else 'false')
+          PY
+            CHANGED=$(cat /tmp/changed)
+          else
+            CHANGED=false
+          fi
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Report changed (excluding timestamp): $CHANGED"
+
+      - name: Create or update PR with refreshed report
+        if: ${{ steps.diff.outputs.changed == 'true' && (github.event_name == 'schedule' || github.event.inputs.open_pr != 'no') }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/upstream-sync-report
+          base: main
+          commit-message: |
+            chore(upstream-sync): refresh report against upstream/main
+
+            Upstream HEAD: ${{ env.UPSTREAM_HEAD_SHORT }}
+          title: 'chore(upstream-sync): refresh report against upstream/main @ ${{ env.UPSTREAM_HEAD_SHORT }}'
+          body: |
+            Automated refresh of `upstream-monitor-report.json`.
+
+            - Upstream HEAD: `${{ env.UPSTREAM_HEAD }}`
+            - Mirror branch: [`upstream-mirror`](../tree/upstream-mirror)
+
+            See [`docs/upstream-sync/README.md`](../blob/main/docs/upstream-sync/README.md) for what this report means and how to act on it.
+
+            This PR is opened by `.github/workflows/upstream-sync.yml`. Merging it
+            does **not** apply any upstream code; it only records what is
+            available to be cherry-picked next.
+          labels: |
+            upstream-sync
+            automated
+          add-paths: |
+            upstream-monitor-report.json
