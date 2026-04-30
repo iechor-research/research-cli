@@ -166,12 +166,31 @@ export class WebSearchTool extends BaseTool<
           // Sort insertions by index in descending order to avoid shifting subsequent indices
           insertions.sort((a, b) => b.index - a.index);
 
-          const responseChars = modifiedResponseText.split(''); // Use new variable
-          insertions.forEach((insertion) => {
-            // Fixed arrow function syntax
-            responseChars.splice(insertion.index, 0, insertion.marker);
-          });
-          modifiedResponseText = responseChars.join(''); // Assign back to modifiedResponseText
+          // Use TextEncoder/TextDecoder since segment indices are UTF-8 byte positions,
+          // not JS UTF-16 code-unit positions. Splitting the string by chars and
+          // splicing by `index` produces wrong placement when the response contains
+          // multibyte characters (CJK, emoji, etc.).
+          const encoder = new TextEncoder();
+          const responseBytes = encoder.encode(modifiedResponseText);
+          const parts: Uint8Array[] = [];
+          let lastIndex = responseBytes.length;
+          for (const ins of insertions) {
+            const pos = Math.min(ins.index, lastIndex);
+            parts.unshift(responseBytes.subarray(pos, lastIndex));
+            parts.unshift(encoder.encode(ins.marker));
+            lastIndex = pos;
+          }
+          parts.unshift(responseBytes.subarray(0, lastIndex));
+
+          // Concatenate all parts into a single buffer
+          const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+          const finalBytes = new Uint8Array(totalLength);
+          let offset = 0;
+          for (const part of parts) {
+            finalBytes.set(part, offset);
+            offset += part.length;
+          }
+          modifiedResponseText = new TextDecoder().decode(finalBytes);
         }
 
         if (sourceListFormatted.length > 0) {
