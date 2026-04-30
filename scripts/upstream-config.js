@@ -12,11 +12,43 @@ export const UPSTREAM_CONFIG = {
   },
   
   // Fork point configuration
+  //
+  // The fork-point commit is an *upstream* commit that is not present in this
+  // repository's own history. It only becomes resolvable after `git fetch upstream`
+  // has been run. CI workflows and tooling MUST fetch upstream before reading
+  // this value. See docs/upstream-sync/README.md.
   forkPoint: {
     commit: '26a79fec', // 2025-07-13 commit: feat: Add GEMINI_DEFAULT_AUTH_TYPE support
     date: '2025-07-13',
     description: 'feat: Add GEMINI_DEFAULT_AUTH_TYPE support'
   },
+
+  // Path-based subsystem categorisation. Used by monitor-upstream.js to group
+  // upstream commits by which fork subsystem they touch. Order matters: the
+  // first matching prefix wins.
+  pathCategories: [
+    { name: 'core-utils',     prefix: 'packages/core/src/utils/' },
+    { name: 'core-tools',     prefix: 'packages/core/src/tools/' },
+    { name: 'core-services',  prefix: 'packages/core/src/services/' },
+    { name: 'core-config',    prefix: 'packages/core/src/config/' },
+    { name: 'core-mcp',       prefix: 'packages/core/src/mcp/' },
+    { name: 'core-codeassist',prefix: 'packages/core/src/code_assist/' },
+    { name: 'core-other',     prefix: 'packages/core/' },
+    { name: 'cli-ui',         prefix: 'packages/cli/src/ui/' },
+    { name: 'cli-commands',   prefix: 'packages/cli/src/commands/' },
+    { name: 'cli-services',   prefix: 'packages/cli/src/services/' },
+    { name: 'cli-other',      prefix: 'packages/cli/' },
+    { name: 'a2a-server',     prefix: 'packages/a2a-server/' },
+    { name: 'vscode-ide',     prefix: 'packages/vscode-ide-companion/' },
+    { name: 'sdk',            prefix: 'packages/sdk/' },
+    { name: 'docs',           prefix: 'docs/' },
+    { name: 'workflows',      prefix: '.github/workflows/' },
+    { name: 'github-actions', prefix: '.github/actions/' },
+    { name: 'gemini-skills',  prefix: '.gemini/skills/' },
+    { name: 'gemini-commands',prefix: '.gemini/commands/' },
+    { name: 'integration',    prefix: 'integration-tests/' },
+    { name: 'scripts',        prefix: 'scripts/' },
+  ],
   
   // Research CLI configuration
   researchCli: {
@@ -236,4 +268,8 @@ export function getTestingCommands() {
 
 export function getAdditionalTests() {
   return UPSTREAM_CONFIG.testing.additionalTests;
+}
+
+export function getPathCategories() {
+  return UPSTREAM_CONFIG.pathCategories;
 }
