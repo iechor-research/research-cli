@@ -404,4 +404,25 @@ describe('retryWithBackoff', () => {
       expect(fallbackCallback).toHaveBeenCalledWith('oauth-personal');
     });
   });
+
+  // Regression coverage for upstream gemini-cli commit 4caaa2a8e (#9540).
+  describe('nullish option overrides', () => {
+    it('should fall back to DEFAULT_RETRY_OPTIONS when overrides are nullish', async () => {
+      const mockFn = vi
+        .fn()
+        .mockRejectedValueOnce(new Error('transient'))
+        .mockResolvedValueOnce('ok');
+
+      // Pass explicitly nullish overrides; without the fix these would clobber
+      // the defaults and produce e.g. `maxAttempts: undefined`, throwing.
+      const promise = retryWithBackoff(mockFn, {
+        maxAttempts: undefined as unknown as number,
+        initialDelayMs: undefined as unknown as number,
+        shouldRetry: () => true,
+      });
+      await vi.runAllTimersAsync();
+      await expect(promise).resolves.toBe('ok');
+      expect(mockFn).toHaveBeenCalledTimes(2);
+    });
+  });
 });
