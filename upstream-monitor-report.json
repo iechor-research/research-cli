@@ -1,14 +1,49 @@
 {
-  "timestamp": "2026-04-29T15:47:50.438Z",
+  "timestamp": "2026-05-04T04:39:30.210Z",
   "researchCliVersion": "0.4.5",
   "forkPoint": "26a79fec",
   "forkPointDate": "2025-07-13",
   "upstreamBranch": "upstream/main",
-  "upstreamHeadSha": "7ab932c8bfeebfa7be6d0bdf878eadd5b5a796fa",
+  "upstreamHeadSha": "4e175527a2b241a68afd5f1509a8bebc21a44dfe",
   "upstreamVersion": null,
-  "commitCount": 4690,
+  "commitCount": 4752,
   "categories": {
     "critical": [
+      "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+      "40b384de2 fix(core): make subagents aware of active approval modes (#23608)",
+      "de8fdcfa1 Fix bulk of remaining issues with generalist profile (#26073)",
+      "408afd3c5 fix(core): reset session-scoped state on resumption (#26342)",
+      "a93d2a1d1 fix(cli): resolve Ghostty/raw-mode False Cancellation in oauth flow (#25026)",
+      "9380e13f6 fix(core): remove \"System: Please continue.\" injection on InvalidStream events (#26340)",
+      "7dea5b47a fix(cli): undeprecate --prompt and correct positional query docs (#26329)",
+      "997f461ca fix(cli): prevent Escape from clearing input buffer (#17083) (#26339)",
+      "f49635488 fix(core): discourage unprompted git add . in prompt snippets (#26220)",
+      "76d1a7360 fix(cli): enable daemon relaunch in binary and bundle keytar (#26333)",
+      "8fb1b5aa0 fix(ci): robust version checking in release verification (#26337)",
+      "9cb48020e fix(cli): respect .env override for GOOGLE_CLOUD_PROJECT (#26288)",
+      "8943640a7 fix(ui): fix issue with box edges (#26148)",
+      "7213822e8 fix(cli): insert voice transcription at cursor position instead of ap… (#26287)",
+      "f497240f7 fix(cli): use resolved sandbox state for auto-update check (#26285)",
+      "892c8a720 fix(ci): checkout PR branch instead of main in bot workflow (#26289)",
+      "80e3bb968 fix(core): silently skip GEMINI.md paths that are directories (EISDIR) (#25662)",
+      "2f0c7518a fix: report AgentExecutionBlocked in non-interactive programmatic modes (#26262)",
+      "7125d2cd6 fix(core): ensure tool output cleanup on session deletion for legacy files (#26263)",
+      "8c1e255ac fix(cli): prevent informational logs from polluting json output (#26264)",
+      "0af13141b Fix posting invalid response to a comment (#26266)",
+      "c94edcd86 fix(cli): do not override GOOGLE_CLOUD_PROJECT in Cloud Shell when using Vertex AI (#24455)",
+      "071e2923b fix(ui): made shell tool header wrap on Ctrl+O (#26229)",
+      "487fb219c fix(cli): use byte length instead of string length for readStdin size limits (#26224)",
+      "d743c6fae fix: suppress duplicate extension warnings during startup (#26208)",
+      "a15568e01 fix(cli): refine platform-specific undo/redo and smart bubbling for WSL (#26202)",
+      "1834ad029 fix(bot): productivity and backlog optimizations (#26236)",
+      "fa1a7c10b # Fix: Inconsistent Case-Sensitivity in GrepTool (#26235)",
+      "49988fc05 fix(agent): prevent exit_plan_mode from being called via shell (#26230)",
+      "d6ce31090 fix: correct API key validation logic in handleApiKeySubmit (#25453)",
+      "dce13019b ci(github-actions): switch to github app token and fix bot self-trigger (#26223)",
+      "88626f37e fix(cli): handle InvalidStream event gracefully without throwing (#26218)",
+      "3aedbbc06 fix(core): distinguish fallback chains and fix maxAttempts for auto vs explicit model selection (#26163)",
+      "99235fc59 fix(core): reduce default API timeout to 60s and enable retries for undici timeouts (#26191)",
+      "2cf0c75a0 fix(core): add explicit empty log guard in A2A pushMessage (#26198)",
       "7ab932c8b test: fix failures due to antigravity environment leakage (#26162)",
       "6d9911393 fix(core): disconnect extension-backed MCP clients in stopExtension (#26136)",
       "fbd8aaad5 fix(core): add missing oauth fields support in subagent parsing (#26141)",
@@ -1697,6 +1732,22 @@
       "d42e3f1e7 doc: use standard Google security policy for GitHub projects (#5062)"
     ],
     "feature": [
+      "dc5b3114c docs(policy-engine): add tool argument keys reference and shell policy cross-links (#25292)",
+      "b14a29efa feat(ui): added wave animation for voice mode (#26284)",
+      "d9f273e44 feat(config): enable Gemma 4 models by default via Gemini API (#26307)",
+      "b3e6c2893 test(evals): add behavioral eval for file creation and write_file tool selection (#26292)",
+      "2e3090b6d Add Star History section to README (#26308)",
+      "c427bd442 Add Star History section to README (#26290)",
+      "d49419560 feat(extensions): add 'delete' as an alias for /extensions uninstall (#25660)",
+      "a03ec9243 test(acp): add missing coverage for extensions command error paths (#25313)",
+      "84616626f feat(cli): Add 'list' subcommand to '/commands' (#22324)",
+      "ef040eb39 feat(ui): added microphone and updated placeholder for voice mode (#26270)",
+      "84875ce91 docs(cli): add skill discovery troubleshooting checklist to tutorial (#26018)",
+      "8cec56706 docs(core): add automated gemma setup guide (#26233)",
+      "25f422d0e test(evals): add EvalMetadata JSDoc annotations to older tests (#26147)",
+      "6dec6720d Add the ability to @ mention the gemini robot. (#26207)",
+      "3bc56d0ef test(core): add regression test for issue for ToolConfirmationResponse (#26194)",
+      "011c0f9bc feat(cli): add --delete flag to /exit command for session deletion (#19332)",
       "c84107058 feat(cli): support boolean and number casting for env vars in settings.json (#26118)",
       "58a57b72a Implement bot that performs time-series metric analysis and suggests repo management improvements (#25945)",
       "6cc0b1b13 feat(cli): provide manual session UUID via command line arg (#26060)",
@@ -3112,6 +3163,7 @@
       "09a3b7d5e feat: Invert scroll arrow default in RadioButtonSelect (#4006)"
     ],
     "refactor": [
+      "0ccc5ce58 refactor(acp): delegate prompt turn processing logic to GeminiClient (#26222)",
       "c2e5b28e9 refactor(acp): modularize monolithic acpClient into specialized files (#26143)",
       "6edfba481 refactor(memory): replace MemoryManagerAgent with prompt-driven memory editing across four tiers (#25716)",
       "485f3d92d improve(core): require recurrence evidence before extracting skills (#25147)",
@@ -3392,6 +3444,9 @@
       "5008aea90 Refactor MCP code for reuse and testing (#3880)"
     ],
     "docs": [
+      "4e81f4864 Remove Star History section from README (#26309)",
+      "778da08ee Docs: Update Agent Skills documentation  (#22388)",
+      "90895efb2 docs(policy-engine): link to tools reference for tool names and args (#22081)",
       "c7d5fcff9 Update documentation workflows with workspace trust (#26150)",
       "9e7c924f7 docs(cli): point plan-mode session retention to actual /settings labels (#25978)",
       "47bca39ee (docs) update sandboxing documentation (#25930)",
@@ -3581,6 +3636,7 @@
       "f4cd0055f chore: update numbering in release-docker.yaml (#4249)"
     ],
     "test": [
+      "2194da2b0 Respect logPrompts flag for logging sensitive fields (#26153)",
       "ffb28c772 test(e2e): default integration tests to Flash Preview (#25753)",
       "d613dd05d use macos-latest-large runner where applicable. (#25413)",
       "1c22c5b37 Remove flakey test (#24837)",
@@ -3794,6 +3850,12 @@
       "a773d0887 chore(deps)(deps): bump google-github-actions/run-gemini-cli from 0.1.10 to 0.1.11 (#6614)"
     ],
     "other": [
+      "363854172 Metrics updates (#26348)",
+      "caa046641 # Metrics Integrity & Standardized Reporting (BT-01) (#26240)",
+      "e67631132 Changelog for v0.40.0 (#26245)",
+      "0f1077076 Skip binary CLI relaunch (#26261)",
+      "9a98b0e56 Changelog for v0.41.0-preview.0 (#26244)",
+      "a2d10b7b9 Allow non-https proxy urls to support container environments (#26234)",
       "8cfebb9e3 chore(release): bump version to 0.42.0-nightly.20260428.g59b2dea0e (#26142)",
       "7a3f7c383 Changelog for v0.40.0-preview.3 (#25904)",
       "54b758610 Update policy so transient errors are not marked terminal (#26066)",
@@ -4719,6 +4781,12 @@
   },
   "pathCategories": {
     "core-utils": [
+      "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+      "de8fdcfa1 Fix bulk of remaining issues with generalist profile (#26073)",
+      "80e3bb968 fix(core): silently skip GEMINI.md paths that are directories (EISDIR) (#25662)",
+      "8c1e255ac fix(cli): prevent informational logs from polluting json output (#26264)",
+      "3aedbbc06 fix(core): distinguish fallback chains and fix maxAttempts for auto vs explicit model selection (#26163)",
+      "99235fc59 fix(core): reduce default API timeout to 60s and enable retries for undici timeouts (#26191)",
       "c2e5b28e9 refactor(acp): modularize monolithic acpClient into specialized files (#26143)",
       "f8603e990 fix(cli): prevent automatic updates from switching to less stable channels (#26132)",
       "8e1cecac0 fix(ux): added error message for ENOTDIR (#26128)",
@@ -5205,6 +5273,8 @@
       "b29c02dd3 Fix not using flash for next speaker check (#4016)"
     ],
     "core-tools": [
+      "40b384de2 fix(core): make subagents aware of active approval modes (#23608)",
+      "fa1a7c10b # Fix: Inconsistent Case-Sensitivity in GrepTool (#26235)",
       "6d9911393 fix(core): disconnect extension-backed MCP clients in stopExtension (#26136)",
       "1f73ec70c perf(core): fix slow boot by fetching experiments and quota asynchronously (#25758)",
       "27927c55e feat(core): enhance shell command validation and add core tools allowlist (#25720)",
@@ -5742,6 +5812,8 @@
       "44ef0408f feat(tools): Centralize shell tool summarization (#4009)"
     ],
     "core-services": [
+      "7125d2cd6 fix(core): ensure tool output cleanup on session deletion for legacy files (#26263)",
+      "011c0f9bc feat(cli): add --delete flag to /exit command for session deletion (#19332)",
       "42587de73 feat(memory): persist auto-memory scratchpad for skill extraction (#25873)",
       "d4c5333dc feat(core,cli): add support for Gemma 4 models (experimental) (#25604)",
       "5318610c1 fix(core): support jsonl session logs in memory and summary services (#25816)",
@@ -6024,6 +6096,11 @@
       "9dc812dd4 fix(checkpoint): Prevent silent failure and enable for non-Git projects (#4144)"
     ],
     "core-config": [
+      "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+      "408afd3c5 fix(core): reset session-scoped state on resumption (#26342)",
+      "9380e13f6 fix(core): remove \"System: Please continue.\" injection on InvalidStream events (#26340)",
+      "d9f273e44 feat(config): enable Gemma 4 models by default via Gemini API (#26307)",
+      "3aedbbc06 fix(core): distinguish fallback chains and fix maxAttempts for auto vs explicit model selection (#26163)",
       "b0ffa3b51 fix(core): handle non-string model flags in resolution (#26069)",
       "54b758610 Update policy so transient errors are not marked terminal (#26066)",
       "2e0641c83 feat(voice): implement real-time voice mode with cloud and local backends (#24174)",
@@ -6603,6 +6680,7 @@
       "c5761317f MCP OAuth Part 1 - OAuth Infrastructure (#4316)"
     ],
     "core-codeassist": [
+      "a93d2a1d1 fix(cli): resolve Ghostty/raw-mode False Cancellation in oauth flow (#25026)",
       "820a4e3c9 fix(core): better error message for failed cloudshell-gca auth (#26079)",
       "0f7f7be4e fix(core): clear 5-minute timeouts in oauth flow to prevent memory leaks (#24968)",
       "3c5b5db03 feat(core): use experiment flags for default fetch timeouts (#24261)",
@@ -6754,6 +6832,19 @@
       "606a7702d feat(cli): add explicit proxy option in cli (#2526)"
     ],
     "core-other": [
+      "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+      "40b384de2 fix(core): make subagents aware of active approval modes (#23608)",
+      "de8fdcfa1 Fix bulk of remaining issues with generalist profile (#26073)",
+      "408afd3c5 fix(core): reset session-scoped state on resumption (#26342)",
+      "9380e13f6 fix(core): remove \"System: Please continue.\" injection on InvalidStream events (#26340)",
+      "b3e6c2893 test(evals): add behavioral eval for file creation and write_file tool selection (#26292)",
+      "2f0c7518a fix: report AgentExecutionBlocked in non-interactive programmatic modes (#26262)",
+      "a2d10b7b9 Allow non-https proxy urls to support container environments (#26234)",
+      "49988fc05 fix(agent): prevent exit_plan_mode from being called via shell (#26230)",
+      "2194da2b0 Respect logPrompts flag for logging sensitive fields (#26153)",
+      "3aedbbc06 fix(core): distinguish fallback chains and fix maxAttempts for auto vs explicit model selection (#26163)",
+      "3bc56d0ef test(core): add regression test for issue for ToolConfirmationResponse (#26194)",
+      "2cf0c75a0 fix(core): add explicit empty log guard in A2A pushMessage (#26198)",
       "7ab932c8b test: fix failures due to antigravity environment leakage (#26162)",
       "fbd8aaad5 fix(core): add missing oauth fields support in subagent parsing (#26141)",
       "8cfebb9e3 chore(release): bump version to 0.42.0-nightly.20260428.g59b2dea0e (#26142)",
@@ -8160,6 +8251,21 @@
       "44ef0408f feat(tools): Centralize shell tool summarization (#4009)"
     ],
     "cli-ui": [
+      "40b384de2 fix(core): make subagents aware of active approval modes (#23608)",
+      "9380e13f6 fix(core): remove \"System: Please continue.\" injection on InvalidStream events (#26340)",
+      "997f461ca fix(cli): prevent Escape from clearing input buffer (#17083) (#26339)",
+      "b14a29efa feat(ui): added wave animation for voice mode (#26284)",
+      "8943640a7 fix(ui): fix issue with box edges (#26148)",
+      "7213822e8 fix(cli): insert voice transcription at cursor position instead of ap… (#26287)",
+      "d49419560 feat(extensions): add 'delete' as an alias for /extensions uninstall (#25660)",
+      "2f0c7518a fix: report AgentExecutionBlocked in non-interactive programmatic modes (#26262)",
+      "84616626f feat(cli): Add 'list' subcommand to '/commands' (#22324)",
+      "ef040eb39 feat(ui): added microphone and updated placeholder for voice mode (#26270)",
+      "c94edcd86 fix(cli): do not override GOOGLE_CLOUD_PROJECT in Cloud Shell when using Vertex AI (#24455)",
+      "071e2923b fix(ui): made shell tool header wrap on Ctrl+O (#26229)",
+      "a15568e01 fix(cli): refine platform-specific undo/redo and smart bubbling for WSL (#26202)",
+      "d6ce31090 fix: correct API key validation logic in handleApiKeySubmit (#25453)",
+      "011c0f9bc feat(cli): add --delete flag to /exit command for session deletion (#19332)",
       "4edd7c745 fix(cli): handle DECKPAM keypad Enter sequences in terminal (#26092)",
       "f8603e990 fix(cli): prevent automatic updates from switching to less stable channels (#26132)",
       "2e0641c83 feat(voice): implement real-time voice mode with cloud and local backends (#24174)",
@@ -9792,6 +9898,7 @@
       "ca4c745e3 feat(mcp): add `gemini mcp` commands for `add`, `remove` and `list` (#5481)"
     ],
     "cli-services": [
+      "84616626f feat(cli): Add 'list' subcommand to '/commands' (#22324)",
       "2e0641c83 feat(voice): implement real-time voice mode with cloud and local backends (#24174)",
       "d4c5333dc feat(core,cli): add support for Gemma 4 models (experimental) (#25604)",
       "1d383a4a8 feat(cli): add streamlined `gemini gemma` local model setup (#25498)",
@@ -9915,6 +10022,22 @@
       "c313c3dee updated '/auth' to use new slash command arch (#3797)"
     ],
     "cli-other": [
+      "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+      "9380e13f6 fix(core): remove \"System: Please continue.\" injection on InvalidStream events (#26340)",
+      "76d1a7360 fix(cli): enable daemon relaunch in binary and bundle keytar (#26333)",
+      "9cb48020e fix(cli): respect .env override for GOOGLE_CLOUD_PROJECT (#26288)",
+      "d9f273e44 feat(config): enable Gemma 4 models by default via Gemini API (#26307)",
+      "f497240f7 fix(cli): use resolved sandbox state for auto-update check (#26285)",
+      "2f0c7518a fix: report AgentExecutionBlocked in non-interactive programmatic modes (#26262)",
+      "a03ec9243 test(acp): add missing coverage for extensions command error paths (#25313)",
+      "7125d2cd6 fix(core): ensure tool output cleanup on session deletion for legacy files (#26263)",
+      "8c1e255ac fix(cli): prevent informational logs from polluting json output (#26264)",
+      "c94edcd86 fix(cli): do not override GOOGLE_CLOUD_PROJECT in Cloud Shell when using Vertex AI (#24455)",
+      "0f1077076 Skip binary CLI relaunch (#26261)",
+      "487fb219c fix(cli): use byte length instead of string length for readStdin size limits (#26224)",
+      "d743c6fae fix: suppress duplicate extension warnings during startup (#26208)",
+      "0ccc5ce58 refactor(acp): delegate prompt turn processing logic to GeminiClient (#26222)",
+      "88626f37e fix(cli): handle InvalidStream event gracefully without throwing (#26218)",
       "7ab932c8b test: fix failures due to antigravity environment leakage (#26162)",
       "c2e5b28e9 refactor(acp): modularize monolithic acpClient into specialized files (#26143)",
       "12a77da45 fix(cli): pass node arguments via NODE_OPTIONS during relaunch to support SEA (#26130)",
@@ -11637,6 +11760,19 @@
       "bed3eae0e feat(sdk): initial package bootstrap for SDK (#18861)"
     ],
     "docs": [
+      "dc5b3114c docs(policy-engine): add tool argument keys reference and shell policy cross-links (#25292)",
+      "7dea5b47a fix(cli): undeprecate --prompt and correct positional query docs (#26329)",
+      "d9f273e44 feat(config): enable Gemma 4 models by default via Gemini API (#26307)",
+      "e67631132 Changelog for v0.40.0 (#26245)",
+      "778da08ee Docs: Update Agent Skills documentation  (#22388)",
+      "84616626f feat(cli): Add 'list' subcommand to '/commands' (#22324)",
+      "90895efb2 docs(policy-engine): link to tools reference for tool names and args (#22081)",
+      "84875ce91 docs(cli): add skill discovery troubleshooting checklist to tutorial (#26018)",
+      "9a98b0e56 Changelog for v0.41.0-preview.0 (#26244)",
+      "a15568e01 fix(cli): refine platform-specific undo/redo and smart bubbling for WSL (#26202)",
+      "8cec56706 docs(core): add automated gemma setup guide (#26233)",
+      "3aedbbc06 fix(core): distinguish fallback chains and fix maxAttempts for auto vs explicit model selection (#26163)",
+      "011c0f9bc feat(cli): add --delete flag to /exit command for session deletion (#19332)",
       "9e7c924f7 docs(cli): point plan-mode session retention to actual /settings labels (#25978)",
       "7a3f7c383 Changelog for v0.40.0-preview.3 (#25904)",
       "54b758610 Update policy so transient errors are not marked terminal (#26066)",
@@ -12486,6 +12622,12 @@
       "3110e8f81 feat(cli): add hideBanner setting to disable startup banner (#2803)"
     ],
     "workflows": [
+      "892c8a720 fix(ci): checkout PR branch instead of main in bot workflow (#26289)",
+      "0af13141b Fix posting invalid response to a comment (#26266)",
+      "0f1077076 Skip binary CLI relaunch (#26261)",
+      "1834ad029 fix(bot): productivity and backlog optimizations (#26236)",
+      "dce13019b ci(github-actions): switch to github app token and fix bot self-trigger (#26223)",
+      "6dec6720d Add the ability to @ mention the gemini robot. (#26207)",
       "c7d5fcff9 Update documentation workflows with workspace trust (#26150)",
       "58a57b72a Implement bot that performs time-series metric analysis and suggests repo management improvements (#25945)",
       "42587de73 feat(memory): persist auto-memory scratchpad for skill extraction (#25873)",
@@ -12834,6 +12976,7 @@
       "ffa42a79d chore: Expand node version test matrix (#2700)"
     ],
     "github-actions": [
+      "8fb1b5aa0 fix(ci): robust version checking in release verification (#26337)",
       "dba9b9a0f feat(cli): secure .env loading and enforce workspace trust in headless mode (#25814)",
       "f938a3f51 fix(build): upload full bundle directory archive to GitHub releases (#24403)",
       "91400c5b0 don't try to remove tags in dry run (#24356)",
@@ -13214,6 +13357,9 @@
       "a464675c4 Extend mcp-server timeout. (#4514)"
     ],
     "scripts": [
+      "76d1a7360 fix(cli): enable daemon relaunch in binary and bundle keytar (#26333)",
+      "0f1077076 Skip binary CLI relaunch (#26261)",
+      "a15568e01 fix(cli): refine platform-specific undo/redo and smart bubbling for WSL (#26202)",
       "12a77da45 fix(cli): pass node arguments via NODE_OPTIONS during relaunch to support SEA (#26130)",
       "aa05b4583 fix(release): exclude ripgrep binaries from npm tarballs (#25841)",
       "2b6dab613 fix(extensions): fix bundling for examples (#25542)",
@@ -13372,6 +13518,13 @@
       "8d0a4082a Fix(ci): Correct container publishing pipeline and improve robustness (#4093)"
     ],
     "other": [
+      "363854172 Metrics updates (#26348)",
+      "f49635488 fix(core): discourage unprompted git add . in prompt snippets (#26220)",
+      "4e81f4864 Remove Star History section from README (#26309)",
+      "2e3090b6d Add Star History section to README (#26308)",
+      "c427bd442 Add Star History section to README (#26290)",
+      "caa046641 # Metrics Integrity & Standardized Reporting (BT-01) (#26240)",
+      "25f422d0e test(evals): add EvalMetadata JSDoc annotations to older tests (#26147)",
       "3dc8e7e13 docs: add Gemini CLI course link to README (#25925)",
       "c024064f4 update package-lock.json (#25876)",
       "aee2cde1a feat(test): refactor the memory usage test to use metrics from CLI process instead of test runner (#25708)",
@@ -13549,12 +13702,12 @@
     {
       "priority": "HIGH",
       "type": "Critical Fixes",
-      "count": 1655,
+      "count": 1690,
       "action": "Merge immediately",
       "commits": [
-        "7ab932c8b test: fix failures due to antigravity environment leakage (#26162)",
-        "6d9911393 fix(core): disconnect extension-backed MCP clients in stopExtension (#26136)",
-        "fbd8aaad5 fix(core): add missing oauth fields support in subagent parsing (#26141)"
+        "4e175527a fix(acp): resolve agent mode disconnect and improve mode awareness (#26332)",
+        "40b384de2 fix(core): make subagents aware of active approval modes (#23608)",
+        "de8fdcfa1 Fix bulk of remaining issues with generalist profile (#26073)"
       ]
     },
     {
@@ -13571,12 +13724,12 @@
     {
       "priority": "MEDIUM",
       "type": "New Features",
-      "count": 1413,
+      "count": 1429,
       "action": "Review and merge if needed",
       "commits": [
-        "c84107058 feat(cli): support boolean and number casting for env vars in settings.json (#26118)",
-        "58a57b72a Implement bot that performs time-series metric analysis and suggests repo management improvements (#25945)",
-        "6cc0b1b13 feat(cli): provide manual session UUID via command line arg (#26060)"
+        "dc5b3114c docs(policy-engine): add tool argument keys reference and shell policy cross-links (#25292)",
+        "b14a29efa feat(ui): added wave animation for voice mode (#26284)",
+        "d9f273e44 feat(config): enable Gemma 4 models by default via Gemini API (#26307)"
       ]
     },
     {
