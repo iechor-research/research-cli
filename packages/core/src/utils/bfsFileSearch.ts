@@ -69,15 +69,26 @@ export async function bfsFileSearch(
 
     for (const entry of entries) {
       const fullPath = path.join(currentDir, entry.name);
+      const isDirectory = entry.isDirectory();
+      const isMatchingFile = entry.isFile() && entry.name === fileName;
+
+      // Skip entries that are neither traversable directories nor the file
+      // we are looking for, before performing the (relatively expensive)
+      // gitignore lookup. See upstream gemini-cli commit de2903b10 (#8173).
+      if (!isDirectory && !isMatchingFile) {
+        continue;
+      }
+      if (isDirectory && ignoreDirs.includes(entry.name)) {
+        continue;
+      }
+
       if (fileService?.shouldGitIgnoreFile(fullPath)) {
         continue;
       }
 
-      if (entry.isDirectory()) {
-        if (!ignoreDirs.includes(entry.name)) {
-          queue.push(fullPath);
-        }
-      } else if (entry.isFile() && entry.name === fileName) {
+      if (isDirectory) {
+        queue.push(fullPath);
+      } else {
         foundFiles.push(fullPath);
       }
     }
