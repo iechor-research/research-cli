@@ -196,9 +196,12 @@ describe('fileUtils', () => {
       vi.restoreAllMocks(); // Restore spies on actualNodeFs
     });
 
-    it('should detect typescript type by extension (ts)', () => {
+    it('should detect typescript type by extension (ts, mts, cts)', () => {
       expect(detectFileType('file.ts')).toBe('text');
       expect(detectFileType('file.test.ts')).toBe('text');
+      expect(detectFileType('file.mts')).toBe('text');
+      expect(detectFileType('vite.config.mts')).toBe('text');
+      expect(detectFileType('file.cts')).toBe('text');
     });
 
     it('should detect image type by extension (png)', () => {

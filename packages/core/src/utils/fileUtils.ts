@@ -101,9 +101,12 @@ export function detectFileType(
 ): 'text' | 'image' | 'pdf' | 'audio' | 'video' | 'binary' | 'svg' {
   const ext = path.extname(filePath).toLowerCase();
 
-  // The mimetype for "ts" is MPEG transport stream (a video format) but we want
-  // to assume these are typescript files instead.
-  if (ext === '.ts') {
+  // The mimetype for various TypeScript extensions (ts, mts, cts) can be
+  // detected as MPEG transport stream (a video format), but we want to
+  // assume these are TypeScript files instead. See upstream gemini-cli
+  // commit 8b1d5a2e3 (#5492, "Treat .mts files as TypeScript modules
+  // instead of video files").
+  if (ext === '.ts' || ext === '.mts' || ext === '.cts') {
     return 'text';
   }
 
