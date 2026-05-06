@@ -218,6 +218,7 @@ describe('App UI', () => {
     };
     return new LoadedSettings(
       systemSettingsFile,
+      { path: '/system/system-defaults.json', settings: {} },
       userSettingsFile,
       workspaceSettingsFile,
       [],
