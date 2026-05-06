@@ -13,6 +13,8 @@ export const EVENT_API_ERROR = 'research_cli.api_error';
 export const EVENT_API_RESPONSE = 'research_cli.api_response';
 export const EVENT_CLI_CONFIG = 'research_cli.config';
 export const EVENT_FLASH_FALLBACK = 'research_cli.flash_fallback';
+export const EVENT_MALFORMED_JSON_RESPONSE =
+  'research_cli.malformed_json_response';
 
 export const METRIC_TOOL_CALL_COUNT = 'research_cli.tool.call.count';
 export const METRIC_TOOL_CALL_LATENCY = 'research_cli.tool.call.latency';

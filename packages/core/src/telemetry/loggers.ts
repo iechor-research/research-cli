@@ -15,6 +15,7 @@ import {
   EVENT_TOOL_CALL,
   EVENT_USER_PROMPT,
   EVENT_FLASH_FALLBACK,
+  EVENT_MALFORMED_JSON_RESPONSE,
   SERVICE_NAME,
 } from './constants.js';
 import {
@@ -25,6 +26,7 @@ import {
   ToolCallEvent,
   UserPromptEvent,
   FlashFallbackEvent,
+  MalformedJsonResponseEvent,
 } from './types.js';
 import {
   recordApiErrorMetrics,
@@ -286,4 +288,25 @@ export function logApiResponse(config: Config, event: ApiResponseEvent): void {
     'thought',
   );
   recordTokenUsageMetrics(config, event.model, event.tool_token_count, 'tool');
+}
+
+export function logMalformedJsonResponse(
+  config: Config,
+  event: MalformedJsonResponseEvent,
+): void {
+  ClearcutLogger.getInstance(config)?.logMalformedJsonResponseEvent(event);
+  if (!isTelemetrySdkInitialized()) return;
+
+  const attributes: LogAttributes = {
+    ...getCommonAttributes(config),
+    ...event,
+    'event.name': EVENT_MALFORMED_JSON_RESPONSE,
+  };
+
+  const logger = logs.getLogger(SERVICE_NAME);
+  const logRecord: LogRecord = {
+    body: `Malformed JSON response from ${event.model}.`,
+    attributes,
+  };
+  logger.emit(logRecord);
 }

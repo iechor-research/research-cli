@@ -246,6 +246,18 @@ export class FlashFallbackEvent {
   }
 }
 
+export class MalformedJsonResponseEvent {
+  'event.name': 'malformed_json_response';
+  'event.timestamp': string;
+  model: string;
+
+  constructor(model: string) {
+    this['event.name'] = 'malformed_json_response';
+    this['event.timestamp'] = new Date().toISOString();
+    this.model = model;
+  }
+}
+
 export type TelemetryEvent =
   | StartSessionEvent
   | EndSessionEvent
@@ -254,4 +266,5 @@ export type TelemetryEvent =
   | ApiRequestEvent
   | ApiErrorEvent
   | ApiResponseEvent
-  | FlashFallbackEvent;
+  | FlashFallbackEvent
+  | MalformedJsonResponseEvent;

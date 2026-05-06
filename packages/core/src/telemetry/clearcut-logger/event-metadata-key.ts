@@ -150,6 +150,9 @@ export enum EventMetadataKey {
 
   // Logs the total number of iEchor accounts ever used.
   RESEARCH_CLI_GOOGLE_ACCOUNTS_COUNT = 37,
+
+  // Logs the model used in a response event.
+  RESEARCH_CLI_MODEL = 38,
 }
 
 export function getEventMetadataKey(

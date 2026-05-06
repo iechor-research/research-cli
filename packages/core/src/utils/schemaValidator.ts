@@ -6,8 +6,12 @@
 
 import { Schema } from '@google/genai';
 import * as ajv from 'ajv';
+import * as addFormats from 'ajv-formats';
 
 const ajValidator = new ajv.Ajv();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const addFormatsFunc = (addFormats as any).default || addFormats;
+addFormatsFunc(ajValidator);
 
 /**
  * Simple utility to validate objects against JSON Schemas
