@@ -245,7 +245,7 @@ async function readResearchMdFiles(
       if (isEISDIR) {
         // A directory exists where a RESEARCH.md file is expected. This is
         // valid in some project structures (e.g. a folder named RESEARCH.md
-        // held for organisational purposes) — skip it silently instead of
+        // held for organizational purposes) — skip it silently instead of
         // surfacing a confusing warning to the user.
         // Adapted from upstream gemini-cli commit 80e3bb968 (#25662,
         // "silently skip GEMINI.md paths that are directories (EISDIR)").
