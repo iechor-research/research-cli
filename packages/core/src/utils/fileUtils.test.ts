@@ -429,6 +429,32 @@ describe('fileUtils', () => {
       expect(result.linesShown).toEqual([6, 10]);
     });
 
+    // Regression coverage for upstream gemini-cli commit 08f143194 (#5329):
+    // contentRangeTruncated must be true when reading a non-zero offset,
+    // even when endLine === originalLineCount.
+    it('should identify truncation when reading the end of a file', async () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `Line ${i + 1}`);
+      actualNodeFs.writeFileSync(testTextFilePath, lines.join('\n'));
+
+      // Read from line 11 to 20. startLine > 0 so it must be marked truncated.
+      const result = await processSingleFileContent(
+        testTextFilePath,
+        tempRootDir,
+        10,
+        10,
+      );
+      const expectedContent = lines.slice(10, 20).join('\n');
+
+      expect(result.llmContent).toContain(expectedContent);
+      expect(result.llmContent).toContain(
+        '[File content truncated: showing lines 11-20 of 20 total lines. Use offset/limit parameters to view more.]',
+      );
+      expect(result.returnDisplay).toBe('(truncated)');
+      expect(result.isTruncated).toBe(true); // key regression check
+      expect(result.originalLineCount).toBe(20);
+      expect(result.linesShown).toEqual([11, 20]);
+    });
+
     it('should handle limit exceeding file length', async () => {
       const lines = ['Line 1', 'Line 2'];
       actualNodeFs.writeFileSync(testTextFilePath, lines.join('\n'));
