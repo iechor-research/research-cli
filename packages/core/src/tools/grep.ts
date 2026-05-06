@@ -16,6 +16,7 @@ import { SchemaValidator } from '../utils/schemaValidator.js';
 import { makeRelative, shortenPath } from '../utils/paths.js';
 import { getErrorMessage, isNodeError } from '../utils/errors.js';
 import { isGitRepository } from '../utils/gitUtils.js';
+import { FileExclusions } from '../utils/ignorePatterns.js';
 
 // --- Interfaces ---
 
@@ -55,6 +56,7 @@ interface GrepMatch {
  */
 export class GrepTool extends BaseTool<GrepToolParams, ToolResult> {
   static readonly Name = 'search_file_content'; // Keep static name
+  private readonly fileExclusions: FileExclusions;
 
   /**
    * Creates a new instance of the GrepLogic
@@ -89,6 +91,7 @@ export class GrepTool extends BaseTool<GrepToolParams, ToolResult> {
     );
     // Ensure rootDirectory is absolute and normalized
     this.rootDirectory = path.resolve(rootDirectory);
+    this.fileExclusions = new FileExclusions();
   }
 
   // --- Validation Methods ---
@@ -405,7 +408,27 @@ export class GrepTool extends BaseTool<GrepToolParams, ToolResult> {
       if (grepAvailable) {
         strategyUsed = 'system grep';
         const grepArgs = ['-r', '-n', '-H', '-E'];
-        const commonExcludes = ['.git', 'node_modules', 'bower_components'];
+        // Extract directory names from exclusion patterns for grep --exclude-dir
+        const globExcludes = this.fileExclusions.getGlobExcludes();
+        const commonExcludes = globExcludes
+          .map((pattern) => {
+            let dir = pattern;
+            if (dir.startsWith('**/')) {
+              dir = dir.substring(3);
+            }
+            if (dir.endsWith('/**')) {
+              dir = dir.slice(0, -3);
+            } else if (dir.endsWith('/')) {
+              dir = dir.slice(0, -1);
+            }
+
+            // Only consider patterns that are likely directories. This filters out file patterns.
+            if (dir && !dir.includes('/') && !dir.includes('*')) {
+              return dir;
+            }
+            return null;
+          })
+          .filter((dir): dir is string => !!dir);
         commonExcludes.forEach((dir) => grepArgs.push(`--exclude-dir=${dir}`));
         if (include) {
           grepArgs.push(`--include=${include}`);
@@ -486,13 +509,7 @@ export class GrepTool extends BaseTool<GrepToolParams, ToolResult> {
       );
       strategyUsed = 'javascript fallback';
       const globPattern = include ? include : '**/*';
-      const ignorePatterns = [
-        '.git/**',
-        'node_modules/**',
-        'bower_components/**',
-        '.svn/**',
-        '.hg/**',
-      ]; // Use glob patterns for ignores here
+      const ignorePatterns = this.fileExclusions.getGlobExcludes();
 
       const filesStream = globStream(globPattern, {
         cwd: absolutePath,

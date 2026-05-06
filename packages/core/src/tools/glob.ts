@@ -230,7 +230,7 @@ export class GlobTool extends BaseTool<GlobToolParams, ToolResult> {
         stat: true,
         nocase: !params.case_sensitive,
         dot: true,
-        ignore: ['**/node_modules/**', '**/.git/**'],
+        ignore: this.config.getFileExclusions().getGlobExcludes(),
         follow: false,
         signal,
       })) as GlobPath[];
