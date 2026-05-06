@@ -604,4 +604,49 @@ describe('loadServerHierarchicalMemory', () => {
     expect(fileCount).toBe(1);
     expect(mockFs.readFile).toHaveBeenCalledWith(extensionFilePath, 'utf-8');
   });
+
+  // Regression coverage for upstream gemini-cli commit 80e3bb968 (#25662):
+  // a directory at a RESEARCH.md path must be silently skipped (EISDIR)
+  // rather than logged as a noisy warning, and must not abort discovery
+  // of valid RESEARCH.md files elsewhere in the hierarchy.
+  it('silently skips RESEARCH.md paths that are directories (EISDIR)', async () => {
+    const cwdContextFile = path.join(
+      CWD,
+      ORIGINAL_RESEARCH_MD_FILENAME_CONST_FOR_TEST,
+    );
+    const projectRootContextFile = path.join(
+      PROJECT_ROOT,
+      ORIGINAL_RESEARCH_MD_FILENAME_CONST_FOR_TEST,
+    );
+
+    mockFs.access.mockImplementation(async (p) => {
+      if (p === cwdContextFile || p === projectRootContextFile) {
+        return undefined;
+      }
+      throw new Error('File not found');
+    });
+    mockFs.readFile.mockImplementation(async (p) => {
+      if (p === cwdContextFile) {
+        const err = new Error(
+          `EISDIR: illegal operation on a directory, read`,
+        ) as NodeJS.ErrnoException;
+        err.code = 'EISDIR';
+        throw err;
+      }
+      if (p === projectRootContextFile) {
+        return 'Project root memory content';
+      }
+      throw new Error('File not found');
+    });
+
+    const { memoryContent } = await loadServerHierarchicalMemory(
+      CWD,
+      false,
+      fileService,
+    );
+
+    // The directory at CWD is silently skipped; the actual file at
+    // PROJECT_ROOT is still discovered and loaded normally.
+    expect(memoryContent).toContain('Project root memory content');
+  });
 });

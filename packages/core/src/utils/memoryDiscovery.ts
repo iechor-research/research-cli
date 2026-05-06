@@ -238,15 +238,29 @@ async function readResearchMdFiles(
           `Successfully read and processed imports: ${filePath} (Length: ${processedContent.length})`,
         );
     } catch (error: unknown) {
-      const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
-      if (!isTestEnv) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.warn(
-          `Warning: Could not read ${getAllResearchMdFilenames()} file at ${filePath}. Error: ${message}`,
-        );
+      const isEISDIR =
+        error instanceof Error &&
+        (error as NodeJS.ErrnoException).code === 'EISDIR';
+
+      if (isEISDIR) {
+        // A directory exists where a RESEARCH.md file is expected. This is
+        // valid in some project structures (e.g. a folder named RESEARCH.md
+        // held for organisational purposes) — skip it silently instead of
+        // surfacing a confusing warning to the user.
+        // Adapted from upstream gemini-cli commit 80e3bb968 (#25662,
+        // "silently skip GEMINI.md paths that are directories (EISDIR)").
+        if (debugMode) logger.debug(`Skipping directory at RESEARCH.md path: ${filePath}`);
+      } else {
+        const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
+        if (!isTestEnv) {
+          const message = error instanceof Error ? error.message : String(error);
+          logger.warn(
+            `Warning: Could not read ${getAllResearchMdFilenames()} file at ${filePath}. Error: ${message}`,
+          );
+        }
+        if (debugMode) logger.debug(`Failed to read: ${filePath}`);
       }
       results.push({ filePath, content: null }); // Still include it with null content
-      if (debugMode) logger.debug(`Failed to read: ${filePath}`);
     }
   }
   return results;
