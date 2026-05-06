@@ -58,6 +58,15 @@ vi.mock('../utils/errors.js', () => ({
   isNodeError: hoistedMockIsNodeError,
 }));
 
+const hoistedMockDebugLogger = vi.hoisted(() => ({
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}));
+vi.mock('../utils/debugLogger.js', () => ({
+  debugLogger: hoistedMockDebugLogger,
+}));
+
 const hoistedMockHomedir = vi.hoisted(() => vi.fn());
 vi.mock('os', () => ({
   homedir: hoistedMockHomedir,
@@ -215,6 +224,21 @@ describe('GitService', () => {
       await service.setupShadowGitRepository();
       expect(hoistedMockSimpleGit).toHaveBeenCalledWith(repoDir);
       expect(hoistedMockInit).toHaveBeenCalled();
+    });
+
+    // Regression coverage for upstream gemini-cli commit 21388a0a4 (#15574):
+    // checkIsRepo can throw on certain Git versions (e.g. macOS 2.39.5).
+    // The service should log the error and proceed to initialize the repo.
+    it('should handle checkIsRepo failure gracefully and initialize repo', async () => {
+      hoistedMockCheckIsRepo.mockRejectedValue(
+        new Error('git rev-parse --is-inside-work-tree failed'),
+      );
+      const service = new GitService(mockProjectRoot);
+      await service.setupShadowGitRepository();
+      expect(hoistedMockInit).toHaveBeenCalled();
+      expect(hoistedMockDebugLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining('checkIsRepo failed'),
+      );
     });
 
     it('should not initialize git repo if already initialized', async () => {
