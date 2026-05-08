@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { PartUnion } from '@google/genai';
 import mime from 'mime-types';
+import { BINARY_EXTENSIONS } from './ignorePatterns.js';
 
 // Constants for text file processing
 const DEFAULT_MAX_LINES_TEXT_FILE = 2000;
@@ -101,9 +102,12 @@ export function detectFileType(
 ): 'text' | 'image' | 'pdf' | 'audio' | 'video' | 'binary' | 'svg' {
   const ext = path.extname(filePath).toLowerCase();
 
-  // The mimetype for "ts" is MPEG transport stream (a video format) but we want
-  // to assume these are typescript files instead.
-  if (ext === '.ts') {
+  // The mimetype for various TypeScript extensions (ts, mts, cts) can be
+  // detected as MPEG transport stream (a video format), but we want to
+  // assume these are TypeScript files instead. See upstream gemini-cli
+  // commit 8b1d5a2e3 (#5492, "Treat .mts files as TypeScript modules
+  // instead of video files").
+  if (ext === '.ts' || ext === '.mts' || ext === '.cts') {
     return 'text';
   }
 
@@ -129,38 +133,7 @@ export function detectFileType(
 
   // Stricter binary check for common non-text extensions before content check
   // These are often not well-covered by mime-types or might be misidentified.
-  if (
-    [
-      '.zip',
-      '.tar',
-      '.gz',
-      '.exe',
-      '.dll',
-      '.so',
-      '.class',
-      '.jar',
-      '.war',
-      '.7z',
-      '.doc',
-      '.docx',
-      '.xls',
-      '.xlsx',
-      '.ppt',
-      '.pptx',
-      '.odt',
-      '.ods',
-      '.odp',
-      '.bin',
-      '.dat',
-      '.obj',
-      '.o',
-      '.a',
-      '.lib',
-      '.wasm',
-      '.pyc',
-      '.pyo',
-    ].includes(ext)
-  ) {
+  if (BINARY_EXTENSIONS.includes(ext)) {
     return 'binary';
   }
 
@@ -278,7 +251,8 @@ export async function processSingleFileContent(
           return line;
         });
 
-        const contentRangeTruncated = endLine < originalLineCount;
+        const contentRangeTruncated =
+          startLine > 0 || endLine < originalLineCount;
         const isTruncated = contentRangeTruncated || linesWereTruncatedInLength;
 
         let llmTextContent = '';

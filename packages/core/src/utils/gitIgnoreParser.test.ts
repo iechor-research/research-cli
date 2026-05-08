@@ -161,6 +161,30 @@ src/*.tmp
       expect(parser.isIgnored('node_modules\\package')).toBe(true);
       expect(parser.isIgnored('src\\temp.tmp')).toBe(true);
     });
+
+    // Regression coverage for upstream gemini-cli commit 5c2bb990d (#7553):
+    // malformed inputs must never throw out of GitIgnoreParser.
+    it('should handle backslash-prefixed files without crashing', () => {
+      expect(() => parser.isIgnored('\\backslash-file-test.txt')).not.toThrow();
+      expect(parser.isIgnored('\\backslash-file-test.txt')).toBe(false);
+    });
+
+    it('should handle the absolute root "/" without crashing', () => {
+      expect(() => parser.isIgnored('/')).not.toThrow();
+      expect(parser.isIgnored('/')).toBe(false);
+    });
+
+    it('should handle empty / null-ish inputs without crashing', () => {
+      expect(() => parser.isIgnored('')).not.toThrow();
+      expect(parser.isIgnored('')).toBe(false);
+      // @ts-expect-error testing defensive guard
+      expect(parser.isIgnored(undefined)).toBe(false);
+    });
+
+    it('should handle paths containing NUL bytes without crashing', () => {
+      expect(() => parser.isIgnored('foo\0bar.txt')).not.toThrow();
+      expect(parser.isIgnored('foo\0bar.txt')).toBe(false);
+    });
   });
 
   describe('getIgnoredPatterns', () => {

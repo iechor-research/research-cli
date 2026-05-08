@@ -256,12 +256,13 @@ describe('editor utils', () => {
       it(`should call execSync for ${editor} on non-windows`, async () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
         await openDiff('old.txt', 'new.txt', editor);
-        expect(execSync).toHaveBeenCalledTimes(1);
+        // 1 call for the commandExists() PATH check, 1 for the actual edit.
+        expect(execSync).toHaveBeenCalledTimes(2);
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor)!;
         const expectedCommand = `${
           diffCommand.command
         } ${diffCommand.args.map((arg) => `"${arg}"`).join(' ')}`;
-        expect(execSync).toHaveBeenCalledWith(expectedCommand, {
+        expect(execSync).toHaveBeenLastCalledWith(expectedCommand, {
           stdio: 'inherit',
           encoding: 'utf8',
         });
@@ -270,15 +271,34 @@ describe('editor utils', () => {
       it(`should call execSync for ${editor} on windows`, async () => {
         Object.defineProperty(process, 'platform', { value: 'win32' });
         await openDiff('old.txt', 'new.txt', editor);
-        expect(execSync).toHaveBeenCalledTimes(1);
+        // 1 call for the commandExists() PATH check, 1 for the actual edit.
+        expect(execSync).toHaveBeenCalledTimes(2);
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor)!;
         const expectedCommand = `${diffCommand.command} ${diffCommand.args.join(
           ' ',
         )}`;
-        expect(execSync).toHaveBeenCalledWith(expectedCommand, {
+        expect(execSync).toHaveBeenLastCalledWith(expectedCommand, {
           stdio: 'inherit',
           encoding: 'utf8',
         });
+      });
+
+      it(`should log an error if ${editor} binary is not on PATH`, async () => {
+        Object.defineProperty(process, 'platform', { value: 'linux' });
+        const consoleErrorSpy = vi
+          .spyOn(console, 'error')
+          .mockImplementation(() => {});
+        // First call (commandExists) throws -> binary not found.
+        // Second call would be the editor itself, but should never be reached.
+        (execSync as Mock).mockImplementationOnce(() => {
+          throw new Error('not found');
+        });
+        await openDiff('old.txt', 'new.txt', editor);
+        expect(execSync).toHaveBeenCalledTimes(1);
+        expect(consoleErrorSpy).toHaveBeenCalled();
+        const errArg = (consoleErrorSpy as Mock).mock.calls[0][0];
+        const errMsg = errArg instanceof Error ? errArg.message : String(errArg);
+        expect(errMsg).toContain('Editor command not found');
       });
     }
 

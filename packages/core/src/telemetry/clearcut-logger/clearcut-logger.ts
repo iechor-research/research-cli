@@ -15,6 +15,7 @@ import {
   ApiResponseEvent,
   ApiErrorEvent,
   FlashFallbackEvent,
+  MalformedJsonResponseEvent,
 } from '../types.js';
 import { EventMetadataKey } from './event-metadata-key.js';
 import { Config } from '../../config/config.js';
@@ -32,6 +33,7 @@ const api_response_event_name = 'api_response';
 const api_error_event_name = 'api_error';
 const end_session_event_name = 'end_session';
 const flash_fallback_event_name = 'flash_fallback';
+const malformed_json_response_event_name = 'malformed_json_response';
 
 export interface LogResponse {
   nextRequestWaitMs?: number;
@@ -450,6 +452,19 @@ export class ClearcutLogger {
     this.flushToClearcut().catch((error) => {
       console.debug('Error flushing to Clearcut:', error);
     });
+  }
+
+  logMalformedJsonResponseEvent(event: MalformedJsonResponseEvent): void {
+    const data = [
+      {
+        research_cli_key: EventMetadataKey.RESEARCH_CLI_MODEL,
+        value: event.model,
+      },
+    ];
+
+    this.enqueueLogEvent(
+      this.createLogEvent(malformed_json_response_event_name, data),
+    );
   }
 
   logEndSessionEvent(event: EndSessionEvent): void {

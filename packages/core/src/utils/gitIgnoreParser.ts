@@ -57,20 +57,45 @@ export class GitIgnoreParser implements GitIgnoreFilter {
   }
 
   isIgnored(filePath: string): boolean {
-    const relativePath = path.isAbsolute(filePath)
-      ? path.relative(this.projectRoot, filePath)
-      : filePath;
-
-    if (relativePath === '' || relativePath.startsWith('..')) {
+    // Defensive guards: malformed inputs should never propagate as crashes
+    // out of GitIgnoreParser. See upstream gemini-cli commit 5c2bb990d
+    // (#7553, "prevent crash/error when processing malformed file paths").
+    if (!filePath || typeof filePath !== 'string') {
+      return false;
+    }
+    if (
+      filePath.startsWith('\\') ||
+      filePath === '/' ||
+      filePath.includes('\0')
+    ) {
       return false;
     }
 
-    let normalizedPath = relativePath.replace(/\\/g, '/');
-    if (normalizedPath.startsWith('./')) {
-      normalizedPath = normalizedPath.substring(2);
-    }
+    try {
+      const relativePath = path.isAbsolute(filePath)
+        ? path.relative(this.projectRoot, filePath)
+        : filePath;
 
-    return this.ig.ignores(normalizedPath);
+      if (relativePath === '' || relativePath.startsWith('..')) {
+        return false;
+      }
+
+      let normalizedPath = relativePath.replace(/\\/g, '/');
+      if (normalizedPath.startsWith('./')) {
+        normalizedPath = normalizedPath.substring(2);
+      }
+
+      // After normalization an absolute-style path means the input was not
+      // inside projectRoot — treat as not-ignored rather than feeding it to
+      // the underlying ignore engine, which can throw on absolute inputs.
+      if (normalizedPath.startsWith('/') || normalizedPath === '') {
+        return false;
+      }
+
+      return this.ig.ignores(normalizedPath);
+    } catch (_error) {
+      return false;
+    }
   }
 
   getPatterns(): string[] {

@@ -22,6 +22,7 @@ import {
   recordFileOperationMetric,
   FileOperation,
 } from '../telemetry/metrics.js';
+import { DEFAULT_FILE_EXCLUDES } from '../utils/ignorePatterns.js';
 
 /**
  * Parameters for the ReadManyFilesTool.
@@ -68,49 +69,12 @@ export interface ReadManyFilesParams {
 }
 
 /**
- * Default exclusion patterns for commonly ignored directories and binary file types.
- * These are compatible with glob ignore patterns.
- * TODO(adh): Consider making this configurable or extendable through a command line argument.
- * TODO(adh): Look into sharing this list with the glob tool.
+ * Creates the default exclusion patterns including dynamic patterns.
+ * This combines the shared patterns with dynamic patterns like RESEARCH.md.
  */
-const DEFAULT_EXCLUDES: string[] = [
-  '**/node_modules/**',
-  '**/.git/**',
-  '**/.vscode/**',
-  '**/.idea/**',
-  '**/dist/**',
-  '**/build/**',
-  '**/coverage/**',
-  '**/__pycache__/**',
-  '**/*.pyc',
-  '**/*.pyo',
-  '**/*.bin',
-  '**/*.exe',
-  '**/*.dll',
-  '**/*.so',
-  '**/*.dylib',
-  '**/*.class',
-  '**/*.jar',
-  '**/*.war',
-  '**/*.zip',
-  '**/*.tar',
-  '**/*.gz',
-  '**/*.bz2',
-  '**/*.rar',
-  '**/*.7z',
-  '**/*.doc',
-  '**/*.docx',
-  '**/*.xls',
-  '**/*.xlsx',
-  '**/*.ppt',
-  '**/*.pptx',
-  '**/*.odt',
-  '**/*.ods',
-  '**/*.odp',
-  '**/*.DS_Store',
-  '**/.env',
-  `**/${getCurrentResearchMdFilename()}`,
-];
+function getDefaultExcludes(): string[] {
+  return [...DEFAULT_FILE_EXCLUDES, `**/${getCurrentResearchMdFilename()}`];
+}
 
 const DEFAULT_OUTPUT_SEPARATOR_FORMAT = '--- {filePath} ---';
 
@@ -230,7 +194,7 @@ Use this tool when the user's query implies needing the content of several files
     const finalExclusionPatternsForDescription: string[] =
       paramUseDefaultExcludes
         ? [
-            ...DEFAULT_EXCLUDES,
+            ...getDefaultExcludes(),
             ...paramExcludes,
             ...this.researchIgnorePatterns,
           ]
@@ -284,7 +248,7 @@ Use this tool when the user's query implies needing the content of several files
     const contentParts: PartListUnion = [];
 
     const effectiveExcludes = useDefaultExcludes
-      ? [...DEFAULT_EXCLUDES, ...exclude, ...this.researchIgnorePatterns]
+      ? [...getDefaultExcludes(), ...exclude, ...this.researchIgnorePatterns]
       : [...exclude, ...this.researchIgnorePatterns];
 
     const searchPatterns = [...inputPatterns, ...include];

@@ -39,11 +39,13 @@ export * from './code_assist/types.js';
 export * from './utils/paths.js';
 export * from './utils/schemaValidator.js';
 export * from './utils/errors.js';
+export * from './utils/debugLogger.js';
 export * from './utils/getFolderStructure.js';
 export * from './utils/memoryDiscovery.js';
 export * from './utils/gitIgnoreParser.js';
 export * from './utils/editor.js';
 export * from './utils/quotaErrorDetection.js';
+export * from './utils/ignorePatterns.js';
 
 // Export services
 export * from './services/fileDiscoveryService.js';

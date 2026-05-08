@@ -33,6 +33,7 @@ import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { GitService } from '../services/gitService.js';
 import { loadServerHierarchicalMemory } from '../utils/memoryDiscovery.js';
 import { getProjectTempDir } from '../utils/paths.js';
+import { FileExclusions } from '../utils/ignorePatterns.js';
 import {
   initializeTelemetry,
   DEFAULT_TELEMETRY_TARGET,
@@ -179,6 +180,7 @@ export class Config {
   private fileDiscoveryService: FileDiscoveryService | null = null;
   private gitService: GitService | undefined = undefined;
   private readonly checkpointing: boolean;
+  private readonly fileExclusions: FileExclusions;
   private readonly proxy: string | undefined;
   private readonly cwd: string;
   private readonly bugCommand: BugCommandSettings | undefined;
@@ -237,6 +239,7 @@ export class Config {
     this.listExtensions = params.listExtensions ?? false;
     this._activeExtensions = params.activeExtensions ?? [];
     this.noBrowser = params.noBrowser ?? false;
+    this.fileExclusions = new FileExclusions(this);
 
     // Initialize research configuration manager
     this.researchConfigManager = new ResearchConfigManager(this.cwd);
@@ -486,6 +489,25 @@ export class Config {
       this.fileDiscoveryService = new FileDiscoveryService(this.targetDir);
     }
     return this.fileDiscoveryService;
+  }
+
+  /**
+   * Gets custom file exclusion patterns from configuration.
+   * TODO: This is a placeholder implementation. In the future, this could
+   * read from settings files, CLI arguments, or environment variables.
+   */
+  getCustomExcludes(): string[] {
+    // Placeholder implementation - returns empty array for now
+    // Future implementation could read from:
+    // - User settings file
+    // - Project-specific configuration
+    // - Environment variables
+    // - CLI arguments
+    return [];
+  }
+
+  getFileExclusions(): FileExclusions {
+    return this.fileExclusions;
   }
 
   getUsageStatisticsEnabled(): boolean {

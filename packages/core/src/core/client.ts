@@ -30,6 +30,10 @@ import { reportError } from '../utils/errorReporting.js';
 import { ResearchChat } from './researchChat.js';
 import { retryWithBackoff } from '../utils/retry.js';
 import { getErrorMessage } from '../utils/errors.js';
+import {
+  logMalformedJsonResponse,
+} from '../telemetry/loggers.js';
+import { MalformedJsonResponseEvent } from '../telemetry/types.js';
 import { tokenLimit } from './tokenLimits.js';
 import {
   AuthType,
@@ -365,7 +369,7 @@ export class ResearchClient {
         authType: this.config.getContentGeneratorConfig()?.authType,
       });
 
-      const text = getResponseText(result);
+      let text = getResponseText(result);
       if (!text) {
         const error = new Error(
           'API returned an empty response for generateJson.',
@@ -378,6 +382,19 @@ export class ResearchClient {
         );
         throw error;
       }
+
+      const jsonPrefix = '```json';
+      const jsonSuffix = '```';
+      if (text.startsWith(jsonPrefix) && text.endsWith(jsonSuffix)) {
+        logMalformedJsonResponse(
+          this.config,
+          new MalformedJsonResponseEvent(modelToUse),
+        );
+        text = text
+          .substring(jsonPrefix.length, text.length - jsonSuffix.length)
+          .trim();
+      }
+
       try {
         return JSON.parse(text);
       } catch (parseError) {

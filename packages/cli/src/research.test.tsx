@@ -118,6 +118,7 @@ describe('research.tsx main function', () => {
     };
     const mockLoadedSettings = new LoadedSettings(
       systemSettingsFile,
+      { path: '/system/system-defaults.json', settings: {} },
       userSettingsFile,
       workspaceSettingsFile,
       [settingsError],

@@ -180,6 +180,16 @@ export async function openDiff(
 
       case 'vim':
       case 'neovim': {
+        // Validate the editor binary exists on PATH before invoking the
+        // shell. Without this guard, execSync surfaces a confusing
+        // platform-specific shell error (e.g. "'vim' is not recognized as
+        // an internal or external command" on Windows) and crashes the
+        // process. See upstream gemini-cli commit 08b926796 (#22423).
+        if (!commandExists(diffCommand.command)) {
+          throw new Error(
+            `Editor command not found: ${diffCommand.command}`,
+          );
+        }
         // Use execSync for terminal-based editors
         const command =
           process.platform === 'win32'

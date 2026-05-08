@@ -34,9 +34,6 @@
     "build:electron-packages": "node scripts/build-electron-packages.js",
     "build:all-platforms": "node scripts/build-all-platforms.js",
     "build:iechor-style": "node scripts/build-iechor-style.js",
-   
-
-
     "build:correct": "node scripts/build-correct.js",
     "build:terminal": "node scripts/build-research-terminal.js",
     "generate:icons": "node scripts/generate-icons.js",
@@ -99,6 +96,7 @@
     "@types/minimatch": "^5.1.2",
     "@types/shell-quote": "^1.7.5",
     "@vitest/coverage-v8": "^3.1.1",
+    "@vitest/eslint-plugin": "^1.6.16",
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
     "electron": "^37.2.5",

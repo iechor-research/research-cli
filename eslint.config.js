@@ -13,6 +13,7 @@ import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
 import licenseHeader from 'eslint-plugin-license-header';
 import noRelativeCrossPackageImports from './eslint-rules/no-relative-cross-package-imports.js';
+import vitest from '@vitest/eslint-plugin';
 import path from 'node:path'; // Use node: prefix for built-ins
 import url from 'node:url';
 
@@ -216,6 +217,18 @@ export default tseslint.config(
           root: path.join(projectRoot, 'packages'),
         },
       ],
+    },
+  },
+  // Vitest plugin for test files
+  {
+    files: ['packages/*/src/**/*.test.{ts,tsx}'],
+    plugins: {
+      vitest,
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': 'off',
+      'vitest/no-commented-out-tests': 'off',
     },
   },
 );

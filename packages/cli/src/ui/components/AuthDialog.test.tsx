@@ -34,6 +34,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
+      { path: '/system/system-defaults.json', settings: {} },
       {
         settings: {
           selectedAuthType: AuthType.USE_RESEARCH,
@@ -71,6 +72,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -98,6 +100,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -125,6 +128,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -153,6 +157,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -176,6 +181,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -201,6 +207,7 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
+        { path: '/system/system-defaults.json', settings: {} },
         {
           settings: {},
           path: '',
@@ -228,6 +235,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
+      { path: '/system/system-defaults.json', settings: {} },
       {
         settings: {
           selectedAuthType: undefined,
@@ -265,6 +273,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
+      { path: '/system/system-defaults.json', settings: {} },
       {
         settings: {},
         path: '',
@@ -299,6 +308,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
+      { path: '/system/system-defaults.json', settings: {} },
       {
         settings: {
           selectedAuthType: AuthType.USE_RESEARCH,

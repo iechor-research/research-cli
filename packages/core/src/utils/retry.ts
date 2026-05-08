@@ -70,6 +70,16 @@ export async function retryWithBackoff<T>(
   fn: () => Promise<T>,
   options?: Partial<RetryOptions>,
 ): Promise<T> {
+  // Strip nullish overrides so callers passing { maxAttempts: undefined } or
+  // similar still get the documented defaults instead of accidentally
+  // disabling them. See upstream gemini-cli commit 4caaa2a8e (#9540,
+  // "ensure retry sets defaults for nullish values passed into options").
+  const cleanOptions = options
+    ? Object.fromEntries(
+        Object.entries(options).filter(([_, v]) => v != null),
+      )
+    : {};
+
   const {
     maxAttempts,
     initialDelayMs,
@@ -79,7 +89,7 @@ export async function retryWithBackoff<T>(
     shouldRetry,
   } = {
     ...DEFAULT_RETRY_OPTIONS,
-    ...options,
+    ...cleanOptions,
   };
 
   let attempt = 0;
