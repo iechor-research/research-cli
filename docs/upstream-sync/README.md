@@ -21,14 +21,17 @@ of the artefacts that support the staged plan.
 
 ## Components
 
-| Artefact                                     | Purpose                                                                                               |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `.github/workflows/upstream-sync.yml`        | Weekly workflow that fetches upstream, mirrors it, regenerates the report, and opens a PR if needed. |
-| `scripts/monitor-upstream.js`                | Generates `upstream-monitor-report.json` (categorisation by commit message **and** file path).        |
-| `scripts/upstream-config.js`                 | Single source of truth for fork point, brand-replacement table, and path-to-subsystem mapping.        |
-| `upstream-monitor-report.json` (repo root)   | Machine-readable snapshot of "what upstream has that we don't yet".                                   |
-| `upstream-mirror` branch (in this repo)      | Force-mirrored copy of `upstream/main`. Used as a stable diff target for reviewers and tooling.       |
-| `docs/upstream-sync/path-mapping.md`         | Human-readable mapping of brand strings, subsystem paths, fork-only files, and upstream-only files.   |
+| Artefact                                   | Purpose                                                                                                                                      |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/upstream-sync.yml`      | Weekly workflow that fetches upstream, mirrors it, regenerates the report, and opens a PR if needed.                                         |
+| `scripts/monitor-upstream.js`              | Generates `upstream-monitor-report.json` (categorisation by commit message **and** file path).                                               |
+| `scripts/upstream-config.js`               | Single source of truth for fork point, brand-replacement table, and path-to-subsystem mapping.                                               |
+| `scripts/rebrand.mjs`                      | Portable Node rebrander driven by `upstream-config.js`. Rewrites upstream brand strings in files or stdin.                                   |
+| `scripts/check-rebrand.mjs`                | CI guard (`npm run lint:rebrand`). Fails the build if forbidden upstream brand strings reappear in `packages/{cli,core}/{src,package.json}`. |
+| `upstream-monitor-report.json` (repo root) | Machine-readable snapshot of "what upstream has that we don't yet".                                                                          |
+| `upstream-mirror` branch (in this repo)    | Force-mirrored copy of `upstream/main`. Used as a stable diff target for reviewers and tooling.                                              |
+| `docs/upstream-sync/path-mapping.md`       | Human-readable mapping of brand strings, subsystem paths, fork-only files, and upstream-only files.                                          |
+| `docs/upstream-sync/BRAND_OVERRIDES.md`    | Strings that look like brand leaks but are intentionally preserved (model IDs, env-var compatibility, etc.).                                 |
 
 ## How the weekly workflow works
 
@@ -78,7 +81,21 @@ whether it is a doc fix, a bug fix, or a feature:
 
 3. Resolve conflicts using `docs/upstream-sync/path-mapping.md` — every
    `@google/gemini-cli` reference becomes `@iechor/research-cli`, every
-   `gemini` binary reference becomes `research`, etc.
+   `gemini` binary reference becomes `research`, etc. The mechanical part
+   of this rewrite can be automated:
+
+   ```sh
+   node scripts/rebrand.mjs <file-or-dir>...
+   # or, to preview without writing:
+   node scripts/rebrand.mjs --check <file-or-dir>...
+   ```
+
+   The same mapping table backs `npm run lint:rebrand`, the CI guard that
+   fails any PR which reintroduces upstream brand strings into
+   `packages/{cli,core}/{src,package.json}`. See
+   [`BRAND_OVERRIDES.md`](./BRAND_OVERRIDES.md) for strings that are
+   intentionally preserved.
+
 4. Prepend each commit message with the upstream short SHA, e.g.
    `[upstream a167f28e] fix(diffstats): ...`.
 5. Run the standard checks (`npm run build`, `npm run test`, applicable

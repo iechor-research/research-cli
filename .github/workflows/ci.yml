@@ -39,6 +39,9 @@ jobs:
       - name: Run linter
         run: npm run lint:ci
 
+      - name: Check upstream brand-string regression
+        run: npm run lint:rebrand
+
       - name: Build project
         run: npm run build
 
