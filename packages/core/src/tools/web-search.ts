@@ -1,17 +1,29 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GroundingMetadata } from '@google/genai';
-import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@google/genai';
-import { SchemaValidator } from '../utils/schemaValidator.js';
+import type { MessageBus } from '../confirmation-bus/message-bus.js';
+import { WEB_SEARCH_TOOL_NAME, WEB_SEARCH_DISPLAY_NAME } from './tool-names.js';
+import type { GroundingMetadata } from '@google/genai';
+import {
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
+  type ToolInvocation,
+  type ToolResult,
+  type ExecuteOptions,
+} from './tools.js';
+import { ToolErrorType } from './tool-error.js';
 
-import { getErrorMessage } from '../utils/errors.js';
-import { Config } from '../config/config.js';
-import { getResponseText } from '../utils/generateContentResponseUtilities.js';
+import { getErrorMessage, isAbortError } from '../utils/errors.js';
+import { getResponseText } from '../utils/partUtils.js';
+import { debugLogger } from '../utils/debugLogger.js';
+import { WEB_SEARCH_DEFINITION } from './definitions/coreTools.js';
+import { resolveToolDeclaration } from './definitions/resolver.js';
+import { LlmRole } from '../telemetry/llmRole.js';
+import type { AgentLoopContext } from '../config/agent-loop-context.js';
 
 interface GroundingChunkWeb {
   uri?: string;
@@ -55,72 +67,35 @@ export interface WebSearchToolResult extends ToolResult {
     : GroundingChunkItem[];
 }
 
-/**
- * A tool to perform web searches using iEchor Search via the Research API.
- */
-export class WebSearchTool extends BaseTool<
+class WebSearchToolInvocation extends BaseToolInvocation<
   WebSearchToolParams,
   WebSearchToolResult
 > {
-  static readonly Name: string = 'iechor_web_search';
-
-  constructor(private readonly config: Config) {
-    super(
-      WebSearchTool.Name,
-      'iEchorSearch',
-      'Performs a web search using iEchor Search (via the Research API) and returns the results. This tool is useful for finding information on the internet based on a query.',
-      {
-        type: Type.OBJECT,
-        properties: {
-          query: {
-            type: Type.STRING,
-            description: 'The search query to find information on the web.',
-          },
-        },
-        required: ['query'],
-      },
-    );
-  }
-
-  /**
-   * Validates the parameters for the WebSearchTool.
-   * @param params The parameters to validate
-   * @returns An error message string if validation fails, null if valid
-   */
-  validateParams(params: WebSearchToolParams): string | null {
-    const errors = SchemaValidator.validate(this.schema.parameters, params);
-    if (errors) {
-      return errors;
-    }
-
-    if (!params.query || params.query.trim() === '') {
-      return "The 'query' parameter cannot be empty.";
-    }
-    return null;
-  }
-
-  getDescription(params: WebSearchToolParams): string {
-    return `Searching the web for: "${params.query}"`;
-  }
-
-  async execute(
+  constructor(
+    private readonly context: AgentLoopContext,
     params: WebSearchToolParams,
-    signal: AbortSignal,
-  ): Promise<WebSearchToolResult> {
-    const validationError = this.validateToolParams(params);
-    if (validationError) {
-      return {
-        llmContent: `Error: Invalid parameters provided. Reason: ${validationError}`,
-        returnDisplay: validationError,
-      };
-    }
-    const researchClient = this.config.getResearchClient();
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ) {
+    super(params, messageBus, _toolName, _toolDisplayName);
+  }
+
+  override getDescription(): string {
+    return `Searching the web for: "${this.params.query}"`;
+  }
+
+  async execute({
+    abortSignal: signal,
+  }: ExecuteOptions): Promise<WebSearchToolResult> {
+    const geminiClient = this.context.geminiClient;
 
     try {
-      const response = await researchClient.generateContent(
-        [{ role: 'user', parts: [{ text: params.query }] }],
-        { tools: [{ googleSearch: {} }] },
+      const response = await geminiClient.generateContent(
+        { model: 'web-search' },
+        [{ role: 'user', parts: [{ text: this.params.query }] }],
         signal,
+        LlmRole.UTILITY_TOOL,
       );
 
       const responseText = getResponseText(response);
@@ -128,13 +103,14 @@ export class WebSearchTool extends BaseTool<
       const sources = groundingMetadata?.groundingChunks as
         | GroundingChunkItem[]
         | undefined;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const groundingSupports = groundingMetadata?.groundingSupports as
         | GroundingSupportItem[]
         | undefined;
 
       if (!responseText || !responseText.trim()) {
         return {
-          llmContent: `No search results or information found for query: "${params.query}"`,
+          llmContent: `No search results or information found for query: "${this.params.query}"`,
           returnDisplay: 'No information found.',
         };
       }
@@ -166,10 +142,7 @@ export class WebSearchTool extends BaseTool<
           // Sort insertions by index in descending order to avoid shifting subsequent indices
           insertions.sort((a, b) => b.index - a.index);
 
-          // Use TextEncoder/TextDecoder since segment indices are UTF-8 byte positions,
-          // not JS UTF-16 code-unit positions. Splitting the string by chars and
-          // splicing by `index` produces wrong placement when the response contains
-          // multibyte characters (CJK, emoji, etc.).
+          // Use TextEncoder/TextDecoder since segment indices are UTF-8 byte positions
           const encoder = new TextEncoder();
           const responseBytes = encoder.encode(modifiedResponseText);
           const parts: Uint8Array[] = [];
@@ -195,22 +168,93 @@ export class WebSearchTool extends BaseTool<
 
         if (sourceListFormatted.length > 0) {
           modifiedResponseText +=
-            '\n\nSources:\n' + sourceListFormatted.join('\n'); // Fixed string concatenation
+            '\n\nSources:\n' + sourceListFormatted.join('\n');
         }
       }
 
       return {
-        llmContent: `Web search results for "${params.query}":\n\n${modifiedResponseText}`,
-        returnDisplay: `Search results for "${params.query}" returned.`,
+        llmContent: `Web search results for "${this.params.query}":\n\n${modifiedResponseText}`,
+        returnDisplay: `Search results for "${this.params.query}" returned.`,
         sources,
       };
     } catch (error: unknown) {
-      const errorMessage = `Error during web search for query "${params.query}": ${getErrorMessage(error)}`;
-      console.error(errorMessage, error);
+      if (isAbortError(error)) {
+        return {
+          llmContent: 'Web search was cancelled.',
+          returnDisplay: 'Search cancelled.',
+        };
+      }
+      const errorMessage = `Error during web search for query "${
+        this.params.query
+      }": ${getErrorMessage(error)}`;
+      debugLogger.warn(errorMessage, error);
       return {
         llmContent: `Error: ${errorMessage}`,
         returnDisplay: `Error performing web search.`,
+        error: {
+          message: errorMessage,
+          type: ToolErrorType.WEB_SEARCH_FAILED,
+        },
       };
     }
+  }
+}
+
+/**
+ * A tool to perform web searches using Google Search via the Gemini API.
+ */
+export class WebSearchTool extends BaseDeclarativeTool<
+  WebSearchToolParams,
+  WebSearchToolResult
+> {
+  static readonly Name = WEB_SEARCH_TOOL_NAME;
+
+  constructor(
+    private readonly context: AgentLoopContext,
+    messageBus: MessageBus,
+  ) {
+    super(
+      WebSearchTool.Name,
+      WEB_SEARCH_DISPLAY_NAME,
+      WEB_SEARCH_DEFINITION.base.description!,
+      Kind.Search,
+      WEB_SEARCH_DEFINITION.base.parametersJsonSchema,
+      messageBus,
+      true, // isOutputMarkdown
+      false, // canUpdateOutput
+    );
+  }
+
+  /**
+   * Validates the parameters for the WebSearchTool.
+   * @param params The parameters to validate
+   * @returns An error message string if validation fails, null if valid
+   */
+  protected override validateToolParamValues(
+    params: WebSearchToolParams,
+  ): string | null {
+    if (!params.query || params.query.trim() === '') {
+      return "The 'query' parameter cannot be empty.";
+    }
+    return null;
+  }
+
+  protected createInvocation(
+    params: WebSearchToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<WebSearchToolParams, WebSearchToolResult> {
+    return new WebSearchToolInvocation(
+      this.context.config,
+      params,
+      messageBus ?? this.messageBus,
+      _toolName,
+      _toolDisplayName,
+    );
+  }
+
+  override getSchema(modelId?: string) {
+    return resolveToolDeclaration(WEB_SEARCH_DEFINITION, modelId);
   }
 }

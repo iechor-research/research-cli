@@ -1,12 +1,54 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`<StatsDisplay /> > Code Changes Display > displays Code Changes when line counts are present 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Session Stats                                                                                   │
+│                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 1 ( ✓ 1 x 0 )                                                       │
+│  Success Rate:               100.0%                                                              │
+│  Code Changes:               +42 -18                                                             │
+│                                                                                                  │
+│  Performance                                                                                     │
+│  Wall Time:                  1s                                                                  │
+│  Agent Active:               100ms                                                               │
+│    » API Time:               0s (0.0%)                                                           │
+│    » Tool Time:              100ms (100.0%)                                                      │
+│                                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
+`;
+
+exports[`<StatsDisplay /> > Code Changes Display > hides Code Changes when no lines are added or removed 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Session Stats                                                                                   │
+│                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 1 ( ✓ 1 x 0 )                                                       │
+│  Success Rate:               100.0%                                                              │
+│                                                                                                  │
+│  Performance                                                                                     │
+│  Wall Time:                  1s                                                                  │
+│  Agent Active:               100ms                                                               │
+│    » API Time:               0s (0.0%)                                                           │
+│    » Tool Time:              100ms (100.0%)                                                      │
+│                                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
+`;
+
 exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in green for high values 1`] = `
 "╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
 │                                                                                                  │
 │  Session Stats                                                                                   │
 │                                                                                                  │
 │  Interaction Summary                                                                             │
-│  Tool Calls:                 10 ( ✔ 10 ✖ 0 )                                                     │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 10 ( ✓ 10 x 0 )                                                     │
 │  Success Rate:               100.0%                                                              │
 │                                                                                                  │
 │  Performance                                                                                     │
@@ -15,8 +57,8 @@ exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in gr
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in red for low values 1`] = `
@@ -25,7 +67,8 @@ exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in re
 │  Session Stats                                                                                   │
 │                                                                                                  │
 │  Interaction Summary                                                                             │
-│  Tool Calls:                 10 ( ✔ 5 ✖ 5 )                                                      │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 10 ( ✓ 5 x 5 )                                                      │
 │  Success Rate:               50.0%                                                               │
 │                                                                                                  │
 │  Performance                                                                                     │
@@ -34,8 +77,8 @@ exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in re
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in yellow for medium values 1`] = `
@@ -44,7 +87,8 @@ exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in ye
 │  Session Stats                                                                                   │
 │                                                                                                  │
 │  Interaction Summary                                                                             │
-│  Tool Calls:                 10 ( ✔ 9 ✖ 1 )                                                      │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 10 ( ✓ 9 x 1 )                                                      │
 │  Success Rate:               90.0%                                                               │
 │                                                                                                  │
 │  Performance                                                                                     │
@@ -53,14 +97,19 @@ exports[`<StatsDisplay /> > Conditional Color Tests > renders success rate in ye
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Conditional Rendering Tests > hides Efficiency section when cache is not used 1`] = `
 "╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
 │                                                                                                  │
 │  Session Stats                                                                                   │
+│                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
 │                                                                                                  │
 │  Performance                                                                                     │
 │  Wall Time:                  1s                                                                  │
@@ -69,11 +118,14 @@ exports[`<StatsDisplay /> > Conditional Rendering Tests > hides Efficiency secti
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
 │                                                                                                  │
-│  Model Usage                  Reqs   Input Tokens  Output Tokens                                 │
-│  ───────────────────────────────────────────────────────────────                                 │
-│  gemini-2.5-pro                  1            100            100                                 │
+│  Model Usage                                                                                     │
+│  Use /model to view model quota information                                                      │
 │                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+│  Model                           Reqs  Input Tokens   Cache Reads Output Tokens                  │
+│  ──────────────────────────────────────────────────────────────────────────────────────────────  │
+│  gemini-2.5-pro                     1           100             0           100                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Conditional Rendering Tests > hides User Agreement when no decisions are made 1`] = `
@@ -82,7 +134,8 @@ exports[`<StatsDisplay /> > Conditional Rendering Tests > hides User Agreement w
 │  Session Stats                                                                                   │
 │                                                                                                  │
 │  Interaction Summary                                                                             │
-│  Tool Calls:                 2 ( ✔ 1 ✖ 1 )                                                       │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 2 ( ✓ 1 x 1 )                                                       │
 │  Success Rate:               50.0%                                                               │
 │                                                                                                  │
 │  Performance                                                                                     │
@@ -91,8 +144,8 @@ exports[`<StatsDisplay /> > Conditional Rendering Tests > hides User Agreement w
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              123ms (100.0%)                                                      │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Title Rendering > renders the custom title when a title prop is provided 1`] = `
@@ -100,14 +153,19 @@ exports[`<StatsDisplay /> > Title Rendering > renders the custom title when a ti
 │                                                                                                  │
 │  Agent powering down. Goodbye!                                                                   │
 │                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
+│                                                                                                  │
 │  Performance                                                                                     │
 │  Wall Time:                  1s                                                                  │
 │  Agent Active:               0s                                                                  │
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > Title Rendering > renders the default title when no title prop is provided 1`] = `
@@ -115,20 +173,30 @@ exports[`<StatsDisplay /> > Title Rendering > renders the default title when no 
 │                                                                                                  │
 │  Session Stats                                                                                   │
 │                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
+│                                                                                                  │
 │  Performance                                                                                     │
 │  Wall Time:                  1s                                                                  │
 │  Agent Active:               0s                                                                  │
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > renders a table with two models correctly 1`] = `
 "╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
 │                                                                                                  │
 │  Session Stats                                                                                   │
+│                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
 │                                                                                                  │
 │  Performance                                                                                     │
 │  Wall Time:                  1s                                                                  │
@@ -137,16 +205,15 @@ exports[`<StatsDisplay /> > renders a table with two models correctly 1`] = `
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
 │                                                                                                  │
-│  Model Usage                  Reqs   Input Tokens  Output Tokens                                 │
-│  ───────────────────────────────────────────────────────────────                                 │
-│  gemini-2.5-pro                  3          1,000          2,000                                 │
-│  gemini-2.5-flash                5         25,000         15,000                                 │
+│  Model Usage                                                                                     │
+│  Use /model to view model quota information                                                      │
 │                                                                                                  │
-│  Savings Highlight: 10,500 (40.4%) of input tokens were served from the cache, reducing costs.   │
-│                                                                                                  │
-│  » Tip: For a full token breakdown, run \`/stats model\`.                                          │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+│  Model                           Reqs  Input Tokens   Cache Reads Output Tokens                  │
+│  ──────────────────────────────────────────────────────────────────────────────────────────────  │
+│  gemini-2.5-pro                     3         1,000           500         2,000                  │
+│  gemini-2.5-flash                   5        25,000        10,000        15,000                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > renders all sections when all data is present 1`] = `
@@ -155,7 +222,8 @@ exports[`<StatsDisplay /> > renders all sections when all data is present 1`] = 
 │  Session Stats                                                                                   │
 │                                                                                                  │
 │  Interaction Summary                                                                             │
-│  Tool Calls:                 2 ( ✔ 1 ✖ 1 )                                                       │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 2 ( ✓ 1 x 1 )                                                       │
 │  Success Rate:               50.0%                                                               │
 │  User Agreement:             100.0% (1 reviewed)                                                 │
 │                                                                                                  │
@@ -166,15 +234,14 @@ exports[`<StatsDisplay /> > renders all sections when all data is present 1`] = 
 │    » Tool Time:              123ms (55.2%)                                                       │
 │                                                                                                  │
 │                                                                                                  │
-│  Model Usage                  Reqs   Input Tokens  Output Tokens                                 │
-│  ───────────────────────────────────────────────────────────────                                 │
-│  gemini-2.5-pro                  1            100            100                                 │
+│  Model Usage                                                                                     │
+│  Use /model to view model quota information                                                      │
 │                                                                                                  │
-│  Savings Highlight: 50 (50.0%) of input tokens were served from the cache, reducing costs.       │
-│                                                                                                  │
-│  » Tip: For a full token breakdown, run \`/stats model\`.                                          │
-│                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+│  Model                           Reqs  Input Tokens   Cache Reads Output Tokens                  │
+│  ──────────────────────────────────────────────────────────────────────────────────────────────  │
+│  gemini-2.5-pro                     1           100            50           100                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;
 
 exports[`<StatsDisplay /> > renders only the Performance section in its zero state 1`] = `
@@ -182,12 +249,46 @@ exports[`<StatsDisplay /> > renders only the Performance section in its zero sta
 │                                                                                                  │
 │  Session Stats                                                                                   │
 │                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
+│                                                                                                  │
 │  Performance                                                                                     │
 │  Wall Time:                  1s                                                                  │
 │  Agent Active:               0s                                                                  │
 │    » API Time:               0s (0.0%)                                                           │
 │    » Tool Time:              0s (0.0%)                                                           │
 │                                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
+`;
+
+exports[`<StatsDisplay /> > renders role breakdown correctly under models 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
 │                                                                                                  │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+│  Session Stats                                                                                   │
+│                                                                                                  │
+│  Interaction Summary                                                                             │
+│  Session ID:                 test-session-id                                                     │
+│  Tool Calls:                 0 ( ✓ 0 x 0 )                                                       │
+│  Success Rate:               0.0%                                                                │
+│                                                                                                  │
+│  Performance                                                                                     │
+│  Wall Time:                  1s                                                                  │
+│  Agent Active:               10.0s                                                               │
+│    » API Time:               10.0s (100.0%)                                                      │
+│    » Tool Time:              0s (0.0%)                                                           │
+│                                                                                                  │
+│                                                                                                  │
+│  Model Usage                                                                                     │
+│  Use /model to view model quota information                                                      │
+│                                                                                                  │
+│  Model                           Reqs  Input Tokens   Cache Reads Output Tokens                  │
+│  ──────────────────────────────────────────────────────────────────────────────────────────────  │
+│  gemini-2.5-flash                  10         1,200           200         2,000                  │
+│    ↳ main                           7           900           100         1,500                  │
+│    ↳ utility_tool                   3           300           100           500                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
 `;

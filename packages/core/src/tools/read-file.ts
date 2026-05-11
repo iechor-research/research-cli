@@ -1,166 +1,303 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import path from 'path';
-import { SchemaValidator } from '../utils/schemaValidator.js';
+import type { MessageBus } from '../confirmation-bus/message-bus.js';
+import path from 'node:path';
 import { makeRelative, shortenPath } from '../utils/paths.js';
-import { BaseTool, ToolResult } from './tools.js';
-import { Type } from '@google/genai';
 import {
-  isWithinRoot,
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
+  type ToolInvocation,
+  type ToolLocation,
+  type ToolResult,
+  type PolicyUpdateOptions,
+  type ToolConfirmationOutcome,
+  type ExecuteOptions,
+} from './tools.js';
+import { ToolErrorType } from './tool-error.js';
+import { buildFilePathArgsPattern } from '../policy/utils.js';
+
+import type { PartListUnion } from '@google/genai';
+import {
   processSingleFileContent,
   getSpecificMimeType,
 } from '../utils/fileUtils.js';
-import { Config } from '../config/config.js';
+import type { Config } from '../config/config.js';
+import { FileOperation } from '../telemetry/metrics.js';
+import { getProgrammingLanguage } from '../telemetry/telemetry-utils.js';
+import { logFileOperation } from '../telemetry/loggers.js';
+import { FileOperationEvent } from '../telemetry/types.js';
+import { READ_FILE_TOOL_NAME, READ_FILE_DISPLAY_NAME } from './tool-names.js';
+import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
+import { READ_FILE_DEFINITION } from './definitions/coreTools.js';
+import { resolveToolDeclaration } from './definitions/resolver.js';
 import {
-  recordFileOperationMetric,
-  FileOperation,
-} from '../telemetry/metrics.js';
+  discoverJitContext,
+  appendJitContext,
+  appendJitContextToParts,
+} from './jit-context.js';
 
 /**
  * Parameters for the ReadFile tool
  */
 export interface ReadFileToolParams {
   /**
-   * The absolute path to the file to read
+   * The path to the file to read
    */
-  absolute_path: string;
+  file_path: string;
 
   /**
-   * The line number to start reading from (optional)
+   * The line number to start reading from (optional, 1-based)
    */
-  offset?: number;
+  start_line?: number;
 
   /**
-   * The number of lines to read (optional)
+   * The line number to end reading at (optional, 1-based, inclusive)
    */
-  limit?: number;
+  end_line?: number;
 }
 
-/**
- * Implementation of the ReadFile tool logic
- */
-export class ReadFileTool extends BaseTool<ReadFileToolParams, ToolResult> {
-  static readonly Name: string = 'read_file';
-
+class ReadFileToolInvocation extends BaseToolInvocation<
+  ReadFileToolParams,
+  ToolResult
+> {
+  private readonly resolvedPath: string;
   constructor(
-    private rootDirectory: string,
     private config: Config,
+    params: ReadFileToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
   ) {
-    super(
-      ReadFileTool.Name,
-      'ReadFile',
-      'Reads and returns the content of a specified file from the local filesystem. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), and PDF files. For text files, it can read specific line ranges.',
-      {
-        properties: {
-          absolute_path: {
-            description:
-              "The absolute path to the file to read (e.g., '/home/user/project/file.txt'). Relative paths are not supported. You must provide an absolute path.",
-            type: Type.STRING,
-          },
-          offset: {
-            description:
-              "Optional: For text files, the 0-based line number to start reading from. Requires 'limit' to be set. Use for paginating through large files.",
-            type: Type.NUMBER,
-          },
-          limit: {
-            description:
-              "Optional: For text files, maximum number of lines to read. Use with 'offset' to paginate through large files. If omitted, reads the entire file (if feasible, up to a default limit).",
-            type: Type.NUMBER,
-          },
-        },
-        required: ['absolute_path'],
-        type: Type.OBJECT,
-      },
+    super(params, messageBus, _toolName, _toolDisplayName);
+    this.resolvedPath = path.resolve(
+      this.config.getTargetDir(),
+      this.params.file_path,
     );
-    this.rootDirectory = path.resolve(rootDirectory);
   }
 
-  validateToolParams(params: ReadFileToolParams): string | null {
-    const errors = SchemaValidator.validate(this.schema.parameters, params);
-    if (errors) {
-      return errors;
-    }
-
-    const filePath = params.absolute_path;
-    if (!path.isAbsolute(filePath)) {
-      return `File path must be absolute, but was relative: ${filePath}. You must provide an absolute path.`;
-    }
-    if (!isWithinRoot(filePath, this.rootDirectory)) {
-      return `File path must be within the root directory (${this.rootDirectory}): ${filePath}`;
-    }
-    if (params.offset !== undefined && params.offset < 0) {
-      return 'Offset must be a non-negative number';
-    }
-    if (params.limit !== undefined && params.limit <= 0) {
-      return 'Limit must be a positive number';
-    }
-
-    const fileService = this.config.getFileService();
-    if (fileService.shouldResearchIgnoreFile(params.absolute_path)) {
-      return `File path '${filePath}' is ignored by .researchignore pattern(s).`;
-    }
-
-    return null;
-  }
-
-  getDescription(params: ReadFileToolParams): string {
-    if (
-      !params ||
-      typeof params.absolute_path !== 'string' ||
-      params.absolute_path.trim() === ''
-    ) {
-      return `Path unavailable`;
-    }
-    const relativePath = makeRelative(params.absolute_path, this.rootDirectory);
+  getDescription(): string {
+    const relativePath = makeRelative(
+      this.resolvedPath,
+      this.config.getTargetDir(),
+    );
     return shortenPath(relativePath);
   }
 
-  async execute(
-    params: ReadFileToolParams,
-    _signal: AbortSignal,
-  ): Promise<ToolResult> {
-    const validationError = this.validateToolParams(params);
+  override toolLocations(): ToolLocation[] {
+    return [
+      {
+        path: this.resolvedPath,
+        line: this.params.start_line,
+      },
+    ];
+  }
+
+  override getPolicyUpdateOptions(
+    _outcome: ToolConfirmationOutcome,
+  ): PolicyUpdateOptions | undefined {
+    return {
+      argsPattern: buildFilePathArgsPattern(this.params.file_path),
+    };
+  }
+
+  async execute(_options: ExecuteOptions): Promise<ToolResult> {
+    const validationError = this.config.validatePathAccess(
+      this.resolvedPath,
+      'read',
+    );
     if (validationError) {
       return {
-        llmContent: `Error: Invalid parameters provided. Reason: ${validationError}`,
-        returnDisplay: validationError,
+        llmContent: validationError,
+        returnDisplay: 'Path not in workspace.',
+        error: {
+          message: validationError,
+          type: ToolErrorType.PATH_NOT_IN_WORKSPACE,
+        },
       };
     }
 
     const result = await processSingleFileContent(
-      params.absolute_path,
-      this.rootDirectory,
-      params.offset,
-      params.limit,
+      this.resolvedPath,
+      this.config.getTargetDir(),
+      this.config.getFileSystemService(),
+      this.params.start_line,
+      this.params.end_line,
     );
 
     if (result.error) {
       return {
-        llmContent: result.error, // The detailed error for LLM
-        returnDisplay: result.returnDisplay, // User-friendly error
+        llmContent: result.llmContent,
+        returnDisplay: result.returnDisplay || 'Error reading file',
+        error: {
+          message: result.error,
+          type: result.errorType,
+        },
       };
+    }
+
+    let llmContent: PartListUnion;
+    if (result.isTruncated) {
+      const [start, end] = result.linesShown!;
+      const total = result.originalLineCount!;
+
+      llmContent = `
+IMPORTANT: The file content has been truncated.
+Status: Showing lines ${start}-${end} of ${total} total lines.
+Action: To read more of the file, you can use the 'start_line' and 'end_line' parameters in a subsequent 'read_file' call. For example, to read the next section of the file, use start_line: ${end + 1}.
+
+--- FILE CONTENT (truncated) ---
+${result.llmContent}`;
+    } else {
+      llmContent = result.llmContent || '';
     }
 
     const lines =
       typeof result.llmContent === 'string'
         ? result.llmContent.split('\n').length
         : undefined;
-    const mimetype = getSpecificMimeType(params.absolute_path);
-    recordFileOperationMetric(
+    const mimetype = getSpecificMimeType(this.resolvedPath);
+    const programming_language = getProgrammingLanguage({
+      file_path: this.resolvedPath,
+    });
+    logFileOperation(
       this.config,
-      FileOperation.READ,
-      lines,
-      mimetype,
-      path.extname(params.absolute_path),
+      new FileOperationEvent(
+        READ_FILE_TOOL_NAME,
+        FileOperation.READ,
+        lines,
+        mimetype,
+        path.extname(this.resolvedPath),
+        programming_language,
+      ),
     );
 
+    // Discover JIT subdirectory context for the accessed file path
+    const jitContext = await discoverJitContext(this.config, this.resolvedPath);
+    if (jitContext) {
+      if (typeof llmContent === 'string') {
+        llmContent = appendJitContext(llmContent, jitContext);
+      } else {
+        llmContent = appendJitContextToParts(llmContent, jitContext);
+      }
+    }
+
+    const displayResultSummary = result.isTruncated
+      ? `${result.linesShown![0]}-${result.linesShown![1]} of ${result.originalLineCount}`
+      : lines !== undefined
+        ? `${lines} lines`
+        : undefined;
+
     return {
-      llmContent: result.llmContent,
-      returnDisplay: result.returnDisplay,
+      llmContent,
+      display: {
+        name: READ_FILE_DISPLAY_NAME,
+        description: this.getDescription(),
+        resultSummary: displayResultSummary,
+        result: { type: 'text', text: result.returnDisplay || '' },
+      },
+      returnDisplay: result.returnDisplay || '',
     };
+  }
+}
+
+/**
+ * Implementation of the ReadFile tool logic
+ */
+export class ReadFileTool extends BaseDeclarativeTool<
+  ReadFileToolParams,
+  ToolResult
+> {
+  static readonly Name = READ_FILE_TOOL_NAME;
+  private readonly fileDiscoveryService: FileDiscoveryService;
+
+  constructor(
+    private config: Config,
+    messageBus: MessageBus,
+  ) {
+    super(
+      ReadFileTool.Name,
+      READ_FILE_DISPLAY_NAME,
+      READ_FILE_DEFINITION.base.description!,
+      Kind.Read,
+      READ_FILE_DEFINITION.base.parametersJsonSchema,
+      messageBus,
+      true,
+      false,
+    );
+    this.fileDiscoveryService = new FileDiscoveryService(
+      config.getTargetDir(),
+      config.getFileFilteringOptions(),
+    );
+  }
+
+  protected override validateToolParamValues(
+    params: ReadFileToolParams,
+  ): string | null {
+    if (params.file_path.trim() === '') {
+      return "The 'file_path' parameter must be non-empty.";
+    }
+
+    const resolvedPath = path.resolve(
+      this.config.getTargetDir(),
+      params.file_path,
+    );
+
+    const validationError = this.config.validatePathAccess(
+      resolvedPath,
+      'read',
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    if (params.start_line !== undefined && params.start_line < 1) {
+      return 'start_line must be at least 1';
+    }
+    if (params.end_line !== undefined && params.end_line < 1) {
+      return 'end_line must be at least 1';
+    }
+    if (
+      params.start_line !== undefined &&
+      params.end_line !== undefined &&
+      params.start_line > params.end_line
+    ) {
+      return 'start_line cannot be greater than end_line';
+    }
+
+    const fileFilteringOptions = this.config.getFileFilteringOptions();
+    if (
+      this.fileDiscoveryService.shouldIgnoreFile(
+        resolvedPath,
+        fileFilteringOptions,
+      )
+    ) {
+      return `File path '${resolvedPath}' is ignored by configured ignore patterns.`;
+    }
+
+    return null;
+  }
+
+  protected createInvocation(
+    params: ReadFileToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<ReadFileToolParams, ToolResult> {
+    return new ReadFileToolInvocation(
+      this.config,
+      params,
+      messageBus,
+      _toolName,
+      _toolDisplayName,
+    );
+  }
+
+  override getSchema(modelId?: string) {
+    return resolveToolDeclaration(READ_FILE_DEFINITION, modelId);
   }
 }

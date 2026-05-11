@@ -1,39 +1,42 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { reportError } from './errorReporting.js';
+import { debugLogger } from './debugLogger.js';
 
 // Use a type alias for SpyInstance as it's not directly exported
 type SpyInstance = ReturnType<typeof vi.spyOn>;
-import { reportError } from './errorReporting.js';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-
-// Mock dependencies
-vi.mock('node:fs/promises');
-vi.mock('node:os');
 
 describe('reportError', () => {
-  let consoleErrorSpy: SpyInstance;
-  const MOCK_TMP_DIR = '/tmp';
+  let debugLoggerErrorSpy: SpyInstance;
+  let testDir: string;
   const MOCK_TIMESTAMP = '2025-01-01T00-00-00-000Z';
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Create a temporary directory for logs
+    testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'gemini-report-test-'));
     vi.resetAllMocks();
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (os.tmpdir as Mock).mockReturnValue(MOCK_TMP_DIR);
+    debugLoggerErrorSpy = vi
+      .spyOn(debugLogger, 'error')
+      .mockImplementation(() => {});
     vi.spyOn(Date.prototype, 'toISOString').mockReturnValue(MOCK_TIMESTAMP);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks();
+    // Clean up the temporary directory
+    await fs.rm(testDir, { recursive: true, force: true });
   });
 
   const getExpectedReportPath = (type: string) =>
-    `${MOCK_TMP_DIR}/research-client-error-${type}-${MOCK_TIMESTAMP}.json`;
+    path.join(testDir, `gemini-client-error-${type}-${MOCK_TIMESTAMP}.json`);
 
   it('should generate a report and log the path', async () => {
     const error = new Error('Test error');
@@ -43,24 +46,21 @@ describe('reportError', () => {
     const type = 'test-type';
     const expectedReportPath = getExpectedReportPath(type);
 
-    (fs.writeFile as Mock).mockResolvedValue(undefined);
+    await reportError(error, baseMessage, context, type, testDir);
 
-    await reportError(error, baseMessage, context, type);
+    // Verify the file was written
+    const reportContent = await fs.readFile(expectedReportPath, 'utf-8');
+    const parsedReport = JSON.parse(reportContent);
 
-    expect(os.tmpdir).toHaveBeenCalledTimes(1);
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedReportPath,
-      JSON.stringify(
-        {
-          error: { message: 'Test error', stack: error.stack },
-          context,
-        },
-        null,
-        2,
-      ),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(parsedReport).toEqual({
+      error: { message: 'Test error', stack: 'Test stack' },
+      context,
+    });
+
+    // Verify the user feedback
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
+      error,
     );
   });
 
@@ -70,21 +70,18 @@ describe('reportError', () => {
     const type = 'general';
     const expectedReportPath = getExpectedReportPath(type);
 
-    (fs.writeFile as Mock).mockResolvedValue(undefined);
-    await reportError(error, baseMessage);
+    await reportError(error, baseMessage, undefined, type, testDir);
 
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedReportPath,
-      JSON.stringify(
-        {
-          error: { message: 'Test plain object error' },
-        },
-        null,
-        2,
-      ),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    const reportContent = await fs.readFile(expectedReportPath, 'utf-8');
+    const parsedReport = JSON.parse(reportContent);
+
+    expect(parsedReport).toEqual({
+      error: { message: 'Test plain object error' },
+    });
+
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
+      error,
     );
   });
 
@@ -94,49 +91,42 @@ describe('reportError', () => {
     const type = 'general';
     const expectedReportPath = getExpectedReportPath(type);
 
-    (fs.writeFile as Mock).mockResolvedValue(undefined);
-    await reportError(error, baseMessage);
+    await reportError(error, baseMessage, undefined, type, testDir);
 
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedReportPath,
-      JSON.stringify(
-        {
-          error: { message: 'Just a string error' },
-        },
-        null,
-        2,
-      ),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    const reportContent = await fs.readFile(expectedReportPath, 'utf-8');
+    const parsedReport = JSON.parse(reportContent);
+
+    expect(parsedReport).toEqual({
+      error: { message: 'Just a string error' },
+    });
+
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
+      error,
     );
   });
 
   it('should log fallback message if writing report fails', async () => {
     const error = new Error('Main error');
     const baseMessage = 'Failed operation.';
-    const writeError = new Error('Failed to write file');
     const context = ['some context'];
     const type = 'general';
-    const expectedReportPath = getExpectedReportPath(type);
+    const nonExistentDir = path.join(testDir, 'non-existent-dir');
 
-    (fs.writeFile as Mock).mockRejectedValue(writeError);
+    await reportError(error, baseMessage, context, type, nonExistentDir);
 
-    await reportError(error, baseMessage, context, type);
-
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedReportPath,
-      expect.any(String),
-    ); // It still tries to write
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Additionally, failed to write detailed error report:`,
-      writeError,
+      expect.any(Error), // The actual write error
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       'Original error that triggered report generation:',
       error,
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Original context:', context);
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
+      'Original context:',
+      context,
+    );
   });
 
   it('should handle stringification failure of report content (e.g. BigInt in context)', async () => {
@@ -163,32 +153,30 @@ describe('reportError', () => {
       return originalJsonStringify(value, replacer, space);
     });
 
-    (fs.writeFile as Mock).mockResolvedValue(undefined); // Mock for the minimal report write
+    await reportError(error, baseMessage, context, type, testDir);
 
-    await reportError(error, baseMessage, context, type);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Could not stringify report content (likely due to context):`,
       stringifyError,
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       'Original error that triggered report generation:',
       error,
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       'Original context could not be stringified or included in report.',
     );
-    // Check that it attempts to write a minimal report
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedMinimalReportPath,
-      originalJsonStringify(
-        { error: { message: error.message, stack: error.stack } },
-        null,
-        2,
-      ),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+
+    // Check that it writes a minimal report
+    const reportContent = await fs.readFile(expectedMinimalReportPath, 'utf-8');
+    const parsedReport = JSON.parse(reportContent);
+    expect(parsedReport).toEqual({
+      error: { message: error.message, stack: error.stack },
+    });
+
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Partial report (excluding context) available at: ${expectedMinimalReportPath}`,
+      error,
     );
   });
 
@@ -199,21 +187,18 @@ describe('reportError', () => {
     const type = 'general';
     const expectedReportPath = getExpectedReportPath(type);
 
-    (fs.writeFile as Mock).mockResolvedValue(undefined);
-    await reportError(error, baseMessage, undefined, type);
+    await reportError(error, baseMessage, undefined, type, testDir);
 
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedReportPath,
-      JSON.stringify(
-        {
-          error: { message: 'Error without context', stack: error.stack },
-        },
-        null,
-        2,
-      ),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    const reportContent = await fs.readFile(expectedReportPath, 'utf-8');
+    const parsedReport = JSON.parse(reportContent);
+
+    expect(parsedReport).toEqual({
+      error: { message: 'Error without context', stack: 'No context stack' },
+    });
+
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
+      error,
     );
   });
 });

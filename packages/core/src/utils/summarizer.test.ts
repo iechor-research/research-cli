@@ -1,33 +1,54 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
-import { ResearchClient } from '../core/client.js';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest';
+import { GeminiClient } from '../core/client.js';
 import { Config } from '../config/config.js';
 import {
   summarizeToolOutput,
   llmSummarizer,
   defaultSummarizer,
 } from './summarizer.js';
-import { ToolResult } from '../tools/tools.js';
+import type { ToolResult } from '../tools/tools.js';
+import type {
+  ModelConfigService,
+  ResolvedModelConfig,
+} from '../services/modelConfigService.js';
+import { DEFAULT_GEMINI_MODEL } from '../config/models.js';
+import { debugLogger } from './debugLogger.js';
 
-// Mock ResearchClient and Config constructor
+// Mock GeminiClient and Config constructor
 vi.mock('../core/client.js');
 vi.mock('../config/config.js');
 
 describe('summarizers', () => {
-  let mockResearchClient: ResearchClient;
+  let mockGeminiClient: GeminiClient;
   let MockConfig: Mock;
+  let mockConfigInstance: Config;
   const abortSignal = new AbortController().signal;
+  const mockResolvedConfig = {
+    model: 'gemini-pro',
+    generateContentConfig: {
+      maxOutputTokens: 2000,
+    },
+  } as unknown as ResolvedModelConfig;
 
   beforeEach(() => {
     MockConfig = vi.mocked(Config);
-    const mockConfigInstance = new MockConfig(
+    mockConfigInstance = new MockConfig(
       'test-api-key',
-      'research-pro',
+      'gemini-pro',
       false,
       '.',
       false,
@@ -37,96 +58,115 @@ describe('summarizers', () => {
       undefined,
       undefined,
     );
+    (mockConfigInstance.modelConfigService as unknown) = {
+      getResolvedConfig: vi.fn().mockReturnValue(mockResolvedConfig),
+    } as unknown as ModelConfigService;
 
-    mockResearchClient = new ResearchClient(mockConfigInstance);
-    (mockResearchClient.generateContent as Mock) = vi.fn();
+    // .config is already set correctly by the getter on the instance.
+    Object.defineProperty(mockConfigInstance, 'promptId', {
+      get: () => 'test-prompt-id',
+      configurable: true,
+    });
+
+    mockGeminiClient = new GeminiClient(mockConfigInstance);
+    (mockGeminiClient.generateContent as Mock) = vi.fn();
 
     vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
-    (console.error as Mock).mockRestore();
+    vi.restoreAllMocks();
   });
 
   describe('summarizeToolOutput', () => {
     it('should return original text if it is shorter than maxLength', async () => {
       const shortText = 'This is a short text.';
       const result = await summarizeToolOutput(
+        mockConfigInstance,
+        { model: DEFAULT_GEMINI_MODEL },
         shortText,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
-        2000,
       );
       expect(result).toBe(shortText);
-      expect(mockResearchClient.generateContent).not.toHaveBeenCalled();
+      expect(mockGeminiClient.generateContent).not.toHaveBeenCalled();
     });
 
     it('should return original text if it is empty', async () => {
       const emptyText = '';
       const result = await summarizeToolOutput(
+        mockConfigInstance,
+        { model: DEFAULT_GEMINI_MODEL },
         emptyText,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
-        2000,
       );
       expect(result).toBe(emptyText);
-      expect(mockResearchClient.generateContent).not.toHaveBeenCalled();
+      expect(mockGeminiClient.generateContent).not.toHaveBeenCalled();
     });
 
     it('should call generateContent if text is longer than maxLength', async () => {
       const longText = 'This is a very long text.'.repeat(200);
       const summary = 'This is a summary.';
-      (mockResearchClient.generateContent as Mock).mockResolvedValue({
+      (mockGeminiClient.generateContent as Mock).mockResolvedValue({
         candidates: [{ content: { parts: [{ text: summary }] } }],
       });
-
       const result = await summarizeToolOutput(
+        mockConfigInstance,
+        { model: DEFAULT_GEMINI_MODEL },
         longText,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
-        2000,
       );
 
-      expect(mockResearchClient.generateContent).toHaveBeenCalledTimes(1);
+      expect(mockGeminiClient.generateContent).toHaveBeenCalledTimes(1);
       expect(result).toBe(summary);
     });
 
     it('should return original text if generateContent throws an error', async () => {
       const longText = 'This is a very long text.'.repeat(200);
       const error = new Error('API Error');
-      (mockResearchClient.generateContent as Mock).mockRejectedValue(error);
+      (mockGeminiClient.generateContent as Mock).mockRejectedValue(error);
 
       const result = await summarizeToolOutput(
+        mockConfigInstance,
+        { model: DEFAULT_GEMINI_MODEL },
         longText,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
-        2000,
       );
 
-      expect(mockResearchClient.generateContent).toHaveBeenCalledTimes(1);
+      expect(mockGeminiClient.generateContent).toHaveBeenCalledTimes(1);
       expect(result).toBe(longText);
-      expect(console.error).toHaveBeenCalledWith(
-        'Failed to summarize tool output.',
-        error,
-      );
     });
 
     it('should construct the correct prompt for summarization', async () => {
       const longText = 'This is a very long text.'.repeat(200);
       const summary = 'This is a summary.';
-      (mockResearchClient.generateContent as Mock).mockResolvedValue({
+      (mockGeminiClient.generateContent as Mock).mockResolvedValue({
         candidates: [{ content: { parts: [{ text: summary }] } }],
       });
+      (mockConfigInstance.modelConfigService as unknown) = {
+        getResolvedConfig() {
+          return {
+            model: 'gemini-pro-limited',
+            generateContentConfig: {
+              maxOutputTokens: 1000,
+            },
+          };
+        },
+      };
 
       await summarizeToolOutput(
+        mockConfigInstance,
+        { model: 'gemini-pro-limited' },
         longText,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
-        1000,
       );
 
-      const expectedPrompt = `Summarize the following tool output to be a maximum of 1000 characters. The summary should be concise and capture the main points of the tool output.
+      const expectedPrompt = `Summarize the following tool output to be a maximum of 1000 tokens. The summary should be concise and capture the main points of the tool output.
 
 The summarization should be done based on the content that is provided. Here are the basic rules to follow:
 1. If the text is a directory listing or any output that is structural, use the history of the conversation to understand the context. Using this context try to understand what information we need from the tool output and return that as a response.
@@ -139,9 +179,9 @@ Text to summarize:
 
 Return the summary string which should first contain an overall summarization of text followed by the full stack trace of errors and warnings in the tool output.
 `;
-      const calledWith = (mockResearchClient.generateContent as Mock).mock
+      const calledWith = (mockGeminiClient.generateContent as Mock).mock
         .calls[0];
-      const contents = calledWith[0];
+      const contents = calledWith[1];
       expect(contents[0].parts[0].text).toBe(expectedPrompt);
     });
   });
@@ -153,17 +193,18 @@ Return the summary string which should first contain an overall summarization of
         returnDisplay: '',
       };
       const summary = 'This is a summary.';
-      (mockResearchClient.generateContent as Mock).mockResolvedValue({
+      (mockGeminiClient.generateContent as Mock).mockResolvedValue({
         candidates: [{ content: { parts: [{ text: summary }] } }],
       });
 
       const result = await llmSummarizer(
+        mockConfigInstance,
         toolResult,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
       );
 
-      expect(mockResearchClient.generateContent).toHaveBeenCalledTimes(1);
+      expect(mockGeminiClient.generateContent).toHaveBeenCalledTimes(1);
       expect(result).toBe(summary);
     });
 
@@ -174,20 +215,21 @@ Return the summary string which should first contain an overall summarization of
         returnDisplay: '',
       };
       const summary = 'This is a summary.';
-      (mockResearchClient.generateContent as Mock).mockResolvedValue({
+      (mockGeminiClient.generateContent as Mock).mockResolvedValue({
         candidates: [{ content: { parts: [{ text: summary }] } }],
       });
 
       const result = await llmSummarizer(
+        mockConfigInstance,
         toolResult,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
       );
 
-      expect(mockResearchClient.generateContent).toHaveBeenCalledTimes(1);
-      const calledWith = (mockResearchClient.generateContent as Mock).mock
+      expect(mockGeminiClient.generateContent).toHaveBeenCalledTimes(1);
+      const calledWith = (mockGeminiClient.generateContent as Mock).mock
         .calls[0];
-      const contents = calledWith[0];
+      const contents = calledWith[1];
       expect(contents[0].parts[0].text).toContain(`"${longText}"`);
       expect(result).toBe(summary);
     });
@@ -201,13 +243,14 @@ Return the summary string which should first contain an overall summarization of
       };
 
       const result = await defaultSummarizer(
+        mockConfigInstance,
         toolResult,
-        mockResearchClient,
+        mockGeminiClient,
         abortSignal,
       );
 
       expect(result).toBe(JSON.stringify({ text: 'some data' }));
-      expect(mockResearchClient.generateContent).not.toHaveBeenCalled();
+      expect(mockGeminiClient.generateContent).not.toHaveBeenCalled();
     });
   });
 });

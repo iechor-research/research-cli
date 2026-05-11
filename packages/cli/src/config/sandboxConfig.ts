@@ -1,43 +1,56 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { SandboxConfig } from '@iechor/research-cli-core';
+import {
+  getPackageJson,
+  type SandboxConfig,
+  FatalSandboxError,
+} from '@google/gemini-cli-core';
 import commandExists from 'command-exists';
 import * as os from 'node:os';
-import { getPackageJson } from '../utils/package.js';
-import { Settings } from './settings.js';
+import type { Settings } from './settings.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // This is a stripped-down version of the CliArgs interface from config.ts
 // to avoid circular dependencies.
 interface SandboxCliArgs {
-  sandbox?: boolean | string;
-  sandboxImage?: string;
+  sandbox?: boolean | string | null;
 }
-
-const VALID_SANDBOX_COMMANDS: ReadonlyArray<SandboxConfig['command']> = [
+const VALID_SANDBOX_COMMANDS = [
   'docker',
   'podman',
   'sandbox-exec',
+  'runsc',
+  'lxc',
+  'windows-native',
 ];
 
-function isSandboxCommand(value: string): value is SandboxConfig['command'] {
-  return (VALID_SANDBOX_COMMANDS as readonly string[]).includes(value);
+function isSandboxCommand(
+  value: string,
+): value is Exclude<SandboxConfig['command'], undefined> {
+  return (VALID_SANDBOX_COMMANDS as ReadonlyArray<string | undefined>).includes(
+    value,
+  );
 }
 
 function getSandboxCommand(
-  sandbox?: boolean | string,
+  sandbox?: boolean | string | null,
 ): SandboxConfig['command'] | '' {
   // If the SANDBOX env var is set, we're already inside the sandbox.
-  if (process.env.SANDBOX) {
+  if (process.env['SANDBOX']) {
     return '';
   }
 
   // note environment variable takes precedence over argument (from command line or settings)
   const environmentConfiguredSandbox =
-    process.env.RESEARCH_SANDBOX?.toLowerCase().trim() ?? '';
+    process.env['GEMINI_SANDBOX']?.toLowerCase().trim() ?? '';
   sandbox =
     environmentConfiguredSandbox?.length > 0
       ? environmentConfiguredSandbox
@@ -51,25 +64,43 @@ function getSandboxCommand(
 
   if (typeof sandbox === 'string' && sandbox) {
     if (!isSandboxCommand(sandbox)) {
-      console.error(
-        `ERROR: invalid sandbox command '${sandbox}'. Must be one of ${VALID_SANDBOX_COMMANDS.join(
+      throw new FatalSandboxError(
+        `Invalid sandbox command '${sandbox}'. Must be one of ${VALID_SANDBOX_COMMANDS.join(
           ', ',
         )}`,
       );
-      process.exit(1);
     }
-    // confirm that specified command exists
-    if (commandExists.sync(sandbox)) {
-      return sandbox;
+    // runsc (gVisor) is only supported on Linux
+    if (sandbox === 'runsc' && os.platform() !== 'linux') {
+      throw new FatalSandboxError(
+        'gVisor (runsc) sandboxing is only supported on Linux',
+      );
     }
-    console.error(
-      `ERROR: missing sandbox command '${sandbox}' (from RESEARCH_SANDBOX)`,
-    );
-    process.exit(1);
+    // windows-native is only supported on Windows
+    if (sandbox === 'windows-native' && os.platform() !== 'win32') {
+      throw new FatalSandboxError(
+        'Windows native sandboxing is only supported on Windows',
+      );
+    }
+
+    // confirm that specified command exists (unless it's built-in)
+    if (sandbox !== 'windows-native' && !commandExists.sync(sandbox)) {
+      throw new FatalSandboxError(
+        `Missing sandbox command '${sandbox}' (from GEMINI_SANDBOX)`,
+      );
+    }
+    // runsc uses Docker with --runtime=runsc; both must be available (prioritize runsc when explicitly chosen)
+    if (sandbox === 'runsc' && !commandExists.sync('docker')) {
+      throw new FatalSandboxError(
+        "runsc (gVisor) requires Docker. Install Docker, or use sandbox: 'docker'.",
+      );
+    }
+    return sandbox;
   }
 
   // look for seatbelt, docker, or podman, in that order
   // for container-based sandboxing, require sandbox to be enabled explicitly
+  // note: runsc is NOT auto-detected, it must be explicitly specified
   if (os.platform() === 'darwin' && commandExists.sync('sandbox-exec')) {
     return 'sandbox-exec';
   } else if (commandExists.sync('docker') && sandbox === true) {
@@ -80,28 +111,58 @@ function getSandboxCommand(
 
   // throw an error if user requested sandbox but no command was found
   if (sandbox === true) {
-    console.error(
-      'ERROR: RESEARCH_SANDBOX is true but failed to determine command for sandbox; ' +
-        'install docker or podman or specify command in RESEARCH_SANDBOX',
+    throw new FatalSandboxError(
+      'GEMINI_SANDBOX is true but failed to determine command for sandbox; ' +
+        'install docker or podman or specify command in GEMINI_SANDBOX',
     );
-    process.exit(1);
   }
 
   return '';
+  // Note: 'lxc' is intentionally not auto-detected because it requires a
+  // pre-existing, running container managed by the user. Use
+  // GEMINI_SANDBOX=lxc or sandbox: "lxc" in settings to enable it.
 }
 
 export async function loadSandboxConfig(
   settings: Settings,
   argv: SandboxCliArgs,
 ): Promise<SandboxConfig | undefined> {
-  const sandboxOption = argv.sandbox ?? settings.sandbox;
-  const command = getSandboxCommand(sandboxOption);
+  const sandboxOption = argv.sandbox ?? settings.tools?.sandbox;
 
-  const packageJson = await getPackageJson();
+  let sandboxValue: boolean | string | null | undefined;
+  let allowedPaths: string[] = [];
+  let networkAccess = true;
+  let customImage: string | undefined;
+
+  if (
+    typeof sandboxOption === 'object' &&
+    sandboxOption !== null &&
+    !Array.isArray(sandboxOption)
+  ) {
+    const config = sandboxOption;
+    sandboxValue = config.enabled ? (config.command ?? true) : false;
+    allowedPaths = config.allowedPaths ?? [];
+    networkAccess = config.networkAccess ?? true;
+    customImage = config.image;
+  } else if (typeof sandboxOption !== 'object' || sandboxOption === null) {
+    sandboxValue = sandboxOption;
+  }
+
+  const command = getSandboxCommand(sandboxValue);
+
+  const packageJson = await getPackageJson(__dirname);
   const image =
-    argv.sandboxImage ??
-    process.env.RESEARCH_SANDBOX_IMAGE ??
+    process.env['GEMINI_SANDBOX_IMAGE'] ??
+    process.env['GEMINI_SANDBOX_IMAGE_DEFAULT'] ??
+    customImage ??
     packageJson?.config?.sandboxImageUri;
 
-  return command && image ? { command, image } : undefined;
+  const isNative =
+    command === 'windows-native' ||
+    command === 'sandbox-exec' ||
+    command === 'lxc';
+
+  return command && (image || isNative)
+    ? { enabled: true, allowedPaths, networkAccess, command, image }
+    : undefined;
 }

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -56,6 +56,7 @@ export function disableSimulationAfterFallback(): void {
  * Create a simulated 429 error response
  */
 export function createSimulated429Error(): Error {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const error = new Error('Rate limit exceeded (simulated)') as Error & {
     status: number;
   };

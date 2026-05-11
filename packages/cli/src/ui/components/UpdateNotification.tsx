@@ -1,11 +1,11 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { Box, Text } from 'ink';
-import { Colors } from '../colors.js';
+import { theme } from '../semantic-colors.js';
 
 interface UpdateNotificationProps {
   message: string;
@@ -14,10 +14,10 @@ interface UpdateNotificationProps {
 export const UpdateNotification = ({ message }: UpdateNotificationProps) => (
   <Box
     borderStyle="round"
-    borderColor={Colors.AccentYellow}
+    borderColor={theme.status.warning}
     paddingX={1}
     marginY={1}
   >
-    <Text color={Colors.AccentYellow}>{message}</Text>
+    <Text color={theme.status.warning}>{message}</Text>
   </Box>
 );

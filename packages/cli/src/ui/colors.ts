@@ -1,11 +1,11 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { themeManager } from './themes/theme-manager.js';
-import { ColorsTheme } from './themes/theme.js';
+import type { ColorsTheme } from './themes/theme.js';
 
 export const Colors: ColorsTheme = {
   get type() {
@@ -15,7 +15,7 @@ export const Colors: ColorsTheme = {
     return themeManager.getActiveTheme().colors.Foreground;
   },
   get Background() {
-    return themeManager.getActiveTheme().colors.Background;
+    return themeManager.getColors().Background;
   },
   get LightBlue() {
     return themeManager.getActiveTheme().colors.LightBlue;
@@ -38,11 +38,26 @@ export const Colors: ColorsTheme = {
   get AccentRed() {
     return themeManager.getActiveTheme().colors.AccentRed;
   },
+  get DiffAdded() {
+    return themeManager.getActiveTheme().colors.DiffAdded;
+  },
+  get DiffRemoved() {
+    return themeManager.getActiveTheme().colors.DiffRemoved;
+  },
   get Comment() {
     return themeManager.getActiveTheme().colors.Comment;
   },
   get Gray() {
     return themeManager.getActiveTheme().colors.Gray;
+  },
+  get DarkGray() {
+    return themeManager.getColors().DarkGray;
+  },
+  get InputBackground() {
+    return themeManager.getColors().InputBackground;
+  },
+  get MessageBackground() {
+    return themeManager.getColors().MessageBackground;
   },
   get GradientColors() {
     return themeManager.getActiveTheme().colors.GradientColors;

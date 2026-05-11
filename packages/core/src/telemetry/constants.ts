@@ -1,25 +1,38 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const SERVICE_NAME = 'research-cli';
+export const SERVICE_NAME = 'gemini-cli';
+export const SERVICE_DESCRIPTION =
+  'Gemini CLI is an open-source AI agent that brings the power of Gemini directly into your terminal. It is designed to be a terminal-first, extensible, and powerful tool for developers, engineers, SREs, and beyond.';
 
-export const EVENT_USER_PROMPT = 'research_cli.user_prompt';
-export const EVENT_TOOL_CALL = 'research_cli.tool_call';
-export const EVENT_API_REQUEST = 'research_cli.api_request';
-export const EVENT_API_ERROR = 'research_cli.api_error';
-export const EVENT_API_RESPONSE = 'research_cli.api_response';
-export const EVENT_CLI_CONFIG = 'research_cli.config';
-export const EVENT_FLASH_FALLBACK = 'research_cli.flash_fallback';
-export const EVENT_MALFORMED_JSON_RESPONSE =
-  'research_cli.malformed_json_response';
+// Gemini CLI specific semantic conventions
+// https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/#genai-attributes
+export const GEN_AI_OPERATION_NAME = 'gen_ai.operation.name';
+export const GEN_AI_AGENT_NAME = 'gen_ai.agent.name';
+export const GEN_AI_AGENT_DESCRIPTION = 'gen_ai.agent.description';
+export const GEN_AI_INPUT_MESSAGES = 'gen_ai.input.messages';
+export const GEN_AI_OUTPUT_MESSAGES = 'gen_ai.output.messages';
+export const GEN_AI_REQUEST_MODEL = 'gen_ai.request.model';
+export const GEN_AI_RESPONSE_MODEL = 'gen_ai.response.model';
+export const GEN_AI_PROMPT_NAME = 'gen_ai.prompt.name';
+export const GEN_AI_TOOL_NAME = 'gen_ai.tool.name';
+export const GEN_AI_TOOL_CALL_ID = 'gen_ai.tool.call_id';
+export const GEN_AI_TOOL_DESCRIPTION = 'gen_ai.tool.description';
+export const GEN_AI_USAGE_INPUT_TOKENS = 'gen_ai.usage.input_tokens';
+export const GEN_AI_USAGE_OUTPUT_TOKENS = 'gen_ai.usage.output_tokens';
+export const GEN_AI_SYSTEM_INSTRUCTIONS = 'gen_ai.system_instructions';
+export const GEN_AI_TOOL_DEFINITIONS = 'gen_ai.tool.definitions';
+export const GEN_AI_CONVERSATION_ID = 'gen_ai.conversation.id';
 
-export const METRIC_TOOL_CALL_COUNT = 'research_cli.tool.call.count';
-export const METRIC_TOOL_CALL_LATENCY = 'research_cli.tool.call.latency';
-export const METRIC_API_REQUEST_COUNT = 'research_cli.api.request.count';
-export const METRIC_API_REQUEST_LATENCY = 'research_cli.api.request.latency';
-export const METRIC_TOKEN_USAGE = 'research_cli.token.usage';
-export const METRIC_SESSION_COUNT = 'research_cli.session.count';
-export const METRIC_FILE_OPERATION_COUNT = 'research_cli.file.operation.count';
+// Gemini CLI specific operations
+export enum GeminiCliOperation {
+  ToolCall = 'tool_call',
+  LLMCall = 'llm_call',
+  UserPrompt = 'user_prompt',
+  SystemPrompt = 'system_prompt',
+  AgentCall = 'agent_call',
+  ScheduleToolCalls = 'schedule_tool_calls',
+}

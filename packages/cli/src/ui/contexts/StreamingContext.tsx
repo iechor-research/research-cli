@@ -1,11 +1,11 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { createContext } from 'react';
-import { StreamingState } from '../types.js';
+import type { StreamingState } from '../types.js';
 
 export const StreamingContext = createContext<StreamingState | undefined>(
   undefined,

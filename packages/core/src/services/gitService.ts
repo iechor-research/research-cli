@@ -1,52 +1,87 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import * as os from 'os';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { isNodeError } from '../utils/errors.js';
+import { spawnAsync } from '../utils/shell-utils.js';
+import { simpleGit, CheckRepoActions, type SimpleGit } from 'simple-git';
+import type { Storage } from '../config/storage.js';
 import { debugLogger } from '../utils/debugLogger.js';
-import { isGitRepository } from '../utils/gitUtils.js';
-import { exec } from 'node:child_process';
-import { simpleGit, SimpleGit, CheckRepoActions } from 'simple-git';
-import { getProjectHash, RESEARCH_DIR } from '../utils/paths.js';
+import {
+  sanitizeEnvironment,
+  getSecureSanitizationConfig,
+} from './environmentSanitization.js';
+
+export const SHADOW_REPO_AUTHOR_NAME = 'Gemini CLI';
+export const SHADOW_REPO_AUTHOR_EMAIL = 'gemini-cli@google.com';
 
 export class GitService {
   private projectRoot: string;
+  private storage: Storage;
 
-  constructor(projectRoot: string) {
+  constructor(projectRoot: string, storage: Storage) {
     this.projectRoot = path.resolve(projectRoot);
+    this.storage = storage;
   }
 
   private getHistoryDir(): string {
-    const hash = getProjectHash(this.projectRoot);
-    return path.join(os.homedir(), RESEARCH_DIR, 'history', hash);
+    return this.storage.getHistoryDir();
   }
 
   async initialize(): Promise<void> {
-    if (!isGitRepository(this.projectRoot)) {
-      throw new Error('GitService requires a Git repository');
-    }
-    const gitAvailable = await this.verifyGitAvailability();
+    const gitAvailable = await GitService.verifyGitAvailability();
     if (!gitAvailable) {
-      throw new Error('GitService requires Git to be installed');
+      throw new Error(
+        'Checkpointing is enabled, but Git is not installed. Please install Git or disable checkpointing to continue.',
+      );
     }
-    this.setupShadowGitRepository();
+    await this.storage.initialize();
+    try {
+      await this.setupShadowGitRepository();
+    } catch (error) {
+      throw new Error(
+        `Failed to initialize checkpointing: ${error instanceof Error ? error.message : 'Unknown error'}. Please check that Git is working properly or disable checkpointing.`,
+      );
+    }
   }
 
-  verifyGitAvailability(): Promise<boolean> {
-    return new Promise((resolve) => {
-      exec('git --version', (error) => {
-        if (error) {
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      });
-    });
+  static async verifyGitAvailability(): Promise<boolean> {
+    try {
+      await spawnAsync('git', ['--version']);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private getShadowRepoEnv(repoDir: string) {
+    const gitConfigPath = path.join(repoDir, '.gitconfig');
+    const systemConfigPath = path.join(repoDir, '.gitconfig_system_empty');
+    return {
+      ...sanitizeEnvironment(
+        process.env,
+        getSecureSanitizationConfig({
+          enableEnvironmentVariableRedaction: true,
+        }),
+      ),
+      // Prevent git from using the user's global git config.
+      GIT_CONFIG_GLOBAL: gitConfigPath,
+      GIT_CONFIG_SYSTEM: systemConfigPath,
+      // Ensure we don't inherit isolation-breaking variables from the user environment.
+      GIT_DIR: undefined,
+      GIT_WORK_TREE: undefined,
+      // Explicitly provide identity to prevent "Author identity unknown" errors
+      // inside sandboxed environments like Docker where the gitconfig might not
+      // be picked up properly.
+      GIT_AUTHOR_NAME: SHADOW_REPO_AUTHOR_NAME,
+      GIT_AUTHOR_EMAIL: SHADOW_REPO_AUTHOR_EMAIL,
+      GIT_COMMITTER_NAME: SHADOW_REPO_AUTHOR_NAME,
+      GIT_COMMITTER_EMAIL: SHADOW_REPO_AUTHOR_EMAIL,
+    };
   }
 
   /**
@@ -61,11 +96,12 @@ export class GitService {
 
     // We don't want to inherit the user's name, email, or gpg signing
     // preferences for the shadow repository, so we create a dedicated gitconfig.
-    const gitConfigContent =
-      '[user]\n  name = Research CLI\n  email = research-cli@iechor.com\n[commit]\n  gpgsign = false\n';
+    const gitConfigContent = `[user]\n  name = ${SHADOW_REPO_AUTHOR_NAME}\n  email = ${SHADOW_REPO_AUTHOR_EMAIL}\n[commit]\n  gpgsign = false\n`;
     await fs.writeFile(gitConfigPath, gitConfigContent);
 
-    const repo = simpleGit(repoDir);
+    const shadowRepoEnv = this.getShadowRepoEnv(repoDir);
+    await fs.writeFile(shadowRepoEnv.GIT_CONFIG_SYSTEM, '');
+    const repo = simpleGit(repoDir).env(shadowRepoEnv);
     let isRepoDefined = false;
     try {
       isRepoDefined = await repo.checkIsRepo(CheckRepoActions.IS_REPO_ROOT);
@@ -103,11 +139,9 @@ export class GitService {
   private get shadowGitRepository(): SimpleGit {
     const repoDir = this.getHistoryDir();
     return simpleGit(this.projectRoot).env({
+      ...this.getShadowRepoEnv(repoDir),
       GIT_DIR: path.join(repoDir, '.git'),
       GIT_WORK_TREE: this.projectRoot,
-      // Prevent git from using the user's global git config.
-      HOME: repoDir,
-      XDG_CONFIG_HOME: repoDir,
     });
   }
 
@@ -117,10 +151,23 @@ export class GitService {
   }
 
   async createFileSnapshot(message: string): Promise<string> {
-    const repo = this.shadowGitRepository;
-    await repo.add('.');
-    const commitResult = await repo.commit(message);
-    return commitResult.commit;
+    try {
+      const repo = this.shadowGitRepository;
+      await repo.add('.');
+      const status = await repo.status();
+      if (status.isClean()) {
+        // If no changes are staged, return the current HEAD commit hash
+        return await this.getCurrentCommitHash();
+      }
+      const commitResult = await repo.commit(message, {
+        '--no-verify': null,
+      });
+      return commitResult.commit;
+    } catch (error) {
+      throw new Error(
+        `Failed to create checkpoint snapshot: ${error instanceof Error ? error.message : 'Unknown error'}. Checkpointing may not be working properly.`,
+      );
+    }
   }
 
   async restoreProjectFromSnapshot(commitHash: string): Promise<void> {

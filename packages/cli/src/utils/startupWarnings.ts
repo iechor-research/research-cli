@@ -1,15 +1,15 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import fs from 'fs/promises';
-import os from 'os';
+import fs from 'node:fs/promises';
+import os from 'node:os';
 import { join as pathJoin } from 'node:path';
-import { getErrorMessage } from '@iechor/research-cli-core';
+import { getErrorMessage } from '@google/gemini-cli-core';
 
-const warningsFilePath = pathJoin(os.tmpdir(), 'research-cli-warnings.txt');
+const warningsFilePath = pathJoin(os.tmpdir(), 'gemini-cli-warnings.txt');
 
 export async function getStartupWarnings(): Promise<string[]> {
   try {

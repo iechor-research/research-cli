@@ -1,22 +1,22 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
   EVENT_API_ERROR,
   EVENT_API_RESPONSE,
   EVENT_TOOL_CALL,
-} from './constants.js';
-
-import {
-  ApiErrorEvent,
-  ApiResponseEvent,
-  ToolCallEvent,
-  ToolCallDecision,
+  type ApiErrorEvent,
+  type ApiResponseEvent,
+  type ToolCallEvent,
+  type LlmRole,
 } from './types.js';
+
+import { ToolCallDecision } from './tool-call-decision.js';
+import { type ConversationRecord } from '../services/chatRecordingService.js';
 
 export type UiEvent =
   | (ApiResponseEvent & { 'event.name': typeof EVENT_API_RESPONSE })
@@ -32,6 +32,22 @@ export interface ToolCallStats {
     [ToolCallDecision.ACCEPT]: number;
     [ToolCallDecision.REJECT]: number;
     [ToolCallDecision.MODIFY]: number;
+    [ToolCallDecision.AUTO_ACCEPT]: number;
+  };
+}
+
+export interface RoleMetrics {
+  totalRequests: number;
+  totalErrors: number;
+  totalLatencyMs: number;
+  tokens: {
+    input: number;
+    prompt: number;
+    candidates: number;
+    total: number;
+    cached: number;
+    thoughts: number;
+    tool: number;
   };
 }
 
@@ -42,6 +58,7 @@ export interface ModelMetrics {
     totalLatencyMs: number;
   };
   tokens: {
+    input: number;
     prompt: number;
     candidates: number;
     total: number;
@@ -49,6 +66,7 @@ export interface ModelMetrics {
     thoughts: number;
     tool: number;
   };
+  roles: Partial<Record<LlmRole, RoleMetrics>>;
 }
 
 export interface SessionMetrics {
@@ -62,10 +80,30 @@ export interface SessionMetrics {
       [ToolCallDecision.ACCEPT]: number;
       [ToolCallDecision.REJECT]: number;
       [ToolCallDecision.MODIFY]: number;
+      [ToolCallDecision.AUTO_ACCEPT]: number;
     };
     byName: Record<string, ToolCallStats>;
   };
+  files: {
+    totalLinesAdded: number;
+    totalLinesRemoved: number;
+  };
 }
+
+const createInitialRoleMetrics = (): RoleMetrics => ({
+  totalRequests: 0,
+  totalErrors: 0,
+  totalLatencyMs: 0,
+  tokens: {
+    input: 0,
+    prompt: 0,
+    candidates: 0,
+    total: 0,
+    cached: 0,
+    thoughts: 0,
+    tool: 0,
+  },
+});
 
 const createInitialModelMetrics = (): ModelMetrics => ({
   api: {
@@ -74,6 +112,7 @@ const createInitialModelMetrics = (): ModelMetrics => ({
     totalLatencyMs: 0,
   },
   tokens: {
+    input: 0,
     prompt: 0,
     candidates: 0,
     total: 0,
@@ -81,6 +120,7 @@ const createInitialModelMetrics = (): ModelMetrics => ({
     thoughts: 0,
     tool: 0,
   },
+  roles: {},
 });
 
 const createInitialMetrics = (): SessionMetrics => ({
@@ -94,8 +134,13 @@ const createInitialMetrics = (): SessionMetrics => ({
       [ToolCallDecision.ACCEPT]: 0,
       [ToolCallDecision.REJECT]: 0,
       [ToolCallDecision.MODIFY]: 0,
+      [ToolCallDecision.AUTO_ACCEPT]: 0,
     },
     byName: {},
+  },
+  files: {
+    totalLinesAdded: 0,
+    totalLinesRemoved: 0,
   },
 });
 
@@ -133,6 +178,104 @@ export class UiTelemetryService extends EventEmitter {
     return this.#lastPromptTokenCount;
   }
 
+  setLastPromptTokenCount(lastPromptTokenCount: number): void {
+    this.#lastPromptTokenCount = lastPromptTokenCount;
+    this.emit('update', {
+      metrics: this.#metrics,
+      lastPromptTokenCount: this.#lastPromptTokenCount,
+    });
+  }
+
+  clear(newSessionId?: string): void {
+    this.#metrics = createInitialMetrics();
+    this.#lastPromptTokenCount = 0;
+    this.emit('clear', newSessionId);
+    this.emit('update', {
+      metrics: this.#metrics,
+      lastPromptTokenCount: this.#lastPromptTokenCount,
+    });
+  }
+
+  /**
+   * Hydrates the telemetry metrics from a historical conversation record.
+   * This is used when resuming a session to restore token counts and tool stats.
+   */
+  hydrate(conversation: ConversationRecord): void {
+    this.clear(conversation.sessionId);
+
+    let totalTokensInContext = 0;
+
+    for (const message of conversation.messages) {
+      if (message.type === 'gemini') {
+        const model = message.model || 'unknown';
+        const modelMetrics = this.getOrCreateModelMetrics(model);
+
+        // Restore API request stats
+        modelMetrics.api.totalRequests++;
+
+        // Restore token metrics
+        if (message.tokens) {
+          modelMetrics.tokens.prompt += message.tokens.input;
+          modelMetrics.tokens.candidates += message.tokens.output;
+          modelMetrics.tokens.total += message.tokens.total;
+          modelMetrics.tokens.cached += message.tokens.cached;
+          modelMetrics.tokens.thoughts += message.tokens.thoughts || 0;
+          modelMetrics.tokens.tool += message.tokens.tool || 0;
+          modelMetrics.tokens.input = Math.max(
+            0,
+            modelMetrics.tokens.prompt - modelMetrics.tokens.cached,
+          );
+
+          // The total tokens of the last Gemini message represents the context
+          // size at that point in time.
+          totalTokensInContext = message.tokens.total;
+        }
+
+        // Restore tool metrics
+        if (message.toolCalls) {
+          for (const toolCall of message.toolCalls) {
+            this.#metrics.tools.totalCalls++;
+            if (toolCall.status === 'success') {
+              this.#metrics.tools.totalSuccess++;
+            } else if (toolCall.status === 'error') {
+              this.#metrics.tools.totalFail++;
+            }
+
+            if (!this.#metrics.tools.byName[toolCall.name]) {
+              this.#metrics.tools.byName[toolCall.name] = {
+                count: 0,
+                success: 0,
+                fail: 0,
+                durationMs: 0,
+                decisions: {
+                  [ToolCallDecision.ACCEPT]: 0,
+                  [ToolCallDecision.REJECT]: 0,
+                  [ToolCallDecision.MODIFY]: 0,
+                  [ToolCallDecision.AUTO_ACCEPT]: 0,
+                },
+              };
+            }
+
+            const toolStats = this.#metrics.tools.byName[toolCall.name];
+            toolStats.count++;
+            if (toolCall.status === 'success') {
+              toolStats.success++;
+            } else if (toolCall.status === 'error') {
+              toolStats.fail++;
+            }
+          }
+        }
+      }
+    }
+
+    this.#lastPromptTokenCount = totalTokensInContext;
+
+    this.emit('update', {
+      metrics: this.#metrics,
+      lastPromptTokenCount: this.#lastPromptTokenCount,
+    });
+  }
+
   private getOrCreateModelMetrics(modelName: string): ModelMetrics {
     if (!this.#metrics.models[modelName]) {
       this.#metrics.models[modelName] = createInitialModelMetrics();
@@ -146,14 +289,35 @@ export class UiTelemetryService extends EventEmitter {
     modelMetrics.api.totalRequests++;
     modelMetrics.api.totalLatencyMs += event.duration_ms;
 
-    modelMetrics.tokens.prompt += event.input_token_count;
-    modelMetrics.tokens.candidates += event.output_token_count;
-    modelMetrics.tokens.total += event.total_token_count;
-    modelMetrics.tokens.cached += event.cached_content_token_count;
-    modelMetrics.tokens.thoughts += event.thoughts_token_count;
-    modelMetrics.tokens.tool += event.tool_token_count;
+    modelMetrics.tokens.prompt += event.usage.input_token_count;
+    modelMetrics.tokens.candidates += event.usage.output_token_count;
+    modelMetrics.tokens.total += event.usage.total_token_count;
+    modelMetrics.tokens.cached += event.usage.cached_content_token_count;
+    modelMetrics.tokens.thoughts += event.usage.thoughts_token_count;
+    modelMetrics.tokens.tool += event.usage.tool_token_count;
+    modelMetrics.tokens.input = Math.max(
+      0,
+      modelMetrics.tokens.prompt - modelMetrics.tokens.cached,
+    );
 
-    this.#lastPromptTokenCount = event.input_token_count;
+    if (event.role) {
+      if (!modelMetrics.roles[event.role]) {
+        modelMetrics.roles[event.role] = createInitialRoleMetrics();
+      }
+      const roleMetrics = modelMetrics.roles[event.role]!;
+      roleMetrics.totalRequests++;
+      roleMetrics.totalLatencyMs += event.duration_ms;
+      roleMetrics.tokens.prompt += event.usage.input_token_count;
+      roleMetrics.tokens.candidates += event.usage.output_token_count;
+      roleMetrics.tokens.total += event.usage.total_token_count;
+      roleMetrics.tokens.cached += event.usage.cached_content_token_count;
+      roleMetrics.tokens.thoughts += event.usage.thoughts_token_count;
+      roleMetrics.tokens.tool += event.usage.tool_token_count;
+      roleMetrics.tokens.input = Math.max(
+        0,
+        roleMetrics.tokens.prompt - roleMetrics.tokens.cached,
+      );
+    }
   }
 
   private processApiError(event: ApiErrorEvent) {
@@ -161,10 +325,20 @@ export class UiTelemetryService extends EventEmitter {
     modelMetrics.api.totalRequests++;
     modelMetrics.api.totalErrors++;
     modelMetrics.api.totalLatencyMs += event.duration_ms;
+
+    if (event.role) {
+      if (!modelMetrics.roles[event.role]) {
+        modelMetrics.roles[event.role] = createInitialRoleMetrics();
+      }
+      const roleMetrics = modelMetrics.roles[event.role]!;
+      roleMetrics.totalRequests++;
+      roleMetrics.totalErrors++;
+      roleMetrics.totalLatencyMs += event.duration_ms;
+    }
   }
 
   private processToolCall(event: ToolCallEvent) {
-    const { tools } = this.#metrics;
+    const { tools, files } = this.#metrics;
     tools.totalCalls++;
     tools.totalDurationMs += event.duration_ms;
 
@@ -184,6 +358,7 @@ export class UiTelemetryService extends EventEmitter {
           [ToolCallDecision.ACCEPT]: 0,
           [ToolCallDecision.REJECT]: 0,
           [ToolCallDecision.MODIFY]: 0,
+          [ToolCallDecision.AUTO_ACCEPT]: 0,
         },
       };
     }
@@ -200,6 +375,16 @@ export class UiTelemetryService extends EventEmitter {
     if (event.decision) {
       tools.totalDecisions[event.decision]++;
       toolStats.decisions[event.decision]++;
+    }
+
+    // Aggregate line count data from metadata
+    if (event.metadata) {
+      if (event.metadata['model_added_lines'] !== undefined) {
+        files.totalLinesAdded += event.metadata['model_added_lines'];
+      }
+      if (event.metadata['model_removed_lines'] !== undefined) {
+        files.totalLinesRemoved += event.metadata['model_removed_lines'];
+      }
     }
   }
 }

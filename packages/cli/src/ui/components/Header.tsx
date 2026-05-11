@@ -1,61 +1,57 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { Box, Text } from 'ink';
-import Gradient from 'ink-gradient';
-import { Colors } from '../colors.js';
-import { shortAsciiLogo, longAsciiLogo } from './AsciiArt.js';
+import type React from 'react';
+import { Box } from 'ink';
+import { ThemedGradient } from './ThemedGradient.js';
+import { shortAsciiLogo, longAsciiLogo, tinyAsciiLogo } from './AsciiArt.js';
 import { getAsciiArtWidth } from '../utils/textUtils.js';
+import { useTerminalSize } from '../hooks/useTerminalSize.js';
+import { useSnowfall } from '../hooks/useSnowfall.js';
 
 interface HeaderProps {
   customAsciiArt?: string; // For user-defined ASCII art
-  terminalWidth: number; // For responsive logo
   version: string;
   nightly: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   customAsciiArt,
-  terminalWidth,
   version,
   nightly,
 }) => {
+  const { columns: terminalWidth } = useTerminalSize();
   let displayTitle;
   const widthOfLongLogo = getAsciiArtWidth(longAsciiLogo);
+  const widthOfShortLogo = getAsciiArtWidth(shortAsciiLogo);
 
   if (customAsciiArt) {
     displayTitle = customAsciiArt;
+  } else if (terminalWidth >= widthOfLongLogo) {
+    displayTitle = longAsciiLogo;
+  } else if (terminalWidth >= widthOfShortLogo) {
+    displayTitle = shortAsciiLogo;
   } else {
-    displayTitle =
-      terminalWidth >= widthOfLongLogo ? longAsciiLogo : shortAsciiLogo;
+    displayTitle = tinyAsciiLogo;
   }
 
   const artWidth = getAsciiArtWidth(displayTitle);
+  const title = useSnowfall(displayTitle);
 
   return (
     <Box
-      marginBottom={1}
       alignItems="flex-start"
       width={artWidth}
       flexShrink={0}
       flexDirection="column"
     >
-      {Colors.GradientColors ? (
-        <Gradient colors={Colors.GradientColors}>
-          <Text>{displayTitle}</Text>
-        </Gradient>
-      ) : (
-        <Text>{displayTitle}</Text>
-      )}
+      <ThemedGradient>{title}</ThemedGradient>
       {nightly && (
         <Box width="100%" flexDirection="row" justifyContent="flex-end">
-          <Gradient colors={Colors.GradientColors}>
-            <Text>v{version}</Text>
-          </Gradient>
+          <ThemedGradient>v{version}</ThemedGradient>
         </Box>
       )}
     </Box>

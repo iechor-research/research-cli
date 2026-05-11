@@ -1,14 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { vi } from 'vitest';
-import { CommandContext } from '../ui/commands/types.js';
-import { LoadedSettings } from '../config/settings.js';
-import { GitService } from '@iechor/research-cli-core';
-import { SessionStatsState } from '../ui/contexts/SessionContext.js';
+import type { CommandContext } from '../ui/commands/types.js';
+import { mergeSettings, type LoadedSettings } from '../config/settings.js';
+import type { GitService } from '@google/gemini-cli-core';
+import type { SessionStatsState } from '../ui/contexts/SessionContext.js';
 
 // A utility type to make all properties of an object, and its nested objects, partial.
 type DeepPartial<T> = T extends object
@@ -27,10 +27,21 @@ type DeepPartial<T> = T extends object
 export const createMockCommandContext = (
   overrides: DeepPartial<CommandContext> = {},
 ): CommandContext => {
+  const defaultMergedSettings = mergeSettings({}, {}, {}, {}, true);
+
   const defaultMocks: CommandContext = {
+    invocation: {
+      raw: '',
+      name: '',
+      args: '',
+    },
     services: {
-      config: null,
-      settings: { merged: {} } as LoadedSettings,
+      agentContext: null,
+      settings: {
+        merged: defaultMergedSettings,
+        setValue: vi.fn(),
+        forScope: vi.fn().mockReturnValue({ settings: {} }),
+      } as unknown as LoadedSettings,
       git: undefined as GitService | undefined,
       logger: {
         log: vi.fn(),
@@ -44,8 +55,21 @@ export const createMockCommandContext = (
       addItem: vi.fn(),
       clear: vi.fn(),
       setDebugMessage: vi.fn(),
-    },
+      pendingItem: null,
+      setPendingItem: vi.fn(),
+      loadHistory: vi.fn(),
+      toggleCorgiMode: vi.fn(),
+      toggleShortcutsHelp: vi.fn(),
+      toggleVimEnabled: vi.fn(),
+      reloadCommands: vi.fn(),
+      openAgentConfigDialog: vi.fn(),
+      closeAgentConfigDialog: vi.fn(),
+      extensionsUpdateState: new Map(),
+      setExtensionsUpdateState: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any,
     session: {
+      sessionShellAllowlist: new Set<string>(),
       stats: {
         sessionStartTime: new Date(),
         lastPromptTokenCount: 0,
@@ -74,15 +98,13 @@ export const createMockCommandContext = (
         const targetValue = output[key];
 
         if (
-          sourceValue &&
-          typeof sourceValue === 'object' &&
-          !Array.isArray(sourceValue) &&
-          targetValue &&
-          typeof targetValue === 'object' &&
-          !Array.isArray(targetValue)
+          // We only want to recursively merge plain objects
+          Object.prototype.toString.call(sourceValue) === '[object Object]' &&
+          Object.prototype.toString.call(targetValue) === '[object Object]'
         ) {
           output[key] = merge(targetValue, sourceValue);
         } else {
+          // If not, we do a direct assignment. This preserves Date objects and others.
           output[key] = sourceValue;
         }
       }

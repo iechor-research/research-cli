@@ -1,66 +1,44 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { themeManager } from '../themes/theme-manager.js';
-import { LoadedSettings, SettingScope } from '../../config/settings.js'; // Import LoadedSettings, AppSettings, MergedSetting
-import { type HistoryItem, MessageType } from '../types.js';
+import type {
+  LoadableSettingScope,
+  LoadedSettings,
+} from '../../config/settings.js'; // Import LoadedSettings, AppSettings, MergedSetting
+import { MessageType } from '../types.js';
 import process from 'node:process';
+import type { UseHistoryManagerReturn } from './useHistoryManager.js';
+import { useTerminalContext } from '../contexts/TerminalContext.js';
 
 interface UseThemeCommandReturn {
   isThemeDialogOpen: boolean;
   openThemeDialog: () => void;
+  closeThemeDialog: () => void;
   handleThemeSelect: (
-    themeName: string | undefined,
-    scope: SettingScope,
-  ) => void; // Added scope
+    themeName: string,
+    scope: LoadableSettingScope,
+  ) => Promise<void>;
   handleThemeHighlight: (themeName: string | undefined) => void;
 }
 
 export const useThemeCommand = (
   loadedSettings: LoadedSettings,
   setThemeError: (error: string | null) => void,
-  addItem: (item: Omit<HistoryItem, 'id'>, timestamp: number) => void,
+  addItem: UseHistoryManagerReturn['addItem'],
+  initialThemeError: string | null,
+  refreshStatic: () => void,
 ): UseThemeCommandReturn => {
-  // Determine the effective theme
-  const effectiveTheme = loadedSettings.merged.theme;
+  const [isThemeDialogOpen, setIsThemeDialogOpen] =
+    useState(!!initialThemeError);
+  const { queryTerminalBackground } = useTerminalContext();
 
-  // Initial state: Open dialog if no theme is set in either user or workspace settings
-  const [isThemeDialogOpen, setIsThemeDialogOpen] = useState(
-    effectiveTheme === undefined && !process.env.NO_COLOR,
-  );
-  // TODO: refactor how theme's are accessed to avoid requiring a forced render.
-  const [, setForceRender] = useState(0);
-
-  // Apply initial theme on component mount
-  useEffect(() => {
-    if (effectiveTheme === undefined) {
-      if (process.env.NO_COLOR) {
-        addItem(
-          {
-            type: MessageType.INFO,
-            text: 'Theme configuration unavailable due to NO_COLOR env variable.',
-          },
-          Date.now(),
-        );
-      }
-      // If no theme is set and NO_COLOR is not set, the dialog is already open.
-      return;
-    }
-
-    if (!themeManager.setActiveTheme(effectiveTheme)) {
-      setIsThemeDialogOpen(true);
-      setThemeError(`Theme "${effectiveTheme}" not found.`);
-    } else {
-      setThemeError(null);
-    }
-  }, [effectiveTheme, setThemeError, addItem]); // Re-run if effectiveTheme or setThemeError changes
-
-  const openThemeDialog = useCallback(() => {
-    if (process.env.NO_COLOR) {
+  const openThemeDialog = useCallback(async () => {
+    if (process.env['NO_COLOR']) {
       addItem(
         {
           type: MessageType.INFO,
@@ -70,8 +48,14 @@ export const useThemeCommand = (
       );
       return;
     }
+
+    // Ensure we have an up to date terminal background color when opening the
+    // theme dialog as the user may have just changed it before opening the
+    // dialog.
+    await queryTerminalBackground();
+
     setIsThemeDialogOpen(true);
-  }, [addItem]);
+  }, [addItem, queryTerminalBackground]);
 
   const applyTheme = useCallback(
     (themeName: string | undefined) => {
@@ -80,11 +64,10 @@ export const useThemeCommand = (
         setIsThemeDialogOpen(true);
         setThemeError(`Theme "${themeName}" not found.`);
       } else {
-        setForceRender((v) => v + 1); // Trigger potential re-render
         setThemeError(null); // Clear any previous theme error on success
       }
     },
-    [setForceRender, setThemeError],
+    [setThemeError],
   );
 
   const handleThemeHighlight = useCallback(
@@ -94,22 +77,45 @@ export const useThemeCommand = (
     [applyTheme],
   );
 
+  const closeThemeDialog = useCallback(() => {
+    // Re-apply the saved theme to revert any preview changes from highlighting
+    applyTheme(loadedSettings.merged.ui.theme);
+    setIsThemeDialogOpen(false);
+  }, [applyTheme, loadedSettings]);
+
   const handleThemeSelect = useCallback(
-    (themeName: string | undefined, scope: SettingScope) => {
-      // Added scope parameter
+    async (themeName: string, scope: LoadableSettingScope) => {
       try {
-        loadedSettings.setValue(scope, 'theme', themeName); // Update the merged settings
-        applyTheme(loadedSettings.merged.theme); // Apply the current theme
+        const mergedCustomThemes = {
+          ...(loadedSettings.user.settings.ui?.customThemes || {}),
+          ...(loadedSettings.workspace.settings.ui?.customThemes || {}),
+        };
+        // Only allow selecting themes available in the merged custom themes or built-in themes
+        const isBuiltIn = themeManager.findThemeByName(themeName);
+        const isCustom = themeName && mergedCustomThemes[themeName];
+        if (!isBuiltIn && !isCustom) {
+          setThemeError(`Theme "${themeName}" not found in selected scope.`);
+          setIsThemeDialogOpen(true);
+          return;
+        }
+        loadedSettings.setValue(scope, 'ui.theme', themeName); // Update the merged settings
+        if (loadedSettings.merged.ui.customThemes) {
+          themeManager.loadCustomThemes(loadedSettings.merged.ui.customThemes);
+        }
+        applyTheme(loadedSettings.merged.ui.theme); // Apply the current theme
+        refreshStatic();
+        setThemeError(null);
       } finally {
         setIsThemeDialogOpen(false); // Close the dialog
       }
     },
-    [applyTheme, loadedSettings],
+    [applyTheme, loadedSettings, refreshStatic, setThemeError],
   );
 
   return {
     isThemeDialogOpen,
     openThemeDialog,
+    closeThemeDialog,
     handleThemeSelect,
     handleThemeHighlight,
   };
