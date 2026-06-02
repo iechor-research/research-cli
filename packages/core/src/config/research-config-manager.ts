@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { homedir, platform } from 'os';
-import {
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { homedir, platform } from 'node:os';
+import type {
   ResearchSettings,
-  DEFAULT_RESEARCH_CONFIG,
   ConfigValidationError,
-  ConfigValidationResult,
+  ConfigValidationResult} from './research-config.js';
+import {
+  DEFAULT_RESEARCH_CONFIG,
   AuthorInfo,
 } from './research-config.js';
 import {
@@ -55,7 +58,7 @@ export class ResearchConfigPaths {
     return path.join(workspaceRoot, '.research', 'research-config.json');
   }
 
-  public static getConfigPath(
+  static getConfigPath(
     scope: ResearchConfigScope,
     workspaceRoot?: string,
   ): string {
@@ -90,7 +93,7 @@ export class ResearchConfigManager {
   /**
    * 获取合并后的研究配置
    */
-  public async getResearchConfig(): Promise<ResearchSettings> {
+  async getResearchConfig(): Promise<ResearchSettings> {
     if (this.cachedConfig) {
       return this.cachedConfig;
     }
@@ -115,7 +118,7 @@ export class ResearchConfigManager {
   /**
    * 设置配置项
    */
-  public async setResearchConfig(
+  async setResearchConfig(
     scope: ResearchConfigScope,
     keyPath: string,
     value: unknown,
@@ -129,7 +132,7 @@ export class ResearchConfigManager {
   /**
    * 获取配置项
    */
-  public async getConfigValue(keyPath: string): Promise<unknown> {
+  async getConfigValue(keyPath: string): Promise<unknown> {
     const config = await this.getResearchConfig();
     return this.getNestedValue(config, keyPath);
   }
@@ -137,7 +140,7 @@ export class ResearchConfigManager {
   /**
    * 验证配置
    */
-  public validateConfig(config: ResearchSettings): ConfigValidationResult {
+  validateConfig(config: ResearchSettings): ConfigValidationResult {
     const errors: ConfigValidationError[] = [];
     const warnings: ConfigValidationError[] = [];
 
@@ -180,7 +183,7 @@ export class ResearchConfigManager {
   /**
    * 导出配置
    */
-  public async exportConfig(includeDefaults: boolean = false): Promise<string> {
+  async exportConfig(includeDefaults: boolean = false): Promise<string> {
     let config: ResearchSettings;
 
     if (includeDefaults) {
@@ -200,7 +203,7 @@ export class ResearchConfigManager {
   /**
    * 导入配置
    */
-  public async importConfig(
+  async importConfig(
     configJson: string,
     scope: ResearchConfigScope = ResearchConfigScope.USER,
   ): Promise<void> {
@@ -230,7 +233,7 @@ export class ResearchConfigManager {
   /**
    * 重置配置为默认值
    */
-  public async resetConfig(scope: ResearchConfigScope): Promise<void> {
+  async resetConfig(scope: ResearchConfigScope): Promise<void> {
     await this.saveConfig(scope, {});
     this.cachedConfig = null; // 清除缓存
   }
@@ -238,7 +241,7 @@ export class ResearchConfigManager {
   /**
    * 获取默认配置
    */
-  public getDefaults(): ResearchSettings {
+  getDefaults(): ResearchSettings {
     return { ...DEFAULT_RESEARCH_CONFIG };
   }
 
@@ -285,9 +288,7 @@ export class ResearchConfigManager {
    * 合并多个配置对象
    */
   private mergeConfigs(configs: ResearchSettings[]): ResearchSettings {
-    return configs.reduce((merged, config) => {
-      return this.deepMerge(merged, config);
-    }, {});
+    return configs.reduce((merged, config) => this.deepMerge(merged, config), {});
   }
 
   /**

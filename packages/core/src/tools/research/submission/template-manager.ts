@@ -1,4 +1,9 @@
-import {
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import type {
   TemplateData,
   TemplateSearchOptions,
   ProjectInitOptions,
@@ -6,9 +11,9 @@ import {
 } from './types.js';
 import { OverleafClient } from './overleaf-client.js';
 import { ArxivLatexExtractor } from './arxiv-latex-extractor.js';
-import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import type { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 /**
  * 模板管理器 - 统一管理 Overleaf 模板和 arXiv LaTeX 源码
@@ -402,7 +407,7 @@ export class TemplateManager {
    */
   private async fetchArxivTemplate(templateId: string): Promise<TemplateData> {
     const arxivId = templateId.replace('arxiv:', '');
-    return await this.extractFromArxiv(arxivId);
+    return this.extractFromArxiv(arxivId);
   }
 
   /**

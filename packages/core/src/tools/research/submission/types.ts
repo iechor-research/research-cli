@@ -1,4 +1,9 @@
-import { ResearchToolParams } from '../types.js';
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import type { ResearchToolParams } from '../types.js';
 
 export interface SubmissionPrepOptions extends ResearchToolParams {
   operation:

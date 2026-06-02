@@ -1,11 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ArXivMCPClient, ArXivPaper, CachedPaper } from './arxiv-mcp-client.js';
+import type { ArXivPaper, CachedPaper } from './arxiv-mcp-client.js';
+import { ArXivMCPClient } from './arxiv-mcp-client.js';
 
 // Mock the file system operations
 vi.mock('fs/promises', () => ({
@@ -174,7 +177,7 @@ describe('ArXivMCPClient', () => {
   describe('Paper Reading', () => {
     it('should read paper content', async () => {
       // Mock fs operations
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       (fs.writeFile as any).mockResolvedValue(undefined);
 
       // Pre-populate cache to avoid searchPapers call
@@ -238,7 +241,7 @@ describe('ArXivMCPClient', () => {
 
     it('should return cached markdown if available', async () => {
       const mockMarkdown = '# Cached Paper Content';
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
 
       (fs.readFile as any).mockResolvedValue(mockMarkdown);
 

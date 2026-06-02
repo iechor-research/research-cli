@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
-  logToolCall,
+import type {
   ToolCallRequestInfo,
   ToolCallResponseInfo,
   ToolRegistry,
-  ToolResult,
+  ToolResult} from '../index.js';
+import {
+  logToolCall
 } from '../index.js';
-import { Config } from '../config/config.js';
+import type { Config } from '../config/config.js';
 import { convertToFunctionResponse } from './coreToolScheduler.js';
 
 /**

@@ -1,11 +1,13 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
+import type {
   Content,
   Models,
   GenerateContentConfig,
@@ -13,7 +15,7 @@ import {
   GenerateContentResponse,
 } from '@google/genai';
 import { ResearchChat } from './researchChat.js';
-import { Config } from '../config/config.js';
+import type { Config } from '../config/config.js';
 import { setSimulate429 } from '../utils/testUtils.js';
 
 // Mocks
@@ -296,7 +298,7 @@ describe('ResearchChat', () => {
       const modelOutputUndefinedParts: Content[] = [
         { role: 'model', parts: [{ text: 'First model part' }] },
         { role: 'model', parts: [{ text: 'Second model part' }] },
-        { role: 'model', parts: undefined as unknown as Part[] }, // Test undefined parts
+        { role: 'model', parts: undefined }, // Test undefined parts
         { role: 'model', parts: [{ text: 'Third model part' }] },
         { role: 'model', parts: [] }, // Test empty parts array
       ];
@@ -320,7 +322,7 @@ describe('ResearchChat', () => {
     it('should handle modelOutput with parts being undefined or empty (if they pass initial every check)', () => {
       const modelOutputUndefinedParts: Content[] = [
         { role: 'model', parts: [{ text: 'Text part' }] },
-        { role: 'model', parts: undefined as unknown as Part[] }, // Test undefined parts
+        { role: 'model', parts: undefined }, // Test undefined parts
         { role: 'model', parts: [] }, // Test empty parts array
       ];
       // @ts-expect-error Accessing private method for testing purposes

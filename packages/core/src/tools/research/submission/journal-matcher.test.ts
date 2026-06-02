@@ -1,14 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  JournalMatcher,
+import type {
   JournalMatcherParams,
-  JournalMatcherResult,
+  JournalMatcherResult} from './journal-matcher.js';
+import {
+  JournalMatcher
 } from './journal-matcher.js';
 import { ResearchField, CitationStyle } from '../types.js';
 

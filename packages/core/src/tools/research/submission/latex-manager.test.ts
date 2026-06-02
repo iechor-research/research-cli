@@ -1,11 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LaTeXManager, LaTeXManagerParams } from './latex-manager.js';
+import type { LaTeXManagerParams } from './latex-manager.js';
+import { LaTeXManager } from './latex-manager.js';
 import { DocumentType, LaTeXEngine, ResearchToolCategory } from '../types.js';
 
 // Mock fs/promises
@@ -307,7 +310,7 @@ describe('LaTeXManager', () => {
 
     it('应该处理编译错误', async () => {
       // Mock fs to simulate missing files
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       vi.mocked(fs.readdir).mockRejectedValueOnce(
         new Error('Directory not found'),
       );
@@ -327,7 +330,7 @@ describe('LaTeXManager', () => {
   describe('项目清理', () => {
     it('应该清理项目临时文件', async () => {
       // Mock fs to return some auxiliary files
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       vi.mocked(fs.readdir).mockResolvedValueOnce([
         'main.tex',
         'main.pdf',
@@ -359,7 +362,7 @@ describe('LaTeXManager', () => {
     });
 
     it('应该处理清理错误', async () => {
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       vi.mocked(fs.readdir).mockRejectedValueOnce(
         new Error('Permission denied'),
       );
@@ -396,7 +399,7 @@ describe('LaTeXManager', () => {
     });
 
     it('应该检测缺失的 .tex 文件', async () => {
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       vi.mocked(fs.readdir).mockResolvedValueOnce([
         'README.md',
         'data.csv',
@@ -420,7 +423,7 @@ describe('LaTeXManager', () => {
     });
 
     it('应该处理诊断错误', async () => {
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       vi.mocked(fs.readdir).mockRejectedValueOnce(new Error('Access denied'));
 
       const params: LaTeXManagerParams = {
@@ -483,7 +486,7 @@ describe('LaTeXManager', () => {
         action: 'unknown_action',
       };
 
-      const result = await manager.execute(params as any);
+      const result = await manager.execute(params);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Unknown action');

@@ -1,19 +1,22 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import {
   ResearchConfigManager,
   ResearchConfigScope,
 } from './research-config-manager.js';
+import type {
+  ResearchSettings} from './research-config.js';
 import {
-  DEFAULT_RESEARCH_CONFIG,
-  ResearchSettings,
+  DEFAULT_RESEARCH_CONFIG
 } from './research-config.js';
 import {
   CitationStyle,

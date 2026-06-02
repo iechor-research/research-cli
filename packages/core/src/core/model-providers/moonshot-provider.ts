@@ -1,18 +1,21 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import axios from 'axios';
 import { BaseModelProvider } from './base-provider.js';
-import {
-  ModelProvider,
+import type {
   ModelConfig,
   ChatRequest,
   ChatResponse,
   StreamResponse,
-  ModelInfo,
+  ModelInfo} from './types.js';
+import {
+  ModelProvider,
   APIError,
   AuthenticationError,
   RateLimitError,

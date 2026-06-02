@@ -1,12 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MultiProviderContentGenerator } from './multi-provider-content-generator.js';
-import { ContentGenerator } from './contentGenerator.js';
+import type { ContentGenerator } from './contentGenerator.js';
 import { ModelProvider } from './model-providers/types.js';
 import { GenerateContentResponse, FinishReason } from '@google/genai';
 

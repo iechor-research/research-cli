@@ -1,12 +1,14 @@
 /**
- * ArXiv MCP Client - Integration with arXiv MCP Server
- * Provides paper search, download, and content management capabilities
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  ResearchTool,
+import type {
   PaperMetadata,
-  SearchOptions as BaseSearchOptions,
+  SearchOptions as BaseSearchOptions} from '../types.js';
+import {
+  ResearchTool
 } from '../types.js';
 
 export interface ArXivSearchOptions extends BaseSearchOptions {
@@ -97,8 +99,8 @@ export class ArXivMCPClient {
    */
   private async initializeCache(): Promise<void> {
     try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       // Create cache directory if it doesn't exist
       await fs.mkdir(this.cacheDir, { recursive: true });
@@ -216,8 +218,8 @@ export class ArXivMCPClient {
       }
 
       // Save to cache directory
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       const pdfPath = path.join(this.cacheDir, `${paperId}.pdf`);
       const arrayBuffer = await response.arrayBuffer();
@@ -301,7 +303,7 @@ export class ArXivMCPClient {
     // Check if markdown version exists
     if (cached?.markdownPath) {
       try {
-        const fs = await import('fs/promises');
+        const fs = await import('node:fs/promises');
         const content = await fs.readFile(cached.markdownPath, 'utf-8');
         cached.lastAccessed = new Date();
         cached.accessCount++;
@@ -327,8 +329,8 @@ export class ArXivMCPClient {
 
     // Save markdown to cache
     if (cached) {
-      const path = await import('path');
-      const fs = await import('fs/promises');
+      const path = await import('node:path');
+      const fs = await import('node:fs/promises');
 
       const markdownPath = path.join(this.cacheDir, `${paperId}.md`);
       await fs.writeFile(markdownPath, markdownContent, 'utf-8');
@@ -360,7 +362,7 @@ export class ArXivMCPClient {
    * Clear cache based on criteria
    */
   async clearCache(olderThan?: Date): Promise<void> {
-    const fs = await import('fs/promises');
+    const fs = await import('node:fs/promises');
     const cutoffDate = olderThan || new Date(0);
     const toDelete: string[] = [];
 
@@ -536,8 +538,8 @@ export class ArXivMCPClient {
 
   private async saveCacheMetadata(): Promise<void> {
     try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       const cacheMetaFile = path.join(this.cacheDir, 'cache-metadata.json');
       const cacheData = Array.from(this.cache.values());

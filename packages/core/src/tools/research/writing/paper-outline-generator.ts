@@ -1,13 +1,19 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { BaseResearchTool } from '../base-tool.js';
-import {
-  ResearchToolResult,
+import type {
   ResearchToolParams,
   PaperOutline,
+  OutlineSection,
+  OutlineSubsection} from '../types.js';
+import {
+  ResearchToolResult,
   PaperType,
   ResearchField,
   JournalStyle,
-  OutlineSection,
-  OutlineSubsection,
   ResearchToolCategory,
 } from '../types.js';
 
@@ -35,7 +41,7 @@ export class PaperOutlineGenerator extends BaseResearchTool<
     );
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     const typedParams = params as PaperOutlineParams;
     return !!(
       typedParams.title?.trim() &&
@@ -46,7 +52,7 @@ export class PaperOutlineGenerator extends BaseResearchTool<
     );
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       'Generate a structured paper outline based on research topic and requirements',
       [
@@ -684,7 +690,7 @@ export class PaperOutlineGenerator extends BaseResearchTool<
 
   private generateTimeline(
     sectionCount: number,
-  ): { phase: string; duration: string; description: string }[] {
+  ): Array<{ phase: string; duration: string; description: string }> {
     const baseWeeks = Math.max(8, sectionCount * 2);
     const phases = [
       {

@@ -1,17 +1,21 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
-import {
+import type {
   ResearchToolParams,
-  BibliographyEntry,
+  BibliographyEntry} from '../types.js';
+import {
   Database,
   ResearchToolCategory,
 } from '../types.js';
-import { KeywordSequence, KeywordSequenceGenerator, ResearchTopic } from './keyword-generator.js';
+import type { KeywordSequence, ResearchTopic } from './keyword-generator.js';
+import { KeywordSequenceGenerator } from './keyword-generator.js';
 import { BibliographyManager } from '../analysis/bibliography-manager.js';
 import { cached, monitored, ParallelProcessor } from '../utils/performance-optimizer.js';
 

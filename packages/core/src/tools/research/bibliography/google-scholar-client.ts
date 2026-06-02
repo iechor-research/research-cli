@@ -1,9 +1,10 @@
 /**
- * Google Scholar Client - Integration with Google Scholar via multiple APIs
- * Provides academic paper search capabilities using Google Scholar
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BibliographyEntry } from '../types.js';
+import type { BibliographyEntry } from '../types.js';
 
 export interface GoogleScholarSearchOptions {
   maxResults?: number;
@@ -86,9 +87,9 @@ export class GoogleScholarClient {
    */
   private getConfiguredApiKey(): string | undefined {
     try {
-      const fs = require('fs');
-      const path = require('path');
-      const os = require('os');
+      const fs = require('node:fs');
+      const path = require('node:path');
+      const os = require('node:os');
 
       const configFile = path.join(
         os.homedir(),

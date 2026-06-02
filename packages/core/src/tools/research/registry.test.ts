@@ -1,16 +1,19 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ResearchToolRegistry } from './registry.js';
-import {
+import type {
   ResearchTool,
-  ResearchToolCategory,
   ResearchToolParams,
-  ResearchToolResult,
+  ResearchToolResult} from './types.js';
+import {
+  ResearchToolCategory
 } from './types.js';
 import { initializeResearchTools } from './init.js';
 

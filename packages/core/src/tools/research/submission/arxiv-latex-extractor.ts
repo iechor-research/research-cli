@@ -1,4 +1,9 @@
-import {
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import type {
   LatexTemplate,
   DocumentStructure,
   SectionInfo,
@@ -9,7 +14,7 @@ import {
   TemplateData,
   TemplateFile,
 } from './types.js';
-import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
+import type { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
 
 /**
  * arXiv LaTeX 提取器 - 从 arXiv 论文提取 LaTeX 源码并转换为模板

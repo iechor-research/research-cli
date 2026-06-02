@@ -1,15 +1,19 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
-  ResearchToolParams,
   ResearchToolCategory,
 } from '../types.js';
-import { KeywordSequenceGenerator, ResearchTopic, KeywordSequence } from './keyword-generator.js';
+import type { ResearchTopic, KeywordSequence } from './keyword-generator.js';
+import { KeywordSequenceGenerator } from './keyword-generator.js';
 
 /**
  * Keyword sequence generation parameters

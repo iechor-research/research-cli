@@ -1,18 +1,21 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   IModelSelector,
   IModelProvider,
-  ModelProvider,
   ModelConfig,
   ChatRequest,
   ChatResponse,
   StreamResponse,
-  ModelInfo,
+  ModelInfo} from './types.js';
+import {
+  ModelProvider,
   ConfigurationError,
 } from './types.js';
 import { modelProviderFactory } from './model-provider-factory.js';
