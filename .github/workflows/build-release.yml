@@ -206,7 +206,7 @@ jobs:
         cp dist-release/install.sh release-assets/
     
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ github.ref_name || github.event.inputs.version }}
         name: Research CLI ${{ github.ref_name || github.event.inputs.version }}
