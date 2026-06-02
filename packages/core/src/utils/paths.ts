@@ -11,6 +11,10 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 export const GEMINI_DIR = '.gemini';
+// Research CLI fork-branded alias for the per-user config directory. The
+// full `.gemini` -> `.research` rename is handled by the rebrand pass; this
+// alias keeps the fork's modules compiling against one canonical value.
+export const RESEARCH_DIR = GEMINI_DIR;
 export const GOOGLE_ACCOUNTS_FILENAME = 'google_accounts.json';
 export const TRUSTED_FOLDERS_FILENAME = 'trustedFolders.json';
 

@@ -61,6 +61,13 @@ export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
 export const DEFAULT_GEMINI_FLASH_LITE_MODEL = 'gemini-2.5-flash-lite';
 
+// Research CLI fork-branded aliases. The fork's own modules reference the
+// RESEARCH_* names; keep them pointed at the canonical upstream model IDs so
+// branding stays consistent without diverging from the underlying model set.
+export const DEFAULT_RESEARCH_MODEL = DEFAULT_GEMINI_MODEL;
+export const DEFAULT_RESEARCH_FLASH_MODEL = DEFAULT_GEMINI_FLASH_MODEL;
+export const DEFAULT_RESEARCH_FLASH_LITE_MODEL = DEFAULT_GEMINI_FLASH_LITE_MODEL;
+
 export const GEMMA_4_31B_IT_MODEL = 'gemma-4-31b-it';
 export const GEMMA_4_26B_A4B_IT_MODEL = 'gemma-4-26b-a4b-it';
 
