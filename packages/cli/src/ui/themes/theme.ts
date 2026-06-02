@@ -1,12 +1,164 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import type { CSSProperties } from 'react';
 
-export type ThemeType = 'light' | 'dark' | 'ansi';
+import type { SemanticColors } from './semantic-tokens.js';
+
+import type { CustomTheme } from '@google/gemini-cli-core';
+import {
+  DEFAULT_INPUT_BACKGROUND_OPACITY,
+  DEFAULT_SELECTION_OPACITY,
+  DEFAULT_BORDER_OPACITY,
+} from '../constants.js';
+import tinygradient from 'tinygradient';
+import tinycolor from 'tinycolor2';
+
+// Define the set of Ink's named colors for quick lookup
+export const INK_SUPPORTED_NAMES = new Set([
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'cyan',
+  'magenta',
+  'white',
+  'gray',
+  'grey',
+  'blackbright',
+  'redbright',
+  'greenbright',
+  'yellowbright',
+  'bluebright',
+  'cyanbright',
+  'magentabright',
+  'whitebright',
+]);
+
+// Use tinycolor's built-in names map for CSS colors, excluding ones Ink supports
+export const CSS_NAME_TO_HEX_MAP = Object.fromEntries(
+  Object.entries(tinycolor.names)
+    .filter(([name]) => !INK_SUPPORTED_NAMES.has(name))
+    .map(([name, hex]) => [name, `#${hex}`]),
+);
+
+// Mapping for ANSI bright colors that are not in tinycolor's standard CSS names
+export const INK_NAME_TO_HEX_MAP: Readonly<Record<string, string>> = {
+  blackbright: '#555555',
+  redbright: '#ff5555',
+  greenbright: '#55ff55',
+  yellowbright: '#ffff55',
+  bluebright: '#5555ff',
+  magentabright: '#ff55ff',
+  cyanbright: '#55ffff',
+  whitebright: '#ffffff',
+};
+
+/**
+ * Calculates the relative luminance of a color.
+ * See https://www.w3.org/TR/WCAG20/#relativeluminancedef
+ *
+ * @param color Color string (hex or Ink-supported name)
+ * @returns Luminance value (0-255)
+ */
+export function getLuminance(color: string): number {
+  const resolved = color.toLowerCase();
+  const hex = INK_NAME_TO_HEX_MAP[resolved] || resolved;
+
+  const colorObj = tinycolor(hex);
+  if (!colorObj.isValid()) {
+    return 0;
+  }
+
+  // tinycolor returns 0-1, we need 0-255
+  return colorObj.getLuminance() * 255;
+}
+
+/**
+ * Resolves a CSS color value (name or hex) into an Ink-compatible color string.
+ * @param colorValue The raw color string (e.g., 'blue', '#ff0000', 'darkkhaki').
+ * @returns An Ink-compatible color string (hex or name), or undefined if not resolvable.
+ */
+export function resolveColor(colorValue: string): string | undefined {
+  const lowerColor = colorValue.toLowerCase();
+
+  // 1. Check if it's already a hex code and valid
+  if (lowerColor.startsWith('#')) {
+    if (/^#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/.test(colorValue)) {
+      return lowerColor;
+    } else {
+      return undefined;
+    }
+  }
+
+  // Handle hex codes without #
+  if (/^[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/.test(colorValue)) {
+    return `#${lowerColor}`;
+  }
+
+  // 2. Check if it's an Ink supported name (lowercase)
+  if (INK_SUPPORTED_NAMES.has(lowerColor)) {
+    return lowerColor; // Use Ink name directly
+  }
+
+  // 3. Check if it's a known CSS name we can map to hex
+  // We can't import CSS_NAME_TO_HEX_MAP here due to circular deps,
+  // but we can use tinycolor directly for named colors.
+  const colorObj = tinycolor(lowerColor);
+  if (colorObj.isValid()) {
+    return colorObj.toHexString();
+  }
+
+  // 4. Could not resolve
+  return undefined;
+}
+
+export function interpolateColor(
+  color1: string,
+  color2: string,
+  factor: number,
+) {
+  if (factor <= 0 && color1) {
+    return color1;
+  }
+  if (factor >= 1 && color2) {
+    return color2;
+  }
+  if (!color1 || !color2) {
+    return '';
+  }
+  try {
+    const gradient = tinygradient(color1, color2);
+    const color = gradient.rgbAt(factor);
+    return color.toHexString();
+  } catch {
+    return color1;
+  }
+}
+
+export function getThemeTypeFromBackgroundColor(
+  backgroundColor: string | undefined,
+): 'light' | 'dark' | undefined {
+  if (!backgroundColor) {
+    return undefined;
+  }
+
+  const resolvedColor = resolveColor(backgroundColor);
+  if (!resolvedColor) {
+    return undefined;
+  }
+
+  const luminance = getLuminance(resolvedColor);
+  return luminance > 128 ? 'light' : 'dark';
+}
+
+export type { CustomTheme };
+
+export type ThemeType = 'light' | 'dark' | 'ansi' | 'custom';
 
 export interface ColorsTheme {
   type: ThemeType;
@@ -19,47 +171,66 @@ export interface ColorsTheme {
   AccentGreen: string;
   AccentYellow: string;
   AccentRed: string;
+  DiffAdded: string;
+  DiffRemoved: string;
   Comment: string;
   Gray: string;
+  DarkGray: string;
+  InputBackground?: string;
+  MessageBackground?: string;
+  FocusBackground?: string;
+  FocusColor?: string;
   GradientColors?: string[];
 }
 
 export const lightTheme: ColorsTheme = {
   type: 'light',
-  Background: '#FAFAFA',
-  Foreground: '#3C3C43',
-  LightBlue: '#89BDCD',
-  AccentBlue: '#3B82F6',
-  AccentPurple: '#8B5CF6',
-  AccentCyan: '#06B6D4',
-  AccentGreen: '#3CA84B',
-  AccentYellow: '#D5A40A',
-  AccentRed: '#DD4C4C',
-  Comment: '#008000',
-  Gray: '#B7BECC',
+  Background: '#FFFFFF',
+  Foreground: '#000000',
+  LightBlue: '#005FAF',
+  AccentBlue: '#005FAF',
+  AccentPurple: '#5F00FF',
+  AccentCyan: '#005F87',
+  AccentGreen: '#005F00',
+  AccentYellow: '#875F00',
+  AccentRed: '#AF0000',
+  DiffAdded: '#D7FFD7',
+  DiffRemoved: '#FFD7D7',
+  Comment: '#008700',
+  Gray: '#5F5F5F',
+  DarkGray: '#5F5F5F',
+  InputBackground: '#E4E4E4',
+  MessageBackground: '#FAFAFA',
+  FocusBackground: '#D7FFD7',
   GradientColors: ['#4796E4', '#847ACE', '#C3677F'],
 };
 
 export const darkTheme: ColorsTheme = {
   type: 'dark',
-  Background: '#1E1E2E',
-  Foreground: '#CDD6F4',
-  LightBlue: '#ADD8E6',
-  AccentBlue: '#89B4FA',
-  AccentPurple: '#CBA6F7',
-  AccentCyan: '#89DCEB',
-  AccentGreen: '#A6E3A1',
-  AccentYellow: '#F9E2AF',
-  AccentRed: '#F38BA8',
-  Comment: '#6C7086',
-  Gray: '#6C7086',
+  Background: '#000000',
+  Foreground: '#FFFFFF',
+  LightBlue: '#AFD7D7',
+  AccentBlue: '#87AFFF',
+  AccentPurple: '#D7AFFF',
+  AccentCyan: '#87D7D7',
+  AccentGreen: '#D7FFD7',
+  AccentYellow: '#FFFFAF',
+  AccentRed: '#FF87AF',
+  DiffAdded: '#005F00',
+  DiffRemoved: '#5F0000',
+  Comment: '#AFAFAF',
+  Gray: '#AFAFAF',
+  DarkGray: '#878787',
+  InputBackground: '#5F5F5F',
+  MessageBackground: '#5F5F5F',
+  FocusBackground: '#005F00',
   GradientColors: ['#4796E4', '#847ACE', '#C3677F'],
 };
 
 export const ansiTheme: ColorsTheme = {
   type: 'ansi',
   Background: 'black',
-  Foreground: 'white',
+  Foreground: '',
   LightBlue: 'blue',
   AccentBlue: 'blue',
   AccentPurple: 'magenta',
@@ -67,8 +238,14 @@ export const ansiTheme: ColorsTheme = {
   AccentGreen: 'green',
   AccentYellow: 'yellow',
   AccentRed: 'red',
+  DiffAdded: 'green',
+  DiffRemoved: 'red',
   Comment: 'gray',
   Gray: 'gray',
+  DarkGray: 'gray',
+  InputBackground: 'black',
+  MessageBackground: 'black',
+  FocusBackground: 'black',
 };
 
 export class Theme {
@@ -82,173 +259,7 @@ export class Theme {
    * to Ink-compatible color strings (hex or name).
    */
   protected readonly _colorMap: Readonly<Record<string, string>>;
-
-  // --- Static Helper Data ---
-
-  // Mapping from common CSS color names (lowercase) to hex codes (lowercase)
-  // Excludes names directly supported by Ink
-  private static readonly cssNameToHexMap: Readonly<Record<string, string>> = {
-    aliceblue: '#f0f8ff',
-    antiquewhite: '#faebd7',
-    aqua: '#00ffff',
-    aquamarine: '#7fffd4',
-    azure: '#f0ffff',
-    beige: '#f5f5dc',
-    bisque: '#ffe4c4',
-    blanchedalmond: '#ffebcd',
-    blueviolet: '#8a2be2',
-    brown: '#a52a2a',
-    burlywood: '#deb887',
-    cadetblue: '#5f9ea0',
-    chartreuse: '#7fff00',
-    chocolate: '#d2691e',
-    coral: '#ff7f50',
-    cornflowerblue: '#6495ed',
-    cornsilk: '#fff8dc',
-    crimson: '#dc143c',
-    darkblue: '#00008b',
-    darkcyan: '#008b8b',
-    darkgoldenrod: '#b8860b',
-    darkgray: '#a9a9a9',
-    darkgrey: '#a9a9a9',
-    darkgreen: '#006400',
-    darkkhaki: '#bdb76b',
-    darkmagenta: '#8b008b',
-    darkolivegreen: '#556b2f',
-    darkorange: '#ff8c00',
-    darkorchid: '#9932cc',
-    darkred: '#8b0000',
-    darksalmon: '#e9967a',
-    darkseagreen: '#8fbc8f',
-    darkslateblue: '#483d8b',
-    darkslategray: '#2f4f4f',
-    darkslategrey: '#2f4f4f',
-    darkturquoise: '#00ced1',
-    darkviolet: '#9400d3',
-    deeppink: '#ff1493',
-    deepskyblue: '#00bfff',
-    dimgray: '#696969',
-    dimgrey: '#696969',
-    dodgerblue: '#1e90ff',
-    firebrick: '#b22222',
-    floralwhite: '#fffaf0',
-    forestgreen: '#228b22',
-    fuchsia: '#ff00ff',
-    gainsboro: '#dcdcdc',
-    ghostwhite: '#f8f8ff',
-    gold: '#ffd700',
-    goldenrod: '#daa520',
-    greenyellow: '#adff2f',
-    honeydew: '#f0fff0',
-    hotpink: '#ff69b4',
-    indianred: '#cd5c5c',
-    indigo: '#4b0082',
-    ivory: '#fffff0',
-    khaki: '#f0e68c',
-    lavender: '#e6e6fa',
-    lavenderblush: '#fff0f5',
-    lawngreen: '#7cfc00',
-    lemonchiffon: '#fffacd',
-    lightblue: '#add8e6',
-    lightcoral: '#f08080',
-    lightcyan: '#e0ffff',
-    lightgoldenrodyellow: '#fafad2',
-    lightgray: '#d3d3d3',
-    lightgrey: '#d3d3d3',
-    lightgreen: '#90ee90',
-    lightpink: '#ffb6c1',
-    lightsalmon: '#ffa07a',
-    lightseagreen: '#20b2aa',
-    lightskyblue: '#87cefa',
-    lightslategray: '#778899',
-    lightslategrey: '#778899',
-    lightsteelblue: '#b0c4de',
-    lightyellow: '#ffffe0',
-    lime: '#00ff00',
-    limegreen: '#32cd32',
-    linen: '#faf0e6',
-    maroon: '#800000',
-    mediumaquamarine: '#66cdaa',
-    mediumblue: '#0000cd',
-    mediumorchid: '#ba55d3',
-    mediumpurple: '#9370db',
-    mediumseagreen: '#3cb371',
-    mediumslateblue: '#7b68ee',
-    mediumspringgreen: '#00fa9a',
-    mediumturquoise: '#48d1cc',
-    mediumvioletred: '#c71585',
-    midnightblue: '#191970',
-    mintcream: '#f5fffa',
-    mistyrose: '#ffe4e1',
-    moccasin: '#ffe4b5',
-    navajowhite: '#ffdead',
-    navy: '#000080',
-    oldlace: '#fdf5e6',
-    olive: '#808000',
-    olivedrab: '#6b8e23',
-    orange: '#ffa500',
-    orangered: '#ff4500',
-    orchid: '#da70d6',
-    palegoldenrod: '#eee8aa',
-    palegreen: '#98fb98',
-    paleturquoise: '#afeeee',
-    palevioletred: '#db7093',
-    papayawhip: '#ffefd5',
-    peachpuff: '#ffdab9',
-    peru: '#cd853f',
-    pink: '#ffc0cb',
-    plum: '#dda0dd',
-    powderblue: '#b0e0e6',
-    purple: '#800080',
-    rebeccapurple: '#663399',
-    rosybrown: '#bc8f8f',
-    royalblue: '#4169e1',
-    saddlebrown: '#8b4513',
-    salmon: '#fa8072',
-    sandybrown: '#f4a460',
-    seagreen: '#2e8b57',
-    seashell: '#fff5ee',
-    sienna: '#a0522d',
-    silver: '#c0c0c0',
-    skyblue: '#87ceeb',
-    slateblue: '#6a5acd',
-    slategray: '#708090',
-    slategrey: '#708090',
-    snow: '#fffafa',
-    springgreen: '#00ff7f',
-    steelblue: '#4682b4',
-    tan: '#d2b48c',
-    teal: '#008080',
-    thistle: '#d8bfd8',
-    tomato: '#ff6347',
-    turquoise: '#40e0d0',
-    violet: '#ee82ee',
-    wheat: '#f5deb3',
-    whitesmoke: '#f5f5f5',
-    yellowgreen: '#9acd32',
-  };
-
-  // Define the set of Ink's named colors for quick lookup
-  private static readonly inkSupportedNames = new Set([
-    'black',
-    'red',
-    'green',
-    'yellow',
-    'blue',
-    'cyan',
-    'magenta',
-    'white',
-    'gray',
-    'grey',
-    'blackbright',
-    'redbright',
-    'greenbright',
-    'yellowbright',
-    'bluebright',
-    'cyanbright',
-    'magentabright',
-    'whitebright',
-  ]);
+  readonly semanticColors: SemanticColors;
 
   /**
    * Creates a new Theme instance.
@@ -260,7 +271,61 @@ export class Theme {
     readonly type: ThemeType,
     rawMappings: Record<string, CSSProperties>,
     readonly colors: ColorsTheme,
+    semanticColors?: SemanticColors,
   ) {
+    this.semanticColors = semanticColors ?? {
+      text: {
+        primary: this.colors.Foreground,
+        secondary: this.colors.Gray,
+        link: this.colors.AccentBlue,
+        accent: this.colors.AccentPurple,
+        response: this.colors.Foreground,
+      },
+      background: {
+        primary: this.colors.Background,
+        message:
+          this.colors.MessageBackground ??
+          interpolateColor(
+            this.colors.Background,
+            this.colors.Gray,
+            DEFAULT_INPUT_BACKGROUND_OPACITY,
+          ),
+        input:
+          this.colors.InputBackground ??
+          interpolateColor(
+            this.colors.Background,
+            this.colors.Gray,
+            DEFAULT_INPUT_BACKGROUND_OPACITY,
+          ),
+        focus:
+          this.colors.FocusBackground ??
+          interpolateColor(
+            this.colors.Background,
+            this.colors.FocusColor ?? this.colors.AccentGreen,
+            DEFAULT_SELECTION_OPACITY,
+          ),
+        diff: {
+          added: this.colors.DiffAdded,
+          removed: this.colors.DiffRemoved,
+        },
+      },
+      border: {
+        default: this.colors.DarkGray,
+      },
+      ui: {
+        comment: this.colors.Gray,
+        symbol: this.colors.AccentCyan,
+        active: this.colors.AccentBlue,
+        dark: this.colors.DarkGray,
+        focus: this.colors.FocusColor ?? this.colors.AccentGreen,
+        gradient: this.colors.GradientColors,
+      },
+      status: {
+        error: this.colors.AccentRed,
+        success: this.colors.AccentGreen,
+        warning: this.colors.AccentYellow,
+      },
+    };
     this._colorMap = Object.freeze(this._buildColorMap(rawMappings)); // Build and freeze the map
 
     // Determine the default foreground color
@@ -285,26 +350,7 @@ export class Theme {
    * @returns An Ink-compatible color string (hex or name), or undefined if not resolvable.
    */
   private static _resolveColor(colorValue: string): string | undefined {
-    const lowerColor = colorValue.toLowerCase();
-
-    // 1. Check if it's already a hex code
-    if (lowerColor.startsWith('#')) {
-      return lowerColor; // Use hex directly
-    }
-    // 2. Check if it's an Ink supported name (lowercase)
-    else if (Theme.inkSupportedNames.has(lowerColor)) {
-      return lowerColor; // Use Ink name directly
-    }
-    // 3. Check if it's a known CSS name we can map to hex
-    else if (Theme.cssNameToHexMap[lowerColor]) {
-      return Theme.cssNameToHexMap[lowerColor]; // Use mapped hex
-    }
-
-    // 4. Could not resolve
-    console.warn(
-      `[Theme] Could not resolve color "${colorValue}" to an Ink-compatible format.`,
-    );
-    return undefined;
+    return resolveColor(colorValue);
   }
 
   /**
@@ -331,11 +377,316 @@ export class Theme {
           inkTheme[key] = resolvedColor;
         }
         // If color is not resolvable, it's omitted from the map,
-        // allowing fallback to the default foreground color.
+        // this enables falling back to the default foreground color.
       }
       // We currently only care about the 'color' property for Ink rendering.
       // Other properties like background, fontStyle, etc., are ignored.
     }
     return inkTheme;
   }
+}
+
+/**
+ * Creates a Theme instance from a custom theme configuration.
+ * @param customTheme The custom theme configuration.
+ * @returns A new Theme instance.
+ */
+export function createCustomTheme(customTheme: CustomTheme): Theme {
+  const colors: ColorsTheme = {
+    type: 'custom',
+    Background: customTheme.background?.primary ?? customTheme.Background ?? '',
+    Foreground: customTheme.text?.primary ?? customTheme.Foreground ?? '',
+    LightBlue: customTheme.text?.link ?? customTheme.LightBlue ?? '',
+    AccentBlue: customTheme.text?.link ?? customTheme.AccentBlue ?? '',
+    AccentPurple: customTheme.text?.accent ?? customTheme.AccentPurple ?? '',
+    AccentCyan: customTheme.text?.link ?? customTheme.AccentCyan ?? '',
+    AccentGreen: customTheme.status?.success ?? customTheme.AccentGreen ?? '',
+    AccentYellow: customTheme.status?.warning ?? customTheme.AccentYellow ?? '',
+    AccentRed: customTheme.status?.error ?? customTheme.AccentRed ?? '',
+    DiffAdded:
+      customTheme.background?.diff?.added ?? customTheme.DiffAdded ?? '',
+    DiffRemoved:
+      customTheme.background?.diff?.removed ?? customTheme.DiffRemoved ?? '',
+    Comment: customTheme.ui?.comment ?? customTheme.Comment ?? '',
+    Gray: customTheme.text?.secondary ?? customTheme.Gray ?? '',
+    DarkGray:
+      customTheme.DarkGray ??
+      interpolateColor(
+        customTheme.background?.primary ?? customTheme.Background ?? '',
+        customTheme.text?.secondary ?? customTheme.Gray ?? '',
+        DEFAULT_BORDER_OPACITY,
+      ),
+    InputBackground: interpolateColor(
+      customTheme.background?.primary ?? customTheme.Background ?? '',
+      customTheme.text?.secondary ?? customTheme.Gray ?? '',
+      DEFAULT_INPUT_BACKGROUND_OPACITY,
+    ),
+    MessageBackground: interpolateColor(
+      customTheme.background?.primary ?? customTheme.Background ?? '',
+      customTheme.text?.secondary ?? customTheme.Gray ?? '',
+      DEFAULT_INPUT_BACKGROUND_OPACITY,
+    ),
+    FocusBackground: interpolateColor(
+      customTheme.background?.primary ?? customTheme.Background ?? '',
+      customTheme.status?.success ?? customTheme.AccentGreen ?? '#3CA84B', // Fallback to a default green if not found
+      DEFAULT_SELECTION_OPACITY,
+    ),
+    FocusColor: customTheme.ui?.focus ?? customTheme.AccentGreen,
+    GradientColors: customTheme.ui?.gradient ?? customTheme.GradientColors,
+  };
+
+  // Generate CSS properties mappings based on the custom theme colors
+  const rawMappings: Record<string, CSSProperties> = {
+    hljs: {
+      display: 'block',
+      overflowX: 'auto',
+      padding: '0.5em',
+      background: colors.Background,
+      color: colors.Foreground,
+    },
+    'hljs-keyword': {
+      color: colors.AccentBlue,
+    },
+    'hljs-literal': {
+      color: colors.AccentBlue,
+    },
+    'hljs-symbol': {
+      color: colors.AccentBlue,
+    },
+    'hljs-name': {
+      color: colors.AccentBlue,
+    },
+    'hljs-link': {
+      color: colors.AccentBlue,
+      textDecoration: 'underline',
+    },
+    'hljs-built_in': {
+      color: colors.AccentCyan,
+    },
+    'hljs-type': {
+      color: colors.AccentCyan,
+    },
+    'hljs-number': {
+      color: colors.AccentGreen,
+    },
+    'hljs-class': {
+      color: colors.AccentGreen,
+    },
+    'hljs-string': {
+      color: colors.AccentYellow,
+    },
+    'hljs-meta-string': {
+      color: colors.AccentYellow,
+    },
+    'hljs-regexp': {
+      color: colors.AccentRed,
+    },
+    'hljs-template-tag': {
+      color: colors.AccentRed,
+    },
+    'hljs-subst': {
+      color: colors.Foreground,
+    },
+    'hljs-function': {
+      color: colors.Foreground,
+    },
+    'hljs-title': {
+      color: colors.Foreground,
+    },
+    'hljs-params': {
+      color: colors.Foreground,
+    },
+    'hljs-formula': {
+      color: colors.Foreground,
+    },
+    'hljs-comment': {
+      color: colors.Comment,
+      fontStyle: 'italic',
+    },
+    'hljs-quote': {
+      color: colors.Comment,
+      fontStyle: 'italic',
+    },
+    'hljs-doctag': {
+      color: colors.Comment,
+    },
+    'hljs-meta': {
+      color: colors.Gray,
+    },
+    'hljs-meta-keyword': {
+      color: colors.Gray,
+    },
+    'hljs-tag': {
+      color: colors.Gray,
+    },
+    'hljs-variable': {
+      color: colors.AccentPurple,
+    },
+    'hljs-template-variable': {
+      color: colors.AccentPurple,
+    },
+    'hljs-attr': {
+      color: colors.LightBlue,
+    },
+    'hljs-attribute': {
+      color: colors.LightBlue,
+    },
+    'hljs-builtin-name': {
+      color: colors.LightBlue,
+    },
+    'hljs-section': {
+      color: colors.AccentYellow,
+    },
+    'hljs-emphasis': {
+      fontStyle: 'italic',
+    },
+    'hljs-strong': {
+      fontWeight: 'bold',
+    },
+    'hljs-bullet': {
+      color: colors.AccentYellow,
+    },
+    'hljs-selector-tag': {
+      color: colors.AccentYellow,
+    },
+    'hljs-selector-id': {
+      color: colors.AccentYellow,
+    },
+    'hljs-selector-class': {
+      color: colors.AccentYellow,
+    },
+    'hljs-selector-attr': {
+      color: colors.AccentYellow,
+    },
+    'hljs-selector-pseudo': {
+      color: colors.AccentYellow,
+    },
+    'hljs-addition': {
+      backgroundColor: colors.AccentGreen,
+      display: 'inline-block',
+      width: '100%',
+    },
+    'hljs-deletion': {
+      backgroundColor: colors.AccentRed,
+      display: 'inline-block',
+      width: '100%',
+    },
+  };
+
+  const semanticColors: SemanticColors = {
+    text: {
+      primary: customTheme.text?.primary ?? colors.Foreground,
+      secondary: customTheme.text?.secondary ?? colors.Gray,
+      link: customTheme.text?.link ?? colors.AccentBlue,
+      accent: customTheme.text?.accent ?? colors.AccentPurple,
+      response:
+        customTheme.text?.response ??
+        customTheme.text?.primary ??
+        colors.Foreground,
+    },
+    background: {
+      primary: customTheme.background?.primary ?? colors.Background,
+      message: colors.MessageBackground!,
+      input: colors.InputBackground!,
+      focus: colors.FocusBackground!,
+      diff: {
+        added: customTheme.background?.diff?.added ?? colors.DiffAdded,
+        removed: customTheme.background?.diff?.removed ?? colors.DiffRemoved,
+      },
+    },
+    border: {
+      default: colors.DarkGray,
+    },
+    ui: {
+      comment: customTheme.ui?.comment ?? colors.Comment,
+      symbol: customTheme.ui?.symbol ?? colors.Gray,
+      active: customTheme.ui?.active ?? colors.AccentBlue,
+      dark: colors.DarkGray,
+      focus: colors.FocusColor ?? colors.AccentGreen,
+      gradient: customTheme.ui?.gradient ?? colors.GradientColors,
+    },
+    status: {
+      error: customTheme.status?.error ?? colors.AccentRed,
+      success: customTheme.status?.success ?? colors.AccentGreen,
+      warning: customTheme.status?.warning ?? colors.AccentYellow,
+    },
+  };
+
+  return new Theme(
+    customTheme.name,
+    'custom',
+    rawMappings,
+    colors,
+    semanticColors,
+  );
+}
+
+/**
+ * Validates a custom theme configuration.
+ * @param customTheme The custom theme to validate.
+ * @returns An object with isValid boolean and error message if invalid.
+ */
+export function validateCustomTheme(customTheme: Partial<CustomTheme>): {
+  isValid: boolean;
+  error?: string;
+  warning?: string;
+} {
+  // Since all fields are optional, we only need to validate the name.
+  if (customTheme.name && !isValidThemeName(customTheme.name)) {
+    return {
+      isValid: false,
+      error: `Invalid theme name: ${customTheme.name}`,
+    };
+  }
+
+  return {
+    isValid: true,
+  };
+}
+
+/**
+ * Checks if a theme name is valid.
+ * @param name The theme name to validate.
+ * @returns True if the theme name is valid.
+ */
+function isValidThemeName(name: string): boolean {
+  // Theme name should be non-empty and not contain invalid characters
+  return name.trim().length > 0 && name.trim().length <= 50;
+}
+
+/**
+ * Picks a default theme name based on terminal background color.
+ * It first tries to find a theme with an exact background color match.
+ * If no match is found, it falls back to a light or dark theme based on the
+ * luminance of the background color.
+ * @param terminalBackground The hex color string of the terminal background.
+ * @param availableThemes A list of available themes to search through.
+ * @param defaultDarkThemeName The name of the fallback dark theme.
+ * @param defaultLightThemeName The name of the fallback light theme.
+ * @returns The name of the chosen theme.
+ */
+export function pickDefaultThemeName(
+  terminalBackground: string | undefined,
+  availableThemes: readonly Theme[],
+  defaultDarkThemeName: string,
+  defaultLightThemeName: string,
+): string {
+  if (terminalBackground) {
+    const lowerTerminalBackground = terminalBackground.toLowerCase();
+    for (const theme of availableThemes) {
+      if (!theme.colors.Background) continue;
+      // resolveColor can return undefined
+      const themeBg = resolveColor(theme.colors.Background)?.toLowerCase();
+      if (themeBg === lowerTerminalBackground) {
+        return theme.name;
+      }
+    }
+  }
+
+  const themeType = getThemeTypeFromBackgroundColor(terminalBackground);
+  if (themeType === 'light') {
+    return defaultLightThemeName;
+  }
+
+  return defaultDarkThemeName;
 }

@@ -1,28 +1,32 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest';
+import type {
+  ToolCall,
+  ValidatingToolCall} from './coreToolScheduler.js';
 import {
   CoreToolScheduler,
-  ToolCall,
-  ValidatingToolCall,
   convertToFunctionResponse,
 } from './coreToolScheduler.js';
-import {
-  BaseTool,
+import type {
   ToolCallConfirmationDetails,
-  ToolConfirmationOutcome,
   ToolConfirmationPayload,
   ToolResult,
-  Config,
+  Config} from '../index.js';
+import {
+  BaseTool,
+  ToolConfirmationOutcome
 } from '../index.js';
-import { Part, PartListUnion } from '@google/genai';
+import type { Part, PartListUnion } from '@google/genai';
 
-import { ModifiableTool, ModifyContext } from '../tools/modifiable-tool.js';
+import type { ModifiableTool, ModifyContext } from '../tools/modifiable-tool.js';
 
 class MockTool extends BaseTool<Record<string, unknown>, ToolResult> {
   shouldConfirm = false;

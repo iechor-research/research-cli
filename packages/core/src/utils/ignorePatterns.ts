@@ -1,12 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import path from 'path';
-import { Config } from '../config/config.js';
-import { getCurrentResearchMdFilename } from '../tools/memoryTool.js';
+import path from 'node:path';
+import type { Config } from '../config/config.js';
+import { getCurrentGeminiMdFilename } from '../tools/memoryTool.js';
 
 /**
  * Common ignore patterns used across multiple tools for basic exclusions.
@@ -119,7 +119,7 @@ export interface ExcludeOptions {
   runtimePatterns?: string[];
 
   /**
-   * Whether to include dynamic patterns like the current Research MD filename. Defaults to true.
+   * Whether to include dynamic patterns like the current Gemini MD filename. Defaults to true.
    */
   includeDynamicPatterns?: boolean;
 }
@@ -158,9 +158,9 @@ export class FileExclusions {
       patterns.push(...DEFAULT_FILE_EXCLUDES);
     }
 
-    // Add dynamic patterns (like current Research MD filename)
+    // Add dynamic patterns (like current Gemini MD filename)
     if (includeDynamicPatterns) {
-      patterns.push(`**/${getCurrentResearchMdFilename()}`);
+      patterns.push(`**/${getCurrentGeminiMdFilename()}`);
     }
 
     // Add custom patterns from configuration

@@ -1,46 +1,66 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BaseTool, ToolResult } from './tools.js';
-import { SchemaValidator } from '../utils/schemaValidator.js';
+import type { MessageBus } from '../confirmation-bus/message-bus.js';
+import {
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
+  type ToolInvocation,
+  type ToolResult,
+  type PolicyUpdateOptions,
+  type ToolConfirmationOutcome,
+  type ReadManyFilesResult,
+  type ExecuteOptions,
+} from './tools.js';
 import { getErrorMessage } from '../utils/errors.js';
-import * as path from 'path';
-import { glob } from 'glob';
-import { getCurrentResearchMdFilename } from './memoryTool.js';
+import * as fsPromises from 'node:fs/promises';
+import * as path from 'node:path';
+import { glob, escape } from 'glob';
+import { buildParamArgsPattern } from '../policy/utils.js';
 import {
   detectFileType,
   processSingleFileContent,
   DEFAULT_ENCODING,
   getSpecificMimeType,
+  type ProcessedFileReadResult,
 } from '../utils/fileUtils.js';
-import { PartListUnion, Schema, Type } from '@google/genai';
-import { Config } from '../config/config.js';
+import type { PartListUnion } from '@google/genai';
 import {
-  recordFileOperationMetric,
-  FileOperation,
-} from '../telemetry/metrics.js';
-import { DEFAULT_FILE_EXCLUDES } from '../utils/ignorePatterns.js';
+  type Config,
+  DEFAULT_FILE_FILTERING_OPTIONS,
+} from '../config/config.js';
+import { FileOperation } from '../telemetry/metrics.js';
+import { getProgrammingLanguage } from '../telemetry/telemetry-utils.js';
+import { logFileOperation } from '../telemetry/loggers.js';
+import { FileOperationEvent } from '../telemetry/types.js';
+import { ToolErrorType } from './tool-error.js';
+import {
+  READ_MANY_FILES_TOOL_NAME,
+  READ_MANY_FILES_DISPLAY_NAME,
+} from './tool-names.js';
+import { READ_MANY_FILES_DEFINITION } from './definitions/coreTools.js';
+import { resolveToolDeclaration } from './definitions/resolver.js';
+
+import { REFERENCE_CONTENT_END } from '../utils/constants.js';
+import {
+  discoverJitContext,
+  JIT_CONTEXT_PREFIX,
+  JIT_CONTEXT_SUFFIX,
+} from './jit-context.js';
 
 /**
  * Parameters for the ReadManyFilesTool.
  */
 export interface ReadManyFilesParams {
   /**
-   * An array of file paths or directory paths to search within.
-   * Paths are relative to the tool's configured target directory.
-   * Glob patterns can be used directly in these paths.
-   */
-  paths: string[];
-
-  /**
-   * Optional. Glob patterns for files to include.
-   * These are effectively combined with the `paths`.
+   * Glob patterns for files to include.
    * Example: ["*.ts", "src/** /*.md"]
    */
-  include?: string[];
+  include: string[];
 
   /**
    * Optional. Glob patterns for files/directories to exclude.
@@ -63,324 +83,364 @@ export interface ReadManyFilesParams {
   useDefaultExcludes?: boolean;
 
   /**
-   * Optional. Whether to respect .gitignore patterns. Defaults to true.
+   * Whether to respect .gitignore and .geminiignore patterns (optional, defaults to true)
    */
-  respect_git_ignore?: boolean;
+  file_filtering_options?: {
+    respect_git_ignore?: boolean;
+    respect_gemini_ignore?: boolean;
+  };
 }
+
+/**
+ * Result type for file processing operations
+ */
+type FileProcessingResult =
+  | {
+      success: true;
+      filePath: string;
+      relativePathForDisplay: string;
+      fileReadResult: ProcessedFileReadResult;
+      reason?: undefined;
+    }
+  | {
+      success: false;
+      filePath: string;
+      relativePathForDisplay: string;
+      fileReadResult?: undefined;
+      reason: string;
+    };
 
 /**
  * Creates the default exclusion patterns including dynamic patterns.
- * This combines the shared patterns with dynamic patterns like RESEARCH.md.
+ * This combines the shared patterns with dynamic patterns like GEMINI.md.
+ * TODO(adh): Consider making this configurable or extendable through a command line argument.
  */
-function getDefaultExcludes(): string[] {
-  return [...DEFAULT_FILE_EXCLUDES, `**/${getCurrentResearchMdFilename()}`];
+function getDefaultExcludes(config?: Config): string[] {
+  return config?.getFileExclusions().getReadManyFilesExcludes() ?? [];
 }
 
 const DEFAULT_OUTPUT_SEPARATOR_FORMAT = '--- {filePath} ---';
+const DEFAULT_OUTPUT_TERMINATOR = `\n${REFERENCE_CONTENT_END}`;
 
-/**
- * Tool implementation for finding and reading multiple text files from the local filesystem
- * within a specified target directory. The content is concatenated.
- * It is intended to run in an environment with access to the local file system (e.g., a Node.js backend).
- */
-export class ReadManyFilesTool extends BaseTool<
+class ReadManyFilesToolInvocation extends BaseToolInvocation<
   ReadManyFilesParams,
   ToolResult
 > {
-  static readonly Name: string = 'read_many_files';
-  private readonly researchIgnorePatterns: string[] = [];
-
-  /**
-   * Creates an instance of ReadManyFilesTool.
-   * @param targetDir The absolute root directory within which this tool is allowed to operate.
-   * All paths provided in `params` will be resolved relative to this directory.
-   */
   constructor(
-    readonly targetDir: string,
-    private config: Config,
+    private readonly config: Config,
+    params: ReadManyFilesParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
   ) {
-    const parameterSchema: Schema = {
-      type: Type.OBJECT,
-      properties: {
-        paths: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.STRING,
-            minLength: '1',
-          },
-          minItems: '1',
-          description:
-            "Required. An array of glob patterns or paths relative to the tool's target directory. Examples: ['src/**/*.ts'], ['README.md', 'docs/']",
-        },
-        include: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.STRING,
-            minLength: '1',
-          },
-          description:
-            'Optional. Additional glob patterns to include. These are merged with `paths`. Example: ["*.test.ts"] to specifically add test files if they were broadly excluded.',
-          default: [],
-        },
-        exclude: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.STRING,
-            minLength: '1',
-          },
-          description:
-            'Optional. Glob patterns for files/directories to exclude. Added to default excludes if useDefaultExcludes is true. Example: ["**/*.log", "temp/"]',
-          default: [],
-        },
-        recursive: {
-          type: Type.BOOLEAN,
-          description:
-            'Optional. Whether to search recursively (primarily controlled by `**` in glob patterns). Defaults to true.',
-          default: true,
-        },
-        useDefaultExcludes: {
-          type: Type.BOOLEAN,
-          description:
-            'Optional. Whether to apply a list of default exclusion patterns (e.g., node_modules, .git, binary files). Defaults to true.',
-          default: true,
-        },
-        respect_git_ignore: {
-          type: Type.BOOLEAN,
-          description:
-            'Optional. Whether to respect .gitignore patterns when discovering files. Only available in git repositories. Defaults to true.',
-          default: true,
-        },
-      },
-      required: ['paths'],
-    };
-
-    super(
-      ReadManyFilesTool.Name,
-      'ReadManyFiles',
-      `Reads content from multiple files specified by paths or glob patterns within a configured target directory. For text files, it concatenates their content into a single string. It is primarily designed for text-based files. However, it can also process image (e.g., .png, .jpg) and PDF (.pdf) files if their file names or extensions are explicitly included in the 'paths' argument. For these explicitly requested non-text files, their data is read and included in a format suitable for model consumption (e.g., base64 encoded).
-
-This tool is useful when you need to understand or analyze a collection of files, such as:
-- Getting an overview of a codebase or parts of it (e.g., all TypeScript files in the 'src' directory).
-- Finding where specific functionality is implemented if the user asks broad questions about code.
-- Reviewing documentation files (e.g., all Markdown files in the 'docs' directory).
-- Gathering context from multiple configuration files.
-- When the user asks to "read all files in X directory" or "show me the content of all Y files".
-
-Use this tool when the user's query implies needing the content of several files simultaneously for context, analysis, or summarization. For text files, it uses default UTF-8 encoding and a '--- {filePath} ---' separator between file contents. Ensure paths are relative to the target directory. Glob patterns like 'src/**/*.js' are supported. Avoid using for single files if a more specific single-file reading tool is available, unless the user specifically requests to process a list containing just one file via this tool. Other binary files (not explicitly requested as image/PDF) are generally skipped. Default excludes apply to common non-text files (except for explicitly requested images/PDFs) and large dependency directories unless 'useDefaultExcludes' is false.`,
-      parameterSchema,
-    );
-    this.targetDir = path.resolve(targetDir);
-    this.researchIgnorePatterns = config
-      .getFileService()
-      .getResearchIgnorePatterns();
+    super(params, messageBus, _toolName, _toolDisplayName);
   }
 
-  validateParams(params: ReadManyFilesParams): string | null {
-    const errors = SchemaValidator.validate(this.schema.parameters, params);
-    if (errors) {
-      return errors;
-    }
-    return null;
-  }
-
-  getDescription(params: ReadManyFilesParams): string {
-    const allPatterns = [...params.paths, ...(params.include || [])];
-    const pathDesc = `using patterns: \`${allPatterns.join('`, `')}\` (within target directory: \`${this.targetDir}\`)`;
+  getDescription(): string {
+    const pathDesc = `using patterns:
+${this.params.include.join('`, `')}
+ (within target directory:
+${this.config.getTargetDir()}
+) `;
 
     // Determine the final list of exclusion patterns exactly as in execute method
-    const paramExcludes = params.exclude || [];
-    const paramUseDefaultExcludes = params.useDefaultExcludes !== false;
-
+    const paramExcludes = this.params.exclude || [];
+    const paramUseDefaultExcludes = this.params.useDefaultExcludes !== false;
     const finalExclusionPatternsForDescription: string[] =
       paramUseDefaultExcludes
-        ? [
-            ...getDefaultExcludes(),
-            ...paramExcludes,
-            ...this.researchIgnorePatterns,
-          ]
-        : [...paramExcludes, ...this.researchIgnorePatterns];
+        ? [...getDefaultExcludes(this.config), ...paramExcludes]
+        : [...paramExcludes];
 
-    let excludeDesc = `Excluding: ${finalExclusionPatternsForDescription.length > 0 ? `patterns like \`${finalExclusionPatternsForDescription.slice(0, 2).join('`, `')}${finalExclusionPatternsForDescription.length > 2 ? '...`' : '`'}` : 'none specified'}`;
+    const excludeDesc = `Excluding: ${
+      finalExclusionPatternsForDescription.length > 0
+        ? `patterns like
+${finalExclusionPatternsForDescription
+  .slice(0, 2)
+  .join(
+    '`, `',
+  )}${finalExclusionPatternsForDescription.length > 2 ? '...`' : '`'}`
+        : 'none specified'
+    }`;
 
-    // Add a note if .researchignore patterns contributed to the final list of exclusions
-    if (this.researchIgnorePatterns.length > 0) {
-      const researchPatternsInEffect = this.researchIgnorePatterns.filter((p) =>
-        finalExclusionPatternsForDescription.includes(p),
-      ).length;
-      if (researchPatternsInEffect > 0) {
-        excludeDesc += ` (includes ${researchPatternsInEffect} from .researchignore)`;
-      }
-    }
-
-    return `Will attempt to read and concatenate files ${pathDesc}. ${excludeDesc}. File encoding: ${DEFAULT_ENCODING}. Separator: "${DEFAULT_OUTPUT_SEPARATOR_FORMAT.replace('{filePath}', 'path/to/file.ext')}".`;
+    return `Will attempt to read and concatenate files ${pathDesc}. ${excludeDesc}. File encoding: ${DEFAULT_ENCODING}. Separator: "${DEFAULT_OUTPUT_SEPARATOR_FORMAT.replace(
+      '{filePath}',
+      'path/to/file.ext',
+    )}".`;
   }
 
-  async execute(
-    params: ReadManyFilesParams,
-    signal: AbortSignal,
-  ): Promise<ToolResult> {
-    const validationError = this.validateParams(params);
-    if (validationError) {
-      return {
-        llmContent: `Error: Invalid parameters for ${this.displayName}. Reason: ${validationError}`,
-        returnDisplay: `## Parameter Error\n\n${validationError}`,
-      };
-    }
+  override getPolicyUpdateOptions(
+    _outcome: ToolConfirmationOutcome,
+  ): PolicyUpdateOptions | undefined {
+    return {
+      argsPattern: buildParamArgsPattern('include', this.params.include),
+    };
+  }
 
-    const {
-      paths: inputPatterns,
-      include = [],
-      exclude = [],
-      useDefaultExcludes = true,
-      respect_git_ignore = true,
-    } = params;
+  async execute({ abortSignal: signal }: ExecuteOptions): Promise<ToolResult> {
+    const { include, exclude = [], useDefaultExcludes = true } = this.params;
 
-    const respectGitIgnore =
-      respect_git_ignore ?? this.config.getFileFilteringRespectGitIgnore();
-
-    // Get centralized file discovery service
-    const fileDiscovery = this.config.getFileService();
-
-    const toolBaseDir = this.targetDir;
     const filesToConsider = new Set<string>();
     const skippedFiles: Array<{ path: string; reason: string }> = [];
     const processedFilesRelativePaths: string[] = [];
     const contentParts: PartListUnion = [];
 
     const effectiveExcludes = useDefaultExcludes
-      ? [...getDefaultExcludes(), ...exclude, ...this.researchIgnorePatterns]
-      : [...exclude, ...this.researchIgnorePatterns];
-
-    const searchPatterns = [...inputPatterns, ...include];
-    if (searchPatterns.length === 0) {
-      return {
-        llmContent: 'No search paths or include patterns provided.',
-        returnDisplay: `## Information\n\nNo search paths or include patterns were specified. Nothing to read or concatenate.`,
-      };
-    }
+      ? [...getDefaultExcludes(this.config), ...exclude]
+      : [...exclude];
 
     try {
-      const entries = await glob(searchPatterns, {
-        cwd: toolBaseDir,
-        ignore: effectiveExcludes,
-        nodir: true,
-        dot: true,
-        absolute: true,
-        nocase: true,
-        signal,
-      });
+      const allEntries = new Set<string>();
+      const workspaceDirs = this.config.getWorkspaceContext().getDirectories();
 
-      const filteredEntries = respectGitIgnore
-        ? fileDiscovery
-            .filterFiles(
-              entries.map((p) => path.relative(toolBaseDir, p)),
-              {
-                respectGitIgnore,
-              },
-            )
-            .map((p) => path.resolve(toolBaseDir, p))
-        : entries;
+      for (const dir of workspaceDirs) {
+        const processedPatterns = [];
+        for (const p of include) {
+          const normalizedP = p.replace(/\\/g, '/');
+          const fullPath = path.join(dir, normalizedP);
+          let exists = false;
+          try {
+            await fsPromises.access(fullPath);
+            exists = true;
+          } catch {
+            exists = false;
+          }
 
-      let gitIgnoredCount = 0;
-      for (const absoluteFilePath of entries) {
-        // Security check: ensure the glob library didn't return something outside targetDir.
-        if (!absoluteFilePath.startsWith(toolBaseDir)) {
+          if (exists) {
+            processedPatterns.push(escape(normalizedP));
+          } else {
+            // The path does not exist or is not a file, so we treat it as a glob pattern.
+            processedPatterns.push(normalizedP);
+          }
+        }
+
+        const entriesInDir = await glob(processedPatterns, {
+          cwd: dir,
+          ignore: effectiveExcludes,
+          nodir: true,
+          dot: true,
+          absolute: true,
+          nocase: true,
+          signal,
+        });
+        for (const entry of entriesInDir) {
+          allEntries.add(entry);
+        }
+      }
+      const relativeEntries = Array.from(allEntries).map((p) =>
+        path.relative(this.config.getTargetDir(), p),
+      );
+
+      const fileDiscovery = this.config.getFileService();
+
+      const { filteredPaths, ignoredCount } =
+        fileDiscovery.filterFilesWithReport(relativeEntries, {
+          respectGitIgnore:
+            this.params.file_filtering_options?.respect_git_ignore ??
+            this.config.getFileFilteringOptions().respectGitIgnore ??
+            DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+          respectGeminiIgnore:
+            this.params.file_filtering_options?.respect_gemini_ignore ??
+            this.config.getFileFilteringOptions().respectGeminiIgnore ??
+            DEFAULT_FILE_FILTERING_OPTIONS.respectGeminiIgnore,
+        });
+
+      for (const relativePath of filteredPaths) {
+        // Security check: ensure the glob library didn't return something outside the workspace.
+
+        const fullPath = path.resolve(this.config.getTargetDir(), relativePath);
+
+        const validationError = this.config.validatePathAccess(
+          fullPath,
+          'read',
+        );
+        if (validationError) {
           skippedFiles.push({
-            path: absoluteFilePath,
-            reason: `Security: Glob library returned path outside target directory. Base: ${toolBaseDir}, Path: ${absoluteFilePath}`,
+            path: fullPath,
+            reason: 'Security: Path not in workspace',
           });
           continue;
         }
-
-        // Check if this file was filtered out by git ignore
-        if (respectGitIgnore && !filteredEntries.includes(absoluteFilePath)) {
-          gitIgnoredCount++;
-          continue;
-        }
-
-        filesToConsider.add(absoluteFilePath);
+        filesToConsider.add(fullPath);
       }
 
-      // Add info about git-ignored files if any were filtered
-      if (gitIgnoredCount > 0) {
+      // Add info about ignored files if any were filtered
+      if (ignoredCount > 0) {
         skippedFiles.push({
-          path: `${gitIgnoredCount} file(s)`,
-          reason: 'ignored',
+          path: `${ignoredCount} file(s)`,
+          reason: 'ignored by project ignore files',
         });
       }
     } catch (error) {
+      const errorMessage = `Error during file search: ${getErrorMessage(error)}`;
       return {
-        llmContent: `Error during file search: ${getErrorMessage(error)}`,
-        returnDisplay: `## File Search Error\n\nAn error occurred while searching for files:\n\`\`\`\n${getErrorMessage(error)}\n\`\`\``,
+        llmContent: errorMessage,
+        returnDisplay: `Error: ${getErrorMessage(error)}`,
+        error: {
+          message: errorMessage,
+          type: ToolErrorType.READ_MANY_FILES_SEARCH_ERROR,
+        },
       };
     }
 
     const sortedFiles = Array.from(filesToConsider).sort();
 
-    for (const filePath of sortedFiles) {
-      const relativePathForDisplay = path
-        .relative(toolBaseDir, filePath)
-        .replace(/\\/g, '/');
+    const fileProcessingPromises = sortedFiles.map(
+      async (filePath): Promise<FileProcessingResult> => {
+        try {
+          const relativePathForDisplay = path
+            .relative(this.config.getTargetDir(), filePath)
+            .replace(/\\/g, '/');
 
-      const fileType = detectFileType(filePath);
+          const fileType = await detectFileType(filePath);
 
-      if (fileType === 'image' || fileType === 'pdf') {
-        const fileExtension = path.extname(filePath).toLowerCase();
-        const fileNameWithoutExtension = path.basename(filePath, fileExtension);
-        const requestedExplicitly = inputPatterns.some(
-          (pattern: string) =>
-            pattern.toLowerCase().includes(fileExtension) ||
-            pattern.includes(fileNameWithoutExtension),
-        );
+          if (
+            fileType === 'image' ||
+            fileType === 'pdf' ||
+            fileType === 'audio'
+          ) {
+            const fileExtension = path.extname(filePath).toLowerCase();
+            const fileNameWithoutExtension = path.basename(
+              filePath,
+              fileExtension,
+            );
+            const requestedExplicitly = include.some(
+              (pattern: string) =>
+                pattern.toLowerCase().includes(fileExtension) ||
+                pattern.includes(fileNameWithoutExtension),
+            );
 
-        if (!requestedExplicitly) {
-          skippedFiles.push({
-            path: relativePathForDisplay,
-            reason:
-              'asset file (image/pdf) was not explicitly requested by name or extension',
-          });
-          continue;
-        }
-      }
+            if (!requestedExplicitly) {
+              return {
+                success: false,
+                filePath,
+                relativePathForDisplay,
+                reason:
+                  'asset file (image/pdf/audio) was not explicitly requested by name or extension',
+              };
+            }
+          }
 
-      // Use processSingleFileContent for all file types now
-      const fileReadResult = await processSingleFileContent(
-        filePath,
-        toolBaseDir,
-      );
-
-      if (fileReadResult.error) {
-        skippedFiles.push({
-          path: relativePathForDisplay,
-          reason: `Read error: ${fileReadResult.error}`,
-        });
-      } else {
-        if (typeof fileReadResult.llmContent === 'string') {
-          const separator = DEFAULT_OUTPUT_SEPARATOR_FORMAT.replace(
-            '{filePath}',
+          // Use processSingleFileContent for all file types now
+          const fileReadResult = await processSingleFileContent(
             filePath,
+            this.config.getTargetDir(),
+            this.config.getFileSystemService(),
           );
-          contentParts.push(`${separator}\n\n${fileReadResult.llmContent}\n\n`);
-        } else {
-          contentParts.push(fileReadResult.llmContent); // This is a Part for image/pdf
+
+          if (fileReadResult.error) {
+            return {
+              success: false,
+              filePath,
+              relativePathForDisplay,
+              reason: `Read error: ${fileReadResult.error}`,
+            };
+          }
+
+          return {
+            success: true,
+            filePath,
+            relativePathForDisplay,
+            fileReadResult,
+          };
+        } catch (error) {
+          const relativePathForDisplay = path
+            .relative(this.config.getTargetDir(), filePath)
+            .replace(/\\/g, '/');
+
+          return {
+            success: false,
+            filePath,
+            relativePathForDisplay,
+            reason: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
+          };
         }
-        processedFilesRelativePaths.push(relativePathForDisplay);
-        const lines =
-          typeof fileReadResult.llmContent === 'string'
-            ? fileReadResult.llmContent.split('\n').length
-            : undefined;
-        const mimetype = getSpecificMimeType(filePath);
-        recordFileOperationMetric(
-          this.config,
-          FileOperation.READ,
-          lines,
-          mimetype,
-          path.extname(filePath),
-        );
+      },
+    );
+
+    const results = await Promise.allSettled(fileProcessingPromises);
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        const fileResult = result.value;
+
+        if (!fileResult.success) {
+          // Handle skipped files (images/PDFs not requested or read errors)
+          skippedFiles.push({
+            path: fileResult.relativePathForDisplay,
+            reason: fileResult.reason,
+          });
+        } else {
+          // Handle successfully processed files
+          const { filePath, relativePathForDisplay, fileReadResult } =
+            fileResult;
+
+          if (typeof fileReadResult.llmContent === 'string') {
+            const separator = DEFAULT_OUTPUT_SEPARATOR_FORMAT.replace(
+              '{filePath}',
+              filePath,
+            );
+            let fileContentForLlm = '';
+            if (fileReadResult.isTruncated) {
+              fileContentForLlm += `[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]\n\n`;
+            }
+            fileContentForLlm += fileReadResult.llmContent;
+            contentParts.push(`${separator}\n\n${fileContentForLlm}\n\n`);
+          } else {
+            // This is a Part for image/pdf, which we don't add the separator to.
+            contentParts.push(fileReadResult.llmContent);
+          }
+
+          processedFilesRelativePaths.push(relativePathForDisplay);
+
+          const lines =
+            typeof fileReadResult.llmContent === 'string'
+              ? fileReadResult.llmContent.split('\n').length
+              : undefined;
+          const mimetype = getSpecificMimeType(filePath);
+          const programming_language = getProgrammingLanguage({
+            file_path: filePath,
+          });
+          logFileOperation(
+            this.config,
+            new FileOperationEvent(
+              READ_MANY_FILES_TOOL_NAME,
+              FileOperation.READ,
+              lines,
+              mimetype,
+              path.extname(filePath),
+              programming_language,
+            ),
+          );
+        }
+      } else {
+        // Handle Promise rejection (unexpected errors)
+        skippedFiles.push({
+          path: 'unknown',
+          reason: `Unexpected error: ${result.reason}`,
+        });
       }
     }
 
-    let displayMessage = `### ReadManyFiles Result (Target Dir: \`${this.targetDir}\`)\n\n`;
+    // Discover JIT subdirectory context for all unique directories of processed files.
+    // Run sequentially so each call sees paths marked as loaded by the previous
+    // one, preventing shared parent GEMINI.md files from being injected twice.
+    const uniqueDirs = new Set(
+      Array.from(filesToConsider).map((f) => path.dirname(f)),
+    );
+    const jitParts: string[] = [];
+    for (const dir of uniqueDirs) {
+      const ctx = await discoverJitContext(this.config, dir);
+      if (ctx) {
+        jitParts.push(ctx);
+      }
+    }
+    if (jitParts.length > 0) {
+      contentParts.push(
+        `${JIT_CONTEXT_PREFIX}${jitParts.join('\n')}${JIT_CONTEXT_SUFFIX}`,
+      );
+    }
+
+    let displayMessage = `### ReadManyFiles Result (Target Dir: \`${this.config.getTargetDir()}\`)\n\n`;
     if (processedFilesRelativePaths.length > 0) {
       displayMessage += `Successfully read and concatenated content from **${processedFilesRelativePaths.length} file(s)**.\n`;
       if (processedFilesRelativePaths.length <= 10) {
@@ -421,14 +481,73 @@ Use this tool when the user's query implies needing the content of several files
       displayMessage += `No files were read and concatenated based on the criteria.\n`;
     }
 
-    if (contentParts.length === 0) {
+    if (contentParts.length > 0) {
+      contentParts.push(DEFAULT_OUTPUT_TERMINATOR);
+    } else {
       contentParts.push(
         'No files matching the criteria were found or all were skipped.',
       );
     }
+
+    const returnDisplay: ReadManyFilesResult = {
+      summary: displayMessage.trim(),
+      files: processedFilesRelativePaths,
+      skipped: skippedFiles,
+      include: this.params.include,
+      excludes: effectiveExcludes,
+      targetDir: this.config.getTargetDir(),
+    };
+
     return {
       llmContent: contentParts,
-      returnDisplay: displayMessage.trim(),
+      returnDisplay,
     };
+  }
+}
+
+/**
+ * Tool implementation for finding and reading multiple text files from the local filesystem
+ * within a specified target directory. The content is concatenated.
+ * It is intended to run in an environment with access to the local file system (e.g., a Node.js backend).
+ */
+export class ReadManyFilesTool extends BaseDeclarativeTool<
+  ReadManyFilesParams,
+  ToolResult
+> {
+  static readonly Name = READ_MANY_FILES_TOOL_NAME;
+
+  constructor(
+    private config: Config,
+    messageBus: MessageBus,
+  ) {
+    super(
+      ReadManyFilesTool.Name,
+      READ_MANY_FILES_DISPLAY_NAME,
+      READ_MANY_FILES_DEFINITION.base.description!,
+      Kind.Read,
+      READ_MANY_FILES_DEFINITION.base.parametersJsonSchema,
+      messageBus,
+      true, // isOutputMarkdown
+      false, // canUpdateOutput
+    );
+  }
+
+  protected createInvocation(
+    params: ReadManyFilesParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<ReadManyFilesParams, ToolResult> {
+    return new ReadManyFilesToolInvocation(
+      this.config,
+      params,
+      messageBus,
+      _toolName,
+      _toolDisplayName,
+    );
+  }
+
+  override getSchema(modelId?: string) {
+    return resolveToolDeclaration(READ_MANY_FILES_DEFINITION, modelId);
   }
 }

@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import type {
+  PaperOutlineParams} from './paper-outline-generator.js';
 import {
-  PaperOutlineGenerator,
-  PaperOutlineParams,
+  PaperOutlineGenerator
 } from './paper-outline-generator.js';
 import { PaperType, ResearchField, JournalStyle } from '../types.js';
 
@@ -234,7 +237,7 @@ describe('PaperOutlineGenerator', () => {
         researchField: undefined,
       };
 
-      const result = await generator.execute(invalidParams as any);
+      const result = await generator.execute(invalidParams);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();

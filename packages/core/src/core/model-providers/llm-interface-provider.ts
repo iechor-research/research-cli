@@ -1,20 +1,23 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 /// <reference path="./llm-interface.d.ts" />
 
 import { LLMInterface } from 'llm-interface';
 import { BaseModelProvider } from './base-provider.js';
-import {
-  ModelProvider,
+import type {
   ModelConfig,
   ChatRequest,
   ChatResponse,
   StreamResponse,
-  ModelInfo,
+  ModelInfo} from './types.js';
+import {
+  ModelProvider,
   ConfigurationError,
   APIError,
 } from './types.js';

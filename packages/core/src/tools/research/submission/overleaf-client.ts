@@ -1,6 +1,12 @@
-import {
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import type {
   TemplateData,
-  TemplateSearchOptions,
+  TemplateSearchOptions} from './types.js';
+import {
   TemplateFile,
   TemplateMetadata,
 } from './types.js';

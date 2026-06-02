@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
-import {
+import type {
   ResearchToolParams,
-  BibliographyEntry,
+  BibliographyEntry} from '../types.js';
+import {
   Database,
   CitationStyle,
   ResearchToolCategory,
@@ -118,7 +121,7 @@ export class BibliographyManager extends BaseResearchTool<
     this.googleScholarClient = new GoogleScholarClient();
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     if ('query' in params) {
       // 搜索参数验证
       const searchParams = params as BibliographySearchParams;
@@ -145,7 +148,7 @@ export class BibliographyManager extends BaseResearchTool<
     return false;
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       'Search academic literature and manage bibliography database',
       [
@@ -254,7 +257,7 @@ export class BibliographyManager extends BaseResearchTool<
     if ('query' in params) {
       return this.searchLiterature(params as BibliographySearchParams);
     } else {
-      return this.manageBibliography(params as BibliographyManageParams);
+      return this.manageBibliography(params);
     }
   }
 

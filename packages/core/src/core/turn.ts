@@ -1,30 +1,41 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import {
-  PartListUnion,
-  GenerateContentResponse,
-  FunctionCall,
-  FunctionDeclaration,
+  createUserContent,
+  type PartListUnion,
+  type GenerateContentResponse,
+  type FunctionCall,
+  type FunctionDeclaration,
+  type FinishReason,
+  type GenerateContentResponseUsageMetadata,
 } from '@google/genai';
-import {
+import type {
   ToolCallConfirmationDetails,
   ToolResult,
-  ToolResultDisplay,
 } from '../tools/tools.js';
-import { getResponseText } from '../utils/generateContentResponseUtilities.js';
+import { getResponseText } from '../utils/partUtils.js';
 import { reportError } from '../utils/errorReporting.js';
 import {
   getErrorMessage,
   UnauthorizedError,
   toFriendlyError,
 } from '../utils/errors.js';
-import { ResearchChat } from './researchChat.js';
+import { InvalidStreamError, type GeminiChat } from './geminiChat.js';
+import { parseThought, type ThoughtSummary } from '../utils/thoughtUtils.js';
+import type { ModelConfigKey } from '../services/modelConfigService.js';
+import { getCitations } from '../utils/generateContentResponseUtilities.js';
+import { LlmRole } from '../telemetry/types.js';
+import { populateToolDisplay } from '../agent/tool-display-utils.js';
 
-// Define a structure for tools passed to the server
+import {
+  type ToolCallRequestInfo,
+  type ToolCallResponseInfo,
+} from '../scheduler/types.js';
+
 export interface ServerTool {
   name: string;
   schema: FunctionDeclaration;
@@ -39,7 +50,7 @@ export interface ServerTool {
   ): Promise<ToolCallConfirmationDetails | false>;
 }
 
-export enum ResearchEventType {
+export enum GeminiEventType {
   Content = 'content',
   ToolCallRequest = 'tool_call_request',
   ToolCallResponse = 'tool_call_response',
@@ -49,30 +60,68 @@ export enum ResearchEventType {
   ChatCompressed = 'chat_compressed',
   Thought = 'thought',
   MaxSessionTurns = 'max_session_turns',
+  Finished = 'finished',
+  LoopDetected = 'loop_detected',
+  Citation = 'citation',
+  Retry = 'retry',
+  ContextWindowWillOverflow = 'context_window_will_overflow',
+  InvalidStream = 'invalid_stream',
+  ModelInfo = 'model_info',
+  AgentExecutionStopped = 'agent_execution_stopped',
+  AgentExecutionBlocked = 'agent_execution_blocked',
 }
+
+export type ServerGeminiRetryEvent = {
+  type: GeminiEventType.Retry;
+};
+
+export type ServerGeminiAgentExecutionStoppedEvent = {
+  type: GeminiEventType.AgentExecutionStopped;
+  value: {
+    reason: string;
+    systemMessage?: string;
+    contextCleared?: boolean;
+  };
+};
+
+export type ServerGeminiAgentExecutionBlockedEvent = {
+  type: GeminiEventType.AgentExecutionBlocked;
+  value: {
+    reason: string;
+    systemMessage?: string;
+    contextCleared?: boolean;
+  };
+};
+
+export type ServerGeminiContextWindowWillOverflowEvent = {
+  type: GeminiEventType.ContextWindowWillOverflow;
+  value: {
+    estimatedRequestTokenCount: number;
+    remainingTokenCount: number;
+  };
+};
+
+export type ServerGeminiInvalidStreamEvent = {
+  type: GeminiEventType.InvalidStream;
+};
+
+export type ServerGeminiModelInfoEvent = {
+  type: GeminiEventType.ModelInfo;
+  value: string;
+};
 
 export interface StructuredError {
   message: string;
   status?: number;
 }
 
-export interface ResearchErrorEventValue {
-  error: StructuredError;
+export interface GeminiErrorEventValue {
+  error: unknown;
 }
 
-export interface ToolCallRequestInfo {
-  callId: string;
-  name: string;
-  args: Record<string, unknown>;
-  isClientInitiated: boolean;
-  prompt_id: string;
-}
-
-export interface ToolCallResponseInfo {
-  callId: string;
-  responseParts: PartListUnion;
-  resultDisplay: ToolResultDisplay | undefined;
-  error: Error | undefined;
+export interface GeminiFinishedEventValue {
+  reason: FinishReason | undefined;
+  usageMetadata: GenerateContentResponseUsageMetadata | undefined;
 }
 
 export interface ServerToolCallConfirmationDetails {
@@ -80,158 +129,260 @@ export interface ServerToolCallConfirmationDetails {
   details: ToolCallConfirmationDetails;
 }
 
-export type ThoughtSummary = {
-  subject: string;
-  description: string;
-};
-
-export type ServerResearchContentEvent = {
-  type: ResearchEventType.Content;
+export type ServerGeminiContentEvent = {
+  type: GeminiEventType.Content;
   value: string;
+  traceId?: string;
 };
 
-export type ServerResearchThoughtEvent = {
-  type: ResearchEventType.Thought;
+export type ServerGeminiThoughtEvent = {
+  type: GeminiEventType.Thought;
   value: ThoughtSummary;
+  traceId?: string;
 };
 
-export type ServerResearchToolCallRequestEvent = {
-  type: ResearchEventType.ToolCallRequest;
+export type ServerGeminiToolCallRequestEvent = {
+  type: GeminiEventType.ToolCallRequest;
   value: ToolCallRequestInfo;
 };
 
-export type ServerResearchToolCallResponseEvent = {
-  type: ResearchEventType.ToolCallResponse;
+export type ServerGeminiToolCallResponseEvent = {
+  type: GeminiEventType.ToolCallResponse;
   value: ToolCallResponseInfo;
 };
 
-export type ServerResearchToolCallConfirmationEvent = {
-  type: ResearchEventType.ToolCallConfirmation;
+export type ServerGeminiToolCallConfirmationEvent = {
+  type: GeminiEventType.ToolCallConfirmation;
   value: ServerToolCallConfirmationDetails;
 };
 
-export type ServerResearchUserCancelledEvent = {
-  type: ResearchEventType.UserCancelled;
+export type ServerGeminiUserCancelledEvent = {
+  type: GeminiEventType.UserCancelled;
 };
 
-export type ServerResearchErrorEvent = {
-  type: ResearchEventType.Error;
-  value: ResearchErrorEventValue;
+export type ServerGeminiErrorEvent = {
+  type: GeminiEventType.Error;
+  value: GeminiErrorEventValue;
 };
+
+export enum CompressionStatus {
+  /** The compression was successful */
+  COMPRESSED = 1,
+
+  /** The compression failed due to the compression inflating the token count */
+  COMPRESSION_FAILED_INFLATED_TOKEN_COUNT,
+
+  /** The compression failed due to an error counting tokens */
+  COMPRESSION_FAILED_TOKEN_COUNT_ERROR,
+
+  /** The compression failed because the summary was empty */
+  COMPRESSION_FAILED_EMPTY_SUMMARY,
+
+  /** The compression was not necessary and no action was taken */
+  NOOP,
+
+  /** The compression was skipped due to previous failure, but content was truncated to budget */
+  CONTENT_TRUNCATED,
+}
 
 export interface ChatCompressionInfo {
   originalTokenCount: number;
   newTokenCount: number;
+  compressionStatus: CompressionStatus;
 }
 
-export type ServerResearchChatCompressedEvent = {
-  type: ResearchEventType.ChatCompressed;
+export type ServerGeminiChatCompressedEvent = {
+  type: GeminiEventType.ChatCompressed;
   value: ChatCompressionInfo | null;
 };
 
-export type ServerResearchMaxSessionTurnsEvent = {
-  type: ResearchEventType.MaxSessionTurns;
+export type ServerGeminiMaxSessionTurnsEvent = {
+  type: GeminiEventType.MaxSessionTurns;
+};
+
+export type ServerGeminiFinishedEvent = {
+  type: GeminiEventType.Finished;
+  value: GeminiFinishedEventValue;
+};
+
+export type ServerGeminiLoopDetectedEvent = {
+  type: GeminiEventType.LoopDetected;
+};
+
+export type ServerGeminiCitationEvent = {
+  type: GeminiEventType.Citation;
+  value: string;
 };
 
 // The original union type, now composed of the individual types
-export type ServerResearchStreamEvent =
-  | ServerResearchContentEvent
-  | ServerResearchToolCallRequestEvent
-  | ServerResearchToolCallResponseEvent
-  | ServerResearchToolCallConfirmationEvent
-  | ServerResearchUserCancelledEvent
-  | ServerResearchErrorEvent
-  | ServerResearchChatCompressedEvent
-  | ServerResearchThoughtEvent
-  | ServerResearchMaxSessionTurnsEvent;
+export type ServerGeminiStreamEvent =
+  | ServerGeminiChatCompressedEvent
+  | ServerGeminiCitationEvent
+  | ServerGeminiContentEvent
+  | ServerGeminiErrorEvent
+  | ServerGeminiFinishedEvent
+  | ServerGeminiLoopDetectedEvent
+  | ServerGeminiMaxSessionTurnsEvent
+  | ServerGeminiThoughtEvent
+  | ServerGeminiToolCallConfirmationEvent
+  | ServerGeminiToolCallRequestEvent
+  | ServerGeminiToolCallResponseEvent
+  | ServerGeminiUserCancelledEvent
+  | ServerGeminiRetryEvent
+  | ServerGeminiContextWindowWillOverflowEvent
+  | ServerGeminiInvalidStreamEvent
+  | ServerGeminiModelInfoEvent
+  | ServerGeminiAgentExecutionStoppedEvent
+  | ServerGeminiAgentExecutionBlockedEvent;
 
 // A turn manages the agentic loop turn within the server context.
 export class Turn {
-  readonly pendingToolCalls: ToolCallRequestInfo[];
-  private debugResponses: GenerateContentResponse[];
+  private callCounter = 0;
+
+  readonly pendingToolCalls: ToolCallRequestInfo[] = [];
+  private debugResponses: GenerateContentResponse[] = [];
+  private pendingCitations = new Set<string>();
+  private cachedResponseText: string | undefined = undefined;
+  finishReason: FinishReason | undefined = undefined;
 
   constructor(
-    private readonly chat: ResearchChat,
+    private readonly chat: GeminiChat,
     private readonly prompt_id: string,
-  ) {
-    this.pendingToolCalls = [];
-    this.debugResponses = [];
-  }
+  ) {}
+
   // The run method yields simpler events suitable for server logic
   async *run(
+    modelConfigKey: ModelConfigKey,
     req: PartListUnion,
     signal: AbortSignal,
-  ): AsyncGenerator<ServerResearchStreamEvent> {
+    displayContent?: PartListUnion,
+    role: LlmRole = LlmRole.MAIN,
+  ): AsyncGenerator<ServerGeminiStreamEvent> {
     try {
+      // Note: This assumes `sendMessageStream` yields events like
+      // { type: StreamEventType.RETRY } or { type: StreamEventType.CHUNK, value: GenerateContentResponse }
       const responseStream = await this.chat.sendMessageStream(
-        {
-          message: req,
-          config: {
-            abortSignal: signal,
-          },
-        },
+        modelConfigKey,
+        req,
         this.prompt_id,
+        signal,
+        role,
+        displayContent,
       );
 
-      for await (const resp of responseStream) {
+      for await (const streamEvent of responseStream) {
         if (signal?.aborted) {
-          yield { type: ResearchEventType.UserCancelled };
-          // Do not add resp to debugResponses if aborted before processing
+          yield { type: GeminiEventType.UserCancelled };
           return;
         }
-        this.debugResponses.push(resp);
 
-        const thoughtPart = resp.candidates?.[0]?.content?.parts?.[0];
-        if (thoughtPart?.thought) {
-          // Thought always has a bold "subject" part enclosed in double asterisks
-          // (e.g., **Subject**). The rest of the string is considered the description.
-          const rawText = thoughtPart.text ?? '';
-          const subjectStringMatches = rawText.match(/\*\*(.*?)\*\*/s);
-          const subject = subjectStringMatches
-            ? subjectStringMatches[1].trim()
-            : '';
-          const description = rawText.replace(/\*\*(.*?)\*\*/s, '').trim();
-          const thought: ThoughtSummary = {
-            subject,
-            description,
-          };
+        // Handle the new RETRY event
+        if (streamEvent.type === 'retry') {
+          yield { type: GeminiEventType.Retry };
+          continue; // Skip to the next event in the stream
+        }
 
+        if (streamEvent.type === 'agent_execution_stopped') {
           yield {
-            type: ResearchEventType.Thought,
-            value: thought,
+            type: GeminiEventType.AgentExecutionStopped,
+            value: { reason: streamEvent.reason },
+          };
+          return;
+        }
+
+        if (streamEvent.type === 'agent_execution_blocked') {
+          yield {
+            type: GeminiEventType.AgentExecutionBlocked,
+            value: { reason: streamEvent.reason },
           };
           continue;
         }
 
+        // Assuming other events are chunks with a `value` property
+        const resp = streamEvent.value;
+        if (!resp) continue; // Skip if there's no response body
+
+        this.debugResponses.push(resp);
+
+        const traceId = resp.responseId;
+
+        const parts = resp.candidates?.[0]?.content?.parts ?? [];
+        for (const part of parts) {
+          if (part.thought) {
+            const thought = parseThought(part.text ?? '');
+            yield {
+              type: GeminiEventType.Thought,
+              value: thought,
+              traceId,
+            };
+          }
+        }
+
         const text = getResponseText(resp);
         if (text) {
-          yield { type: ResearchEventType.Content, value: text };
+          yield { type: GeminiEventType.Content, value: text, traceId };
         }
 
         // Handle function calls (requesting tool execution)
         const functionCalls = resp.functionCalls ?? [];
         for (const fnCall of functionCalls) {
-          const event = this.handlePendingFunctionCall(fnCall);
+          const event = this.handlePendingFunctionCall(fnCall, traceId);
           if (event) {
             yield event;
           }
         }
+
+        for (const citation of getCitations(resp)) {
+          this.pendingCitations.add(citation);
+        }
+
+        // Check if response was truncated or stopped for various reasons
+        const finishReason = resp.candidates?.[0]?.finishReason;
+
+        // This is the key change: Only yield 'Finished' if there is a finishReason.
+        if (finishReason) {
+          if (this.pendingCitations.size > 0) {
+            yield {
+              type: GeminiEventType.Citation,
+              value: `Citations:\n${[...this.pendingCitations].sort().join('\n')}`,
+            };
+            this.pendingCitations.clear();
+          }
+
+          this.finishReason = finishReason;
+          yield {
+            type: GeminiEventType.Finished,
+            value: {
+              reason: finishReason,
+              usageMetadata: resp.usageMetadata,
+            },
+          };
+        }
       }
     } catch (e) {
-      const error = toFriendlyError(e);
-      if (error instanceof UnauthorizedError) {
-        throw error;
-      }
       if (signal.aborted) {
-        yield { type: ResearchEventType.UserCancelled };
+        yield { type: GeminiEventType.UserCancelled };
         // Regular cancellation error, fail gracefully.
         return;
       }
 
-      const contextForReport = [...this.chat.getHistory(/*curated*/ true), req];
+      if (e instanceof InvalidStreamError) {
+        yield { type: GeminiEventType.InvalidStream };
+        return;
+      }
+
+      const error = toFriendlyError(e);
+      if (error instanceof UnauthorizedError) {
+        throw error;
+      }
+
+      const contextForReport = [
+        ...this.chat.getHistory(/*curated*/ true),
+        createUserContent(req),
+      ];
       await reportError(
         error,
-        'Error when talking to Research API',
+        'Error when talking to Gemini API',
         contextForReport,
         'Turn.run-sendMessageStream',
       );
@@ -240,44 +391,92 @@ export class Turn {
         error !== null &&
         'status' in error &&
         typeof (error as { status: unknown }).status === 'number'
-          ? (error as { status: number }).status
+          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+            (error as { status: number }).status
           : undefined;
       const structuredError: StructuredError = {
         message: getErrorMessage(error),
         status,
       };
-      yield {
-        type: ResearchEventType.Error,
-        value: { error: structuredError },
-      };
+      await this.chat.maybeIncludeSchemaDepthContext(structuredError);
+      yield { type: GeminiEventType.Error, value: { error: structuredError } };
       return;
     }
   }
 
   private handlePendingFunctionCall(
     fnCall: FunctionCall,
-  ): ServerResearchStreamEvent | null {
-    const callId =
+    traceId?: string,
+  ): ServerGeminiStreamEvent | null {
+    const name = fnCall.name?.trim() || 'generic_tool';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    const args = (fnCall.args as Record<string, unknown>) || {};
+    const rawCallId =
       fnCall.id ??
-      `${fnCall.name}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    const name = fnCall.name || 'undefined_tool_name';
-    const args = (fnCall.args || {}) as Record<string, unknown>;
+      (this.chat.context.config.isContextManagementEnabled()
+        ? `synth_${this.prompt_id}_${Date.now()}_${this.callCounter++}`
+        : `${name}_${Date.now()}_${this.callCounter++}`);
+
+    const callId = rawCallId.startsWith(`${name}__`)
+      ? rawCallId
+      : `${name}__${rawCallId}`;
+
+    // Mutate the function call object ID so that history consolidation inherits it
+    fnCall.id = callId;
+
+    const tool = this.chat.loopContext.toolRegistry.getTool(name);
+    let display;
+    if (tool) {
+      let invocation;
+      try {
+        invocation = tool.build(args);
+      } catch {
+        // Ignore build errors for request display purposes
+      }
+      display = populateToolDisplay({
+        name,
+        invocation,
+        displayName: tool.displayName,
+      });
+
+      // Fallback to static description if invocation failed or didn't provide one
+      if (!display.description) {
+        display.description = tool.description;
+      }
+    }
 
     const toolCallRequest: ToolCallRequestInfo = {
       callId,
       name,
       args,
+      display,
       isClientInitiated: false,
       prompt_id: this.prompt_id,
+      traceId,
     };
 
     this.pendingToolCalls.push(toolCallRequest);
 
     // Yield a request for the tool call, not the pending/confirming status
-    return { type: ResearchEventType.ToolCallRequest, value: toolCallRequest };
+    return { type: GeminiEventType.ToolCallRequest, value: toolCallRequest };
   }
 
   getDebugResponses(): GenerateContentResponse[] {
     return this.debugResponses;
+  }
+
+  /**
+   * Get the concatenated response text from all responses in this turn.
+   * This extracts and joins all text content from the model's responses.
+   * The result is cached since this is called multiple times per turn.
+   */
+  getResponseText(): string {
+    if (this.cachedResponseText === undefined) {
+      this.cachedResponseText = this.debugResponses
+        .map((response) => getResponseText(response))
+        .filter((text): text is string => text !== null)
+        .join(' ');
+    }
+    return this.cachedResponseText;
   }
 }

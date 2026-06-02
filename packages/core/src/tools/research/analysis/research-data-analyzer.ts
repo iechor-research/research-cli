@@ -1,12 +1,15 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
-  ResearchToolParams,
   AnalysisType,
   DataFormat,
   ResearchToolCategory,
@@ -220,7 +223,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
     );
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     const p = params as DataAnalyzerParams;
 
     // 验证基本参数
@@ -249,7 +252,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
     return true;
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return `
 研究数据分析工具使用说明：
 
@@ -364,7 +367,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    */
   private async loadData(
     params: DataAnalyzerParams,
-  ): Promise<Record<string, unknown>[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     if (params.dataContent) {
       try {
         return JSON.parse(params.dataContent);
@@ -388,7 +391,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 生成数据摘要
    */
   private async generateSummary(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
   ): Promise<StatisticalSummary> {
     if (data.length === 0) {
       throw new Error('Data is empty');
@@ -442,12 +445,12 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 执行特定类型的分析
    */
   private async performAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     analysisType: AnalysisType,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const visualizations: VisualizationData[] = [];
-    let recommendations: string[] = [];
+    const recommendations: string[] = [];
 
     switch (analysisType) {
       case AnalysisType.DESCRIPTIVE:
@@ -474,7 +477,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 描述性统计分析
    */
   private async performDescriptiveAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const summary = await this.generateSummary(data);
@@ -562,7 +565,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 推断统计分析
    */
   private async performInferentialAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const hypothesisTests: HypothesisTestResult[] = [];
@@ -627,7 +630,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 机器学习分析
    */
   private async performMLAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const mlResults: MLAnalysisResult[] = [];
@@ -707,7 +710,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 时间序列分析
    */
   private async performTimeSeriesAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     if (!params.timeColumn) {
@@ -771,7 +774,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 探索性数据分析
    */
   private async performExploratoryAnalysis(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const summary = await this.generateSummary(data);
@@ -868,7 +871,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 生成可视化
    */
   private async generateVisualizations(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const visualizations: VisualizationData[] = [];
@@ -963,7 +966,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
    * 数据预处理
    */
   private async preprocessData(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
     const summary = await this.generateSummary(data);
@@ -1183,7 +1186,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
 
   // 辅助方法实现
 
-  private generateMockData(format: DataFormat): Record<string, unknown>[] {
+  private generateMockData(format: DataFormat): Array<Record<string, unknown>> {
     // 生成模拟数据用于演示
     const mockData = [];
     for (let i = 0; i < 100; i++) {
@@ -1228,7 +1231,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private calculateCorrelations(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     columns: string[],
     method: 'pearson' | 'spearman' | 'kendall',
   ): CorrelationAnalysis {
@@ -1271,7 +1274,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private calculatePearsonCorrelation(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     col1: string,
     col2: string,
   ): number {
@@ -1349,7 +1352,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private correlationSignificanceTest(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     col1: string,
     col2: string,
   ): HypothesisTestResult {
@@ -1368,7 +1371,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private leveneTest(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     groupCol: string,
     valueCol: string,
   ): HypothesisTestResult {
@@ -1398,7 +1401,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private performClustering(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     columns: string[],
     method: string,
   ): MLAnalysisResult {
@@ -1429,7 +1432,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private performPCA(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     columns: string[],
   ): MLAnalysisResult {
     // 简化的PCA分析
@@ -1460,7 +1463,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private performSupervisedLearning(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     targetCol: string,
     featureCols: string[],
     method: string,
@@ -1503,7 +1506,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   }
 
   private analyzeTimeSeries(
-    data: Record<string, unknown>[],
+    data: Array<Record<string, unknown>>,
     timeCol: string,
     valueCol?: string,
   ): TimeSeriesAnalysis {

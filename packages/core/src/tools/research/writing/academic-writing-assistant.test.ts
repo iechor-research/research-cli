@@ -1,6 +1,11 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AcademicWritingAssistant } from './academic-writing-assistant.js';
-import { WritingAssistantParams, WritingAssistantResult } from '../types.js';
+import type { WritingAssistantParams, WritingAssistantResult } from '../types.js';
 
 describe('AcademicWritingAssistant', () => {
   let tool: AcademicWritingAssistant;

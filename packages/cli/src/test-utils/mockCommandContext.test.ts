@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -41,20 +41,24 @@ describe('createMockCommandContext', () => {
     // This is the most important test for factory's logic.
     const mockConfig = {
       getProjectRoot: () => '/test/project',
-      getModel: () => 'research-pro',
+      getModel: () => 'gemini-pro',
     };
 
     const overrides = {
       services: {
-        config: mockConfig,
+        agentContext: { config: mockConfig },
       },
     };
 
     const context = createMockCommandContext(overrides);
 
-    expect(context.services.config).toBeDefined();
-    expect(context.services.config?.getModel()).toBe('research-pro');
-    expect(context.services.config?.getProjectRoot()).toBe('/test/project');
+    expect(context.services.agentContext).toBeDefined();
+    expect(context.services.agentContext?.config?.getModel()).toBe(
+      'gemini-pro',
+    );
+    expect(context.services.agentContext?.config?.getProjectRoot()).toBe(
+      '/test/project',
+    );
 
     // Verify a default property on the same nested object is still there
     expect(context.services.logger).toBeDefined();

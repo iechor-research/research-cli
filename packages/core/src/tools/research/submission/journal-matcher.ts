@@ -1,12 +1,15 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
-  ResearchToolParams,
   ResearchField,
   CitationStyle,
   ResearchToolCategory,
@@ -30,7 +33,7 @@ export interface JournalMatcherParams extends ResearchToolParams {
     min?: number;
     max?: number;
   };
-  quartile?: ('Q1' | 'Q2' | 'Q3' | 'Q4')[];
+  quartile?: Array<'Q1' | 'Q2' | 'Q3' | 'Q4'>;
   openAccess?: boolean;
   publisher?: string[];
   language?: string[];
@@ -191,7 +194,7 @@ export class JournalMatcher extends BaseResearchTool<
     this.initializeJournalDatabase();
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     const matcherParams = params as JournalMatcherParams;
 
     if (!matcherParams.action) {
@@ -220,7 +223,7 @@ export class JournalMatcher extends BaseResearchTool<
     }
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       '智能期刊匹配器，为学术论文发表提供期刊推荐和比较服务',
       [
@@ -369,7 +372,7 @@ export class JournalMatcher extends BaseResearchTool<
     params: JournalMatcherParams,
   ): Promise<JournalMatcherResult> {
     // 预过滤期刊
-    let candidateJournals = this.filterJournals(params);
+    const candidateJournals = this.filterJournals(params);
 
     // 计算匹配分数
     const matches: JournalMatchResult[] = [];
@@ -490,7 +493,7 @@ export class JournalMatcher extends BaseResearchTool<
     // 影响因子统计
     const impactFactors = journals
       .map((j) => j.impactFactor)
-      .filter((impactFactor) => impactFactor !== undefined) as number[];
+      .filter((impactFactor) => impactFactor !== undefined);
 
     const impactFactorStats = {
       mean: impactFactors.reduce((a, b) => a + b, 0) / impactFactors.length,
@@ -550,9 +553,7 @@ export class JournalMatcher extends BaseResearchTool<
       requirementFit: 0.1,
     };
 
-    const matchScore = Object.entries(scores).reduce((total, [key, score]) => {
-      return total + score * weights[key as keyof typeof weights];
-    }, 0);
+    const matchScore = Object.entries(scores).reduce((total, [key, score]) => total + score * weights[key as keyof typeof weights], 0);
 
     const relevanceScore =
       (scores.titleMatch + scores.abstractMatch + scores.keywordMatch) / 3;

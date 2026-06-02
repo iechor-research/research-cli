@@ -1,20 +1,23 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   CountTokensResponse,
-  GenerateContentResponse,
   GenerateContentParameters,
   CountTokensParameters,
   EmbedContentResponse,
   EmbedContentParameters,
   Content,
-  ContentListUnion,
+  ContentListUnion} from '@google/genai';
+import {
+  GenerateContentResponse
 } from '@google/genai';
-import { ContentGenerator } from './contentGenerator.js';
+import type { ContentGenerator } from './contentGenerator.js';
 import { ModelProvider } from './model-providers/types.js';
 import { 
   detectModelProvider, 
@@ -214,7 +217,7 @@ export class MultiProviderContentGenerator implements ContentGenerator {
     
     // 单个 Content 对象
     if (contents && typeof contents === 'object' && 'role' in contents) {
-      return [contents as Content];
+      return [contents];
     }
     
     // 单个 Part 对象

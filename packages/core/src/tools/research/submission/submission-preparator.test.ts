@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SubmissionPreparator } from './submission-preparator.js';
 import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
@@ -34,7 +39,7 @@ describe('SubmissionPreparator', () => {
 
   describe('validation', () => {
     it('should require operation parameter', async () => {
-      const result = await tool.execute({} as any);
+      const result = await tool.execute({});
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Operation is required');
@@ -42,7 +47,7 @@ describe('SubmissionPreparator', () => {
 
     it('should validate operation types', async () => {
       const result = await tool.execute({
-        operation: 'invalid_operation' as any,
+        operation: 'invalid_operation',
       });
 
       expect(result.success).toBe(false);
@@ -78,7 +83,7 @@ describe('SubmissionPreparator', () => {
 
       for (const operation of operations) {
         const result = await tool.execute({
-          operation: operation as any,
+          operation,
         });
 
         expect(result.success).toBe(false);

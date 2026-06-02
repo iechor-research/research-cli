@@ -1,76 +1,139 @@
-# Welcome to Research CLI documentation
+# Gemini CLI documentation
 
-This documentation provides a comprehensive guide to installing, using, and developing Research CLI. This tool lets you interact with Research models through a command-line interface and includes powerful academic research capabilities.
+Gemini CLI brings the power of Gemini models directly into your terminal. Use it
+to understand code, automate tasks, and build workflows with your local project
+context.
 
-## Overview
-
-Research CLI brings the capabilities of Research models to your terminal in an interactive Read-Eval-Print Loop (REPL) environment. Research CLI consists of a client-side application (`packages/cli`) that communicates with a local server (`packages/core`), which in turn manages requests to the Research API and its AI models.
-
-**New in this version:** Research CLI now includes a comprehensive suite of academic research tools for literature search, paper writing, data analysis, and journal submission - making it a complete research workflow platform.
-
-## 🎓 Research Features
-
-- **[Research Tools](./tools/research-tools.md):** Complete academic research workflow from literature search to paper submission
-- **Paper Writing:** Outline generation, writing assistance, and LaTeX management
-- **Bibliography Management:** Multi-database search with BibTeX support
-- **Data Analysis:** Statistical analysis, machine learning, and visualization
-- **Submission Tools:** Journal matching and submission preparation
-
-## Navigating the documentation
-
-This documentation is organized into the following sections:
-
-- **[Execution and Deployment](./deployment.md):** Information for running Research CLI.
-- **[Architecture Overview](./architecture.md):** Understand the high-level design of Research CLI, including its components and how they interact.
-- **CLI Usage:** Documentation for `packages/cli`.
-  - **[CLI Introduction](./cli/index.md):** Overview of the command-line interface.
-  - **[Commands](./cli/commands.md):** Description of available CLI commands.
-  - **[Configuration](./cli/configuration.md):** Information on configuring the CLI.
-  - **[Checkpointing](./checkpointing.md):** Documentation for the checkpointing feature.
-  - **[Extensions](./extension.md):** How to extend the CLI with new functionality.
-  - **[Telemetry](./telemetry.md):** Overview of telemetry in the CLI.
-- **Core Details:** Documentation for `packages/core`.
-  - **[Core Introduction](./core/index.md):** Overview of the core component.
-  - **[Tools API](./core/tools-api.md):** Information on how the core manages and exposes tools.
-- **Tools:** Documentation for built-in tools.
-  - **[Tools Overview](./tools/index.md):** Overview of all available tools.
-  - **[Research Tools](./tools/research-tools.md):** Comprehensive academic research suite.
-  - **[File System Tools](./tools/file-system.md):** For file and directory operations.
-  - **[Shell Tool](./tools/shell.md):** For executing shell commands.
-  - **[Web Tools](./tools/web-fetch.md):** For web content retrieval.
-  - **[Memory Tool](./tools/memory.md):** For AI memory management.
-  - **[MCP Server Tools](./tools/mcp-server.md):** For external tool integration.
-- **Additional Information:**
-  - **[Quota and Pricing](./quota-and-pricing.md):** Information on usage limits and costs.
-  - **[Terms of Service and Privacy](./tos-privacy.md):** Legal and privacy information.
-  - **[Troubleshooting](./troubleshooting.md):** Common issues and solutions.
-  - **[Uninstall](./Uninstall.md):** How to remove Research CLI.
-
-## Quick Start for Researchers
+## Install
 
 ```bash
-# Install Research CLI
-npm install -g @iechor/research-cli
-
-# Start the CLI
-research
-
-# Search for papers
-/research search "machine learning" --source=arxiv --limit=10
-
-# Generate paper outline
-/paper outline "AI in Healthcare" --type=research --format=ieee
-
-# Analyze your draft
-/research analyze draft.tex --type=all
-
-# Find suitable journals
-/submit journal --topic "artificial intelligence"
-
-# Prepare submission
-/submit prepare --project ./my-paper --journal "Nature"
+npm install -g @google/gemini-cli
 ```
 
-## Getting Started
+## Get started
 
-For first-time users, we recommend starting with the [CLI Introduction](./cli/index.md) to understand the basic concepts and commands. Researchers should also explore the [Research Tools](./tools/research-tools.md) documentation to understand the full academic workflow capabilities.
+Jump in to Gemini CLI.
+
+- **[Quickstart](./get-started/index.md):** Your first session with Gemini CLI.
+- **[Installation](./get-started/installation.mdx):** How to install Gemini CLI
+  on your system.
+- **[Authentication](./get-started/authentication.mdx):** Setup instructions for
+  personal and enterprise accounts.
+- **[CLI cheatsheet](./cli/cli-reference.md):** A quick reference for common
+  commands and options.
+- **[Gemini 3 on Gemini CLI](./get-started/gemini-3.md):** Learn about Gemini 3
+  support in Gemini CLI.
+
+## Use Gemini CLI
+
+User-focused guides and tutorials for daily development workflows.
+
+- **[File management](./cli/tutorials/file-management.md):** How to work with
+  local files and directories.
+- **[Get started with Agent skills](./cli/tutorials/skills-getting-started.md):**
+  Getting started with specialized expertise.
+- **[Manage context and memory](./cli/tutorials/memory-management.md):**
+  Managing persistent instructions and facts.
+- **[Execute shell commands](./cli/tutorials/shell-commands.md):** Executing
+  system commands safely.
+- **[Manage sessions and history](./cli/tutorials/session-management.md):**
+  Resuming, managing, and rewinding conversations.
+- **[Plan tasks with todos](./cli/tutorials/task-planning.md):** Using todos for
+  complex workflows.
+- **[Web search and fetch](./cli/tutorials/web-tools.md):** Searching and
+  fetching content from the web.
+- **[Set up an MCP server](./cli/tutorials/mcp-setup.md):** Set up an MCP
+  server.
+- **[Automate tasks](./cli/tutorials/automation.md):** Automate tasks.
+
+## Features
+
+Technical documentation for each capability of Gemini CLI.
+
+- **[Extensions](./extensions/index.md):** Extend Gemini CLI with new tools and
+  capabilities.
+- **[Agent Skills](./cli/skills.md):** Use specialized agents for specific
+  tasks.
+- **[Checkpointing](./cli/checkpointing.md):** Automatic session snapshots.
+- **[Headless mode](./cli/headless.md):** Programmatic and scripting interface.
+- **[Hooks](./hooks/index.md):** Customize Gemini CLI behavior with scripts.
+- **[IDE integration](./ide-integration/index.md):** Integrate Gemini CLI with
+  your favorite IDE.
+- **[MCP servers](./tools/mcp-server.md):** Connect to and use remote agents.
+- **[Model routing](./cli/model-routing.md):** Automatic fallback resilience.
+- **[Model selection](./cli/model.md):** Choose the best model for your needs.
+- **[Plan mode 🔬](./cli/plan-mode.md):** Use a safe, read-only mode for
+  planning complex changes.
+- **[Subagents 🔬](./core/subagents.md):** Using specialized agents for specific
+  tasks.
+- **[Remote subagents 🔬](./core/remote-agents.md):** Connecting to and using
+  remote agents.
+- **[Rewind](./cli/rewind.md):** Rewind and replay sessions.
+- **[Sandboxing](./cli/sandbox.md):** Isolate tool execution.
+- **[Settings](./cli/settings.md):** Full configuration reference.
+- **[Telemetry](./cli/telemetry.md):** Usage and performance metric details.
+- **[Token caching](./cli/token-caching.md):** Performance optimization.
+
+## Configuration
+
+Settings and customization options for Gemini CLI.
+
+- **[Custom commands](./cli/custom-commands.md):** Personalized shortcuts.
+- **[Enterprise configuration](./cli/enterprise.md):** Professional environment
+  controls.
+- **[Ignore files (.geminiignore)](./cli/gemini-ignore.md):** Exclusion pattern
+  reference.
+- **[Model configuration](./cli/generation-settings.md):** Fine-tune generation
+  parameters like temperature and thinking budget.
+- **[Project context (GEMINI.md)](./cli/gemini-md.md):** Technical hierarchy of
+  context files.
+- **[System prompt override](./cli/system-prompt.md):** Instruction replacement
+  logic.
+- **[Themes](./cli/themes.md):** UI personalization technical guide.
+- **[Trusted folders](./cli/trusted-folders.md):** Security permission logic.
+
+## Reference
+
+Deep technical documentation and API specifications.
+
+- **[Command reference](./reference/commands.md):** Detailed slash command
+  guide.
+- **[Configuration reference](./reference/configuration.md):** Settings and
+  environment variables.
+- **[Keyboard shortcuts](./reference/keyboard-shortcuts.md):** Productivity
+  tips.
+- **[Memory import processor](./reference/memport.md):** How Gemini CLI
+  processes memory from various sources.
+- **[Policy engine](./reference/policy-engine.md):** Fine-grained execution
+  control.
+- **[Tools reference](./reference/tools.md):** Information on how tools are
+  defined, registered, and used.
+
+## Resources
+
+Support, release history, and legal information.
+
+- **[FAQ](./resources/faq.md):** Answers to frequently asked questions.
+- **[Quota and pricing](./resources/quota-and-pricing.md):** Limits and billing
+  details.
+- **[Terms and privacy](./resources/tos-privacy.md):** Official notices and
+  terms.
+- **[Troubleshooting](./resources/troubleshooting.md):** Common issues and
+  solutions.
+- **[Uninstall](./resources/uninstall.md):** How to uninstall Gemini CLI.
+
+## Development
+
+- **[Contribution guide](/docs/contributing):** How to contribute to Gemini CLI.
+- **[Integration testing](./integration-tests.md):** Running integration tests.
+- **[Issue and PR automation](./issue-and-pr-automation.md):** Automation for
+  issues and pull requests.
+- **[Local development](./local-development.md):** Setting up a local
+  development environment.
+- **[NPM package structure](./npm.md):** The structure of the NPM packages.
+
+## Releases
+
+- **[Release notes](./changelogs/index.md):** Release notes for all versions.
+- **[Stable release](./changelogs/latest.md):** The latest stable release.
+- **[Preview release](./changelogs/preview.md):** The latest preview release.

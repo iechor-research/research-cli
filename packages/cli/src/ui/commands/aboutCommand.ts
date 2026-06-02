@@ -1,66 +1,77 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { SlashCommand, SlashCommandActionReturn, MessageActionReturn } from './types.js';
-import { getCliVersion } from '../../utils/version.js';
+import {
+  CommandKind,
+  type CommandContext,
+  type SlashCommand,
+} from './types.js';
+import process from 'node:process';
+import { MessageType, type HistoryItemAbout } from '../types.js';
+import {
+  IdeClient,
+  UserAccountManager,
+  debugLogger,
+  getVersion,
+} from '@google/gemini-cli-core';
 
 export const aboutCommand: SlashCommand = {
   name: 'about',
-  description: 'Show information about Research CLI',
-  action: async (context, _args): Promise<SlashCommandActionReturn> => {
-    // Check if we're in non-interactive mode
-    if ((context.services.logger as any)?.sessionId === 'non-interactive') {
-      // Return CLI info for non-interactive mode
-      const cliVersion = await getCliVersion();
-      const osVersion = process.platform;
-      const modelVersion = context.services.config?.getModel() || 'Unknown';
-      
-      const aboutContent = `Research CLI - Academic Research Assistant
-
-Version: ${cliVersion}
-Platform: ${osVersion}
-Model: ${modelVersion}
-
-Research CLI is an interactive command-line tool for academic research,
-providing AI-powered assistance for literature search, paper analysis,
-and research workflow management.
-
-For help, use: research --help or /help`;
-
-      const messageReturn: MessageActionReturn = {
-        type: 'message',
-        messageType: 'info',
-        content: aboutContent,
-      };
-      return messageReturn;
-    }
-
-    // Interactive mode - add about message to history
-    const cliVersion = await getCliVersion();
+  description: 'Show version info',
+  kind: CommandKind.BUILT_IN,
+  autoExecute: true,
+  isSafeConcurrent: true,
+  action: async (context) => {
     const osVersion = process.platform;
     let sandboxEnv = 'no sandbox';
-    if (process.env.SANDBOX && process.env.SANDBOX !== 'sandbox-exec') {
-      sandboxEnv = process.env.SANDBOX;
-    } else if (process.env.SANDBOX === 'sandbox-exec') {
-      sandboxEnv = `sandbox-exec (${process.env.SEATBELT_PROFILE || 'unknown'})`;
+    if (process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec') {
+      sandboxEnv = process.env['SANDBOX'];
+    } else if (process.env['SANDBOX'] === 'sandbox-exec') {
+      sandboxEnv = `sandbox-exec (${
+        process.env['SEATBELT_PROFILE'] || 'unknown'
+      })`;
     }
-    const modelVersion = context.services.config?.getModel() || 'Unknown';
-    const selectedAuthType = (context.services.settings as any)?.merged?.selectedAuthType || '';
-    const gcpProject = process.env.GOOGLE_CLOUD_PROJECT || '';
+    const modelVersion =
+      context.services.agentContext?.config.getModel() || 'Unknown';
+    const cliVersion = await getVersion();
+    const selectedAuthType =
+      context.services.settings.merged.security.auth.selectedType || '';
+    const gcpProject = process.env['GOOGLE_CLOUD_PROJECT'] || '';
+    const ideClient = await getIdeClientName(context);
 
-    context.ui.addItem({
-      type: 'about',
+    const userAccountManager = new UserAccountManager();
+    const cachedAccount = userAccountManager.getCachedGoogleAccount();
+    debugLogger.log('AboutCommand: Retrieved cached Google account', {
+      cachedAccount,
+    });
+    const userEmail = cachedAccount ?? undefined;
+
+    const tier = context.services.agentContext?.config.getUserTierName();
+
+    const aboutItem: Omit<HistoryItemAbout, 'id'> = {
+      type: MessageType.ABOUT,
       cliVersion,
       osVersion,
       sandboxEnv,
       modelVersion,
       selectedAuthType,
       gcpProject,
-    } as any, Date.now());
+      ideClient,
+      userEmail,
+      tier,
+    };
 
-    return { type: 'message', messageType: 'info', content: '' };
+    context.ui.addItem(aboutItem);
   },
 };
+
+async function getIdeClientName(context: CommandContext) {
+  if (!context.services.agentContext?.config.getIdeMode()) {
+    return '';
+  }
+  const ideClient = await IdeClient.getInstance();
+  return ideClient?.getDetectedIdeDisplayName() ?? '';
+}

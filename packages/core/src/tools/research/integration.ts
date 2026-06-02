@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { ToolRegistry } from '../tool-registry.js';
+import type { ToolRegistry } from '../tool-registry.js';
 import { researchToolRegistry } from './registry.js';
-import { BaseTool, ToolResult } from '../tools.js';
-import { ResearchToolParams } from './types.js';
+import type { ToolResult } from '../tools.js';
+import { BaseTool } from '../tools.js';
+import type { ResearchToolParams } from './types.js';
 import { initializeResearchTools } from './init.js';
 
 /**

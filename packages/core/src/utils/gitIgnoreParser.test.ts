@@ -1,199 +1,146 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { GitIgnoreParser } from './gitIgnoreParser.js';
-import * as fs from 'fs';
-import * as path from 'path';
-import { isGitRepository } from './gitUtils.js';
-
-// Mock fs module
-vi.mock('fs');
-
-// Mock gitUtils module
-vi.mock('./gitUtils.js');
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import * as os from 'node:os';
 
 describe('GitIgnoreParser', () => {
   let parser: GitIgnoreParser;
-  const mockProjectRoot = '/test/project';
+  let projectRoot: string;
 
-  beforeEach(() => {
-    parser = new GitIgnoreParser(mockProjectRoot);
-    // Reset mocks before each test
-    vi.mocked(fs.readFileSync).mockClear();
-    vi.mocked(isGitRepository).mockReturnValue(true);
+  async function createTestFile(filePath: string, content = '') {
+    const fullPath = path.join(projectRoot, filePath);
+    await fs.mkdir(path.dirname(fullPath), { recursive: true });
+    await fs.writeFile(fullPath, content);
+  }
+
+  async function setupGitRepo() {
+    await fs.mkdir(path.join(projectRoot, '.git'), { recursive: true });
+  }
+
+  beforeEach(async () => {
+    projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'gitignore-test-'));
+    parser = new GitIgnoreParser(projectRoot);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  afterEach(async () => {
+    await fs.rm(projectRoot, { recursive: true, force: true });
   });
 
-  describe('initialization', () => {
-    it('should initialize without errors when no .gitignore exists', () => {
-      expect(() => parser.loadGitRepoPatterns()).not.toThrow();
+  describe('Core Git Logic', () => {
+    beforeEach(async () => {
+      await setupGitRepo();
     });
 
-    it('should load .gitignore patterns when file exists', () => {
-      const gitignoreContent = `
-# Comment
-node_modules/
-*.log
-/dist
-.env
-`;
-      vi.mocked(fs.readFileSync).mockReturnValueOnce(gitignoreContent);
+    it('should identify paths ignored by the root .gitignore', async () => {
+      await createTestFile('.gitignore', 'node_modules/\n*.log\n/dist\n.env');
 
-      parser.loadGitRepoPatterns();
-
-      expect(parser.getPatterns()).toEqual([
-        '.git',
-        'node_modules/',
-        '*.log',
-        '/dist',
-        '.env',
-      ]);
-      expect(parser.isIgnored('node_modules/some-lib')).toBe(true);
-      expect(parser.isIgnored('src/app.log')).toBe(true);
-      expect(parser.isIgnored('dist/index.js')).toBe(true);
-      expect(parser.isIgnored('.env')).toBe(true);
-    });
-
-    it('should handle git exclude file', () => {
-      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
-        if (
-          filePath === path.join(mockProjectRoot, '.git', 'info', 'exclude')
-        ) {
-          return 'temp/\n*.tmp';
-        }
-        throw new Error('ENOENT');
-      });
-
-      parser.loadGitRepoPatterns();
-      expect(parser.getPatterns()).toEqual(['.git', 'temp/', '*.tmp']);
-      expect(parser.isIgnored('temp/file.txt')).toBe(true);
-      expect(parser.isIgnored('src/file.tmp')).toBe(true);
-    });
-
-    it('should handle custom patterns file name', () => {
-      vi.mocked(isGitRepository).mockReturnValue(false);
-      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
-        if (filePath === path.join(mockProjectRoot, '.researchignore')) {
-          return 'temp/\n*.tmp';
-        }
-        throw new Error('ENOENT');
-      });
-
-      parser.loadPatterns('.researchignore');
-      expect(parser.getPatterns()).toEqual(['temp/', '*.tmp']);
-      expect(parser.isIgnored('temp/file.txt')).toBe(true);
-      expect(parser.isIgnored('src/file.tmp')).toBe(true);
-    });
-
-    it('should initialize without errors when no .researchignore exists', () => {
-      expect(() => parser.loadPatterns('.researchignore')).not.toThrow();
-    });
-  });
-
-  describe('isIgnored', () => {
-    beforeEach(() => {
-      const gitignoreContent = `
-node_modules/
-*.log
-/dist
-/.env
-src/*.tmp
-!src/important.tmp
-`;
-      vi.mocked(fs.readFileSync).mockReturnValueOnce(gitignoreContent);
-      parser.loadGitRepoPatterns();
-    });
-
-    it('should always ignore .git directory', () => {
-      expect(parser.isIgnored('.git')).toBe(true);
-      expect(parser.isIgnored('.git/config')).toBe(true);
-      expect(parser.isIgnored(path.join(mockProjectRoot, '.git', 'HEAD'))).toBe(
+      expect(parser.isIgnored('node_modules/package/index.js', false)).toBe(
         true,
+      );
+      expect(parser.isIgnored('src/app.log', false)).toBe(true);
+      expect(parser.isIgnored('dist/bundle.js', false)).toBe(true);
+      expect(parser.isIgnored('.env', false)).toBe(true);
+      expect(parser.isIgnored('src/index.js', false)).toBe(false);
+    });
+
+    it('should identify paths ignored by .git/info/exclude', async () => {
+      await createTestFile(
+        path.join('.git', 'info', 'exclude'),
+        'temp/\n*.tmp',
+      );
+      expect(parser.isIgnored('temp/file.txt', false)).toBe(true);
+      expect(parser.isIgnored('src/file.tmp', false)).toBe(true);
+    });
+
+    it('should identify the .git directory as ignored regardless of patterns', () => {
+      expect(parser.isIgnored('.git', true)).toBe(true);
+      expect(parser.isIgnored('.git/config', false)).toBe(true);
+    });
+
+    it('should identify ignored directories when explicitly flagged', async () => {
+      await createTestFile('.gitignore', 'dist/');
+      expect(parser.isIgnored('dist', true)).toBe(true);
+      expect(parser.isIgnored('dist', false)).toBe(false);
+    });
+  });
+
+  describe('Nested .gitignore precedence', () => {
+    beforeEach(async () => {
+      await setupGitRepo();
+      await createTestFile('.gitignore', '*.log\n/ignored-at-root/');
+      await createTestFile(
+        'subdir/.gitignore',
+        '!special.log\nfile-in-subdir.txt',
       );
     });
 
-    it('should ignore files matching patterns', () => {
-      expect(parser.isIgnored('node_modules/package/index.js')).toBe(true);
-      expect(parser.isIgnored('app.log')).toBe(true);
-      expect(parser.isIgnored('logs/app.log')).toBe(true);
-      expect(parser.isIgnored('dist/bundle.js')).toBe(true);
-      expect(parser.isIgnored('.env')).toBe(true);
-      expect(parser.isIgnored('config/.env')).toBe(false); // .env is anchored to root
+    it('should prioritize nested rules over root rules', () => {
+      expect(parser.isIgnored('any.log', false)).toBe(true);
+      expect(parser.isIgnored('subdir/any.log', false)).toBe(true);
+      expect(parser.isIgnored('subdir/special.log', false)).toBe(false);
     });
 
-    it('should ignore files with path-specific patterns', () => {
-      expect(parser.isIgnored('src/temp.tmp')).toBe(true);
-      expect(parser.isIgnored('other/temp.tmp')).toBe(false);
+    it('should correctly anchor nested patterns', () => {
+      expect(parser.isIgnored('subdir/file-in-subdir.txt', false)).toBe(true);
+      expect(parser.isIgnored('file-in-subdir.txt', false)).toBe(false);
     });
 
-    it('should handle negation patterns', () => {
-      expect(parser.isIgnored('src/important.tmp')).toBe(false);
-    });
+    it('should stop processing if an ancestor directory is ignored', async () => {
+      await createTestFile(
+        'ignored-at-root/.gitignore',
+        '!should-not-work.txt',
+      );
+      await createTestFile('ignored-at-root/should-not-work.txt', 'content');
 
-    it('should not ignore files that do not match patterns', () => {
-      expect(parser.isIgnored('src/index.ts')).toBe(false);
-      expect(parser.isIgnored('README.md')).toBe(false);
-    });
-
-    it('should handle absolute paths correctly', () => {
-      const absolutePath = path.join(mockProjectRoot, 'node_modules', 'lib');
-      expect(parser.isIgnored(absolutePath)).toBe(true);
-    });
-
-    it('should handle paths outside project root by not ignoring them', () => {
-      const outsidePath = path.resolve(mockProjectRoot, '../other/file.txt');
-      expect(parser.isIgnored(outsidePath)).toBe(false);
-    });
-
-    it('should handle relative paths correctly', () => {
-      expect(parser.isIgnored('node_modules/some-package')).toBe(true);
-      expect(parser.isIgnored('../some/other/file.txt')).toBe(false);
-    });
-
-    it('should normalize path separators on Windows', () => {
-      expect(parser.isIgnored('node_modules\\package')).toBe(true);
-      expect(parser.isIgnored('src\\temp.tmp')).toBe(true);
-    });
-
-    // Regression coverage for upstream gemini-cli commit 5c2bb990d (#7553):
-    // malformed inputs must never throw out of GitIgnoreParser.
-    it('should handle backslash-prefixed files without crashing', () => {
-      expect(() => parser.isIgnored('\\backslash-file-test.txt')).not.toThrow();
-      expect(parser.isIgnored('\\backslash-file-test.txt')).toBe(false);
-    });
-
-    it('should handle the absolute root "/" without crashing', () => {
-      expect(() => parser.isIgnored('/')).not.toThrow();
-      expect(parser.isIgnored('/')).toBe(false);
-    });
-
-    it('should handle empty / null-ish inputs without crashing', () => {
-      expect(() => parser.isIgnored('')).not.toThrow();
-      expect(parser.isIgnored('')).toBe(false);
-      // @ts-expect-error testing defensive guard
-      expect(parser.isIgnored(undefined)).toBe(false);
-    });
-
-    it('should handle paths containing NUL bytes without crashing', () => {
-      expect(() => parser.isIgnored('foo\0bar.txt')).not.toThrow();
-      expect(parser.isIgnored('foo\0bar.txt')).toBe(false);
+      expect(
+        parser.isIgnored('ignored-at-root/should-not-work.txt', false),
+      ).toBe(true);
     });
   });
 
-  describe('getIgnoredPatterns', () => {
-    it('should return the raw patterns added', () => {
-      const gitignoreContent = '*.log\n!important.log';
-      vi.mocked(fs.readFileSync).mockReturnValueOnce(gitignoreContent);
+  describe('Advanced Pattern Matching', () => {
+    beforeEach(async () => {
+      await setupGitRepo();
+    });
 
-      parser.loadGitRepoPatterns();
-      expect(parser.getPatterns()).toEqual(['.git', '*.log', '!important.log']);
+    it('should handle complex negation and directory rules', async () => {
+      await createTestFile('.gitignore', 'docs/*\n!docs/README.md');
+
+      expect(parser.isIgnored('docs/other.txt', false)).toBe(true);
+      expect(parser.isIgnored('docs/README.md', false)).toBe(false);
+      expect(parser.isIgnored('docs/', true)).toBe(false);
+    });
+
+    it('should handle escaped characters like # and !', async () => {
+      await createTestFile('.gitignore', '\\#hashfile\n\\!exclaim');
+      expect(parser.isIgnored('#hashfile', false)).toBe(true);
+      expect(parser.isIgnored('!exclaim', false)).toBe(true);
+    });
+
+    it('should correctly handle significant trailing spaces', async () => {
+      await createTestFile('.gitignore', 'foo\\ \nbar ');
+
+      expect(parser.isIgnored('foo ', false)).toBe(true);
+      expect(parser.isIgnored('bar', false)).toBe(true);
+      expect(parser.isIgnored('bar ', false)).toBe(false);
+    });
+  });
+
+  describe('Extra Patterns (Constructor-passed)', () => {
+    it('should apply extraPatterns with highest precedence', async () => {
+      await createTestFile('.gitignore', '*.txt');
+      parser = new GitIgnoreParser(projectRoot, ['!important.txt', 'temp/']);
+
+      expect(parser.isIgnored('file.txt', false)).toBe(true);
+      expect(parser.isIgnored('important.txt', false)).toBe(false);
+      expect(parser.isIgnored('temp/anything.js', false)).toBe(true);
     });
   });
 });

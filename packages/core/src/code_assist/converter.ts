@@ -1,38 +1,41 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import {
-  Content,
-  ContentListUnion,
-  ContentUnion,
-  GenerateContentConfig,
-  GenerateContentParameters,
-  CountTokensParameters,
-  CountTokensResponse,
   GenerateContentResponse,
-  GenerationConfigRoutingConfig,
-  MediaResolution,
-  Candidate,
-  ModelSelectionConfig,
-  GenerateContentResponsePromptFeedback,
-  GenerateContentResponseUsageMetadata,
-  Part,
-  SafetySetting,
-  PartUnion,
-  SchemaUnion,
-  SpeechConfigUnion,
-  ThinkingConfig,
-  ToolListUnion,
-  ToolConfig,
+  type Content,
+  type ContentListUnion,
+  type ContentUnion,
+  type GenerateContentConfig,
+  type GenerateContentParameters,
+  type CountTokensParameters,
+  type CountTokensResponse,
+  type GenerationConfigRoutingConfig,
+  type MediaResolution,
+  type Candidate,
+  type ModelSelectionConfig,
+  type GenerateContentResponsePromptFeedback,
+  type GenerateContentResponseUsageMetadata,
+  type Part,
+  type SafetySetting,
+  type PartUnion,
+  type SpeechConfigUnion,
+  type ThinkingConfig,
+  type ToolListUnion,
+  type ToolConfig,
 } from '@google/genai';
+import { debugLogger } from '../utils/debugLogger.js';
+import type { Credits } from './types.js';
 
 export interface CAGenerateContentRequest {
   model: string;
   project?: string;
+  user_prompt_id?: string;
   request: VertexGenerateContentRequest;
+  enabled_credit_types?: string[];
 }
 
 interface VertexGenerateContentRequest {
@@ -60,7 +63,8 @@ interface VertexGenerationConfig {
   frequencyPenalty?: number;
   seed?: number;
   responseMimeType?: string;
-  responseSchema?: SchemaUnion;
+  responseJsonSchema?: unknown;
+  responseSchema?: unknown;
   routingConfig?: GenerationConfigRoutingConfig;
   modelSelectionConfig?: ModelSelectionConfig;
   responseModalities?: string[];
@@ -71,14 +75,18 @@ interface VertexGenerationConfig {
 }
 
 export interface CaGenerateContentResponse {
-  response: VertexGenerateContentResponse;
+  response?: VertexGenerateContentResponse;
+  traceId?: string;
+  consumedCredits?: Credits[];
+  remainingCredits?: Credits[];
 }
 
 interface VertexGenerateContentResponse {
-  candidates: Candidate[];
+  candidates?: Candidate[];
   automaticFunctionCallingHistory?: Content[];
   promptFeedback?: GenerateContentResponsePromptFeedback;
   usageMetadata?: GenerateContentResponseUsageMetadata;
+  modelVersion?: string;
 }
 
 export interface CaCountTokenRequest {
@@ -91,7 +99,7 @@ interface VertexCountTokenRequest {
 }
 
 export interface CaCountTokenResponse {
-  totalTokens: number;
+  totalTokens?: number;
 }
 
 export function toCountTokenRequest(
@@ -108,32 +116,47 @@ export function toCountTokenRequest(
 export function fromCountTokenResponse(
   res: CaCountTokenResponse,
 ): CountTokensResponse {
+  if (res.totalTokens === undefined) {
+    debugLogger.warn(
+      'Warning: Code Assist API did not return totalTokens. Defaulting to 0.',
+    );
+  }
   return {
-    totalTokens: res.totalTokens,
+    totalTokens: res.totalTokens ?? 0,
   };
 }
 
 export function toGenerateContentRequest(
   req: GenerateContentParameters,
+  userPromptId: string,
   project?: string,
   sessionId?: string,
+  enabledCreditTypes?: string[],
 ): CAGenerateContentRequest {
   return {
     model: req.model,
     project,
+    user_prompt_id: userPromptId,
     request: toVertexGenerateContentRequest(req, sessionId),
+    enabled_credit_types: enabledCreditTypes,
   };
 }
 
 export function fromGenerateContentResponse(
   res: CaGenerateContentResponse,
 ): GenerateContentResponse {
-  const inres = res.response;
   const out = new GenerateContentResponse();
-  out.candidates = inres.candidates;
+  out.responseId = res.traceId;
+  const inres = res.response;
+  if (!inres) {
+    out.candidates = [];
+    return out;
+  }
+  out.candidates = inres.candidates ?? [];
   out.automaticFunctionCallingHistory = inres.automaticFunctionCallingHistory;
   out.promptFeedback = inres.promptFeedback;
   out.usageMetadata = inres.usageMetadata;
+  out.modelVersion = inres.modelVersion;
   return out;
 }
 
@@ -154,7 +177,7 @@ function toVertexGenerateContentRequest(
   };
 }
 
-function toContents(contents: ContentListUnion): Content[] {
+export function toContents(contents: ContentListUnion): Content[] {
   if (Array.isArray(contents)) {
     // it's a Content[] or a PartsUnion[]
     return contents.map(toContent);
@@ -168,6 +191,16 @@ function maybeToContent(content?: ContentUnion): Content | undefined {
     return undefined;
   }
   return toContent(content);
+}
+
+function isPart(c: ContentUnion): c is PartUnion {
+  return (
+    typeof c === 'object' &&
+    c !== null &&
+    !Array.isArray(c) &&
+    !('parts' in c) &&
+    !('role' in c)
+  );
 }
 
 function toContent(content: ContentUnion): Content {
@@ -185,18 +218,23 @@ function toContent(content: ContentUnion): Content {
       parts: [{ text: content }],
     };
   }
-  if ('parts' in content) {
-    // it's a Content
-    return content;
+  if (!isPart(content)) {
+    // it's a Content - process parts to handle thought filtering
+    return {
+      ...content,
+      parts: content.parts
+        ? toParts(content.parts.filter((p) => p != null))
+        : [],
+    };
   }
   // it's a Part
   return {
     role: 'user',
-    parts: [content as Part],
+    parts: [toPart(content)],
   };
 }
 
-function toParts(parts: PartUnion[]): Part[] {
+export function toParts(parts: PartUnion[]): Part[] {
   return parts.map(toPart);
 }
 
@@ -205,6 +243,41 @@ function toPart(part: PartUnion): Part {
     // it's a string
     return { text: part };
   }
+
+  // Handle thought parts for CountToken API compatibility
+  // The CountToken API expects parts to have certain required "oneof" fields initialized,
+  // but thought parts don't conform to this schema and cause API failures
+  if ('thought' in part && part.thought) {
+    const thoughtText = `[Thought: ${part.thought}]`;
+
+    const newPart = { ...part };
+    delete (newPart as Record<string, unknown>)['thought'];
+
+    const hasApiContent =
+      'functionCall' in newPart ||
+      'functionResponse' in newPart ||
+      'inlineData' in newPart ||
+      'fileData' in newPart;
+
+    if (hasApiContent) {
+      // It's a functionCall or other non-text part. Just strip the thought.
+      return newPart;
+    }
+
+    // If no other valid API content, this must be a text part.
+    // Combine existing text (if any) with the thought, preserving other properties.
+    const text = (newPart as { text?: unknown }).text;
+    const existingText = text ? String(text) : '';
+    const combinedText = existingText
+      ? `${existingText}\n${thoughtText}`
+      : thoughtText;
+
+    return {
+      ...newPart,
+      text: combinedText,
+    };
+  }
+
   return part;
 }
 
@@ -228,6 +301,7 @@ function toVertexGenerationConfig(
     seed: config.seed,
     responseMimeType: config.responseMimeType,
     responseSchema: config.responseSchema,
+    responseJsonSchema: config.responseJsonSchema,
     routingConfig: config.routingConfig,
     modelSelectionConfig: config.modelSelectionConfig,
     responseModalities: config.responseModalities,
@@ -235,5 +309,18 @@ function toVertexGenerationConfig(
     speechConfig: config.speechConfig,
     audioTimestamp: config.audioTimestamp,
     thinkingConfig: config.thinkingConfig,
+  };
+}
+
+export function fromGenerateContentResponseUsage(
+  metadata?: GenerateContentResponseUsageMetadata,
+): GenerateContentResponseUsageMetadata | undefined {
+  if (!metadata) {
+    return undefined;
+  }
+  return {
+    promptTokenCount: metadata.promptTokenCount,
+    candidatesTokenCount: metadata.candidatesTokenCount,
+    totalTokenCount: metadata.totalTokenCount,
   };
 }

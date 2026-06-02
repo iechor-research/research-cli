@@ -1,67 +1,124 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { Text } from 'ink';
-import { Colors } from '../colors.js';
-import { type MCPServerConfig } from '@iechor/research-cli-core';
+import type React from 'react';
+import { Box, Text } from 'ink';
+import { theme } from '../semantic-colors.js';
+import { type IdeContext, type MCPServerConfig } from '@google/gemini-cli-core';
+import { Command } from '../key/keyMatchers.js';
+import { formatCommand } from '../key/keybindingUtils.js';
 
 interface ContextSummaryDisplayProps {
-  researchMdFileCount: number;
+  geminiMdFileCount: number;
   contextFileNames: string[];
   mcpServers?: Record<string, MCPServerConfig>;
-  showToolDescriptions?: boolean;
+  blockedMcpServers?: Array<{ name: string; extensionName: string }>;
+  ideContext?: IdeContext;
+  skillCount: number;
+  backgroundProcessCount?: number;
 }
 
 export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
-  researchMdFileCount,
+  geminiMdFileCount,
   contextFileNames,
   mcpServers,
-  showToolDescriptions,
+  blockedMcpServers,
+  ideContext,
+  skillCount,
+  backgroundProcessCount = 0,
 }) => {
   const mcpServerCount = Object.keys(mcpServers || {}).length;
+  const blockedMcpServerCount = blockedMcpServers?.length || 0;
+  const openFileCount = ideContext?.workspaceState?.openFiles?.length ?? 0;
 
-  if (researchMdFileCount === 0 && mcpServerCount === 0) {
-    return <Text> </Text>; // Render an empty space to reserve height
+  if (
+    geminiMdFileCount === 0 &&
+    mcpServerCount === 0 &&
+    blockedMcpServerCount === 0 &&
+    openFileCount === 0 &&
+    skillCount === 0 &&
+    backgroundProcessCount === 0
+  ) {
+    return null;
   }
 
-  const researchMdText = (() => {
-    if (researchMdFileCount === 0) {
+  const openFilesText = (() => {
+    if (openFileCount === 0) {
+      return '';
+    }
+    return `${openFileCount} open file${
+      openFileCount > 1 ? 's' : ''
+    } (${formatCommand(Command.SHOW_IDE_CONTEXT_DETAIL)} to view)`;
+  })();
+
+  const geminiMdText = (() => {
+    if (geminiMdFileCount === 0) {
       return '';
     }
     const allNamesTheSame = new Set(contextFileNames).size < 2;
     const name = allNamesTheSame ? contextFileNames[0] : 'context';
-    return `${researchMdFileCount} ${name} file${
-      researchMdFileCount > 1 ? 's' : ''
+    return `${geminiMdFileCount} ${name} file${
+      geminiMdFileCount > 1 ? 's' : ''
     }`;
   })();
 
-  const mcpText =
-    mcpServerCount > 0
-      ? `${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`
-      : '';
-
-  let summaryText = 'Using ';
-  if (researchMdText) {
-    summaryText += researchMdText;
-  }
-  if (researchMdText && mcpText) {
-    summaryText += ' and ';
-  }
-  if (mcpText) {
-    summaryText += mcpText;
-    // Add ctrl+t hint when MCP servers are available
-    if (mcpServers && Object.keys(mcpServers).length > 0) {
-      if (showToolDescriptions) {
-        summaryText += ' (ctrl+t to toggle)';
-      } else {
-        summaryText += ' (ctrl+t to view)';
-      }
+  const mcpText = (() => {
+    if (mcpServerCount === 0 && blockedMcpServerCount === 0) {
+      return '';
     }
-  }
 
-  return <Text color={Colors.Gray}>{summaryText}</Text>;
+    const parts = [];
+    if (mcpServerCount > 0) {
+      parts.push(
+        `${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`,
+      );
+    }
+
+    if (blockedMcpServerCount > 0) {
+      let blockedText = `${blockedMcpServerCount} Blocked`;
+      if (mcpServerCount === 0) {
+        blockedText += ` MCP server${blockedMcpServerCount > 1 ? 's' : ''}`;
+      }
+      parts.push(blockedText);
+    }
+    return parts.join(', ');
+  })();
+
+  const skillText = (() => {
+    if (skillCount === 0) {
+      return '';
+    }
+    return `${skillCount} skill${skillCount > 1 ? 's' : ''}`;
+  })();
+
+  const backgroundText = (() => {
+    if (backgroundProcessCount === 0) {
+      return '';
+    }
+    return `${backgroundProcessCount} Background process${
+      backgroundProcessCount > 1 ? 'es' : ''
+    }`;
+  })();
+
+  const summaryParts = [
+    openFilesText,
+    geminiMdText,
+    mcpText,
+    skillText,
+    backgroundText,
+  ].filter(Boolean);
+
+  return (
+    <Box paddingX={1} flexDirection="row" flexWrap="wrap">
+      {summaryParts.map((part, index) => (
+        <Box key={index} flexDirection="row">
+          {index > 0 && <Text color={theme.text.secondary}>{' · '}</Text>}
+          <Text color={theme.text.secondary}>{part}</Text>
+        </Box>
+      ))}
+    </Box>
+  );
 };

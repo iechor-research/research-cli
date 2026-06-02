@@ -1,129 +1,104 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { CommandService } from './CommandService.js';
-import { type SlashCommand } from '../ui/commands/types.js';
-import { memoryCommand } from '../ui/commands/memoryCommand.js';
-import { helpCommand } from '../ui/commands/helpCommand.js';
-import { clearCommand } from '../ui/commands/clearCommand.js';
-import { themeCommand } from '../ui/commands/themeCommand.js';
+import { type ICommandLoader } from './types.js';
+import { CommandKind, type SlashCommand } from '../ui/commands/types.js';
+import { debugLogger } from '@google/gemini-cli-core';
 
-// Mock the command modules to isolate the service from the command implementations.
-vi.mock('../ui/commands/memoryCommand.js', () => ({
-  memoryCommand: { name: 'memory', description: 'Mock Memory' },
-}));
-vi.mock('../ui/commands/helpCommand.js', () => ({
-  helpCommand: { name: 'help', description: 'Mock Help' },
-}));
-vi.mock('../ui/commands/clearCommand.js', () => ({
-  clearCommand: { name: 'clear', description: 'Mock Clear' },
-}));
-vi.mock('../ui/commands/themeCommand.js', () => ({
-  themeCommand: { name: 'theme', description: 'Mock Theme' },
-}));
+const createMockCommand = (name: string, kind: CommandKind): SlashCommand => ({
+  name,
+  description: `Description for ${name}`,
+  kind,
+  action: vi.fn(),
+});
+
+class MockCommandLoader implements ICommandLoader {
+  constructor(private readonly commands: SlashCommand[]) {}
+  loadCommands = vi.fn(async () => Promise.resolve(this.commands));
+}
 
 describe('CommandService', () => {
-  describe('when using default production loader', () => {
-    let commandService: CommandService;
+  beforeEach(() => {
+    vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
+  });
 
-    beforeEach(() => {
-      commandService = new CommandService();
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('basic loading', () => {
+    it('should aggregate commands from multiple successful loaders', async () => {
+      const cmdA = createMockCommand('a', CommandKind.BUILT_IN);
+      const cmdB = createMockCommand('b', CommandKind.USER_FILE);
+      const service = await CommandService.create(
+        [new MockCommandLoader([cmdA]), new MockCommandLoader([cmdB])],
+        new AbortController().signal,
+      );
+
+      expect(service.getCommands()).toHaveLength(2);
+      expect(service.getCommands()).toEqual(
+        expect.arrayContaining([cmdA, cmdB]),
+      );
     });
 
-    it('should initialize with an empty command tree', () => {
-      const tree = commandService.getCommands();
-      expect(tree).toBeInstanceOf(Array);
-      expect(tree.length).toBe(0);
+    it('should handle empty loaders and failed loaders gracefully', async () => {
+      const cmdA = createMockCommand('a', CommandKind.BUILT_IN);
+      const failingLoader = new MockCommandLoader([]);
+      vi.spyOn(failingLoader, 'loadCommands').mockRejectedValue(
+        new Error('fail'),
+      );
+
+      const service = await CommandService.create(
+        [
+          new MockCommandLoader([cmdA]),
+          new MockCommandLoader([]),
+          failingLoader,
+        ],
+        new AbortController().signal,
+      );
+
+      expect(service.getCommands()).toHaveLength(1);
+      expect(service.getCommands()[0].name).toBe('a');
+      expect(debugLogger.debug).toHaveBeenCalledWith(
+        'A command loader failed:',
+        expect.any(Error),
+      );
     });
 
-    describe('loadCommands', () => {
-      it('should load the built-in commands into the command tree', async () => {
-        // Pre-condition check
-        expect(commandService.getCommands().length).toBe(0);
-
-        // Action
-        await commandService.loadCommands();
-        const tree = commandService.getCommands();
-
-        // Post-condition assertions - now includes more commands (7 core + 5 research + 2 panel = 14)
-        expect(tree.length).toBe(14);
-
-        const commandNames = tree.map((cmd) => cmd.name);
-        expect(commandNames).toContain('memory');
-        expect(commandNames).toContain('help');
-        expect(commandNames).toContain('clear');
-        expect(commandNames).toContain('theme');
-        // New research commands
-        expect(commandNames).toContain('research');
-        expect(commandNames).toContain('paper');
-        expect(commandNames).toContain('submit');
-        expect(commandNames).toContain('config');
-      });
-
-      it('should overwrite any existing commands when called again', async () => {
-        // Load once
-        await commandService.loadCommands();
-        expect(commandService.getCommands().length).toBe(14);
-
-        // Load again
-        await commandService.loadCommands();
-        const tree = commandService.getCommands();
-
-        // Should not append, but overwrite
-        expect(tree.length).toBe(14);
-      });
+    it('should return a readonly array of commands', async () => {
+      const service = await CommandService.create(
+        [new MockCommandLoader([createMockCommand('a', CommandKind.BUILT_IN)])],
+        new AbortController().signal,
+      );
+      expect(() => (service.getCommands() as unknown[]).push({})).toThrow();
     });
 
-    describe('getCommandTree', () => {
-      it('should return the current command tree', async () => {
-        const initialTree = commandService.getCommands();
-        expect(initialTree).toEqual([]);
-
-        await commandService.loadCommands();
-
-        const loadedTree = commandService.getCommands();
-        expect(loadedTree.length).toBe(14);
-        // Just check that the core commands are present
-        // Research commands are tested separately
-        const commandNames = loadedTree.map((cmd) => cmd.name);
-        expect(commandNames).toContain('clear');
-        expect(commandNames).toContain('help');
-        expect(commandNames).toContain('memory');
-        expect(commandNames).toContain('theme');
-        expect(commandNames).toContain('research');
-        expect(commandNames).toContain('paper');
-        expect(commandNames).toContain('submit');
-      });
+    it('should pass the abort signal to all loaders', async () => {
+      const controller = new AbortController();
+      const loader = new MockCommandLoader([]);
+      await CommandService.create([loader], controller.signal);
+      expect(loader.loadCommands).toHaveBeenCalledWith(controller.signal);
     });
   });
 
-  describe('when initialized with an injected loader function', () => {
-    it('should use the provided loader instead of the built-in one', async () => {
-      // Arrange: Create a set of mock commands.
-      const mockCommands: SlashCommand[] = [
-        { name: 'injected-test-1', description: 'injected 1' },
-        { name: 'injected-test-2', description: 'injected 2' },
-      ];
+  describe('conflict delegation', () => {
+    it('should delegate conflict resolution to SlashCommandResolver', async () => {
+      const builtin = createMockCommand('help', CommandKind.BUILT_IN);
+      const user = createMockCommand('help', CommandKind.USER_FILE);
 
-      // Arrange: Create a mock loader FUNCTION that resolves with our mock commands.
-      const mockLoader = vi.fn().mockResolvedValue(mockCommands);
+      const service = await CommandService.create(
+        [new MockCommandLoader([builtin, user])],
+        new AbortController().signal,
+      );
 
-      // Act: Instantiate the service WITH the injected loader function.
-      const commandService = new CommandService(mockLoader);
-      await commandService.loadCommands();
-      const tree = commandService.getCommands();
-
-      // Assert: The tree should contain ONLY our injected commands.
-      expect(mockLoader).toHaveBeenCalled(); // Verify our mock loader was actually called.
-      expect(tree.length).toBe(2);
-      expect(tree).toEqual(mockCommands);
-
-      const commandNames = tree.map((cmd) => cmd.name);
-      expect(commandNames).not.toContain('memory'); // Verify it didn't load production commands.
+      expect(service.getCommands().map((c) => c.name)).toContain('help');
+      expect(service.getCommands().map((c) => c.name)).toContain('user.help');
+      expect(service.getConflicts()).toHaveLength(1);
     });
   });
 });

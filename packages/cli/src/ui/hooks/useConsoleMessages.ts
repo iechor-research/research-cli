@@ -1,89 +1,182 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ConsoleMessageItem } from '../types.js';
+import { useCallback, useSyncExternalStore } from 'react';
+import type { ConsoleMessageItem } from '../types.js';
+import {
+  coreEvents,
+  CoreEvent,
+  type ConsoleLogPayload,
+} from '@google/gemini-cli-core';
 
-export interface UseConsoleMessagesReturn {
-  consoleMessages: ConsoleMessageItem[];
-  handleNewMessage: (message: ConsoleMessageItem) => void;
-  clearConsoleMessages: () => void;
+export interface UseErrorCountReturn {
+  errorCount: number;
+  clearErrorCount: () => void;
 }
 
-export function useConsoleMessages(): UseConsoleMessagesReturn {
-  const [consoleMessages, setConsoleMessages] = useState<ConsoleMessageItem[]>(
-    [],
-  );
-  const messageQueueRef = useRef<ConsoleMessageItem[]>([]);
-  const messageQueueTimeoutRef = useRef<number | null>(null);
+// --- Global Console Store ---
 
-  const processMessageQueue = useCallback(() => {
-    if (messageQueueRef.current.length === 0) {
-      return;
+const MAX_CONSOLE_MESSAGES = 1000;
+let globalConsoleMessages: ConsoleMessageItem[] = [];
+let globalErrorCount = 0;
+const listeners = new Set<() => void>();
+
+let messageQueue: ConsoleMessageItem[] = [];
+let timeoutId: NodeJS.Timeout | null = null;
+
+/**
+ * Initializes the global console store and subscribes to coreEvents.
+ * Acts as a safe reset function, making it idempotent and useful for test isolation.
+ * Must be called during application startup.
+ */
+export function initializeConsoleStore() {
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+  messageQueue = [];
+  globalConsoleMessages = [];
+  globalErrorCount = 0;
+  notifyListeners();
+
+  // Safely detach first to ensure idempotency and prevent listener leaks
+  coreEvents.off(CoreEvent.ConsoleLog, handleConsoleLog);
+  coreEvents.off(CoreEvent.Output, handleOutput);
+
+  coreEvents.on(CoreEvent.ConsoleLog, handleConsoleLog);
+  coreEvents.on(CoreEvent.Output, handleOutput);
+}
+
+function notifyListeners() {
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+function processQueue() {
+  if (messageQueue.length === 0) return;
+
+  // Create a new array to trigger React updates
+  const newMessages = [...globalConsoleMessages];
+
+  for (const queuedMessage of messageQueue) {
+    if (queuedMessage.type === 'error') {
+      globalErrorCount++;
     }
 
-    const newMessagesToAdd = messageQueueRef.current;
-    messageQueueRef.current = [];
+    // Coalesce consecutive identical messages
+    const prev = newMessages[newMessages.length - 1];
+    if (
+      prev &&
+      prev.type === queuedMessage.type &&
+      prev.content === queuedMessage.content
+    ) {
+      newMessages[newMessages.length - 1] = {
+        ...prev,
+        count: prev.count + 1,
+      };
+    } else {
+      newMessages.push({ ...queuedMessage, count: 1 });
+    }
+  }
 
-    setConsoleMessages((prevMessages) => {
-      const newMessages = [...prevMessages];
-      newMessagesToAdd.forEach((queuedMessage) => {
-        if (
-          newMessages.length > 0 &&
-          newMessages[newMessages.length - 1].type === queuedMessage.type &&
-          newMessages[newMessages.length - 1].content === queuedMessage.content
-        ) {
-          newMessages[newMessages.length - 1].count =
-            (newMessages[newMessages.length - 1].count || 1) + 1;
-        } else {
-          newMessages.push({ ...queuedMessage, count: 1 });
-        }
-      });
-      return newMessages;
-    });
+  globalConsoleMessages =
+    newMessages.length > MAX_CONSOLE_MESSAGES
+      ? newMessages.slice(-MAX_CONSOLE_MESSAGES)
+      : newMessages;
 
-    messageQueueTimeoutRef.current = null; // Allow next scheduling
+  messageQueue = [];
+  timeoutId = null;
+  notifyListeners();
+}
+
+function handleNewMessage(message: ConsoleMessageItem) {
+  messageQueue.push(message);
+  if (!timeoutId) {
+    // Batch updates using a timeout. 50ms is a reasonable delay to batch
+    // rapid-fire messages without noticeable lag while avoiding React update
+    // queue flooding.
+    timeoutId = setTimeout(processQueue, 50);
+  }
+}
+
+// --- Subscription API for useSyncExternalStore ---
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getConsoleMessagesSnapshot() {
+  return globalConsoleMessages;
+}
+
+function getErrorCountSnapshot() {
+  return globalErrorCount;
+}
+
+// --- Core Event Listeners (Always active at module level) ---
+
+const handleConsoleLog = (payload: ConsoleLogPayload) => {
+  let content = payload.content;
+  const MAX_CONSOLE_MSG_LENGTH = 10000;
+  if (content.length > MAX_CONSOLE_MSG_LENGTH) {
+    content =
+      content.slice(0, MAX_CONSOLE_MSG_LENGTH) +
+      `... [Truncated ${content.length - MAX_CONSOLE_MSG_LENGTH} characters]`;
+  }
+
+  handleNewMessage({
+    type: payload.type,
+    content,
+    count: 1,
+  });
+};
+
+const handleOutput = (payload: {
+  isStderr: boolean;
+  chunk: Uint8Array | string;
+}) => {
+  let content =
+    typeof payload.chunk === 'string'
+      ? payload.chunk
+      : new TextDecoder().decode(payload.chunk);
+
+  const MAX_OUTPUT_CHUNK_LENGTH = 10000;
+  if (content.length > MAX_OUTPUT_CHUNK_LENGTH) {
+    content =
+      content.slice(0, MAX_OUTPUT_CHUNK_LENGTH) +
+      `... [Truncated ${content.length - MAX_OUTPUT_CHUNK_LENGTH} characters]`;
+  }
+
+  handleNewMessage({ type: 'log', content, count: 1 });
+};
+
+/**
+ * Hook to access the global console message history.
+ * Decoupled from any component lifecycle to ensure history is preserved even
+ * when the UI is unmounted.
+ */
+export function useConsoleMessages(): ConsoleMessageItem[] {
+  return useSyncExternalStore(subscribe, getConsoleMessagesSnapshot);
+}
+
+/**
+ * Hook to access the global error count.
+ * Uses the same external store as useConsoleMessages for consistency.
+ */
+export function useErrorCount(): UseErrorCountReturn {
+  const errorCount = useSyncExternalStore(subscribe, getErrorCountSnapshot);
+
+  const clearErrorCount = useCallback(() => {
+    globalErrorCount = 0;
+    notifyListeners();
   }, []);
 
-  const scheduleQueueProcessing = useCallback(() => {
-    if (messageQueueTimeoutRef.current === null) {
-      messageQueueTimeoutRef.current = setTimeout(
-        processMessageQueue,
-        0,
-      ) as unknown as number;
-    }
-  }, [processMessageQueue]);
-
-  const handleNewMessage = useCallback(
-    (message: ConsoleMessageItem) => {
-      messageQueueRef.current.push(message);
-      scheduleQueueProcessing();
-    },
-    [scheduleQueueProcessing],
-  );
-
-  const clearConsoleMessages = useCallback(() => {
-    setConsoleMessages([]);
-    if (messageQueueTimeoutRef.current !== null) {
-      clearTimeout(messageQueueTimeoutRef.current);
-      messageQueueTimeoutRef.current = null;
-    }
-    messageQueueRef.current = [];
-  }, []);
-
-  useEffect(
-    () =>
-      // Cleanup on unmount
-      () => {
-        if (messageQueueTimeoutRef.current !== null) {
-          clearTimeout(messageQueueTimeoutRef.current);
-        }
-      },
-    [],
-  );
-
-  return { consoleMessages, handleNewMessage, clearConsoleMessages };
+  return { errorCount, clearErrorCount };
 }

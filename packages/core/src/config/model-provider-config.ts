@@ -1,10 +1,13 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { ModelProvider, ModelConfig } from '../core/model-providers/types.js';
+import type { ModelConfig } from '../core/model-providers/types.js';
+import { ModelProvider } from '../core/model-providers/types.js';
 
 /**
  * 模型提供商配置接口

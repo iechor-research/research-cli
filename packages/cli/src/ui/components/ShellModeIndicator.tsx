@@ -1,18 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import type React from 'react';
 import { Box, Text } from 'ink';
-import { Colors } from '../colors.js';
+import { theme } from '../semantic-colors.js';
 
 export const ShellModeIndicator: React.FC = () => (
   <Box>
-    <Text color={Colors.AccentYellow}>
+    <Text color={theme.ui.symbol}>
       shell mode enabled
-      <Text color={Colors.Gray}> (esc to disable)</Text>
+      <Text color={theme.text.secondary}> (esc to disable)</Text>
     </Text>
   </Box>
 );

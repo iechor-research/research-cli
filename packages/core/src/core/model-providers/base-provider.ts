@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   IModelProvider,
   ModelProvider,
   ModelConfig,
   ChatRequest,
   ChatResponse,
   StreamResponse,
-  ModelInfo,
+  ModelInfo} from './types.js';
+import {
   ConfigurationError,
   APIError,
   AuthenticationError,
@@ -25,7 +28,7 @@ export abstract class BaseModelProvider implements IModelProvider {
   protected config: ModelConfig | null = null;
   protected initialized = false;
 
-  constructor(public readonly name: ModelProvider) {}
+  constructor(readonly name: ModelProvider) {}
 
   /**
    * 初始化提供商

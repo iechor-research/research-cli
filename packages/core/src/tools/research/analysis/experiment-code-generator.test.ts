@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import type {
+  ExperimentCodeParams} from './experiment-code-generator.js';
 import {
-  ExperimentCodeGenerator,
-  ExperimentCodeParams,
+  ExperimentCodeGenerator
 } from './experiment-code-generator.js';
 import {
   ProgrammingLanguage,
@@ -335,7 +338,7 @@ describe('ExperimentCodeGenerator', () => {
         outputFormats: ['html'],
       };
 
-      const result = await generator.execute(params as any);
+      const result = await generator.execute(params);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Unsupported language');
@@ -514,7 +517,7 @@ describe('ExperimentCodeGenerator', () => {
         outputFormats: [],
       };
 
-      const result = await generator.execute(invalidParams as any);
+      const result = await generator.execute(invalidParams);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();

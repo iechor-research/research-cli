@@ -1,12 +1,15 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
-  ResearchToolParams,
   ProgrammingLanguage,
   ResearchMethod,
   DataFormat,
@@ -23,7 +26,7 @@ export interface ExperimentCodeParams extends ResearchToolParams {
   language: ProgrammingLanguage;
   dataTypes: DataFormat[];
   analysisTypes: AnalysisType[];
-  outputFormats: ('html' | 'pdf' | 'markdown' | 'jupyter')[];
+  outputFormats: Array<'html' | 'pdf' | 'markdown' | 'jupyter'>;
   includeVisualization?: boolean;
   includeStatistics?: boolean;
   includeTesting?: boolean;
@@ -38,7 +41,7 @@ export interface ExperimentCodeParams extends ResearchToolParams {
 export interface ExperimentCodeResult {
   experimentName: string;
   language: ProgrammingLanguage;
-  files: {
+  files: Array<{
     filename: string;
     content: string;
     description: string;
@@ -49,15 +52,15 @@ export interface ExperimentCodeResult {
       | 'test'
       | 'requirements'
       | 'documentation';
-  }[];
+  }>;
   dependencies: string[];
   instructions: string[];
   estimatedRuntime: string;
-  resources: {
+  resources: Array<{
     name: string;
     url: string;
     description: string;
-  }[];
+  }>;
 }
 
 /**
@@ -90,7 +93,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<
     );
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     const expParams = params as ExperimentCodeParams;
     return !!(
       expParams.experimentName?.trim() &&
@@ -102,7 +105,7 @@ export class ExperimentCodeGenerator extends BaseResearchTool<
     );
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       'Generate complete experiment code frameworks based on research methods and requirements',
       [

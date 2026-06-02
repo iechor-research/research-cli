@@ -1,23 +1,26 @@
 /**
- * Enhanced Bibliography Manager with ArXiv MCP Integration
- * Extends the base BibliographyManager with advanced arXiv capabilities
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import { BaseResearchTool } from '../base-tool.js';
-import {
+import type {
   ResearchToolParams,
   ResearchToolResult,
   PaperMetadata,
   BibliographyEntry,
-  CitationFormat,
+  CitationFormat} from '../types.js';
+import {
   ResearchToolCategory,
 } from '../types.js';
-import {
-  ArXivMCPClient,
+import type {
   ArXivSearchOptions,
   DownloadResult,
   SyncResult,
-  CitationNetwork,
+  CitationNetwork} from './arxiv-mcp-client.js';
+import {
+  ArXivMCPClient
 } from './arxiv-mcp-client.js';
 
 export interface EnhancedBibliographyParams extends ResearchToolParams {
@@ -579,8 +582,8 @@ Examples:
    */
   private async initializeBibliography(): Promise<void> {
     try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       const bibFile = path.join('.arxiv-cache', 'bibliography.json');
       const bibData = await fs.readFile(bibFile, 'utf-8');
@@ -603,8 +606,8 @@ Examples:
    */
   private async saveBibliography(): Promise<void> {
     try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       await fs.mkdir('.arxiv-cache', { recursive: true });
       const bibFile = path.join('.arxiv-cache', 'bibliography.json');

@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 declare module 'llm-interface' {
   export class LLMInterface {
     static setApiKey(keys: Record<string, string>): void;

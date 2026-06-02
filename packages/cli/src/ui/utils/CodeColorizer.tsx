@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,12 +14,15 @@ import type {
   ElementContent,
   RootContent,
 } from 'hast';
+import stripAnsi from 'strip-ansi';
 import { themeManager } from '../themes/theme-manager.js';
-import { Theme } from '../themes/theme.js';
+import type { Theme } from '../themes/theme.js';
 import {
   MaxSizedBox,
   MINIMUM_MAX_HEIGHT,
 } from '../components/shared/MaxSizedBox.js';
+import { debugLogger } from '@google/gemini-cli-core';
+import type { LoadedSettings } from '../../config/settings.js';
 
 // Configure theming and parsing utilities.
 const lowlight = createLowlight(common);
@@ -30,14 +33,16 @@ function renderHastNode(
   inheritedColor: string | undefined,
 ): React.ReactNode {
   if (node.type === 'text') {
-    // Use the color passed down from parent element, if any
-    return <Text color={inheritedColor}>{node.value}</Text>;
+    // Use the color passed down from parent element, or the theme's default.
+    const color = inheritedColor || theme.defaultColor;
+    return <Text color={color}>{node.value}</Text>;
   }
 
   // Handle Element Nodes: Determine color and pass it down, don't wrap
   if (node.type === 'element') {
     const nodeClasses: string[] =
-      (node.properties?.className as string[]) || [];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      (node.properties?.['className'] as string[]) || [];
     let elementColor: string | undefined = undefined;
 
     // Find color defined specifically for this element's class
@@ -50,7 +55,7 @@ function renderHastNode(
     }
 
     // Determine the color to pass down: Use this element's specific color
-    // if found, otherwise, continue passing down the already inherited color.
+    // if found; otherwise, continue passing down the already inherited color.
     const colorToPassDown = elementColor || inheritedColor;
 
     // Recursively render children, passing the determined color down
@@ -68,9 +73,9 @@ function renderHastNode(
     return <React.Fragment>{children}</React.Fragment>;
   }
 
-  // Handle Root Node: Start recursion with initial inherited color
+  // Handle Root Node: Start recursion with initially inherited color
   if (node.type === 'root') {
-    // Check if children array is empty - this happens when lowlight can't detect language – fallback to plain text
+    // Check if children array is empty - this happens when lowlight can't detect language – fall back to plain text
     if (!node.children || node.children.length === 0) {
       return null;
     }
@@ -88,97 +93,207 @@ function renderHastNode(
   return null;
 }
 
+function highlightAndRenderLine(
+  line: string,
+  language: string | null,
+  theme: Theme,
+): React.ReactNode {
+  try {
+    const strippedLine = stripAnsi(line);
+    const getHighlightedLine = () =>
+      !language || !lowlight.registered(language)
+        ? lowlight.highlightAuto(strippedLine)
+        : lowlight.highlight(language, strippedLine);
+
+    const renderedNode = renderHastNode(getHighlightedLine(), theme, undefined);
+
+    return renderedNode !== null ? renderedNode : strippedLine;
+  } catch {
+    return stripAnsi(line);
+  }
+}
+
+export function colorizeLine(
+  line: string,
+  language: string | null,
+  theme?: Theme,
+  disableColor = false,
+): React.ReactNode {
+  if (disableColor) {
+    return <Text>{line}</Text>;
+  }
+  const activeTheme = theme || themeManager.getActiveTheme();
+  return highlightAndRenderLine(line, language, activeTheme);
+}
+
+export interface ColorizeCodeOptions {
+  code: string;
+  language?: string | null;
+  availableHeight?: number;
+  maxWidth: number;
+  theme?: Theme | null;
+  settings: LoadedSettings;
+  hideLineNumbers?: boolean;
+  disableColor?: boolean;
+  returnLines?: boolean;
+  paddingX?: number;
+}
+
 /**
  * Renders syntax-highlighted code for Ink applications using a selected theme.
  *
- * @param code The code string to highlight.
- * @param language The language identifier (e.g., 'javascript', 'css', 'html')
+ * @param options The options for colorizing the code.
  * @returns A React.ReactNode containing Ink <Text> elements for the highlighted code.
  */
 export function colorizeCode(
-  code: string,
-  language: string | null,
-  availableHeight?: number,
-  maxWidth?: number,
-): React.ReactNode {
+  options: ColorizeCodeOptions & { returnLines: true },
+): React.ReactNode[];
+export function colorizeCode(
+  options: ColorizeCodeOptions & { returnLines?: false },
+): React.ReactNode;
+export function colorizeCode({
+  code,
+  language = null,
+  availableHeight,
+  maxWidth,
+  theme = null,
+  settings,
+  hideLineNumbers = false,
+  disableColor = false,
+  returnLines = false,
+  paddingX = 0,
+}: ColorizeCodeOptions): React.ReactNode | React.ReactNode[] {
   const codeToHighlight = code.replace(/\n$/, '');
-  const activeTheme = themeManager.getActiveTheme();
+  const activeTheme = theme || themeManager.getActiveTheme();
+  const showLineNumbers = hideLineNumbers
+    ? false
+    : settings.merged.ui.showLineNumbers;
+
+  // We force MaxSizedBox if availableHeight is provided, even if alternate buffer is enabled,
+  // because this might be rendered in a constrained UI box (like tool confirmation).
+  const useMaxSizedBox =
+    (!settings.merged.ui.useAlternateBuffer || availableHeight !== undefined) &&
+    !returnLines;
+
+  let hiddenLinesCount = 0;
+  let finalLines = codeToHighlight.split(/\r?\n/);
 
   try {
-    // Render the HAST tree using the adapted theme
-    // Apply the theme's default foreground color to the top-level Text element
-    let lines = codeToHighlight.split('\n');
-    const padWidth = String(lines.length).length; // Calculate padding width based on number of lines
-
-    let hiddenLinesCount = 0;
-
     // Optimization to avoid highlighting lines that cannot possibly be displayed.
-    if (availableHeight !== undefined) {
+    if (availableHeight !== undefined && useMaxSizedBox) {
       availableHeight = Math.max(availableHeight, MINIMUM_MAX_HEIGHT);
-      if (lines.length > availableHeight) {
-        const sliceIndex = lines.length - availableHeight;
+      if (finalLines.length > availableHeight) {
+        const sliceIndex = finalLines.length - availableHeight;
         hiddenLinesCount = sliceIndex;
-        lines = lines.slice(sliceIndex);
+        finalLines = finalLines.slice(sliceIndex);
       }
     }
 
-    const getHighlightedLines = (line: string) =>
-      !language || !lowlight.registered(language)
-        ? lowlight.highlightAuto(line)
-        : lowlight.highlight(language, line);
+    const padWidth = String(finalLines.length + hiddenLinesCount).length;
 
-    return (
-      <MaxSizedBox
-        maxHeight={availableHeight}
-        maxWidth={maxWidth}
-        additionalHiddenLinesCount={hiddenLinesCount}
-        overflowDirection="top"
-      >
-        {lines.map((line, index) => {
-          const renderedNode = renderHastNode(
-            getHighlightedLines(line),
-            activeTheme,
-            undefined,
-          );
+    const renderedLines = finalLines.map((line, index) => {
+      const contentToRender = disableColor
+        ? line
+        : highlightAndRenderLine(line, language, activeTheme);
 
-          const contentToRender = renderedNode !== null ? renderedNode : line;
-          return (
-            <Box key={index}>
-              <Text color={activeTheme.colors.Gray}>
-                {`${String(index + 1 + hiddenLinesCount).padStart(padWidth, ' ')} `}
-              </Text>
-              <Text color={activeTheme.defaultColor} wrap="wrap">
-                {contentToRender}
+      return (
+        <Box key={index} minHeight={1}>
+          {showLineNumbers && (
+            <Box
+              minWidth={padWidth + 1}
+              flexShrink={0}
+              paddingRight={1}
+              alignItems="flex-start"
+              justifyContent="flex-end"
+            >
+              <Text color={disableColor ? undefined : activeTheme.colors.Gray}>
+                {`${index + 1 + hiddenLinesCount}`}
               </Text>
             </Box>
-          );
-        })}
-      </MaxSizedBox>
+          )}
+          <Text
+            color={disableColor ? undefined : activeTheme.defaultColor}
+            wrap="wrap"
+          >
+            {contentToRender}
+          </Text>
+        </Box>
+      );
+    });
+
+    if (returnLines) {
+      return renderedLines;
+    }
+
+    if (useMaxSizedBox) {
+      return (
+        <MaxSizedBox
+          paddingX={paddingX}
+          maxHeight={availableHeight}
+          maxWidth={maxWidth}
+          additionalHiddenLinesCount={hiddenLinesCount}
+          overflowDirection="top"
+        >
+          {renderedLines}
+        </MaxSizedBox>
+      );
+    }
+
+    return (
+      <Box flexDirection="column" width={maxWidth}>
+        {renderedLines}
+      </Box>
     );
   } catch (error) {
-    console.error(
+    debugLogger.warn(
       `[colorizeCode] Error highlighting code for language "${language}":`,
       error,
     );
-    // Fallback to plain text with default color on error
-    // Also display line numbers in fallback
-    const lines = codeToHighlight.split('\n');
-    const padWidth = String(lines.length).length; // Calculate padding width based on number of lines
-    return (
-      <MaxSizedBox
-        maxHeight={availableHeight}
-        maxWidth={maxWidth}
-        overflowDirection="top"
-      >
-        {lines.map((line, index) => (
-          <Box key={index}>
-            <Text color={activeTheme.defaultColor}>
-              {`${String(index + 1).padStart(padWidth, ' ')} `}
+    // Fall back to plain text with default color on error
+    const padWidth = String(finalLines.length + hiddenLinesCount).length;
+    const fallbackLines = finalLines.map((line, index) => (
+      <Box key={index} minHeight={1}>
+        {showLineNumbers && (
+          <Box
+            minWidth={padWidth + 1}
+            flexShrink={0}
+            paddingRight={1}
+            alignItems="flex-start"
+            justifyContent="flex-end"
+          >
+            <Text color={disableColor ? undefined : activeTheme.defaultColor}>
+              {`${index + 1 + hiddenLinesCount}`}
             </Text>
-            <Text color={activeTheme.colors.Gray}>{line}</Text>
           </Box>
-        ))}
-      </MaxSizedBox>
+        )}
+        <Text color={disableColor ? undefined : activeTheme.colors.Gray}>
+          {stripAnsi(line)}
+        </Text>
+      </Box>
+    ));
+
+    if (returnLines) {
+      return fallbackLines;
+    }
+
+    if (useMaxSizedBox) {
+      return (
+        <MaxSizedBox
+          paddingX={paddingX}
+          maxHeight={availableHeight}
+          maxWidth={maxWidth}
+          additionalHiddenLinesCount={hiddenLinesCount}
+          overflowDirection="top"
+        >
+          {fallbackLines}
+        </MaxSizedBox>
+      );
+    }
+
+    return (
+      <Box flexDirection="column" width={maxWidth}>
+        {fallbackLines}
+      </Box>
     );
   }
 }

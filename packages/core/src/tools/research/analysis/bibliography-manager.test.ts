@@ -1,14 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  BibliographyManager,
+import type {
   BibliographySearchParams,
-  BibliographyManageParams,
+  BibliographyManageParams} from './bibliography-manager.js';
+import {
+  BibliographyManager
 } from './bibliography-manager.js';
 import { Database, CitationStyle, ResearchToolCategory } from '../types.js';
 
@@ -274,16 +277,16 @@ describe('BibliographyManager', () => {
       await manager.execute({
         action: 'add',
         entry: { title: 'Paper 1', authors: ['Author 1'], year: 2023 },
-      } as BibliographyManageParams);
+      });
 
       await manager.execute({
         action: 'add',
         entry: { title: 'Paper 2', authors: ['Author 2'], year: 2022 },
-      } as BibliographyManageParams);
+      });
 
       const result = await manager.execute({
         action: 'list',
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const listResult = result.data as any;
@@ -297,13 +300,13 @@ describe('BibliographyManager', () => {
       await manager.execute({
         action: 'add',
         entry: { title: 'Paper to Delete', authors: ['Author'], year: 2023 },
-      } as BibliographyManageParams);
+      });
 
       // 删除条目
       const result = await manager.execute({
         action: 'remove',
         entryId: 'entry_1',
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const removeResult = result.data as any;
@@ -315,7 +318,7 @@ describe('BibliographyManager', () => {
       const result = await manager.execute({
         action: 'remove',
         entryId: 'nonexistent',
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
@@ -326,14 +329,14 @@ describe('BibliographyManager', () => {
       await manager.execute({
         action: 'add',
         entry: { title: 'Original Title', authors: ['Author'], year: 2023 },
-      } as BibliographyManageParams);
+      });
 
       // 更新条目
       const result = await manager.execute({
         action: 'update',
         entryId: 'entry_1',
         entry: { title: 'Updated Title' },
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const updateResult = result.data as any;
@@ -354,14 +357,14 @@ describe('BibliographyManager', () => {
           journal: 'Test Journal',
           doi: '10.1000/test.doi',
         },
-      } as BibliographyManageParams);
+      });
     });
 
     it('应该以 APA 格式导出', async () => {
       const result = await manager.execute({
         action: 'export',
         format: CitationStyle.APA,
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const exportResult = result.data as any;
@@ -374,7 +377,7 @@ describe('BibliographyManager', () => {
       const result = await manager.execute({
         action: 'export',
         format: CitationStyle.IEEE,
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const exportResult = result.data as any;
@@ -387,7 +390,7 @@ describe('BibliographyManager', () => {
       const result = await manager.execute({
         action: 'export',
         format: CitationStyle.MLA,
-      } as BibliographyManageParams);
+      });
 
       expect(result.success).toBe(true);
       const exportResult = result.data as any;
@@ -478,7 +481,7 @@ describe('BibliographyManager', () => {
         action: 'unknown',
       };
 
-      const result = await manager.execute(params as any);
+      const result = await manager.execute(params);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();

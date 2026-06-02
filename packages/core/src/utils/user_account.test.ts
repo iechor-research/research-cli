@@ -1,10 +1,13 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach, Mock } from 'vitest';
+import type { Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   cacheiEchorAccount,
   getCachediEchorAccount,

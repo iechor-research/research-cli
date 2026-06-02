@@ -1,9 +1,12 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { BaseResearchTool } from '../base-tool.js';
-import {
+import type {
   WritingAssistantParams,
   WritingAssistantResult,
-  WritingStyle,
-  WritingOperation,
   WritingSuggestion,
   GrammarCheck,
   StyleImprovement,
@@ -11,8 +14,11 @@ import {
   StructureAnalysis,
   ReadabilityMetrics,
   PlagiarismCheck,
-  ResearchToolCategory,
-  ResearchToolParams,
+  ResearchToolParams} from '../types.js';
+import {
+  WritingStyle,
+  WritingOperation,
+  ResearchToolCategory
 } from '../types.js';
 
 /**
@@ -127,7 +133,7 @@ export class AcademicWritingAssistant extends BaseResearchTool<
     this.validateParams(params);
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     try {
       this.validateParams(params as WritingAssistantParams);
       return true;
@@ -136,7 +142,7 @@ export class AcademicWritingAssistant extends BaseResearchTool<
     }
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       'Provides comprehensive academic writing assistance including structure analysis, grammar checking, style improvement, citation verification, readability analysis, and plagiarism detection',
       [
@@ -791,7 +797,7 @@ export class AcademicWritingAssistant extends BaseResearchTool<
         message: 'Sentence should start with capital letter',
         suggestion: sentence.charAt(0).toUpperCase() + sentence.slice(1),
         position: {
-          start: start,
+          start,
           end: start + 1,
           line: 0,
         },
@@ -966,7 +972,7 @@ export class AcademicWritingAssistant extends BaseResearchTool<
         originalText: sentence,
         improvedText: sentence, // Would need more sophisticated processing
         location: {
-          start: start,
+          start,
           end: start + sentence.length,
           line: 0,
         },
@@ -1032,7 +1038,7 @@ export class AcademicWritingAssistant extends BaseResearchTool<
           originalText: sentence,
           improvedText: sentence,
           location: {
-            start: start,
+            start,
             end: start + sentence.length,
             line: 0,
           },

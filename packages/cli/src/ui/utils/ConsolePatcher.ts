@@ -1,15 +1,19 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import util from 'util';
-import { ConsoleMessageItem } from '../types.js';
+/* eslint-disable no-console */
+
+import util from 'node:util';
+import type { ConsoleMessageItem } from '../types.js';
 
 interface ConsolePatcherParams {
-  onNewMessage: (message: Omit<ConsoleMessageItem, 'id'>) => void;
+  onNewMessage?: (message: Omit<ConsoleMessageItem, 'id'>) => void;
   debugMode: boolean;
+  stderr?: boolean;
+  interactive?: boolean;
 }
 
 export class ConsolePatcher {
@@ -17,6 +21,7 @@ export class ConsolePatcher {
   private originalConsoleWarn = console.warn;
   private originalConsoleError = console.error;
   private originalConsoleDebug = console.debug;
+  private originalConsoleInfo = console.info;
 
   private params: ConsolePatcherParams;
 
@@ -25,10 +30,11 @@ export class ConsolePatcher {
   }
 
   patch() {
-    console.log = this.patchConsoleMethod('log', this.originalConsoleLog);
-    console.warn = this.patchConsoleMethod('warn', this.originalConsoleWarn);
-    console.error = this.patchConsoleMethod('error', this.originalConsoleError);
-    console.debug = this.patchConsoleMethod('debug', this.originalConsoleDebug);
+    console.log = this.patchConsoleMethod('log');
+    console.warn = this.patchConsoleMethod('warn');
+    console.error = this.patchConsoleMethod('error');
+    console.debug = this.patchConsoleMethod('debug');
+    console.info = this.patchConsoleMethod('info');
   }
 
   cleanup = () => {
@@ -36,26 +42,33 @@ export class ConsolePatcher {
     console.warn = this.originalConsoleWarn;
     console.error = this.originalConsoleError;
     console.debug = this.originalConsoleDebug;
+    console.info = this.originalConsoleInfo;
   };
 
   private formatArgs = (args: unknown[]): string => util.format(...args);
 
   private patchConsoleMethod =
-    (
-      type: 'log' | 'warn' | 'error' | 'debug',
-      originalMethod: (...args: unknown[]) => void,
-    ) =>
+    (type: 'log' | 'warn' | 'error' | 'debug' | 'info') =>
     (...args: unknown[]) => {
-      if (this.params.debugMode) {
-        originalMethod.apply(console, args);
+      // When it is non interactive mode, do not show info logging unless
+      // it is debug mode. default to true if it is undefined.
+      if (this.params.interactive === false) {
+        if ((type === 'info' || type === 'log') && !this.params.debugMode) {
+          return;
+        }
       }
-
+      // When it is in the debug mode, redirect console output to stderr
+      // depending on if it is stderr only mode.
       if (type !== 'debug' || this.params.debugMode) {
-        this.params.onNewMessage({
-          type,
-          content: this.formatArgs(args),
-          count: 1,
-        });
+        if (this.params.stderr) {
+          this.originalConsoleError(this.formatArgs(args));
+        } else {
+          this.params.onNewMessage?.({
+            type,
+            content: this.formatArgs(args),
+            count: 1,
+          });
+        }
       }
     };
 }

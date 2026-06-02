@@ -1,10 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   ResearchTool,
   ResearchToolCategory,
   ResearchToolParams,
@@ -20,10 +22,10 @@ export abstract class BaseResearchTool<
   TResult = unknown,
 > implements ResearchTool
 {
-  public readonly name: string;
-  public readonly description: string;
-  public readonly category: ResearchToolCategory;
-  public readonly version: string;
+  readonly name: string;
+  readonly description: string;
+  readonly category: ResearchToolCategory;
+  readonly version: string;
 
   protected constructor(
     name: string,
@@ -41,7 +43,7 @@ export abstract class BaseResearchTool<
    * 执行工具的主要方法
    * 实现模板方法模式，提供统一的执行流程
    */
-  public async execute(
+  async execute(
     params: ResearchToolParams,
   ): Promise<ResearchToolResult> {
     const startTime = Date.now();
@@ -86,13 +88,13 @@ export abstract class BaseResearchTool<
    * 验证参数的抽象方法
    * 每个具体工具必须实现自己的参数验证逻辑
    */
-  public abstract validate(params: ResearchToolParams): boolean;
+  abstract validate(params: ResearchToolParams): boolean;
 
   /**
    * 获取帮助信息的抽象方法
    * 每个具体工具必须提供自己的帮助信息
    */
-  public abstract getHelp(): string;
+  abstract getHelp(): string;
 
   /**
    * 执行具体逻辑的抽象方法

@@ -1,13 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { Content } from '@google/genai';
+import type { Content } from '@google/genai';
+import { debugLogger } from './debugLogger.js';
 
 interface ErrorReportData {
   error: { message: string; stack?: string } | { message: string };
@@ -16,7 +17,7 @@ interface ErrorReportData {
 }
 
 /**
- * Generates an error report, writes it to a temporary file, and logs information to console.error.
+ * Generates an error report, writes it to a temporary file, and logs information to user
  * @param error The error object.
  * @param context The relevant context (e.g., chat history, request contents).
  * @param type A string to identify the type of error (e.g., 'startChat', 'generateJson-api').
@@ -27,10 +28,11 @@ export async function reportError(
   baseMessage: string,
   context?: Content[] | Record<string, unknown> | unknown[],
   type = 'general',
+  reportingDir = os.tmpdir(), // for testing
 ): Promise<void> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const reportFileName = `research-client-error-${type}-${timestamp}.json`;
-  const reportPath = path.join(os.tmpdir(), reportFileName);
+  const reportFileName = `gemini-client-error-${type}-${timestamp}.json`;
+  const reportPath = path.join(reportingDir, reportFileName);
 
   let errorToReport: { message: string; stack?: string };
   if (error instanceof Error) {
@@ -58,13 +60,16 @@ export async function reportError(
     stringifiedReportContent = JSON.stringify(reportContent, null, 2);
   } catch (stringifyError) {
     // This can happen if context contains something like BigInt
-    console.error(
+    debugLogger.error(
       `${baseMessage} Could not stringify report content (likely due to context):`,
       stringifyError,
     );
-    console.error('Original error that triggered report generation:', error);
+    debugLogger.error(
+      'Original error that triggered report generation:',
+      error,
+    );
     if (context) {
-      console.error(
+      debugLogger.error(
         'Original context could not be stringified or included in report.',
       );
     }
@@ -74,11 +79,12 @@ export async function reportError(
       stringifiedReportContent = JSON.stringify(minimalReportContent, null, 2);
       // Still try to write the minimal report
       await fs.writeFile(reportPath, stringifiedReportContent);
-      console.error(
+      debugLogger.error(
         `${baseMessage} Partial report (excluding context) available at: ${reportPath}`,
+        error,
       );
     } catch (minimalWriteError) {
-      console.error(
+      debugLogger.error(
         `${baseMessage} Failed to write even a minimal error report:`,
         minimalWriteError,
       );
@@ -88,28 +94,37 @@ export async function reportError(
 
   try {
     await fs.writeFile(reportPath, stringifiedReportContent);
-    console.error(`${baseMessage} Full report available at: ${reportPath}`);
+    debugLogger.error(
+      `${baseMessage} Full report available at: ${reportPath}`,
+      error,
+    );
   } catch (writeError) {
-    console.error(
+    debugLogger.error(
       `${baseMessage} Additionally, failed to write detailed error report:`,
       writeError,
     );
     // Log the original error as a fallback if report writing fails
-    console.error('Original error that triggered report generation:', error);
+    debugLogger.error(
+      'Original error that triggered report generation:',
+      error,
+    );
+
     if (context) {
       // Context was stringifiable, but writing the file failed.
       // We already have stringifiedReportContent, but it might be too large for console.
       // So, we try to log the original context object, and if that fails, its stringified version (truncated).
       try {
-        console.error('Original context:', context);
+        debugLogger.error('Original context:', context);
       } catch {
         try {
-          console.error(
+          debugLogger.error(
             'Original context (stringified, truncated):',
             JSON.stringify(context).substring(0, 1000),
           );
         } catch {
-          console.error('Original context could not be logged or stringified.');
+          debugLogger.error(
+            'Original context could not be logged or stringified.',
+          );
         }
       }
     }

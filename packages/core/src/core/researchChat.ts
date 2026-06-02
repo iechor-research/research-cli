@@ -1,25 +1,29 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 // DISCLAIMER: This is a copied version of https://github.com/googleapis/js-genai/blob/main/src/chats.ts with the intention of working around a key bug
 // where function responses are not treated as "valid" responses: https://b.corp.iechor.com/issues/420354090
 
-import {
+import type {
   GenerateContentResponse,
   Content,
   GenerateContentConfig,
   SendMessageParameters,
-  createUserContent,
   Part,
-  GenerateContentResponseUsageMetadata,
+  GenerateContentResponseUsageMetadata} from '@google/genai';
+import {
+  createUserContent
 } from '@google/genai';
 import { retryWithBackoff } from '../utils/retry.js';
 import { isFunctionResponse } from '../utils/messageInspectors.js';
-import { ContentGenerator, AuthType } from './contentGenerator.js';
-import { Config } from '../config/config.js';
+import type { ContentGenerator} from './contentGenerator.js';
+import { AuthType } from './contentGenerator.js';
+import type { Config } from '../config/config.js';
 import {
   logApiRequest,
   logApiResponse,
@@ -310,7 +314,7 @@ export class ResearchChat {
           return false;
         },
         onPersistent429: async (authType?: string, error?: unknown) =>
-          await this.handleFlashFallback(authType, error),
+          this.handleFlashFallback(authType, error),
         authType: this.config.getContentGeneratorConfig()?.authType,
       });
       const durationMs = Date.now() - startTime;
@@ -422,7 +426,7 @@ export class ResearchChat {
           return false; // Don't retry other errors by default
         },
         onPersistent429: async (authType?: string, error?: unknown) =>
-          await this.handleFlashFallback(authType, error),
+          this.handleFlashFallback(authType, error),
         authType: this.config.getContentGeneratorConfig()?.authType,
       });
 
@@ -587,7 +591,7 @@ export class ResearchChat {
         outputContents.push({
           role: 'model',
           parts: [],
-        } as Content);
+        });
       }
     }
     if (

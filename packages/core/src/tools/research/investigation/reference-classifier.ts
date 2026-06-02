@@ -1,10 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { InvestigatedPaper } from './literature-investigator.js';
+import type { InvestigatedPaper } from './literature-investigator.js';
 import { ResearchTopic } from './keyword-generator.js';
 
 /**

@@ -1,29 +1,33 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   ToolCallRequestInfo,
   ToolCallResponseInfo,
-  ToolConfirmationOutcome,
   Tool,
   ToolCallConfirmationDetails,
   ToolResult,
   ToolRegistry,
-  ApprovalMode,
   EditorType,
   Config,
+  ToolConfirmationPayload} from '../index.js';
+import {
+  ToolConfirmationOutcome,
+  ApprovalMode,
   logToolCall,
-  ToolCallEvent,
-  ToolConfirmationPayload,
+  ToolCallEvent
 } from '../index.js';
-import { Part, PartListUnion } from '@google/genai';
+import type { Part, PartListUnion } from '@google/genai';
 import { getResponseTextFromParts } from '../utils/generateContentResponseUtilities.js';
+import type {
+  ModifyContext} from '../tools/modifiable-tool.js';
 import {
   isModifiableTool,
-  ModifyContext,
   modifyWithEditor,
 } from '../tools/modifiable-tool.js';
 import * as Diff from 'diff';
@@ -300,7 +304,7 @@ export class CoreToolScheduler {
             response: auxiliaryData as ToolCallResponseInfo,
             durationMs,
             outcome,
-          } as SuccessfulToolCall;
+          };
         }
         case 'error': {
           const durationMs = existingStartTime
@@ -312,7 +316,7 @@ export class CoreToolScheduler {
             response: auxiliaryData as ToolCallResponseInfo,
             durationMs,
             outcome,
-          } as ErroredToolCall;
+          };
         }
         case 'awaiting_approval':
           return {
@@ -322,7 +326,7 @@ export class CoreToolScheduler {
             confirmationDetails: auxiliaryData as ToolCallConfirmationDetails,
             startTime: existingStartTime,
             outcome,
-          } as WaitingToolCall;
+          };
         case 'scheduled':
           return {
             request: currentCall.request,
@@ -330,7 +334,7 @@ export class CoreToolScheduler {
             status: 'scheduled',
             startTime: existingStartTime,
             outcome,
-          } as ScheduledToolCall;
+          };
         case 'cancelled': {
           const durationMs = existingStartTime
             ? Date.now() - existingStartTime
@@ -364,7 +368,7 @@ export class CoreToolScheduler {
             status: 'validating',
             startTime: existingStartTime,
             outcome,
-          } as ValidatingToolCall;
+          };
         case 'executing':
           return {
             request: currentCall.request,
@@ -372,7 +376,7 @@ export class CoreToolScheduler {
             status: 'executing',
             startTime: existingStartTime,
             outcome,
-          } as ExecutingToolCall;
+          };
         default: {
           const exhaustiveCheck: never = newStatus;
           return exhaustiveCheck;

@@ -1,18 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ToolResult } from '../tools/tools.js';
-import {
-  Content,
-  GenerateContentConfig,
-  GenerateContentResponse,
-} from '@google/genai';
-import { ResearchClient } from '../core/client.js';
-import { DEFAULT_RESEARCH_FLASH_MODEL } from '../config/models.js';
-import { PartListUnion } from '@google/genai';
+import type { ToolResult } from '../tools/tools.js';
+import type { Content } from '@google/genai';
+import type { GeminiClient } from '../core/client.js';
+import { getResponseText, partToString } from './partUtils.js';
+import { debugLogger } from './debugLogger.js';
+import type { ModelConfigKey } from '../services/modelConfigService.js';
+import type { Config } from '../config/config.js';
+import { LlmRole } from '../telemetry/llmRole.js';
 
 /**
  * A function that summarizes the result of a tool execution.
@@ -21,8 +20,9 @@ import { PartListUnion } from '@google/genai';
  * @returns The summary of the result.
  */
 export type Summarizer = (
+  config: Config,
   result: ToolResult,
-  researchClient: ResearchClient,
+  geminiClient: GeminiClient,
   abortSignal: AbortSignal,
 ) => Promise<string>;
 
@@ -30,56 +30,18 @@ export type Summarizer = (
  * The default summarizer for tool results.
  *
  * @param result The result of the tool execution.
- * @param researchClient The Research client to use for summarization.
+ * @param geminiClient The Gemini client to use for summarization.
  * @param abortSignal The abort signal to use for summarization.
  * @returns The summary of the result.
  */
 export const defaultSummarizer: Summarizer = (
+  _config: Config,
   result: ToolResult,
-  _researchClient: ResearchClient,
+  _geminiClient: GeminiClient,
   _abortSignal: AbortSignal,
 ) => Promise.resolve(JSON.stringify(result.llmContent));
 
-// TODO: Move both these functions to utils
-function partToString(part: PartListUnion): string {
-  if (!part) {
-    return '';
-  }
-  if (typeof part === 'string') {
-    return part;
-  }
-  if (Array.isArray(part)) {
-    return part.map(partToString).join('');
-  }
-  if ('text' in part) {
-    return part.text ?? '';
-  }
-  return '';
-}
-
-function getResponseText(response: GenerateContentResponse): string | null {
-  if (response.candidates && response.candidates.length > 0) {
-    const candidate = response.candidates[0];
-    if (
-      candidate.content &&
-      candidate.content.parts &&
-      candidate.content.parts.length > 0
-    ) {
-      return candidate.content.parts
-        .filter((part) => part.text)
-        .map((part) => part.text)
-        .join('');
-    }
-  }
-  return null;
-}
-
-const toolOutputSummarizerModel = DEFAULT_RESEARCH_FLASH_MODEL;
-const toolOutputSummarizerConfig: GenerateContentConfig = {
-  maxOutputTokens: 2000,
-};
-
-const SUMMARIZE_TOOL_OUTPUT_PROMPT = `Summarize the following tool output to be a maximum of {maxLength} characters. The summary should be concise and capture the main points of the tool output.
+const SUMMARIZE_TOOL_OUTPUT_PROMPT = `Summarize the following tool output to be a maximum of {maxOutputTokens} tokens. The summary should be concise and capture the main points of the tool output.
 
 The summarization should be done based on the content that is provided. Here are the basic rules to follow:
 1. If the text is a directory listing or any output that is structural, use the history of the conversation to understand the context. Using this context try to understand what information we need from the tool output and return that as a response.
@@ -93,43 +55,51 @@ Text to summarize:
 Return the summary string which should first contain an overall summarization of text followed by the full stack trace of errors and warnings in the tool output.
 `;
 
-export const llmSummarizer: Summarizer = (
+export const llmSummarizer: Summarizer = async (
+  config,
   result,
-  researchClient,
+  geminiClient,
   abortSignal,
 ) =>
   summarizeToolOutput(
+    config,
+    { model: 'summarizer-default' },
     partToString(result.llmContent),
-    researchClient,
+    geminiClient,
     abortSignal,
   );
 
 export async function summarizeToolOutput(
+  config: Config,
+  modelConfigKey: ModelConfigKey,
   textToSummarize: string,
-  researchClient: ResearchClient,
+  geminiClient: GeminiClient,
   abortSignal: AbortSignal,
-  maxLength: number = 2000,
 ): Promise<string> {
-  if (!textToSummarize || textToSummarize.length < maxLength) {
+  const maxOutputTokens =
+    config.modelConfigService.getResolvedConfig(modelConfigKey)
+      .generateContentConfig.maxOutputTokens ?? 2000;
+  // There is going to be a slight difference here since we are comparing length of string with maxOutputTokens.
+  // This is meant to be a ballpark estimation of if we need to summarize the tool output.
+  if (!textToSummarize || textToSummarize.length < maxOutputTokens) {
     return textToSummarize;
   }
   const prompt = SUMMARIZE_TOOL_OUTPUT_PROMPT.replace(
-    '{maxLength}',
-    String(maxLength),
+    '{maxOutputTokens}',
+    String(maxOutputTokens),
   ).replace('{textToSummarize}', textToSummarize);
 
   const contents: Content[] = [{ role: 'user', parts: [{ text: prompt }] }];
-
   try {
-    const parsedResponse = (await researchClient.generateContent(
+    const parsedResponse = await geminiClient.generateContent(
+      modelConfigKey,
       contents,
-      toolOutputSummarizerConfig,
       abortSignal,
-      toolOutputSummarizerModel,
-    )) as unknown as GenerateContentResponse;
+      LlmRole.UTILITY_SUMMARIZER,
+    );
     return getResponseText(parsedResponse) || textToSummarize;
   } catch (error) {
-    console.error('Failed to summarize tool output.', error);
+    debugLogger.warn('Failed to summarize tool output.', error);
     return textToSummarize;
   }
 }

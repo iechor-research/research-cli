@@ -1,14 +1,15 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import {
   allowEditorTypeInSandbox,
-  checkHasEditorType,
+  hasValidEditorCommand,
   type EditorType,
-} from '@iechor/research-cli-core';
+  EDITOR_DISPLAY_NAMES,
+} from '@google/gemini-cli-core';
 
 export interface EditorDisplay {
   name: string;
@@ -16,29 +17,14 @@ export interface EditorDisplay {
   disabled: boolean;
 }
 
-export const EDITOR_DISPLAY_NAMES: Record<EditorType, string> = {
-  zed: 'Zed',
-  vscode: 'VS Code',
-  vscodium: 'VSCodium',
-  windsurf: 'Windsurf',
-  cursor: 'Cursor',
-  vim: 'Vim',
-  neovim: 'Neovim',
-};
-
 class EditorSettingsManager {
   private readonly availableEditors: EditorDisplay[];
 
   constructor() {
-    const editorTypes: EditorType[] = [
-      'zed',
-      'vscode',
-      'vscodium',
-      'windsurf',
-      'cursor',
-      'vim',
-      'neovim',
-    ];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    const editorTypes = Object.keys(
+      EDITOR_DISPLAY_NAMES,
+    ).sort() as EditorType[];
     this.availableEditors = [
       {
         name: 'None',
@@ -46,7 +32,7 @@ class EditorSettingsManager {
         disabled: false,
       },
       ...editorTypes.map((type) => {
-        const hasEditor = checkHasEditorType(type);
+        const hasEditor = hasValidEditorCommand(type);
         const isAllowedInSandbox = allowEditorTypeInSandbox(type);
 
         let labelSuffix = !isAllowedInSandbox

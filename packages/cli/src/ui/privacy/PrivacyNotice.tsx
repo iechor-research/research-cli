@@ -1,12 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { Box } from 'ink';
-import { type Config, AuthType } from '@iechor/research-cli-core';
-import { ResearchPrivacyNotice } from './ResearchPrivacyNotice.js';
+import { type Config, AuthType } from '@google/gemini-cli-core';
+import { GeminiPrivacyNotice } from './GeminiPrivacyNotice.js';
 import { CloudPaidPrivacyNotice } from './CloudPaidPrivacyNotice.js';
 import { CloudFreePrivacyNotice } from './CloudFreePrivacyNotice.js';
 
@@ -25,8 +25,8 @@ const PrivacyNoticeText = ({
   const authType = config.getContentGeneratorConfig()?.authType;
 
   switch (authType) {
-    case AuthType.USE_RESEARCH:
-      return <ResearchPrivacyNotice onExit={onExit} />;
+    case AuthType.USE_GEMINI:
+      return <GeminiPrivacyNotice onExit={onExit} />;
     case AuthType.USE_VERTEX_AI:
       return <CloudPaidPrivacyNotice onExit={onExit} />;
     case AuthType.LOGIN_WITH_GOOGLE:

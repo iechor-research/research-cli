@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -33,6 +33,6 @@ describe('themeCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(themeCommand.name).toBe('theme');
-    expect(themeCommand.description).toBe('change the theme');
+    expect(themeCommand.description).toBe('Change the theme');
   });
 });

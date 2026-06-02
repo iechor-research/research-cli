@@ -1,44 +1,35 @@
-# Memory Tool (`save_memory`)
+# Memory tool (`save_memory`)
 
-This document describes the `save_memory` tool for the Research CLI.
+The `save_memory` tool allows the Gemini agent to persist specific facts, user
+preferences, and project details across sessions.
 
-## Description
+## Technical reference
 
-Use `save_memory` to save and recall information across your Research CLI sessions. With `save_memory`, you can direct the CLI to remember key details across sessions, providing personalized and directed assistance.
+This tool appends information to the `## Gemini Added Memories` section of your
+global `GEMINI.md` file (typically located at `~/.gemini/GEMINI.md`).
 
 ### Arguments
 
-`save_memory` takes one argument:
+- `fact` (string, required): A clear, self-contained statement in natural
+  language.
 
-- `fact` (string, required): The specific fact or piece of information to remember. This should be a clear, self-contained statement written in natural language.
+## Technical behavior
 
-## How to use `save_memory` with the Research CLI
+- **Storage:** Appends to the global context file in the user's home directory.
+- **Loading:** The stored facts are automatically included in the hierarchical
+  context system for all future sessions.
+- **Format:** Saves data as a bulleted list item within a dedicated Markdown
+  section.
 
-The tool appends the provided `fact` to a special `RESEARCH.md` file located in the user's home directory (`~/.research/RESEARCH.md`). This file can be configured to have a different name.
+## Use cases
 
-Once added, the facts are stored under a `## Research Added Memories` section. This file is loaded as context in subsequent sessions, allowing the CLI to recall the saved information.
+- Persisting user preferences (for example, "I prefer functional programming").
+- Saving project-wide architectural decisions.
+- Storing frequently used aliases or system configurations.
 
-Usage:
+## Next steps
 
-```
-save_memory(fact="Your fact here.")
-```
-
-### `save_memory` examples
-
-Remember a user preference:
-
-```
-save_memory(fact="My preferred programming language is Python.")
-```
-
-Store a project-specific detail:
-
-```
-save_memory(fact="The project I'm currently working on is called 'research-cli'.")
-```
-
-## Important notes
-
-- **General usage:** This tool should be used for concise, important facts. It is not intended for storing large amounts of data or conversational history.
-- **Memory file:** The memory file is a plain text Markdown file, so you can view and edit it manually if needed.
+- Follow the [Memory management guide](../cli/tutorials/memory-management.md)
+  for practical examples.
+- Learn how the [Project context (GEMINI.md)](../cli/gemini-md.md) system loads
+  this information.

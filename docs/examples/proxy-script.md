@@ -1,24 +1,26 @@
-# Example Proxy Script
+# Example proxy script
 
-The following is an example of a proxy script that can be used with the `RESEARCH_SANDBOX_PROXY_COMMAND` environment variable. This script only allows `HTTPS` connections to `example.com:443` and declines all other requests.
+The following is an example of a proxy script that can be used with the
+`GEMINI_SANDBOX_PROXY_COMMAND` environment variable. This script only allows
+`HTTPS` connections to `example.com:443` and declines all other requests.
 
 ```javascript
 #!/usr/bin/env node
 
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 // Example proxy server that listens on :::8877 and only allows HTTPS connections to example.com.
-// Set `RESEARCH_SANDBOX_PROXY_COMMAND=scripts/example-proxy.js` to run proxy alongside sandbox
+// Set `GEMINI_SANDBOX_PROXY_COMMAND=scripts/example-proxy.js` to run proxy alongside sandbox
 // Test via `curl https://example.com` inside sandbox (in shell mode or via shell tool)
 
-import http from 'http';
-import net from 'net';
-import { URL } from 'url';
-import console from 'console';
+import http from 'node:http';
+import net from 'node:net';
+import { URL } from 'node:url';
+import console from 'node:console';
 
 const PROXY_PORT = 8877;
 const ALLOWED_DOMAINS = ['example.com', 'googleapis.com'];

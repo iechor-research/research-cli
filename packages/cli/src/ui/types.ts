@@ -1,13 +1,50 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import {
-  ToolCallConfirmationDetails,
+  type CompressionStatus,
+  type GeminiCLIExtension,
+  type MCPServerConfig,
+  type ThoughtSummary,
+  type SerializableConfirmationDetails,
+  type ToolResultDisplay,
+  type ToolDisplay,
+  type RetrieveUserQuotaResponse,
+  type SkillDefinition,
+  type AgentDefinition,
+  type ApprovalMode,
+  type Kind,
+  type AnsiOutput,
+  CoreToolCallStatus,
+  checkExhaustive,
+  type SubagentActivityItem,
+} from '@google/gemini-cli-core';
+import type { PartListUnion } from '@google/genai';
+import { type ReactNode } from 'react';
+
+export { CoreToolCallStatus };
+export type {
+  ThoughtSummary,
+  SkillDefinition,
+  SerializableConfirmationDetails,
   ToolResultDisplay,
-} from '@iechor/research-cli-core';
+};
+
+export enum AuthState {
+  // Attempting to authenticate or re-authenticate
+  Unauthenticated = 'unauthenticated',
+  // Auth dialog is open for user to select auth method
+  Updating = 'updating',
+  // Waiting for user to input API key
+  AwaitingApiKeyInput = 'awaiting_api_key_input',
+  // Successfully authenticated
+  Authenticated = 'authenticated',
+  // Waiting for the user to restart after a login
+  AwaitingLoginRestart = 'awaiting_login_restart',
+}
 
 // Only defining the state enum needed by the UI
 export enum StreamingState {
@@ -17,7 +54,7 @@ export enum StreamingState {
 }
 
 // Copied from server/src/core/turn.ts for CLI usage
-export enum ResearchEventType {
+export enum GeminiEventType {
   Content = 'content',
   ToolCallRequest = 'tool_call_request',
   // Add other event types if the UI hook needs to handle them
@@ -32,34 +69,97 @@ export enum ToolCallStatus {
   Error = 'Error',
 }
 
+/**
+ * Maps core tool call status to a simplified UI status.
+ */
+export function mapCoreStatusToDisplayStatus(
+  coreStatus: CoreToolCallStatus,
+): ToolCallStatus {
+  switch (coreStatus) {
+    case CoreToolCallStatus.Validating:
+      return ToolCallStatus.Pending;
+    case CoreToolCallStatus.AwaitingApproval:
+      return ToolCallStatus.Confirming;
+    case CoreToolCallStatus.Executing:
+      return ToolCallStatus.Executing;
+    case CoreToolCallStatus.Success:
+      return ToolCallStatus.Success;
+    case CoreToolCallStatus.Cancelled:
+      return ToolCallStatus.Canceled;
+    case CoreToolCallStatus.Error:
+      return ToolCallStatus.Error;
+    case CoreToolCallStatus.Scheduled:
+      return ToolCallStatus.Pending;
+    default:
+      return checkExhaustive(coreStatus);
+  }
+}
+
+/**
+ * --- TYPE GUARDS ---
+ */
+
+export const isTodoList = (res: unknown): res is { todos: unknown[] } =>
+  typeof res === 'object' && res !== null && 'todos' in res;
+
+export const isAnsiOutput = (res: unknown): res is AnsiOutput =>
+  Array.isArray(res) && (res.length === 0 || Array.isArray(res[0]));
+
 export interface ToolCallEvent {
   type: 'tool_call';
-  status: ToolCallStatus;
+  status: CoreToolCallStatus;
   callId: string;
   name: string;
   args: Record<string, never>;
   resultDisplay: ToolResultDisplay | undefined;
-  confirmationDetails: ToolCallConfirmationDetails | undefined;
+  confirmationDetails: SerializableConfirmationDetails | undefined;
+  correlationId?: string;
 }
 
 export interface IndividualToolCallDisplay {
   callId: string;
+  parentCallId?: string;
   name: string;
+  args?: Record<string, unknown>;
   description: string;
+  display?: ToolDisplay;
   resultDisplay: ToolResultDisplay | undefined;
-  status: ToolCallStatus;
-  confirmationDetails: ToolCallConfirmationDetails | undefined;
+  status: CoreToolCallStatus;
+  // True when the tool was initiated directly by the user (slash/@/shell flows).
+  isClientInitiated?: boolean;
+  kind?: Kind;
+  confirmationDetails: SerializableConfirmationDetails | undefined;
   renderOutputAsMarkdown?: boolean;
+  ptyId?: number;
+  outputFile?: string;
+  correlationId?: string;
+  approvalMode?: ApprovalMode;
+  progressMessage?: string;
+  originalRequestName?: string;
+  progress?: number;
+  progressTotal?: number;
+  subagentHistory?: SubagentActivityItem[];
 }
 
 export interface CompressionProps {
   isPending: boolean;
   originalTokenCount: number | null;
   newTokenCount: number | null;
+  compressionStatus: CompressionStatus | null;
 }
 
+export interface ExportSessionProps {
+  isPending: boolean;
+  targetPath?: string;
+}
+
+/**
+ * For use when you want no icon.
+ */
+export const emptyIcon = '  ';
+
 export interface HistoryItemBase {
-  text?: string; // Text content for user/research/info/error messages
+  text?: string; // Text content for user/gemini/info/error messages
 }
 
 export type HistoryItemUser = HistoryItemBase & {
@@ -67,23 +167,33 @@ export type HistoryItemUser = HistoryItemBase & {
   text: string;
 };
 
-export type HistoryItemResearch = HistoryItemBase & {
-  type: 'research';
+export type HistoryItemGemini = HistoryItemBase & {
+  type: 'gemini';
   text: string;
 };
 
-export type HistoryItemResearchContent = HistoryItemBase & {
-  type: 'research_content';
+export type HistoryItemGeminiContent = HistoryItemBase & {
+  type: 'gemini_content';
   text: string;
 };
 
 export type HistoryItemInfo = HistoryItemBase & {
   type: 'info';
   text: string;
+  secondaryText?: string;
+  source?: string;
+  icon?: string;
+  color?: string;
+  marginBottom?: number;
 };
 
 export type HistoryItemError = HistoryItemBase & {
   type: 'error';
+  text: string;
+};
+
+export type HistoryItemWarning = HistoryItemBase & {
+  type: 'warning';
   text: string;
 };
 
@@ -95,19 +205,50 @@ export type HistoryItemAbout = HistoryItemBase & {
   modelVersion: string;
   selectedAuthType: string;
   gcpProject: string;
+  ideClient: string;
+  userEmail?: string;
+  tier?: string;
 };
 
-export type HistoryItemStats = HistoryItemBase & {
+export type HistoryItemHelp = HistoryItemBase & {
+  type: 'help';
+  timestamp: Date;
+};
+
+export interface HistoryItemQuotaBase extends HistoryItemBase {
+  selectedAuthType?: string;
+  userEmail?: string;
+  tier?: string;
+  currentModel?: string;
+  pooledRemaining?: number;
+  pooledLimit?: number;
+  pooledResetTime?: string;
+}
+
+export interface QuotaStats {
+  remaining: number | undefined;
+  limit: number | undefined;
+  resetTime?: string;
+}
+
+export type HistoryItemStats = HistoryItemQuotaBase & {
   type: 'stats';
   duration: string;
+  quotas?: RetrieveUserQuotaResponse;
+  creditBalance?: number;
 };
 
-export type HistoryItemModelStats = HistoryItemBase & {
+export type HistoryItemModelStats = HistoryItemQuotaBase & {
   type: 'model_stats';
 };
 
 export type HistoryItemToolStats = HistoryItemBase & {
   type: 'tool_stats';
+};
+
+export type HistoryItemModel = HistoryItemBase & {
+  type: 'model';
+  model: string;
 };
 
 export type HistoryItemQuit = HistoryItemBase & {
@@ -118,6 +259,24 @@ export type HistoryItemQuit = HistoryItemBase & {
 export type HistoryItemToolGroup = HistoryItemBase & {
   type: 'tool_group';
   tools: IndividualToolCallDisplay[];
+  borderTop?: boolean;
+  borderBottom?: boolean;
+  borderColor?: string;
+  borderDimColor?: boolean;
+};
+
+export type ToolDisplayItem = ToolDisplay & {
+  status: CoreToolCallStatus;
+  originalRequestName?: string;
+};
+
+export type HistoryItemToolDisplayGroup = HistoryItemBase & {
+  type: 'tool_display_group';
+  tools: ToolDisplayItem[];
+  borderTop?: boolean;
+  borderBottom?: boolean;
+  borderColor?: string;
+  borderDimColor?: boolean;
 };
 
 export type HistoryItemUserShell = HistoryItemBase & {
@@ -130,24 +289,165 @@ export type HistoryItemCompression = HistoryItemBase & {
   compression: CompressionProps;
 };
 
-// Using Omit<HistoryItem, 'id'> seems to have some issues with typescript's
-// type inference e.g. historyItem.type === 'tool_group' isn't auto-inferring that
-// 'tools' in historyItem.
+export type HistoryItemExportSession = HistoryItemBase & {
+  type: 'export_session';
+  exportSession: ExportSessionProps;
+};
+
+export type HistoryItemExtensionsList = HistoryItemBase & {
+  type: 'extensions_list';
+  extensions: GeminiCLIExtension[];
+};
+
+export interface ChatDetail {
+  name: string;
+  mtime: string;
+}
+
+export type HistoryItemThinking = HistoryItemBase & {
+  type: 'thinking';
+  thought: ThoughtSummary;
+};
+
+export type HistoryItemHint = HistoryItemBase & {
+  type: 'hint';
+  text: string;
+};
+
+export type HistoryItemChatList = HistoryItemBase & {
+  type: 'chat_list';
+  chats: ChatDetail[];
+};
+
+export type HistoryItemSubagent = HistoryItemBase & {
+  type: 'subagent';
+  agentName: string;
+  history: SubagentActivityItem[];
+};
+
+export interface ToolDefinition {
+  name: string;
+  displayName: string;
+  description?: string;
+}
+
+export type HistoryItemToolsList = HistoryItemBase & {
+  type: 'tools_list';
+  tools: ToolDefinition[];
+  showDescriptions: boolean;
+};
+
+export type HistoryItemSkillsList = HistoryItemBase & {
+  type: 'skills_list';
+  skills: SkillDefinition[];
+  showDescriptions: boolean;
+};
+
+export type AgentDefinitionJson = Pick<
+  AgentDefinition,
+  'name' | 'displayName' | 'description' | 'kind'
+>;
+
+export type HistoryItemAgentsList = HistoryItemBase & {
+  type: 'agents_list';
+  agents: AgentDefinitionJson[];
+};
+
+// JSON-friendly types for using as a simple data model showing info about an
+// MCP Server.
+export interface JsonMcpTool {
+  serverName: string;
+  name: string;
+  description?: string;
+  schema?: {
+    parametersJsonSchema?: unknown;
+    parameters?: unknown;
+  };
+}
+
+export interface JsonMcpPrompt {
+  serverName: string;
+  name: string;
+  description?: string;
+}
+
+export interface JsonMcpResource {
+  serverName: string;
+  name?: string;
+  uri?: string;
+  mimeType?: string;
+  description?: string;
+}
+
+export type HistoryItemGemmaStatus = HistoryItemBase & {
+  type: 'gemma_status';
+  binaryInstalled: boolean;
+  binaryPath: string | null;
+  modelName: string;
+  modelDownloaded: boolean;
+  serverRunning: boolean;
+  serverPid: number | null;
+  serverPort: number;
+  settingsEnabled: boolean;
+  allPassing: boolean;
+};
+
+export type HistoryItemMcpStatus = HistoryItemBase & {
+  type: 'mcp_status';
+  servers: Record<string, MCPServerConfig>;
+  tools: JsonMcpTool[];
+  prompts: JsonMcpPrompt[];
+  resources: JsonMcpResource[];
+  authStatus: Record<
+    string,
+    'authenticated' | 'expired' | 'unauthenticated' | 'not-configured'
+  >;
+  enablementState: Record<
+    string,
+    {
+      enabled: boolean;
+      isSessionDisabled: boolean;
+      isPersistentDisabled: boolean;
+    }
+  >;
+  errors: Record<string, string>;
+  blockedServers: Array<{ name: string; extensionName: string }>;
+  discoveryInProgress: boolean;
+  connectingServers: string[];
+  showDescriptions: boolean;
+  showSchema: boolean;
+};
+
 // Individually exported types extending HistoryItemBase
 export type HistoryItemWithoutId =
   | HistoryItemUser
   | HistoryItemUserShell
-  | HistoryItemResearch
-  | HistoryItemResearchContent
+  | HistoryItemGemini
+  | HistoryItemGeminiContent
   | HistoryItemInfo
   | HistoryItemError
+  | HistoryItemWarning
   | HistoryItemAbout
+  | HistoryItemHelp
   | HistoryItemToolGroup
+  | HistoryItemToolDisplayGroup
   | HistoryItemStats
   | HistoryItemModelStats
   | HistoryItemToolStats
+  | HistoryItemModel
   | HistoryItemQuit
-  | HistoryItemCompression;
+  | HistoryItemCompression
+  | HistoryItemExportSession
+  | HistoryItemExtensionsList
+  | HistoryItemToolsList
+  | HistoryItemSkillsList
+  | HistoryItemAgentsList
+  | HistoryItemMcpStatus
+  | HistoryItemGemmaStatus
+  | HistoryItemChatList
+  | HistoryItemThinking
+  | HistoryItemHint
+  | HistoryItemSubagent;
 
 export type HistoryItem = HistoryItemWithoutId & { id: number };
 
@@ -155,14 +455,25 @@ export type HistoryItem = HistoryItemWithoutId & { id: number };
 export enum MessageType {
   INFO = 'info',
   ERROR = 'error',
+  WARNING = 'warning',
   USER = 'user',
   ABOUT = 'about',
+  HELP = 'help',
   STATS = 'stats',
   MODEL_STATS = 'model_stats',
   TOOL_STATS = 'tool_stats',
   QUIT = 'quit',
-  RESEARCH = 'research',
+  GEMINI = 'gemini',
   COMPRESSION = 'compression',
+  EXPORT_SESSION = 'export_session',
+  EXTENSIONS_LIST = 'extensions_list',
+  TOOLS_LIST = 'tools_list',
+  SKILLS_LIST = 'skills_list',
+  AGENTS_LIST = 'agents_list',
+  MCP_STATUS = 'mcp_status',
+  GEMMA_STATUS = 'gemma_status',
+  CHAT_LIST = 'chat_list',
+  HINT = 'hint',
 }
 
 // Simplified message structure for internal feedback
@@ -181,7 +492,14 @@ export type Message =
       modelVersion: string;
       selectedAuthType: string;
       gcpProject: string;
+      ideClient: string;
+      userEmail?: string;
       content?: string; // Optional content, not really used for ABOUT
+    }
+  | {
+      type: MessageType.HELP;
+      timestamp: Date;
+      content?: string; // Optional content, not really used for HELP
     }
   | {
       type: MessageType.STATS;
@@ -212,20 +530,53 @@ export type Message =
     };
 
 export interface ConsoleMessageItem {
-  type: 'log' | 'warn' | 'error' | 'debug';
+  type: 'log' | 'warn' | 'error' | 'debug' | 'info';
   content: string;
   count: number;
 }
 
 /**
- * Defines the result of the slash command processor for its consumer (useResearchStream).
+ * Result type for a slash command that should immediately result in a prompt
+ * being submitted to the Gemini model.
+ */
+export interface SubmitPromptResult {
+  type: 'submit_prompt';
+  content: PartListUnion;
+}
+
+/**
+ * Defines the result of the slash command processor for its consumer (useGeminiStream).
  */
 export type SlashCommandProcessorResult =
   | {
       type: 'schedule_tool';
       toolName: string;
       toolArgs: Record<string, unknown>;
+      postSubmitPrompt?: PartListUnion;
     }
   | {
       type: 'handled'; // Indicates the command was processed and no further action is needed.
-    };
+    }
+  | SubmitPromptResult;
+
+export interface ConfirmationRequest {
+  prompt: ReactNode;
+  onConfirm: (confirm: boolean) => void;
+}
+
+export interface LoopDetectionConfirmationRequest {
+  onComplete: (result: { userSelection: 'disable' | 'keep' }) => void;
+}
+
+export interface PermissionConfirmationRequest {
+  files: string[];
+  onComplete: (result: { allowed: boolean }) => void;
+}
+
+export interface ActiveHook {
+  name: string;
+  eventName: string;
+  source?: string;
+  index?: number;
+  total?: number;
+}

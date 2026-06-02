@@ -1,18 +1,21 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
-  ResearchToolParams,
   DocumentType,
   LaTeXEngine,
   ResearchToolCategory,
 } from '../types.js';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 /**
  * LaTeX 项目配置参数
@@ -43,11 +46,11 @@ export interface LaTeXTemplate {
   name: string;
   description: string;
   documentType: DocumentType;
-  files: {
+  files: Array<{
     filename: string;
     content: string;
     type: 'main' | 'style' | 'bibliography' | 'figure' | 'data';
-  }[];
+  }>;
   packages: string[];
   compileInstructions: string[];
   features: string[];
@@ -92,7 +95,7 @@ export interface LaTeXWarning {
 export interface LaTeXManagerResult {
   action: string;
   projectPath?: string;
-  files?: { filename: string; content: string }[];
+  files?: Array<{ filename: string; content: string }>;
   compileResult?: LaTeXCompileResult;
   templates?: LaTeXTemplate[];
   diagnostics?: {
@@ -123,7 +126,7 @@ export class LaTeXManager extends BaseResearchTool<
     );
   }
 
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     const latexParams = params as LaTeXManagerParams;
 
     if (!latexParams.action) {
@@ -148,7 +151,7 @@ export class LaTeXManager extends BaseResearchTool<
     }
   }
 
-  public getHelp(): string {
+  getHelp(): string {
     return this.formatHelp(
       'Comprehensive LaTeX project management, compilation, and diagnostic tool',
       [
@@ -563,7 +566,7 @@ export class LaTeXManager extends BaseResearchTool<
   private async generateProjectFiles(
     template: LaTeXTemplate,
     params: LaTeXManagerParams,
-  ): Promise<{ filename: string; content: string; type: string }[]> {
+  ): Promise<Array<{ filename: string; content: string; type: string }>> {
     const files = [];
 
     for (const templateFile of template.files) {

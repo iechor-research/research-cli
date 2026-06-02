@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
+import type {
+  ProjectMember} from '../tools/research/types.js';
 import {
   CitationStyle,
   PaperType,
   ResearchField,
   LaTeXEngine,
   WritingStyle,
-  TargetAudience,
-  ProjectMember,
+  TargetAudience
 } from '../tools/research/types.js';
 
 /**
@@ -19,9 +22,9 @@ import {
  */
 function getConfiguredSerpApiKey(): string | undefined {
   try {
-    const fs = require('fs');
-    const path = require('path');
-    const os = require('os');
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const os = require('node:os');
 
     const configFile = path.join(
       os.homedir(),
@@ -144,7 +147,7 @@ export interface ResearchJournals {
   blacklist?: string[];
   impactFactorThreshold?: number;
   openAccessPreference?: boolean;
-  quartilePreference?: ('Q1' | 'Q2' | 'Q3' | 'Q4')[];
+  quartilePreference?: Array<'Q1' | 'Q2' | 'Q3' | 'Q4'>;
   publishers?: {
     preferred?: string[];
     avoided?: string[];
@@ -222,7 +225,7 @@ export interface ResearchNotifications {
   deadlineReminders?: boolean;
   progressUpdates?: boolean;
   collaborationNotifications?: boolean;
-  methods?: ('email' | 'desktop' | 'slack' | 'teams')[];
+  methods?: Array<'email' | 'desktop' | 'slack' | 'teams'>;
   frequency?: 'daily' | 'weekly' | 'monthly';
 }
 

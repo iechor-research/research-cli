@@ -1,10 +1,16 @@
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { BaseResearchTool } from '../base-tool.js';
+import type {
+  ResearchToolParams} from '../types.js';
 import {
   ResearchToolResult,
-  ResearchToolCategory,
-  ResearchToolParams,
+  ResearchToolCategory
 } from '../types.js';
-import {
+import type {
   SubmissionPrepOptions,
   SubmissionResult,
   ValidationReport,
@@ -15,9 +21,9 @@ import {
   SupplementaryCheck,
 } from './types.js';
 import { TemplateManager } from './template-manager.js';
-import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import type { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 /**
  * 投稿包准备器 - 完整的学术投稿准备工具
@@ -43,7 +49,7 @@ export class SubmissionPreparator extends BaseResearchTool<
   /**
    * 验证输入参数 - 基类接口实现
    */
-  public validate(params: ResearchToolParams): boolean {
+  validate(params: ResearchToolParams): boolean {
     try {
       this.validateParams(params as SubmissionPrepOptions);
       return true;

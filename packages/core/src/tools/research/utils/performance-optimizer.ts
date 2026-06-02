@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 /**
@@ -201,7 +203,7 @@ export class ParallelProcessor<T, R> {
     this.results = [];
     this.queue = items.map((item) => () => processor(item));
 
-    const promises: Promise<void>[] = [];
+    const promises: Array<Promise<void>> = [];
     for (let i = 0; i < Math.min(this.concurrency, this.queue.length); i++) {
       promises.push(this.worker());
     }
