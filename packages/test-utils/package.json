@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@google/gemini-cli-core": "file:../core",
+    "@iechor/research-cli-core": "file:../core",
     "@lydell/node-pty": "1.1.0",
     "asciichart": "^1.5.25",
     "strip-ansi": "^7.1.2",

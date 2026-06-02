@@ -22,7 +22,7 @@
     "dist"
   ],
   "dependencies": {
-    "@google/gemini-cli-core": "file:../core",
+    "@iechor/research-cli-core": "file:../core",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.1"
   },
