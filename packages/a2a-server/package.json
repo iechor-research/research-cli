@@ -25,7 +25,7 @@
     "dist"
   ],
   "dependencies": {
-    "@a2a-js/sdk": "0.3.11",
+    "@a2a-js/sdk": "0.3.13",
     "@google-cloud/storage": "^7.16.0",
     "@iechor/research-cli-core": "file:../core",
     "express": "^5.1.0",
