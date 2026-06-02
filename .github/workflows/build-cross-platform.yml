@@ -234,7 +234,7 @@ jobs:
           TARGET_PLATFORM=${{ matrix.platform }} TARGET_ARCH=${{ matrix.arch }} node build-single-platform.js
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: research-cli-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
