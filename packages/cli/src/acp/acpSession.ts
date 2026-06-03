@@ -39,7 +39,7 @@ import {
   type ToolConfirmationRequest,
   resolveAtCommandPath,
   type ResolvedAtCommandPath,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as acp from '@agentclientprotocol/sdk';
 import type { Part, FunctionCall } from '@google/genai';
 import type { LoadedSettings } from '../config/settings.js';

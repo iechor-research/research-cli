@@ -15,7 +15,7 @@ import {
   debugLogger,
   getChannelFromVersion,
   RELEASE_CHANNEL_STABILITY,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 let _updateInProgress = false;
 

@@ -19,7 +19,7 @@ import {
   getVersion,
   INITIAL_HISTORY_LENGTH,
   debugLogger,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 import { exportHistoryToFile } from '../utils/historyExportUtils.js';
 import {

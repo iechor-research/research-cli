@@ -13,7 +13,7 @@ import {
   type ConversationRecord,
   type MessageRecord,
   loadConversationRecord,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { stripUnsafeCharacters } from '../ui/utils/textUtils.js';

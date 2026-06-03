@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AuthType } from '@google/gemini-cli-core';
+import { AuthType } from '@iechor/research-cli-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { validateAuthMethod } from './auth.js';
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     loadApiKey: vi.fn().mockResolvedValue(null),

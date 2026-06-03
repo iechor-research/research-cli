@@ -8,7 +8,7 @@ import {
   getErrorMessage,
   getMCPServerPrompts,
   type Config,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   CommandKind,
   type CommandContext,

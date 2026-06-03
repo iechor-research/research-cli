@@ -56,7 +56,7 @@ import {
   coreEvents,
   debugLogger,
   type Config,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { useVoiceMode } from '../hooks/useVoiceMode.js';
 import {
   parseInputForHighlighting,

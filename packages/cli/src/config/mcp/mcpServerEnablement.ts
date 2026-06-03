@@ -6,7 +6,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Storage, coreEvents } from '@google/gemini-cli-core';
+import { Storage, coreEvents } from '@iechor/research-cli-core';
 
 /**
  * Stored in JSON file - represents persistent enablement state.

@@ -54,7 +54,7 @@ export default defineConfig({
     },
     server: {
       deps: {
-        inline: [/@google\/gemini-cli-core/],
+        inline: [/@iechor\/research-cli-core/],
       },
     },
   },

@@ -27,7 +27,7 @@ import {
   loadSkillsFromDir,
   getRealPath,
   normalizePath,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   loadSettings,
   createTestMergedSettings,
@@ -108,9 +108,9 @@ const mockIntegrityManager = vi.hoisted(() => ({
   verify: vi.fn().mockResolvedValue('verified'),
   store: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     logExtensionEnable: mockLogExtensionEnable,

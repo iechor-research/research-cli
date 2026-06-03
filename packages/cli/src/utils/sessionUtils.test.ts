@@ -18,7 +18,7 @@ import {
   type Storage,
   type MessageRecord,
   CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';

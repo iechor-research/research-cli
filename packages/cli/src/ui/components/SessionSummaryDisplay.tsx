@@ -12,7 +12,7 @@ import {
   escapeShellArg,
   isWindows,
   type ShellType,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 interface SessionSummaryDisplayProps {
   duration: string;

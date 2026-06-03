@@ -30,7 +30,7 @@ import {
   MessageBusType,
   type ToolConfirmationRequest,
   DiscoveredMCPTool,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { type Part, FinishReason } from '@google/genai';
 import * as fs from 'node:fs/promises';
@@ -47,9 +47,9 @@ vi.mock('node:path', async (importOriginal) => {
 });
 
 vi.mock(
-  '@google/gemini-cli-core',
+  '@iechor/research-cli-core',
   async (
-    importOriginal: () => Promise<typeof import('@google/gemini-cli-core')>,
+    importOriginal: () => Promise<typeof import('@iechor/research-cli-core')>,
   ) => {
     const actual = await importOriginal();
     return {
@@ -575,7 +575,7 @@ describe('Session', () => {
 
   it('should send sessionUpdate when approval mode changes', async () => {
     const { coreEvents, CoreEvent, ApprovalMode } = await import(
-      '@google/gemini-cli-core'
+      '@iechor/research-cli-core'
     );
 
     coreEvents.emit(CoreEvent.ApprovalModeChanged, {

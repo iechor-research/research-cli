@@ -5,7 +5,7 @@
  */
 
 import type { CommandModule } from 'yargs';
-import { debugLogger, getErrorMessage } from '@google/gemini-cli-core';
+import { debugLogger, getErrorMessage } from '@iechor/research-cli-core';
 import { exitCli } from '../utils.js';
 import { uninstallSkill } from '../../utils/skillUtils.js';
 import chalk from 'chalk';

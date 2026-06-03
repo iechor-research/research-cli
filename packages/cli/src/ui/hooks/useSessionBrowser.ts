@@ -12,12 +12,12 @@ import {
   convertSessionToClientHistory,
   uiTelemetryService,
   loadConversationRecord,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type {
   HistoryTurn,
   Config,
   ResumedSessionData,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   convertSessionToHistoryFormats,
   type SessionInfo,

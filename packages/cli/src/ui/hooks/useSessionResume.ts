@@ -8,12 +8,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   coreEvents,
   convertSessionToClientHistory,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type {
   HistoryTurn,
   Config,
   ResumedSessionData,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { HistoryItemWithoutId } from '../types.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { convertSessionToHistoryFormats } from './useSessionBrowser.js';

@@ -13,10 +13,10 @@ import {
   type SubagentProgress,
   type SubagentActivityItem,
   SubagentState,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { TOOL_STATUS } from '../../constants.js';
 import { STATUS_INDICATOR_WIDTH } from './ToolShared.js';
-import { safeJsonToMarkdown } from '@google/gemini-cli-core';
+import { safeJsonToMarkdown } from '@iechor/research-cli-core';
 
 export interface SubagentProgressDisplayProps {
   progress: SubagentProgress;

@@ -18,7 +18,7 @@ import {
   type PolicyUpdateConfirmationRequest,
   writeToStderr,
   debugLogger,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { type Settings } from './settings.js';
 
 /**

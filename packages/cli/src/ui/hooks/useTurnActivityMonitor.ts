@@ -10,7 +10,7 @@ import {
   hasRedirection,
   type CoreToolCallStatus,
   type ToolCallRequestInfo,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 export interface MinimalTrackedToolCall {
   status: CoreToolCallStatus;

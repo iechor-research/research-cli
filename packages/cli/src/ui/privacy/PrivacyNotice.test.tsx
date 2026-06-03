@@ -11,7 +11,7 @@ import type {
   AuthType,
   Config,
   ContentGeneratorConfig,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 // Mock child components
 vi.mock('./GeminiPrivacyNotice.js', async () => {

@@ -9,7 +9,7 @@ import {
   fetchWithTimeout,
   resolveToRealPath,
   isPrivateIp,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { AsyncFzf } from 'fzf';
 
 export interface RegistryExtension {

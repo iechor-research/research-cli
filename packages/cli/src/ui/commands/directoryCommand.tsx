@@ -15,7 +15,7 @@ import {
   type CommandContext,
 } from './types.js';
 import { MessageType, type HistoryItem } from '../types.js';
-import { type Config } from '@google/gemini-cli-core';
+import { type Config } from '@iechor/research-cli-core';
 import {
   expandHomeDir,
   getDirectorySuggestions,

@@ -15,7 +15,7 @@ import {
   FatalSandboxError,
   homedir,
   type SandboxConfig,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { createMockSandboxConfig } from '@google/gemini-cli-test-utils';
 import { EventEmitter } from 'node:events';
 
@@ -85,9 +85,9 @@ vi.mock('node:util', async (importOriginal) => {
   };
 });
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     debugLogger: {

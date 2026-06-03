@@ -21,8 +21,8 @@ import {
   debugLogger,
   ExitCodes,
   coreEvents,
-} from '@google/gemini-cli-core';
-import type { Config } from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
+import type { Config } from '@iechor/research-cli-core';
 import * as auth from './config/auth.js';
 import { type LoadedSettings } from './config/settings.js';
 

@@ -25,7 +25,7 @@ import {
   type Config,
   tmpdir,
   NoopSandboxManager,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { createTestMergedSettings, SettingScope } from './settings.js';
 
 describe('ExtensionManager theme loading', () => {

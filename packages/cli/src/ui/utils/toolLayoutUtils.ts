@@ -8,7 +8,7 @@ import {
   ACTIVE_SHELL_MAX_LINES,
   COMPLETED_SHELL_MAX_LINES,
 } from '../constants.js';
-import { CoreToolCallStatus } from '@google/gemini-cli-core';
+import { CoreToolCallStatus } from '@iechor/research-cli-core';
 
 /**
  * Constants used for calculating available height for tool results.

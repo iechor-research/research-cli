@@ -12,7 +12,7 @@ import type {
   AnyDeclarativeTool,
   AnyToolInvocation,
   UserFeedbackPayload,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   ToolErrorType,
   GeminiEventType,
@@ -22,7 +22,7 @@ import {
   CoreEvent,
   CoreToolCallStatus,
   JsonStreamEventType,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { Part } from '@google/genai';
 import { runNonInteractive } from './nonInteractiveCli.js';
 import {
@@ -56,9 +56,9 @@ const mockCoreEvents = vi.hoisted(() => ({
 
 const mockSchedulerSchedule = vi.hoisted(() => vi.fn());
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
 
   class MockChatRecordingService {
     initialize = vi.fn();
@@ -1826,7 +1826,7 @@ describe('runNonInteractive', () => {
       .mockReturnValue('model-1');
 
     // Mock debugLogger.error
-    const { debugLogger } = await import('@google/gemini-cli-core');
+    const { debugLogger } = await import('@iechor/research-cli-core');
     const debugLoggerErrorSpy = vi
       .spyOn(debugLogger, 'error')
       .mockImplementation(() => {});

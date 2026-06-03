@@ -5,10 +5,10 @@
  */
 
 import { useEffect } from 'react';
-import { type Config } from '@google/gemini-cli-core';
+import { type Config } from '@iechor/research-cli-core';
 import { loadTrustedFolders } from '../../config/trustedFolders.js';
 import { expandHomeDir, batchAddDirectories } from '../utils/directoryUtils.js';
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import { MultiFolderTrustDialog } from '../components/MultiFolderTrustDialog.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { MessageType, type HistoryItem } from '../types.js';

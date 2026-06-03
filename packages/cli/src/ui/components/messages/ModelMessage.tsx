@@ -7,7 +7,7 @@
 import type React from 'react';
 import { Text, Box } from 'ink';
 import { theme } from '../../semantic-colors.js';
-import { getDisplayString } from '@google/gemini-cli-core';
+import { getDisplayString } from '@iechor/research-cli-core';
 
 interface ModelMessageProps {
   model: string;

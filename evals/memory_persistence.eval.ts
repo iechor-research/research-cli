@@ -10,7 +10,7 @@ import path from 'node:path';
 import {
   loadConversationRecord,
   SESSION_FILE_PREFIX,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { evalTest, assertModelHasOutput } from './test-helper.js';
 
 function findDir(base: string, name: string): string | null {

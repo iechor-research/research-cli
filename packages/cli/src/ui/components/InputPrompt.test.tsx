@@ -6,7 +6,7 @@
 
 import { renderWithProviders, cleanup } from '../../test-utils/render.js';
 import { createMockSettings } from '../../test-utils/settings.js';
-import { makeFakeConfig } from '@google/gemini-cli-core';
+import { makeFakeConfig } from '@iechor/research-cli-core';
 import { waitFor } from '../../test-utils/async.js';
 import { act, useState, useMemo } from 'react';
 import type { EventEmitter } from 'node:events';
@@ -26,7 +26,7 @@ const { fakeTranscriptionProvider } = vi.hoisted(() => {
   };
 });
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = (await importOriginal()) as any;
   return {
@@ -54,7 +54,7 @@ import {
   debugLogger,
   coreEvents,
   type Config,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as path from 'node:path';
 import {
   CommandKind,

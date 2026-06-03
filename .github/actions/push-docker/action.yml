@@ -39,9 +39,9 @@ runs:
     - name: 'pack @google/gemini-cli'
       shell: 'bash'
       run: 'npm pack -w @google/gemini-cli --pack-destination ./packages/cli/dist'
-    - name: 'pack @google/gemini-cli-core'
+    - name: 'pack @iechor/research-cli-core'
       shell: 'bash'
-      run: 'npm pack -w @google/gemini-cli-core --pack-destination ./packages/core/dist'
+      run: 'npm pack -w @iechor/research-cli-core --pack-destination ./packages/core/dist'
     - name: 'Log in to GitHub Container Registry'
       uses: 'docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1' # ratchet:docker/login-action@v3
       with:

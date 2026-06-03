@@ -149,7 +149,7 @@ async function run() {
     // Now we can safely import everything.
     const { main } = await import('./src/gemini.js');
     const { FatalError, writeToStderr } = await import(
-      '@google/gemini-cli-core'
+      '@iechor/research-cli-core'
     );
     const { runExitCleanup } = await import('./src/utils/cleanup.js');
 
