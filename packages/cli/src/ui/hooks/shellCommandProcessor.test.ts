@@ -7,8 +7,8 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { vi } from 'vitest';
-import { useShellCommandProcessor } from './shellCommandProcessor';
+import { vi, type Mock } from 'vitest';
+import { useShellCommandProcessor } from './shellCommandProcessor.js';
 import type { Config, ResearchClient } from '@iechor/research-cli-core';
 import * as fs from 'node:fs';
 import EventEmitter from 'node:events';
@@ -25,25 +25,25 @@ vi.mock('os', () => ({
   tmpdir: () => '/tmp',
 }));
 vi.mock('@iechor/research-cli-core');
-vi.mock('../utils/textUtils.js', () => ({
-  isBinary: vi.fn(),
-}));
 
 describe('useShellCommandProcessor', () => {
-  let spawnEmitter: EventEmitter;
-  let addItemToHistoryMock: vi.Mock;
-  let setPendingHistoryItemMock: vi.Mock;
-  let onExecMock: vi.Mock;
-  let onDebugMessageMock: vi.Mock;
+  let spawnEmitter: EventEmitter & { stdout: EventEmitter; stderr: EventEmitter };
+  let addItemToHistoryMock: Mock;
+  let setPendingHistoryItemMock: Mock;
+  let onExecMock: Mock;
+  let onDebugMessageMock: Mock;
   let configMock: Config;
   let researchClientMock: ResearchClient;
 
   beforeEach(async () => {
     const { spawn } = await import('node:child_process');
-    spawnEmitter = new EventEmitter();
+    spawnEmitter = new EventEmitter() as EventEmitter & {
+      stdout: EventEmitter;
+      stderr: EventEmitter;
+    };
     spawnEmitter.stdout = new EventEmitter();
     spawnEmitter.stderr = new EventEmitter();
-    (spawn as vi.Mock).mockReturnValue(spawnEmitter);
+    (spawn as Mock).mockReturnValue(spawnEmitter);
 
     vi.spyOn(fs, 'existsSync').mockReturnValue(false);
     vi.spyOn(fs, 'readFileSync').mockReturnValue('');
@@ -115,8 +115,8 @@ describe('useShellCommandProcessor', () => {
   it('should handle binary output', async () => {
     const { result } = renderProcessorHook();
     const abortController = new AbortController();
-    const { isBinary } = await import('../utils/textUtils.js');
-    (isBinary as vi.Mock).mockReturnValue(true);
+    const { isBinary } = await import('@iechor/research-cli-core');
+    (isBinary as Mock).mockReturnValue(true);
 
     act(() => {
       result.current.handleShellCommand(
