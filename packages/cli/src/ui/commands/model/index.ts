@@ -365,7 +365,7 @@ Examples:
 
         case 'current': {
           // 显示Research CLI核心配置中的当前模型
-          const currentCoreModel = context.services.config?.getModel();
+          const currentCoreModel = context.services.agentContext?.config.getModel();
           if (currentCoreModel) {
             return {
               type: 'message',
@@ -429,7 +429,7 @@ Examples:
             await selector.selectModel(providerEnum, modelId);
 
             // 然后更新Research CLI的核心Config
-            const config = context.services.config;
+            const config = context.services.agentContext?.config;
             if (config) {
               // 构建模型名称 - 根据提供商类型使用不同的格式
               let modelName: string;
@@ -462,7 +462,7 @@ Examples:
             console.warn('Model selection warning:', error);
             
             // 即使有认证错误，仍然尝试设置模型
-            const config = context.services.config;
+            const config = context.services.agentContext?.config;
             if (config) {
               let modelName: string;
               if (provider.toLowerCase() === 'gemini') {

@@ -55,6 +55,11 @@ export { getErrorStatus, ModelNotFoundError } from './src/utils/httpErrors.js';
 export * from './src/tools/research/index.js';
 export * from './src/config/research-config-manager.js';
 export * from './src/config/research-config.js';
+// Fork model-provider subsystem (multi-LLM provider selection).
+export * from './src/core/model-providers/index.js';
+export { ModelProviderConfigManager } from './src/config/model-provider-config.js';
+// Disambiguate name shared with upstream modelConfigService.
+export type { ModelConfig } from './src/services/modelConfigService.js';
 // Disambiguate name shared with upstream fileSearch (CLI uses neither directly).
 export type { SearchOptions } from './src/utils/filesearch/fileSearch.js';
 

@@ -12,7 +12,7 @@ import {
   type SlashCommandActionReturn,
   type CommandContext,
 } from '../types.js';
-import { CommandKind, MessageType } from '../../types.js';
+import { MessageType } from '../../types.js';
 import {
   parseCommandArgs,
   getOptionValue,
@@ -20,10 +20,7 @@ import {
 } from '../research/utils/commandParser.js';
 import {
   formatSuccess,
-  formatError,
   formatInfo,
-  formatTable,
-  TableColumn,
 } from '../research/utils/outputFormatter.js';
 import {
   handleResearchError,
@@ -34,7 +31,6 @@ import type {
 import {
   ResearchConfigManager,
   ResearchConfigScope,
-  DEFAULT_RESEARCH_CONFIG,
 } from '@iechor/research-cli-core';
 
 /**

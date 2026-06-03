@@ -12,24 +12,19 @@ import {
   type SlashCommandActionReturn,
   type CommandContext,
 } from '../types.js';
-import { CommandKind, MessageType } from '../../types.js';
+import { MessageType } from '../../types.js';
 import {
   parseCommandArgs,
   getOptionValue,
-  buildHelpText,
 } from './utils/commandParser.js';
 import {
-  formatTable,
-  formatSuccess,
   formatError,
   formatInfo,
-  TableColumn,
 } from './utils/outputFormatter.js';
 import {
   handleResearchError,
   validateArguments,
   validateOption,
-  executeWithErrorHandling,
 } from './utils/errorHandler.js';
 
 /**
