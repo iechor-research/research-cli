@@ -10,11 +10,14 @@ import type {
   ToolCallRequestInfo,
   ToolCallResponseInfo,
   ToolRegistry,
-  ToolResult} from '../index.js';
+  ToolResult,
+} from '../index.js';
 import {
-  logToolCall
+  logToolCall,
+  ToolCallEvent,
 } from '../index.js';
 import type { Config } from '../config/config.js';
+import { ToolErrorType } from '../tools/tool-error.js';
 import { convertToFunctionResponse } from './coreToolScheduler.js';
 
 /**
@@ -35,16 +38,19 @@ export async function executeToolCall(
       `Tool "${toolCallRequest.name}" not found in registry.`,
     );
     const durationMs = Date.now() - startTime;
-    logToolCall(config, {
-      'event.name': 'tool_call',
-      'event.timestamp': new Date().toISOString(),
-      function_name: toolCallRequest.name,
-      function_args: toolCallRequest.args,
-      duration_ms: durationMs,
-      success: false,
-      error: error.message,
-      prompt_id: toolCallRequest.prompt_id,
-    });
+    logToolCall(
+      config,
+      new ToolCallEvent(
+        undefined,
+        toolCallRequest.name,
+        toolCallRequest.args,
+        durationMs,
+        false,
+        toolCallRequest.prompt_id,
+        'native',
+        error.message,
+      ),
+    );
     // Ensure the response structure matches what the API expects for an error
     return {
       callId: toolCallRequest.callId,
@@ -59,32 +65,34 @@ export async function executeToolCall(
       ],
       resultDisplay: error.message,
       error,
+      errorType: ToolErrorType.EXECUTION_FAILED,
     };
   }
 
   try {
     // Directly execute without confirmation or live output handling
     const effectiveAbortSignal = abortSignal ?? new AbortController().signal;
-    const toolResult: ToolResult = await tool.execute(
-      toolCallRequest.args,
-      effectiveAbortSignal,
-      // No live output callback for non-interactive mode
-    );
+    const toolResult: ToolResult = await tool
+      .build(toolCallRequest.args)
+      .execute({ abortSignal: effectiveAbortSignal });
 
     const tool_output = toolResult.llmContent;
 
     const tool_display = toolResult.returnDisplay;
 
     const durationMs = Date.now() - startTime;
-    logToolCall(config, {
-      'event.name': 'tool_call',
-      'event.timestamp': new Date().toISOString(),
-      function_name: toolCallRequest.name,
-      function_args: toolCallRequest.args,
-      duration_ms: durationMs,
-      success: true,
-      prompt_id: toolCallRequest.prompt_id,
-    });
+    logToolCall(
+      config,
+      new ToolCallEvent(
+        undefined,
+        toolCallRequest.name,
+        toolCallRequest.args,
+        durationMs,
+        true,
+        toolCallRequest.prompt_id,
+        'native',
+      ),
+    );
 
     const response = convertToFunctionResponse(
       toolCallRequest.name,
@@ -97,20 +105,24 @@ export async function executeToolCall(
       responseParts: response,
       resultDisplay: tool_display,
       error: undefined,
+      errorType: undefined,
     };
   } catch (e) {
     const error = e instanceof Error ? e : new Error(String(e));
     const durationMs = Date.now() - startTime;
-    logToolCall(config, {
-      'event.name': 'tool_call',
-      'event.timestamp': new Date().toISOString(),
-      function_name: toolCallRequest.name,
-      function_args: toolCallRequest.args,
-      duration_ms: durationMs,
-      success: false,
-      error: error.message,
-      prompt_id: toolCallRequest.prompt_id,
-    });
+    logToolCall(
+      config,
+      new ToolCallEvent(
+        undefined,
+        toolCallRequest.name,
+        toolCallRequest.args,
+        durationMs,
+        false,
+        toolCallRequest.prompt_id,
+        'native',
+        error.message,
+      ),
+    );
     return {
       callId: toolCallRequest.callId,
       responseParts: [
@@ -124,6 +136,7 @@ export async function executeToolCall(
       ],
       resultDisplay: error.message,
       error,
+      errorType: ToolErrorType.EXECUTION_FAILED,
     };
   }
 }

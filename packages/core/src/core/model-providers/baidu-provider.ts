@@ -17,7 +17,6 @@ import {
   ModelProvider,
   APIError,
   AuthenticationError,
-  ConfigurationError,
 } from './types.js';
 
 /**

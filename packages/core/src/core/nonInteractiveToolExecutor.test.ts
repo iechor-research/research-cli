@@ -12,7 +12,6 @@ import type {
   ToolRegistry,
   ToolCallRequestInfo,
   ToolResult,
-  Tool,
   ToolCallConfirmationDetails,
   Config,
 } from '../index.js';
@@ -27,7 +26,7 @@ const mockConfig = {
 
 describe('executeToolCall', () => {
   let mockToolRegistry: ToolRegistry;
-  let mockTool: Tool;
+  let mockTool: any;
   let abortController: AbortController;
 
   beforeEach(() => {
@@ -183,7 +182,7 @@ describe('executeToolCall', () => {
     const cancellationError = new Error('Operation cancelled');
     vi.mocked(mockToolRegistry.getTool).mockReturnValue(mockTool);
 
-    vi.mocked(mockTool.execute).mockImplementation(async (_args, signal) => {
+    vi.mocked(mockTool.execute).mockImplementation(async (_args: Record<string, unknown>, signal: AbortSignal) => {
       if (signal?.aborted) {
         return Promise.reject(cancellationError);
       }

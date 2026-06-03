@@ -449,9 +449,6 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
     analysisType: AnalysisType,
     params: DataAnalyzerParams,
   ): Promise<AnalysisResults> {
-    const visualizations: VisualizationData[] = [];
-    const recommendations: string[] = [];
-
     switch (analysisType) {
       case AnalysisType.DESCRIPTIVE:
         return this.performDescriptiveAnalysis(data, params);
@@ -492,7 +489,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
 
       if (values.length === 0) continue;
 
-      const sorted = values.sort((a, b) => a - b);
+      const sorted = [...values].sort((a, b) => a - b);
       const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
       const variance =
         values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
@@ -971,8 +968,6 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
   ): Promise<AnalysisResults> {
     const summary = await this.generateSummary(data);
     const recommendations: string[] = [];
-    const processedData = [...data]; // 复制数据
-
     // 缺失值处理建议
     const missingColumns = Object.entries(summary.missingValues).filter(
       ([_, count]) => count > 0,
@@ -1331,13 +1326,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
 
   private shapiroWilkTest(values: number[]): HypothesisTestResult {
     // 简化的正态性检验
-    const n = values.length;
-    const sorted = values.sort((a, b) => a - b);
-    const mean = values.reduce((sum, val) => sum + val, 0) / n;
-
-    // 计算统计量（简化）
-    const variance =
-      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (n - 1);
+    // 计算统计量（简化)
     const statistic = 0.9 + Math.random() * 0.1; // 模拟统计量
     const pValue = statistic > 0.95 ? 0.3 : 0.01;
 
@@ -1555,7 +1544,7 @@ export class ResearchDataAnalyzer extends BaseResearchTool<
 
   private detectOutliers(values: number[]): number[] {
     // 使用IQR方法检测异常值
-    const sorted = values.sort((a, b) => a - b);
+    const sorted = [...values].sort((a, b) => a - b);
     const q1 = sorted[Math.floor(sorted.length * 0.25)];
     const q3 = sorted[Math.floor(sorted.length * 0.75)];
     const iqr = q3 - q1;

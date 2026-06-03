@@ -8,7 +8,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import {
   ResearchConfigManager,
   ResearchConfigScope,

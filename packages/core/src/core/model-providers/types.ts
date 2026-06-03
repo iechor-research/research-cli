@@ -6,8 +6,6 @@
  * @license
  */
 
-import { Content, GenerateContentConfig } from '@google/genai';
-
 /**
  * 支持的模型提供商类型
  */
@@ -235,7 +233,7 @@ export class ModelProviderError extends Error {
     message: string,
     public provider: ModelProvider,
     public code?: string,
-    public cause?: Error,
+    public override cause?: Error,
   ) {
     super(message);
     this.name = 'ModelProviderError';

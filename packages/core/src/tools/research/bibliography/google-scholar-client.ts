@@ -77,8 +77,8 @@ export class GoogleScholarClient {
     this.apiKey =
       apiKey ||
       this.getConfiguredApiKey() ||
-      process.env.SERPAPI_KEY ||
-      process.env.GOOGLE_API_KEY ||
+      process.env['SERPAPI_KEY'] ||
+      process.env['GOOGLE_API_KEY'] ||
       '082111056d72a84aec957a8211707fdc072d2655d6df8050fc95a0ddb8f45497';
   }
 

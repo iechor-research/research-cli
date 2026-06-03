@@ -61,8 +61,8 @@ export interface EnhancedBibliographyResult extends ResearchToolResult {
  * Provides advanced paper search, download, and management capabilities
  */
 export class EnhancedBibliographyManager extends BaseResearchTool {
-  readonly name = 'enhanced_bibliography_manager';
-  readonly description =
+  override readonly name = 'enhanced_bibliography_manager';
+  override readonly description =
     'Enhanced bibliography management with arXiv MCP integration for paper search, download, and content analysis';
 
   private arxivClient: ArXivMCPClient;
@@ -206,7 +206,7 @@ Examples:
   /**
    * Execute the bibliography management operation
    */
-  async execute(
+  override async execute(
     params: EnhancedBibliographyParams,
   ): Promise<EnhancedBibliographyResult> {
     try {

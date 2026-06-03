@@ -827,6 +827,11 @@ export class Config implements McpContext, AgentLoopContext {
   private readonly cwd: string;
   private readonly bugCommand: BugCommandSettings | undefined;
   private model: string;
+  flashFallbackHandler?: (
+    failedModel: string,
+    fallbackModel: string,
+    error?: unknown,
+  ) => Promise<boolean | string | null>;
   private readonly disableLoopDetection: boolean;
   // null = unknown (quota not fetched); true = has access; false = definitively no access
   private hasAccessToPreviewModel: boolean | null = null;
@@ -1904,6 +1909,16 @@ export class Config implements McpContext, AgentLoopContext {
 
   getContentGeneratorConfig(): ContentGeneratorConfig {
     return this.contentGeneratorConfig;
+  }
+
+  setFlashFallbackHandler(
+    handler: (
+      failedModel: string,
+      fallbackModel: string,
+      error?: unknown,
+    ) => Promise<boolean | string | null>,
+  ): void {
+    this.flashFallbackHandler = handler;
   }
 
   getModel(): string {

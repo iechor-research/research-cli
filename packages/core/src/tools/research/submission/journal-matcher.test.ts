@@ -13,7 +13,7 @@ import type {
 import {
   JournalMatcher
 } from './journal-matcher.js';
-import { ResearchField, CitationStyle } from '../types.js';
+import { ResearchField } from '../types.js';
 
 describe('JournalMatcher', () => {
   let journalMatcher: JournalMatcher;

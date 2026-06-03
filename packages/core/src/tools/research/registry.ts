@@ -9,19 +9,9 @@
 import type {
   ResearchTool,
   ResearchToolParams,
-  ResearchToolResult} from './types.js';
-import {
-  ResearchToolCategory
+  ResearchToolResult,
 } from './types.js';
-import { EnhancedBibliographyManager } from './bibliography/enhanced-bibliography-manager.js';
-import { AcademicWritingAssistant } from './writing/academic-writing-assistant.js';
-import { ArXivMCPClient } from './bibliography/arxiv-mcp-client.js';
-import { SubmissionPreparator } from './submission/submission-preparator.js';
-import { PaperOutlineGenerator } from './writing/paper-outline-generator.js';
-import { ExperimentCodeGenerator } from './analysis/experiment-code-generator.js';
-import { LaTeXManager } from './submission/latex-manager.js';
-import { JournalMatcher } from './submission/journal-matcher.js';
-import { ResearchDataAnalyzer } from './analysis/research-data-analyzer.js';
+import { ResearchToolCategory } from './types.js';
 
 /**
  * 研究工具注册中心
@@ -33,11 +23,9 @@ export class ResearchToolRegistry {
   private toolsByCategory: Map<ResearchToolCategory, ResearchTool[]> =
     new Map();
   private initialized: boolean = false;
-  private arxivClient: ArXivMCPClient;
 
   private constructor() {
     this.tools = new Map();
-    this.arxivClient = new ArXivMCPClient();
     // 初始化分类映射
     Object.values(ResearchToolCategory).forEach((category) => {
       this.toolsByCategory.set(category, []);
@@ -84,18 +72,6 @@ export class ResearchToolRegistry {
     const categoryTools = this.toolsByCategory.get(tool.category) || [];
     categoryTools.push(tool);
     this.toolsByCategory.set(tool.category, categoryTools);
-  }
-
-  /**
-   * 注册所有默认研究工具
-   */
-  private registerDefaultTools(): void {
-    // Only register tools that are not registered in init.ts
-    // Journal matching
-    this.registerTool(new JournalMatcher());
-
-    // Submission preparation (new)
-    this.registerTool(new SubmissionPreparator(this.arxivClient));
   }
 
   /**

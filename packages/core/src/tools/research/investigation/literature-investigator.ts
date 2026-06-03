@@ -9,7 +9,8 @@
 import { BaseResearchTool } from '../base-tool.js';
 import type {
   ResearchToolParams,
-  BibliographyEntry} from '../types.js';
+  BibliographyEntry,
+} from '../types.js';
 import {
   Database,
   ResearchToolCategory,
@@ -17,7 +18,7 @@ import {
 import type { KeywordSequence, ResearchTopic } from './keyword-generator.js';
 import { KeywordSequenceGenerator } from './keyword-generator.js';
 import { BibliographyManager } from '../analysis/bibliography-manager.js';
-import { cached, monitored, ParallelProcessor } from '../utils/performance-optimizer.js';
+import { ParallelProcessor } from '../utils/performance-optimizer.js';
 
 /**
  * Literature investigation parameters
@@ -526,7 +527,6 @@ OUTPUT:
       return 50; // Neutral score for unknown dates
     }
     
-    const currentYear = new Date().getFullYear();
     const paperYear = paper.year;
     
     // If timeframe specified, score based on relevance to timeframe
@@ -544,6 +544,7 @@ OUTPUT:
     }
     
     // Otherwise, favor recent papers with exponential decay
+    const currentYear = new Date().getFullYear();
     const yearsOld = currentYear - paperYear;
     if (yearsOld <= 2) return 100;
     if (yearsOld <= 5) return 80;
@@ -823,7 +824,6 @@ OUTPUT:
     const olderAvg = olderYears.reduce((sum, year) => sum + yearlyCount[year], 0) / olderYears.length;
     
     const peakYear = years[counts.indexOf(Math.max(...counts))];
-    const currentYear = new Date().getFullYear();
     const recentActivity = recentAvg > 10 ? 'high' : recentAvg > 5 ? 'medium' : 'low';
     
     return {
@@ -1018,10 +1018,9 @@ OUTPUT:
     // Temporal gaps
     const yearRange = papers.map(p => p.year || 0).filter(y => y > 0);
     if (yearRange.length > 0) {
-      const minYear = Math.min(...yearRange);
       const maxYear = Math.max(...yearRange);
       const currentYear = new Date().getFullYear();
-      
+        
       if (currentYear - maxYear > 2) {
         gaps.push({
           gap: 'Lack of recent research',

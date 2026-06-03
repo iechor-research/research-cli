@@ -14,12 +14,9 @@ import type {
   StructureAnalysis,
   ReadabilityMetrics,
   PlagiarismCheck,
-  ResearchToolParams} from '../types.js';
-import {
-  WritingStyle,
-  WritingOperation,
-  ResearchToolCategory
+  ResearchToolParams,
 } from '../types.js';
+import { ResearchToolCategory } from '../types.js';
 
 /**
  * Academic Writing Assistant Tool
@@ -128,7 +125,9 @@ export class AcademicWritingAssistant extends BaseResearchTool<
     }
   }
 
-  protected async preProcess(params: WritingAssistantParams): Promise<void> {
+  protected override async preProcess(
+    params: WritingAssistantParams,
+  ): Promise<void> {
     // 调用验证逻辑
     this.validateParams(params);
   }
@@ -714,8 +713,6 @@ export class AcademicWritingAssistant extends BaseResearchTool<
   ): void {
     // Simple subject-verb agreement check
     const singularSubjects = ['he', 'she', 'it', 'this', 'that'];
-    const pluralSubjects = ['they', 'these', 'those', 'we'];
-
     singularSubjects.forEach((subject) => {
       const regex = new RegExp(`\\b${subject}\\s+(are|were)\\b`, 'i');
       const match = sentence.match(regex);

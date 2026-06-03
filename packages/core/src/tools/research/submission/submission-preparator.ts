@@ -4,12 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { BaseResearchTool } from '../base-tool.js';
-import type {
-  ResearchToolParams} from '../types.js';
-import {
-  ResearchToolResult,
-  ResearchToolCategory
-} from '../types.js';
+import type { ResearchToolParams } from '../types.js';
+import { ResearchToolCategory } from '../types.js';
 import type {
   SubmissionPrepOptions,
   SubmissionResult,
@@ -61,7 +57,9 @@ export class SubmissionPreparator extends BaseResearchTool<
   /**
    * 预处理 - 参数验证
    */
-  protected async preProcess(params: SubmissionPrepOptions): Promise<void> {
+  protected override async preProcess(
+    params: SubmissionPrepOptions,
+  ): Promise<void> {
     this.validateParams(params);
   }
 
@@ -612,6 +610,7 @@ OPTIONS:
     if (journalName) {
       try {
         const journalInfo = await this.journalMatcher.findJournal(journalName);
+        void journalInfo;
         // 这里可以实现具体的期刊要求检查
         // 现在返回基础检查结果
       } catch {
@@ -731,7 +730,7 @@ OPTIONS:
       return packageDir;
     } catch (error) {
       // Testing fallback - return mock package path for tests
-      if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      if (process.env['NODE_ENV'] === 'test' || process.env['VITEST']) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         return `/test/submission-package/submission-${timestamp}`;
       }
