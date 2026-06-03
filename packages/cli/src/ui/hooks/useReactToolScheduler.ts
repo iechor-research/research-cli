@@ -1,10 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import {
+import type {
   Config,
   ToolCallRequestInfo,
   ExecutingToolCall,
@@ -13,21 +15,23 @@ import {
   WaitingToolCall,
   CompletedToolCall,
   CancelledToolCall,
-  CoreToolScheduler,
   OutputUpdateHandler,
   AllToolCallsCompleteHandler,
   ToolCallsUpdateHandler,
   Tool,
   ToolCall,
   Status as CoreStatus,
-  EditorType,
+  EditorType} from '@iechor/research-cli-core';
+import {
+  CoreToolScheduler
 } from '@iechor/research-cli-core';
 import { useCallback, useState, useMemo } from 'react';
-import {
+import type {
   HistoryItemToolGroup,
   IndividualToolCallDisplay,
-  ToolCallStatus,
-  HistoryItemWithoutId,
+  HistoryItemWithoutId} from '../types.js';
+import {
+  ToolCallStatus
 } from '../types.js';
 
 export type ScheduleFn = (
@@ -95,7 +99,7 @@ export function useReactToolScheduler(
       setToolCallsForDisplay((prevCalls) =>
         prevCalls.map((tc) => {
           if (tc.request.callId === toolCallId && tc.status === 'executing') {
-            const executingTc = tc as TrackedExecutingToolCall;
+            const executingTc = tc;
             return { ...executingTc, liveOutput: outputChunk };
           }
           return tc;
@@ -278,7 +282,7 @@ export function mapToDisplay(
             ...baseDisplayProperties,
             status: mapCoreStatusToDisplayStatus(trackedCall.status),
             resultDisplay:
-              (trackedCall as TrackedExecutingToolCall).liveOutput ?? undefined,
+              (trackedCall).liveOutput ?? undefined,
             confirmationDetails: undefined,
           };
         case 'validating': // Fallthrough

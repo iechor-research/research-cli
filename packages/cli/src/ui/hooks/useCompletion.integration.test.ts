@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import type { Mocked } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCompletion } from './useCompletion.js';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import { glob } from 'glob';
-import { CommandContext, SlashCommand } from '../commands/types.js';
-import { Config, FileDiscoveryService } from '@iechor/research-cli-core';
+import type { CommandContext, SlashCommand } from '../commands/types.js';
+import type { Config} from '@iechor/research-cli-core';
+import { FileDiscoveryService } from '@iechor/research-cli-core';
 
 interface MockConfig {
   getFileFilteringRespectGitIgnore: () => boolean;
@@ -50,7 +53,7 @@ describe('useCompletion git-aware filtering integration', () => {
   const mockSlashCommands: SlashCommand[] = [
     {
       name: 'help',
-      altName: '?',
+      altNames: '?',
       description: 'Show help',
       action: vi.fn(),
     },

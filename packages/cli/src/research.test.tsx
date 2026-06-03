@@ -1,15 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import stripAnsi from 'strip-ansi';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { main } from './research.js';
+import type {
+  SettingsFile} from './config/settings.js';
 import {
   LoadedSettings,
-  SettingsFile,
   loadSettings,
 } from './config/settings.js';
 
@@ -76,10 +79,10 @@ describe('research.tsx main function', () => {
     loadSettingsMock = vi.mocked(loadSettings);
 
     // Store and clear sandbox-related env variables to ensure a consistent test environment
-    originalEnvResearchSandbox = process.env.RESEARCH_SANDBOX;
-    originalEnvSandbox = process.env.SANDBOX;
-    delete process.env.RESEARCH_SANDBOX;
-    delete process.env.SANDBOX;
+    originalEnvResearchSandbox = process.env['RESEARCH_SANDBOX'];
+    originalEnvSandbox = process.env['SANDBOX'];
+    delete process.env['RESEARCH_SANDBOX'];
+    delete process.env['SANDBOX'];
 
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -87,14 +90,14 @@ describe('research.tsx main function', () => {
   afterEach(() => {
     // Restore original env variables
     if (originalEnvResearchSandbox !== undefined) {
-      process.env.RESEARCH_SANDBOX = originalEnvResearchSandbox;
+      process.env['RESEARCH_SANDBOX'] = originalEnvResearchSandbox;
     } else {
-      delete process.env.RESEARCH_SANDBOX;
+      delete process.env['RESEARCH_SANDBOX'];
     }
     if (originalEnvSandbox !== undefined) {
-      process.env.SANDBOX = originalEnvSandbox;
+      process.env['SANDBOX'] = originalEnvSandbox;
     } else {
-      delete process.env.SANDBOX;
+      delete process.env['SANDBOX'];
     }
     vi.restoreAllMocks();
   });
@@ -107,18 +110,21 @@ describe('research.tsx main function', () => {
     const userSettingsFile: SettingsFile = {
       path: '/user/settings.json',
       settings: {},
+      originalSettings: {},
     };
     const workspaceSettingsFile: SettingsFile = {
       path: '/workspace/.research/settings.json',
       settings: {},
+      originalSettings: {},
     };
     const systemSettingsFile: SettingsFile = {
       path: '/system/settings.json',
       settings: {},
+      originalSettings: {},
     };
     const mockLoadedSettings = new LoadedSettings(
       systemSettingsFile,
-      { path: '/system/system-defaults.json', settings: {} },
+      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       userSettingsFile,
       workspaceSettingsFile,
       [settingsError],

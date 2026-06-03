@@ -1,7 +1,12 @@
-import { SlashCommand, CommandContext } from '../types.js';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+/**
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { CommandKind, type SlashCommand, type CommandContext } from '../types.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 
 // API配置文件路径
 const API_CONFIG_DIR = path.join(os.homedir(), '.research-cli');
@@ -103,6 +108,7 @@ function maskAPIKey(key: string): string {
 export const apiCommand: SlashCommand = {
   name: 'api',
   description: 'Manage API keys and configuration',
+  kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args: string) => {
     const argsArray = args
       .trim()

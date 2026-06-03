@@ -171,11 +171,11 @@ export interface ColorsTheme {
   AccentGreen: string;
   AccentYellow: string;
   AccentRed: string;
-  DiffAdded: string;
-  DiffRemoved: string;
+  DiffAdded?: string;
+  DiffRemoved?: string;
   Comment: string;
   Gray: string;
-  DarkGray: string;
+  DarkGray?: string;
   InputBackground?: string;
   MessageBackground?: string;
   FocusBackground?: string;
@@ -305,18 +305,18 @@ export class Theme {
             DEFAULT_SELECTION_OPACITY,
           ),
         diff: {
-          added: this.colors.DiffAdded,
-          removed: this.colors.DiffRemoved,
+          added: this.colors.DiffAdded ?? this.colors.AccentGreen,
+          removed: this.colors.DiffRemoved ?? this.colors.AccentRed,
         },
       },
       border: {
-        default: this.colors.DarkGray,
+        default: this.colors.DarkGray ?? this.colors.Gray,
       },
       ui: {
         comment: this.colors.Gray,
         symbol: this.colors.AccentCyan,
         active: this.colors.AccentBlue,
-        dark: this.colors.DarkGray,
+        dark: this.colors.DarkGray ?? this.colors.Gray,
         focus: this.colors.FocusColor ?? this.colors.AccentGreen,
         gradient: this.colors.GradientColors,
       },

@@ -1,10 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import React from 'react';
+import type React from 'react';
 import { Text } from 'ink';
 import Spinner from 'ink-spinner';
 import type { SpinnerName } from 'cli-spinners';

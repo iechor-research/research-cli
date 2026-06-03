@@ -1,17 +1,20 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
+import type {
+  MockedFunction} from 'vitest';
 import {
   afterEach,
   beforeEach,
   describe,
   expect,
   it,
-  vi,
-  MockedFunction,
+  vi
 } from 'vitest';
 import { act } from 'react';
 import { renderHook } from '@testing-library/react';

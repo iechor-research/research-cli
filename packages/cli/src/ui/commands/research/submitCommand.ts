@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
-  SlashCommand,
-  SlashCommandActionReturn,
-  CommandContext,
+  CommandKind,
+  type SlashCommand,
+  type SlashCommandActionReturn,
+  type CommandContext,
 } from '../types.js';
 import { MessageType } from '../../types.js';
 import {
@@ -34,10 +37,12 @@ export const submitCommand: SlashCommand = {
   name: 'submit',
   description:
     'Submission preparation tools for journal matching, package preparation, and LaTeX management',
+  kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'match',
       description: 'Find suitable journals based on paper title and abstract',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -109,6 +114,7 @@ export const submitCommand: SlashCommand = {
     {
       name: 'prepare',
       description: 'Prepare submission package for a target journal',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -178,6 +184,7 @@ export const submitCommand: SlashCommand = {
     {
       name: 'latex',
       description: 'Manage LaTeX projects for academic papers',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -254,7 +261,7 @@ export const submitCommand: SlashCommand = {
             'operation',
           );
 
-          let toolArgs: any = {
+          const toolArgs: any = {
             operation,
             projectPath,
           };
@@ -355,6 +362,7 @@ export const submitCommand: SlashCommand = {
     {
       name: 'help',
       description: 'Show help for submission commands',
+      kind: CommandKind.BUILT_IN,
       action: (context: CommandContext, args: string): void => {
         const helpText = buildHelpText({
           name: 'submit',

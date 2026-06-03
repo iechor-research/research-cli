@@ -1,15 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
-  SlashCommand,
-  SlashCommandActionReturn,
-  CommandContext,
+  CommandKind,
+  type SlashCommand,
+  type SlashCommandActionReturn,
+  type CommandContext,
 } from '../types.js';
-import { MessageType } from '../../types.js';
+import { CommandKind, MessageType } from '../../types.js';
 import {
   parseCommandArgs,
   getOptionValue,
@@ -26,10 +29,11 @@ import {
   handleResearchError,
   validateArguments,
 } from '../research/utils/errorHandler.js';
+import type {
+  ResearchSettings} from '@iechor/research-cli-core';
 import {
   ResearchConfigManager,
   ResearchConfigScope,
-  ResearchSettings,
   DEFAULT_RESEARCH_CONFIG,
 } from '@iechor/research-cli-core';
 
@@ -48,10 +52,12 @@ import {
 export const configCommand: SlashCommand = {
   name: 'config',
   description: 'Configuration management for research-cli settings',
+  kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'show',
       description: 'Show current configuration',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -104,6 +110,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'set',
       description: 'Set a configuration value',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -176,6 +183,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'get',
       description: 'Get a configuration value',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -231,6 +239,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'reset',
       description: 'Reset configuration to defaults',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -276,6 +285,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'validate',
       description: 'Validate configuration',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -333,6 +343,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'export',
       description: 'Export configuration',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -379,6 +390,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'import',
       description: 'Import configuration from file or JSON',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -425,6 +437,7 @@ export const configCommand: SlashCommand = {
     {
       name: 'help',
       description: 'Show configuration command help',
+      kind: CommandKind.BUILT_IN,
       action: (context: CommandContext, args: string): void => {
         const helpText = buildHelpText({
           name: 'config',

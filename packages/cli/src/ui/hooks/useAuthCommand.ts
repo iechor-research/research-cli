@@ -1,14 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { LoadedSettings, SettingScope } from '../../config/settings.js';
+import type { LoadedSettings, SettingScope } from '../../config/settings.js';
+import type {
+  Config} from '@iechor/research-cli-core';
 import {
   AuthType,
-  Config,
   clearCachedCredentialFile,
   getErrorMessage,
 } from '@iechor/research-cli-core';

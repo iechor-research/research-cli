@@ -1,32 +1,38 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import type { Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useResearchStream, mergePartListUnions } from './useResearchStream.js';
 import { useInput } from 'ink';
-import {
-  useReactToolScheduler,
+import type {
   TrackedToolCall,
   TrackedCompletedToolCall,
   TrackedExecutingToolCall,
-  TrackedCancelledToolCall,
-} from './useReactToolScheduler.js';
-import { Config, EditorType, AuthType } from '@iechor/research-cli-core';
-import { Part, PartListUnion } from '@google/genai';
-import { UseHistoryManagerReturn } from './useHistoryManager.js';
+  TrackedCancelledToolCall} from './useReactToolScheduler.js';
 import {
+  useReactToolScheduler
+} from './useReactToolScheduler.js';
+import type { Config, EditorType} from '@iechor/research-cli-core';
+import { AuthType } from '@iechor/research-cli-core';
+import type { Part, PartListUnion } from '@google/genai';
+import type { UseHistoryManagerReturn } from './useHistoryManager.js';
+import type {
   HistoryItem,
+  SlashCommandProcessorResult} from '../types.js';
+import {
   MessageType,
-  SlashCommandProcessorResult,
   StreamingState,
 } from '../types.js';
-import { Dispatch, SetStateAction } from 'react';
-import { LoadedSettings } from '../../config/settings.js';
+import type { Dispatch, SetStateAction } from 'react';
+import type { LoadedSettings } from '../../config/settings.js';
 
 // --- MOCKS ---
 const mockSendMessageStream = vi
@@ -735,8 +741,8 @@ describe('useResearchStream', () => {
       expect(client.addHistory).toHaveBeenCalledWith({
         role: 'user',
         parts: [
-          ...(cancelledToolCall1.response.responseParts as Part[]),
-          ...(cancelledToolCall2.response.responseParts as Part[]),
+          ...(cancelledToolCall1.response.responseParts),
+          ...(cancelledToolCall2.response.responseParts),
         ],
       });
 

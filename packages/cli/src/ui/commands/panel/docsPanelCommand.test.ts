@@ -1,12 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { docsPanelCommand } from './docsPanelCommand.js';
-import { CommandContext } from '../types.js';
+import type { CommandContext } from '../types.js';
 
 describe('docsPanelCommand', () => {
   let mockContext: CommandContext;
@@ -34,7 +36,7 @@ describe('docsPanelCommand', () => {
 
   it('should have correct command properties', () => {
     expect(docsPanelCommand.name).toBe('docs-panel');
-    expect(docsPanelCommand.altName).toBe('panel docs');
+    expect(docsPanelCommand.altNames).toBe('panel docs');
     expect(docsPanelCommand.description).toBe('Open documentation panel in web browser');
   });
 

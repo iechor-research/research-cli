@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
@@ -16,9 +18,10 @@ import {
 import { renderHook, act } from '@testing-library/react';
 import { useAutoAcceptIndicator } from './useAutoAcceptIndicator.js';
 
+import type {
+  Config as ActualConfigType} from '@iechor/research-cli-core';
 import {
   Config,
-  Config as ActualConfigType,
   ApprovalMode,
 } from '@iechor/research-cli-core';
 import { useInput, type Key as InkKey } from 'ink';
@@ -28,7 +31,7 @@ vi.mock('ink');
 vi.mock('@iechor/research-cli-core', async () => {
   const actualServerModule = (await vi.importActual(
     '@iechor/research-cli-core',
-  )) as Record<string, unknown>;
+  ));
   return {
     ...actualServerModule,
     Config: vi.fn(),

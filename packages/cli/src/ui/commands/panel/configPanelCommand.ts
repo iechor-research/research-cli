@@ -1,15 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { SlashCommand, SlashCommandActionReturn, MessageActionReturn } from '../types.js';
+import type { SlashCommand, SlashCommandActionReturn, MessageActionReturn } from '../types.js';
 
 export const configPanelCommand: SlashCommand = {
   name: 'config-panel',
-  altName: 'panel config',
+  altNames: 'panel config',
   description: 'Open configuration panel in web browser',
+  kind: CommandKind.BUILT_IN,
 
   action: async (context, args): Promise<SlashCommandActionReturn> => {
     const { services } = context;

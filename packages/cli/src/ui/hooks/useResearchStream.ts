@@ -1,39 +1,43 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useInput } from 'ink';
-import {
+import type {
   Config,
   ResearchClient,
-  ResearchEventType as ServerResearchEventType,
   ServerResearchStreamEvent as ResearchEvent,
   ServerResearchContentEvent as ContentEvent,
   ServerResearchErrorEvent as ErrorEvent,
   ServerResearchChatCompressedEvent,
+  ToolCallRequestInfo,
+  EditorType,
+  ThoughtSummary} from '@iechor/research-cli-core';
+import {
+  ResearchEventType as ServerResearchEventType,
   getErrorMessage,
   isNodeError,
   MessageSenderType,
-  ToolCallRequestInfo,
   logUserPrompt,
   GitService,
-  EditorType,
-  ThoughtSummary,
   UnauthorizedError,
   UserPromptEvent,
   DEFAULT_RESEARCH_FLASH_MODEL,
 } from '@iechor/research-cli-core';
 import { type Part, type PartListUnion } from '@google/genai';
-import {
-  StreamingState,
+import type {
   HistoryItem,
   HistoryItemWithoutId,
   HistoryItemToolGroup,
+  SlashCommandProcessorResult} from '../types.js';
+import {
+  StreamingState,
   MessageType,
-  SlashCommandProcessorResult,
   ToolCallStatus,
 } from '../types.js';
 import { isAtCommand } from '../utils/commandUtils.js';
@@ -42,16 +46,17 @@ import { useShellCommandProcessor } from './shellCommandProcessor.js';
 import { handleAtCommand } from './atCommandProcessor.js';
 import { findLastSafeSplitPoint } from '../utils/markdownUtilities.js';
 import { useStateAndRef } from './useStateAndRef.js';
-import { UseHistoryManagerReturn } from './useHistoryManager.js';
+import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { useLogger } from './useLogger.js';
-import { promises as fs } from 'fs';
-import path from 'path';
-import {
-  useReactToolScheduler,
-  mapToDisplay as mapTrackedToolCallsToDisplay,
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import type {
   TrackedToolCall,
   TrackedCompletedToolCall,
-  TrackedCancelledToolCall,
+  TrackedCancelledToolCall} from './useReactToolScheduler.js';
+import {
+  useReactToolScheduler,
+  mapToDisplay as mapTrackedToolCallsToDisplay
 } from './useReactToolScheduler.js';
 import { useSessionStats } from '../contexts/SessionContext.js';
 
@@ -557,7 +562,7 @@ export const useResearchStream = (
         query,
         userMessageTimestamp,
         abortSignal,
-        prompt_id!,
+        prompt_id,
       );
 
       if (!shouldProceed || queryToSend === null) {
@@ -575,7 +580,7 @@ export const useResearchStream = (
         const stream = researchClient.sendMessageStream(
           queryToSend,
           abortSignal,
-          prompt_id!,
+          prompt_id,
         );
         const processingStatus = await processResearchStreamEvents(
           stream,

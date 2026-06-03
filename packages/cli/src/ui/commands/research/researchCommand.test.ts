@@ -1,12 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { researchCommand } from './researchCommand.js';
-import { CommandContext } from '../types.js';
+import type { CommandContext } from '../types.js';
 import { MessageType } from '../../types.js';
 
 describe('researchCommand', () => {

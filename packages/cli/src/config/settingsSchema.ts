@@ -3613,5 +3613,15 @@ type InferMergedSettings<T extends SettingsSchema> = {
             : T[K]['default'];
 };
 
+export type LegacyResearchRootSettings = {
+  selectedAuthType?: AuthType;
+  theme?: string;
+  autoConfigureMaxOldSpaceSize?: boolean;
+  hideWindowTitle?: boolean;
+  excludeTools?: string[];
+  contextFileName?: string | string[];
+};
+
 export type Settings = InferSettings<SettingsSchemaType>;
-export type MergedSettings = InferMergedSettings<SettingsSchemaType>;
+export type MergedSettings = InferMergedSettings<SettingsSchemaType> &
+  LegacyResearchRootSettings;

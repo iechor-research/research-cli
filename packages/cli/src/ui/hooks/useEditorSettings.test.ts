@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
@@ -16,7 +18,8 @@ import {
 import { act } from 'react';
 import { renderHook } from '@testing-library/react';
 import { useEditorSettings } from './useEditorSettings.js';
-import { LoadedSettings, SettingScope } from '../../config/settings.js';
+import type { LoadedSettings} from '../../config/settings.js';
+import { SettingScope } from '../../config/settings.js';
 import { MessageType, type HistoryItem } from '../types.js';
 import {
   type EditorType,

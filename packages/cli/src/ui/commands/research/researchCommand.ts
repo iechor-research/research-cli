@@ -1,13 +1,16 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
-  SlashCommand,
-  SlashCommandActionReturn,
-  CommandContext,
+  CommandKind,
+  type SlashCommand,
+  type SlashCommandActionReturn,
+  type CommandContext,
 } from '../types.js';
 import { MessageType } from '../../types.js';
 import {
@@ -43,10 +46,12 @@ export const researchCommand: SlashCommand = {
   name: 'research',
   description:
     'Research tools for literature search, document analysis, and experiment generation',
+  kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'search',
       description: 'Search academic literature from multiple sources',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -85,7 +90,7 @@ export const researchCommand: SlashCommand = {
             toolName: 'research_manage_bibliography',
             toolArgs: {
               query,
-              databases: databases,
+              databases,
               maxResults: limit,
             },
           };
@@ -108,6 +113,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'analyze',
       description: 'Analyze document structure, grammar, or style',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -193,6 +199,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'experiment',
       description: 'Generate experiment code for research',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -260,6 +267,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'data',
       description: 'Analyze research data',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -324,6 +332,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'arxiv',
       description: 'ArXiv paper search, download, and management',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -471,6 +480,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'help',
       description: 'Show help for research commands',
+      kind: CommandKind.BUILT_IN,
       action: (context: CommandContext, args: string): void => {
         const helpText = buildHelpText({
           name: 'research',
@@ -535,6 +545,7 @@ export const researchCommand: SlashCommand = {
     {
       name: 'investigate',
       description: 'Comprehensive literature investigation with keyword-driven search and analysis',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -599,7 +610,7 @@ export const researchCommand: SlashCommand = {
                 toolArgs: {
                   topic: {
                     title: remainingArgs,
-                    domain: domain,
+                    domain,
                   },
                   totalMaxPapers: getOptionValue(parsed.options, 'max-papers', 80),
                   databases: String(getOptionValue(parsed.options, 'databases', 'arxiv,scholar,pubmed')).split(','),

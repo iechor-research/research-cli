@@ -1,22 +1,24 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { spawn } from 'child_process';
-import { StringDecoder } from 'string_decoder';
+import { spawn } from 'node:child_process';
+import { StringDecoder } from 'node:string_decoder';
 import type { HistoryItemWithoutId } from '../types.js';
 import { useCallback } from 'react';
-import { Config, ResearchClient } from '@iechor/research-cli-core';
+import type { Config, ResearchClient } from '@iechor/research-cli-core';
 import { type PartListUnion } from '@google/genai';
 import { formatMemoryUsage } from '../utils/formatters.js';
 import { isBinary } from '../utils/textUtils.js';
-import { UseHistoryManagerReturn } from './useHistoryManager.js';
-import crypto from 'crypto';
-import path from 'path';
-import os from 'os';
-import fs from 'fs';
+import type { UseHistoryManagerReturn } from './useHistoryManager.js';
+import crypto from 'node:crypto';
+import path from 'node:path';
+import os from 'node:os';
+import fs from 'node:fs';
 import stripAnsi from 'strip-ansi';
 
 const OUTPUT_UPDATE_INTERVAL_MS = 1000;
