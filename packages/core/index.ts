@@ -50,3 +50,25 @@ export { getCodeAssistServer } from './src/code_assist/codeAssist.js';
 export { getExperiments } from './src/code_assist/experiments/experiments.js';
 export { ExperimentFlags } from './src/code_assist/experiments/flagNames.js';
 export { getErrorStatus, ModelNotFoundError } from './src/utils/httpErrors.js';
+
+// --- Fork research subsystem ---
+export * from './src/tools/research/index.js';
+export * from './src/config/research-config-manager.js';
+export * from './src/config/research-config.js';
+// Fork model-provider subsystem (multi-LLM provider selection).
+export * from './src/core/model-providers/index.js';
+export { ModelProviderConfigManager } from './src/config/model-provider-config.js';
+// Disambiguate name shared with upstream modelConfigService.
+export type { ModelConfig } from './src/services/modelConfigService.js';
+// Disambiguate name shared with upstream fileSearch (CLI uses neither directly).
+export type { SearchOptions } from './src/utils/filesearch/fileSearch.js';
+
+// --- Fork research-branded aliases (point at upstream values) ---
+export { GeminiClient as ResearchClient } from './src/core/client.js';
+export { GeminiEventType as ResearchEventType } from './src/core/turn.js';
+export type {
+  ServerGeminiStreamEvent as ServerResearchStreamEvent,
+  ServerGeminiContentEvent as ServerResearchContentEvent,
+  ServerGeminiErrorEvent as ServerResearchErrorEvent,
+  ServerGeminiChatCompressedEvent as ServerResearchChatCompressedEvent,
+} from './src/core/turn.js';

@@ -18,7 +18,7 @@ import {
   getOptionValue,
   buildHelpText,
 } from './utils/commandParser.js';
-import { formatSuccess, formatInfo } from './utils/outputFormatter.js';
+import { formatInfo } from './utils/outputFormatter.js';
 import {
   handleResearchError,
   validateArguments,

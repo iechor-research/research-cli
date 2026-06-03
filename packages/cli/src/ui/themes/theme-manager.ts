@@ -422,11 +422,11 @@ class ThemeManager {
         },
         border: {
           ...semanticColors.border,
-          default: colors.DarkGray,
+          default: colors.DarkGray!,
         },
         ui: {
           ...semanticColors.ui,
-          dark: colors.DarkGray,
+          dark: colors.DarkGray!,
           focus: colors.FocusColor ?? colors.AccentGreen,
         },
       };
@@ -435,7 +435,7 @@ class ThemeManager {
     }
 
     this.lastCacheKey = cacheKey;
-    return this.cachedSemanticColors;
+    return this.cachedSemanticColors!;
   }
 
   isThemeCompatible(

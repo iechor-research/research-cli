@@ -20,10 +20,11 @@ import { renderHook } from '@testing-library/react';
 import { useEditorSettings } from './useEditorSettings.js';
 import type { LoadedSettings} from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
+import type { LoadableSettingScope } from '../../config/settings.js';
 import { MessageType, type HistoryItem } from '../types.js';
 import {
   type EditorType,
-  checkHasEditorType,
+  isEditorAvailable,
   allowEditorTypeInSandbox,
 } from '@iechor/research-cli-core';
 
@@ -31,19 +32,23 @@ vi.mock('@iechor/research-cli-core', async () => {
   const actual = await vi.importActual('@iechor/research-cli-core');
   return {
     ...actual,
-    checkHasEditorType: vi.fn(() => true),
+    isEditorAvailable: vi.fn(() => true),
     allowEditorTypeInSandbox: vi.fn(() => true),
   };
 });
 
-const mockCheckHasEditorType = vi.mocked(checkHasEditorType);
+const mockIsEditorAvailable = vi.mocked(isEditorAvailable);
 const mockAllowEditorTypeInSandbox = vi.mocked(allowEditorTypeInSandbox);
 
 describe('useEditorSettings', () => {
   let mockLoadedSettings: LoadedSettings;
   let mockSetEditorError: MockedFunction<(error: string | null) => void>;
   let mockAddItem: MockedFunction<
-    (item: Omit<HistoryItem, 'id'>, timestamp: number) => void
+    (
+      itemData: Omit<HistoryItem, 'id'>,
+      baseTimestamp?: number,
+      isResuming?: boolean,
+    ) => number
   >;
 
   beforeEach(() => {
@@ -57,7 +62,7 @@ describe('useEditorSettings', () => {
     mockAddItem = vi.fn();
 
     // Reset mock implementations to default
-    mockCheckHasEditorType.mockReturnValue(true);
+    mockIsEditorAvailable.mockReturnValue(true);
     mockAllowEditorTypeInSandbox.mockReturnValue(true);
   });
 
@@ -192,7 +197,10 @@ describe('useEditorSettings', () => {
     );
 
     const editorType: EditorType = 'vscode';
-    const scopes = [SettingScope.User, SettingScope.Workspace];
+    const scopes: LoadableSettingScope[] = [
+      SettingScope.User,
+      SettingScope.Workspace,
+    ];
 
     scopes.forEach((scope) => {
       act(() => {
@@ -220,7 +228,7 @@ describe('useEditorSettings', () => {
       useEditorSettings(mockLoadedSettings, mockSetEditorError, mockAddItem),
     );
 
-    mockCheckHasEditorType.mockReturnValue(false);
+    mockIsEditorAvailable.mockReturnValue(false);
 
     const editorType: EditorType = 'vscode';
     const scope = SettingScope.User;

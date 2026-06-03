@@ -6,31 +6,17 @@
  * @license
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { researchCommand } from './researchCommand.js';
 import type { CommandContext } from '../types.js';
+import { createMockCommandContext } from '../../../test-utils/mockCommandContext.js';
 import { MessageType } from '../../types.js';
 
 describe('researchCommand', () => {
   let mockContext: CommandContext;
 
   beforeEach(() => {
-    mockContext = {
-      services: {
-        config: null,
-        settings: {} as any,
-        git: undefined,
-        logger: {} as any,
-      },
-      ui: {
-        addItem: vi.fn(),
-        clear: vi.fn(),
-        setDebugMessage: vi.fn(),
-      },
-      session: {
-        stats: {} as any,
-      },
-    };
+    mockContext = createMockCommandContext();
   });
 
   describe('Basic Structure', () => {

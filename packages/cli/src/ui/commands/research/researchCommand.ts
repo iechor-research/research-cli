@@ -19,19 +19,14 @@ import {
   buildHelpText,
 } from './utils/commandParser.js';
 import {
-  formatTable,
-  formatSuccess,
   formatError,
   formatInfo,
-  TableColumn,
 } from './utils/outputFormatter.js';
 import {
   handleResearchError,
   validateArguments,
   validateOption,
-  executeWithErrorHandling,
 } from './utils/errorHandler.js';
-import type { ResearchToolRegistry } from '@iechor/research-cli-core';
 
 /**
  * /research 命令实现
@@ -149,31 +144,6 @@ export const researchCommand: SlashCommand = {
             },
             Date.now(),
           );
-
-          // 根据分析类型调用不同的写作助手功能
-          let operation: string;
-          switch (analysisType) {
-            case 'structure':
-              operation = 'analyze_structure';
-              break;
-            case 'grammar':
-              operation = 'check_grammar';
-              break;
-            case 'style':
-              operation = 'improve_style';
-              break;
-            case 'citations':
-              operation = 'verify_citations';
-              break;
-            case 'readability':
-              operation = 'check_readability';
-              break;
-            case 'all':
-              operation = 'comprehensive_review';
-              break;
-            default:
-              operation = 'analyze_structure';
-          }
 
           return {
             type: 'tool',

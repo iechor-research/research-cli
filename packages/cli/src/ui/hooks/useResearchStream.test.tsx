@@ -16,10 +16,10 @@ import type {
   TrackedToolCall,
   TrackedCompletedToolCall,
   TrackedExecutingToolCall,
-  TrackedCancelledToolCall} from './useReactToolScheduler.js';
+  TrackedCancelledToolCall} from './useToolScheduler.js';
 import {
-  useReactToolScheduler
-} from './useReactToolScheduler.js';
+  useToolScheduler
+} from './useToolScheduler.js';
 import type { Config, EditorType} from '@iechor/research-cli-core';
 import { AuthType } from '@iechor/research-cli-core';
 import type { Part, PartListUnion } from '@google/genai';
@@ -63,12 +63,12 @@ vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   };
 });
 
-const mockUseReactToolScheduler = useReactToolScheduler as Mock;
-vi.mock('./useReactToolScheduler.js', async (importOriginal) => {
+const mockUseReactToolScheduler = useToolScheduler as Mock;
+vi.mock('./useToolScheduler.js', async (importOriginal) => {
   const actualSchedulerModule = (await importOriginal()) as any;
   return {
     ...(actualSchedulerModule || {}),
-    useReactToolScheduler: vi.fn(),
+    useToolScheduler: vi.fn(),
   };
 });
 
@@ -271,8 +271,8 @@ describe('useResearchStream', () => {
 
     mockAddItem = vi.fn();
     mockSetShowHelp = vi.fn();
-    // Define the mock for getResearchClient
-    const mockGetResearchClient = vi.fn().mockImplementation(() => {
+    // Define the mock for getGeminiClient
+    const mockGetGeminiClient = vi.fn().mockImplementation(() => {
       // MockedResearchClientClass is defined in the module scope by the previous change.
       // It will use the mockStartChat and mockSendMessageStream that are managed within beforeEach.
       const clientInstance = new MockedResearchClientClass(mockConfig);
@@ -311,7 +311,7 @@ describe('useResearchStream', () => {
       ),
       getProjectRoot: vi.fn(() => '/test/dir'),
       getCheckpointingEnabled: vi.fn(() => false),
-      getResearchClient: mockGetResearchClient,
+      getGeminiClient: mockGetGeminiClient,
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       addHistory: vi.fn(),
@@ -327,12 +327,12 @@ describe('useResearchStream', () => {
     mockOnDebugMessage = vi.fn();
     mockHandleSlashCommand = vi.fn().mockResolvedValue(false);
 
-    // Mock return value for useReactToolScheduler
+    // Mock return value for useToolScheduler
     mockScheduleToolCalls = vi.fn();
     mockCancelAllToolCalls = vi.fn();
     mockMarkToolsAsSubmitted = vi.fn();
 
-    // Default mock for useReactToolScheduler to prevent toolCalls being undefined initially
+    // Default mock for useToolScheduler to prevent toolCalls being undefined initially
     mockUseReactToolScheduler.mockReturnValue([
       [], // Default to empty array for toolCalls
       mockScheduleToolCalls,
@@ -375,7 +375,7 @@ describe('useResearchStream', () => {
       mockMarkToolsAsSubmitted,
     ]);
 
-    const client = researchClient || mockConfig.getResearchClient();
+    const client = researchClient || mockConfig.getGeminiClient();
 
     const { result, rerender } = renderHook(
       (props: {
@@ -449,7 +449,7 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-1',
         },
         status: 'success',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         response: {
           callId: 'call1',
           responseParts: [{ text: 'tool 1 response' }],
@@ -463,7 +463,7 @@ describe('useResearchStream', () => {
         } as any,
         startTime: Date.now(),
         endTime: Date.now(),
-      } as TrackedCompletedToolCall,
+      } as unknown as TrackedCompletedToolCall,
       {
         request: {
           callId: 'call2',
@@ -472,7 +472,7 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-1',
         },
         status: 'executing',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         tool: {
           name: 'tool2',
           description: 'desc2',
@@ -480,7 +480,7 @@ describe('useResearchStream', () => {
         } as any,
         startTime: Date.now(),
         liveOutput: '...',
-      } as TrackedExecutingToolCall,
+      } as unknown as TrackedExecutingToolCall,
     ];
 
     const { mockMarkToolsAsSubmitted, mockSendMessageStream } =
@@ -510,9 +510,9 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-2',
         },
         status: 'success',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         response: { callId: 'call1', responseParts: toolCall1ResponseParts },
-      } as TrackedCompletedToolCall,
+      } as unknown as TrackedCompletedToolCall,
       {
         request: {
           callId: 'call2',
@@ -522,9 +522,9 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-2',
         },
         status: 'error',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         response: { callId: 'call2', responseParts: toolCall2ResponseParts },
-      } as TrackedCompletedToolCall, // Treat error as a form of completion for submission
+      } as unknown as TrackedCompletedToolCall, // Treat error as a form of completion for submission
     ];
 
     // Capture the onComplete callback
@@ -590,8 +590,8 @@ describe('useResearchStream', () => {
         },
         status: 'cancelled',
         response: { callId: '1', responseParts: [{ text: 'cancelled' }] },
-        responseSubmittedToResearch: false,
-      } as TrackedCancelledToolCall,
+        responseSubmittedToGemini: false,
+      } as unknown as TrackedCancelledToolCall,
     ];
     const client = new MockedResearchClientClass(mockConfig);
 
@@ -642,7 +642,7 @@ describe('useResearchStream', () => {
   });
 
   it('should group multiple cancelled tool call responses into a single history entry', async () => {
-    const cancelledToolCall1: TrackedCancelledToolCall = {
+    const cancelledToolCall1 = {
       request: {
         callId: 'cancel-1',
         name: 'toolA',
@@ -664,9 +664,9 @@ describe('useResearchStream', () => {
         resultDisplay: undefined,
         error: undefined,
       },
-      responseSubmittedToResearch: false,
-    };
-    const cancelledToolCall2: TrackedCancelledToolCall = {
+      responseSubmittedToGemini: false,
+    } as unknown as TrackedCancelledToolCall;
+    const cancelledToolCall2 = {
       request: {
         callId: 'cancel-2',
         name: 'toolB',
@@ -688,8 +688,8 @@ describe('useResearchStream', () => {
         resultDisplay: undefined,
         error: undefined,
       },
-      responseSubmittedToResearch: false,
-    };
+      responseSubmittedToGemini: false,
+    } as unknown as TrackedCancelledToolCall;
     const allCancelledTools = [cancelledToolCall1, cancelledToolCall2];
     const client = new MockedResearchClientClass(mockConfig);
 
@@ -766,14 +766,14 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-4',
         },
         status: 'executing',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         tool: {
           name: 'tool1',
           description: 'desc',
           getDescription: vi.fn(),
         } as any,
         startTime: Date.now(),
-      } as TrackedExecutingToolCall,
+      } as unknown as TrackedExecutingToolCall,
     ];
 
     const completedToolCalls: TrackedToolCall[] = [
@@ -787,7 +787,7 @@ describe('useResearchStream', () => {
           resultDisplay: 'Tool 1 success display',
         },
         endTime: Date.now(),
-      } as TrackedCompletedToolCall,
+      } as unknown as TrackedCompletedToolCall,
     ];
 
     // Capture the onComplete callback
@@ -986,7 +986,7 @@ describe('useResearchStream', () => {
         {
           request: { callId: 'call1', name: 'tool1', args: {} },
           status: 'executing',
-          responseSubmittedToResearch: false,
+          responseSubmittedToGemini: false,
           tool: {
             name: 'tool1',
             description: 'desc1',
@@ -994,7 +994,7 @@ describe('useResearchStream', () => {
           } as any,
           startTime: Date.now(),
           liveOutput: '...',
-        } as TrackedExecutingToolCall,
+        } as unknown as TrackedExecutingToolCall,
       ];
 
       const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
@@ -1064,7 +1064,7 @@ describe('useResearchStream', () => {
   describe('Memory Refresh on save_memory', () => {
     it('should call performMemoryRefresh when a save_memory tool call completes successfully', async () => {
       const mockPerformMemoryRefresh = vi.fn();
-      const completedToolCall: TrackedCompletedToolCall = {
+      const completedToolCall = {
         request: {
           callId: 'save-mem-call-1',
           name: 'save_memory',
@@ -1073,7 +1073,7 @@ describe('useResearchStream', () => {
           prompt_id: 'prompt-id-6',
         },
         status: 'success',
-        responseSubmittedToResearch: false,
+        responseSubmittedToGemini: false,
         response: {
           callId: 'save-mem-call-1',
           responseParts: [{ text: 'Memory saved' }],
@@ -1085,7 +1085,7 @@ describe('useResearchStream', () => {
           description: 'Saves memory',
           getDescription: vi.fn(),
         } as any,
-      };
+      } as unknown as TrackedCompletedToolCall;
 
       // Capture the onComplete callback
       let capturedOnComplete:

@@ -28,7 +28,6 @@ import { submitCommand } from './submitCommand.js';
 import { investigateCommand } from './investigateCommand.js';
 import { configCommand } from '../config/configCommand.js';
 import type { SlashCommand } from '../types.js';
-import { ArXivCommand } from './arxivCommand.js';
 
 /**
  * 所有研究相关的命令

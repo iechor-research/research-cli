@@ -7,16 +7,15 @@
  */
 
 import type { SlashCommand, SlashCommandActionReturn, MessageActionReturn } from '../types.js';
+import { CommandKind } from '../types.js';
 
 export const configPanelCommand: SlashCommand = {
   name: 'config-panel',
-  altNames: 'panel config',
+  altNames: ['panel config'],
   description: 'Open configuration panel in web browser',
   kind: CommandKind.BUILT_IN,
 
-  action: async (context, args): Promise<SlashCommandActionReturn> => {
-    const { services } = context;
-    const logger = services.logger;
+  action: async (_context, args): Promise<SlashCommandActionReturn> => {
 
     try {
       // Parse options

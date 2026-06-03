@@ -590,18 +590,18 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       input: colors.InputBackground!,
       focus: colors.FocusBackground!,
       diff: {
-        added: customTheme.background?.diff?.added ?? colors.DiffAdded,
-        removed: customTheme.background?.diff?.removed ?? colors.DiffRemoved,
+        added: customTheme.background?.diff?.added ?? colors.DiffAdded!,
+        removed: customTheme.background?.diff?.removed ?? colors.DiffRemoved!,
       },
     },
     border: {
-      default: colors.DarkGray,
+      default: colors.DarkGray!,
     },
     ui: {
       comment: customTheme.ui?.comment ?? colors.Comment,
       symbol: customTheme.ui?.symbol ?? colors.Gray,
       active: customTheme.ui?.active ?? colors.AccentBlue,
-      dark: colors.DarkGray,
+      dark: colors.DarkGray!,
       focus: colors.FocusColor ?? colors.AccentGreen,
       gradient: customTheme.ui?.gradient ?? colors.GradientColors,
     },

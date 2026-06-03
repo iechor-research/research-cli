@@ -7,8 +7,9 @@
  */
 
 import type { Config} from '@iechor/research-cli-core';
-import { GitService, Logger } from '@iechor/research-cli-core';
+import { Logger } from '@iechor/research-cli-core';
 import { CommandService } from './CommandService.js';
+import { BuiltinCommandLoader } from './BuiltinCommandLoader.js';
 import type { SlashCommand, CommandContext } from '../ui/commands/types.js';
 import type { LoadedSettings } from '../config/settings.js';
 import type { HistoryItem } from '../ui/types.js';
@@ -31,16 +32,25 @@ export interface SimpleCommandContext {
  * Standalone slash command processor that can be used by both interactive and non-interactive modes
  */
 export class SlashCommandProcessor {
-  private commands: SlashCommand[] = [];
-  private commandService: CommandService;
+  private commands: readonly SlashCommand[] = [];
+  private config: Config | null;
 
-  constructor() {
-    this.commandService = new CommandService();
+  constructor(config: Config | null = null) {
+    this.config = config;
   }
 
-  async initialize(): Promise<void> {
-    await this.commandService.loadCommands();
-    this.commands = this.commandService.getCommands();
+  async initialize(config: Config | null = this.config): Promise<void> {
+    this.config = config;
+    if (!config) {
+      this.commands = [];
+      return;
+    }
+    const controller = new AbortController();
+    const commandService = await CommandService.create(
+      [new BuiltinCommandLoader(config)],
+      controller.signal,
+    );
+    this.commands = commandService.getCommands();
   }
 
   async processCommand(
@@ -56,13 +66,13 @@ export class SlashCommandProcessor {
     const commandPath = parts.filter((p) => p);
 
     // Find the command using tree traversal logic
-    let currentCommands = this.commands;
+    let currentCommands: readonly SlashCommand[] = this.commands;
     let commandToExecute: SlashCommand | undefined;
     let pathIndex = 0;
 
     for (const part of commandPath) {
       const foundCommand = currentCommands.find(
-        (cmd) => cmd.name === part || cmd.altNames === part,
+        (cmd) => cmd.name === part || cmd.altNames?.includes(part),
       );
 
       if (foundCommand) {
@@ -83,15 +93,20 @@ export class SlashCommandProcessor {
 
       if (commandToExecute.action) {
         // Create a simplified command context for non-interactive use
-        const commandContext: CommandContext = {
+        const commandContext = {
           services: {
-            config: context.config,
+            agentContext: null,
             settings: {} as LoadedSettings, // Minimal settings for basic commands
             git: undefined,
-            logger: new Logger('non-interactive'),
+            logger: context.config
+              ? new Logger('non-interactive', context.config.storage)
+              : (undefined as unknown as Logger),
           },
           ui: {
-            addItem: (itemData: Omit<HistoryItem, 'id'>, baseTimestamp: number): number => {
+            addItem: (
+              itemData: Omit<HistoryItem, 'id'>,
+              baseTimestamp?: number,
+            ): number => {
               // For non-interactive mode, just output the message if it's text
               if (itemData.type === 'info' || itemData.type === 'error') {
                 const message = 'text' in itemData ? itemData.text : '';
@@ -99,7 +114,7 @@ export class SlashCommandProcessor {
                   context.outputMessage(message, itemData.type === 'error' ? 'error' : 'info');
                 }
               }
-              return baseTimestamp; // Return a dummy ID
+              return baseTimestamp ?? Date.now(); // Return a dummy ID
             },
             clear: () => {}, // No-op for non-interactive
             setDebugMessage: () => {}, // No-op for non-interactive
@@ -125,8 +140,11 @@ export class SlashCommandProcessor {
               lastPromptTokenCount: 0,
               promptCount: 0,
             } as SessionStatsState,
+            sessionShellAllowlist: new Set<string>(),
           },
-        };
+          // Cast through unknown: the non-interactive context intentionally
+          // implements only the subset of CommandContext used by basic commands.
+        } as unknown as CommandContext;
 
         try {
           const result = await commandToExecute.action(commandContext, args);
@@ -249,7 +267,7 @@ export class SlashCommandProcessor {
     }
   }
 
-  getAvailableCommands(): SlashCommand[] {
+  getAvailableCommands(): readonly SlashCommand[] {
     return this.commands;
   }
 }

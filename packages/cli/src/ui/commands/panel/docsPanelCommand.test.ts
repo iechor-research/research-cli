@@ -9,29 +9,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { docsPanelCommand } from './docsPanelCommand.js';
 import type { CommandContext } from '../types.js';
+import { createMockCommandContext } from '../../../test-utils/mockCommandContext.js';
 
 describe('docsPanelCommand', () => {
   let mockContext: CommandContext;
 
   beforeEach(() => {
-    mockContext = {
-      services: {
-        config: null,
-        settings: {} as any,
-        git: undefined,
-        logger: {
-          sessionId: 'test-session'
-        } as any
-      },
-      ui: {
-        addItem: vi.fn(),
-        clear: vi.fn(),
-        setDebugMessage: vi.fn()
-      },
-      session: {
-        stats: {} as any
-      }
-    };
+    mockContext = createMockCommandContext();
   });
 
   it('should have correct command properties', () => {

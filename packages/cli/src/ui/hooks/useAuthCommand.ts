@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import type { LoadedSettings, SettingScope } from '../../config/settings.js';
+import type { LoadedSettings, LoadableSettingScope } from '../../config/settings.js';
 import type {
   Config} from '@iechor/research-cli-core';
 import {
@@ -55,7 +55,7 @@ export const useAuthCommand = (
   }, [isAuthDialogOpen, settings, config, setAuthError, openAuthDialog]);
 
   const handleAuthSelect = useCallback(
-    async (authType: AuthType | undefined, scope: SettingScope) => {
+    async (authType: AuthType | undefined, scope: LoadableSettingScope) => {
       if (authType) {
         await clearCachedCredentialFile();
         settings.setValue(scope, 'selectedAuthType', authType);

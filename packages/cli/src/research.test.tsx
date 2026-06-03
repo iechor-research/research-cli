@@ -106,6 +106,7 @@ describe('research.tsx main function', () => {
     const settingsError = {
       message: 'Test settings error',
       path: '/test/settings.json',
+      severity: 'error' as const,
     };
     const userSettingsFile: SettingsFile = {
       path: '/user/settings.json',
@@ -127,6 +128,7 @@ describe('research.tsx main function', () => {
       { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       userSettingsFile,
       workspaceSettingsFile,
+      true,
       [settingsError],
     );
 

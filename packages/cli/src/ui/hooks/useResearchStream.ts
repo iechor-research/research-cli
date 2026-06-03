@@ -38,7 +38,7 @@ import type {
 import {
   StreamingState,
   MessageType,
-  ToolCallStatus,
+  CoreToolCallStatus,
 } from '../types.js';
 import { isAtCommand } from '../utils/commandUtils.js';
 import { parseAndFormatApiError } from '../utils/errorParsing.js';
@@ -53,11 +53,11 @@ import path from 'node:path';
 import type {
   TrackedToolCall,
   TrackedCompletedToolCall,
-  TrackedCancelledToolCall} from './useReactToolScheduler.js';
+  TrackedCancelledToolCall} from './useToolScheduler.js';
 import {
-  useReactToolScheduler,
-  mapToDisplay as mapTrackedToolCallsToDisplay
-} from './useReactToolScheduler.js';
+  useToolScheduler,
+} from './useToolScheduler.js';
+import { mapToDisplay as mapTrackedToolCallsToDisplay } from './toolMapping.js';
 import { useSessionStats } from '../contexts/SessionContext.js';
 
 export function mergePartListUnions(list: PartListUnion[]): PartListUnion {
@@ -104,20 +104,20 @@ export const useResearchStream = (
   const turnCancelledRef = useRef(false);
   const [isResponding, setIsResponding] = useState<boolean>(false);
   const [thought, setThought] = useState<ThoughtSummary | null>(null);
-  const [pendingHistoryItemRef, setPendingHistoryItem] =
+  const [pendingHistoryItem, pendingHistoryItemRef, setPendingHistoryItem] =
     useStateAndRef<HistoryItemWithoutId | null>(null);
   const processedMemoryToolsRef = useRef<Set<string>>(new Set());
   const { startNewPrompt, getPromptCount } = useSessionStats();
-  const logger = useLogger();
+  const logger = useLogger(config);
   const gitService = useMemo(() => {
     if (!config.getProjectRoot()) {
       return;
     }
-    return new GitService(config.getProjectRoot());
+    return new GitService(config.getProjectRoot(), config.storage);
   }, [config]);
 
   const [toolCalls, scheduleToolCalls, markToolsAsSubmitted] =
-    useReactToolScheduler(
+    useToolScheduler(
       async (completedToolCallsFromScheduler) => {
         // This onComplete is called when ALL scheduled tools for a given batch are done.
         if (completedToolCallsFromScheduler.length > 0) {
@@ -136,7 +136,6 @@ export const useResearchStream = (
         }
       },
       config,
-      setPendingHistoryItem,
       getPreferredEditor,
     );
 
@@ -175,7 +174,7 @@ export const useResearchStream = (
             tc.status === 'error' ||
             tc.status === 'cancelled') &&
             !(tc as TrackedCompletedToolCall | TrackedCancelledToolCall)
-              .responseSubmittedToResearch),
+              .responseSubmittedToGemini),
       )
     ) {
       return StreamingState.Responding;
@@ -283,7 +282,8 @@ export const useResearchStream = (
             messageId: userMessageTimestamp,
             signal: abortSignal,
           });
-          if (!atCommandResult.shouldProceed) {
+          if (atCommandResult.error) {
+            onDebugMessage(atCommandResult.error);
             return { queryToSend: null, shouldProceed: false };
           }
           localQueryToSendToResearch = atCommandResult.processedQuery;
@@ -334,13 +334,13 @@ export const useResearchStream = (
       }
       let newResearchMessageBuffer = currentResearchMessageBuffer + eventValue;
       if (
-        pendingHistoryItemRef.current?.type !== 'research' &&
-        pendingHistoryItemRef.current?.type !== 'research_content'
+        pendingHistoryItemRef.current?.type !== 'gemini' &&
+        pendingHistoryItemRef.current?.type !== 'gemini_content'
       ) {
         if (pendingHistoryItemRef.current) {
           addItem(pendingHistoryItemRef.current, userMessageTimestamp);
         }
-        setPendingHistoryItem({ type: 'research', text: '' });
+        setPendingHistoryItem({ type: 'gemini', text: '' });
         newResearchMessageBuffer = eventValue;
       }
       // Split large messages for better rendering performance. Ideally,
@@ -349,7 +349,7 @@ export const useResearchStream = (
       if (splitPoint === newResearchMessageBuffer.length) {
         // Update the existing message with accumulated content
         setPendingHistoryItem((item) => ({
-          type: item?.type as 'research' | 'research_content',
+          type: item?.type as 'gemini' | 'gemini_content',
           text: newResearchMessageBuffer,
         }));
       } else {
@@ -366,13 +366,13 @@ export const useResearchStream = (
         addItem(
           {
             type: pendingHistoryItemRef.current?.type as
-              | 'research'
-              | 'research_content',
+              | 'gemini'
+              | 'gemini_content',
             text: beforeText,
           },
           userMessageTimestamp,
         );
-        setPendingHistoryItem({ type: 'research_content', text: afterText });
+        setPendingHistoryItem({ type: 'gemini_content', text: afterText });
         newResearchMessageBuffer = afterText;
       }
       return newResearchMessageBuffer;
@@ -389,10 +389,11 @@ export const useResearchStream = (
         if (pendingHistoryItemRef.current.type === 'tool_group') {
           const updatedTools = pendingHistoryItemRef.current.tools.map(
             (tool) =>
-              tool.status === ToolCallStatus.Pending ||
-              tool.status === ToolCallStatus.Confirming ||
-              tool.status === ToolCallStatus.Executing
-                ? { ...tool, status: ToolCallStatus.Canceled }
+              tool.status === CoreToolCallStatus.Validating ||
+              tool.status === CoreToolCallStatus.Scheduled ||
+              tool.status === CoreToolCallStatus.AwaitingApproval ||
+              tool.status === CoreToolCallStatus.Executing
+                ? { ...tool, status: CoreToolCallStatus.Cancelled }
                 : tool,
           );
           const pendingItem: HistoryItemToolGroup = {
@@ -506,11 +507,9 @@ export const useResearchStream = (
           case ServerResearchEventType.MaxSessionTurns:
             handleMaxSessionTurnsEvent();
             break;
-          default: {
-            // enforces exhaustive switch-case
-            const unreachable: never = event;
-            return unreachable;
-          }
+          default:
+            // Unhandled event types are ignored.
+            break;
         }
       }
       if (toolCallRequests.length > 0) {
@@ -769,7 +768,7 @@ export const useResearchStream = (
   );
 
   const pendingHistoryItems = [
-    pendingHistoryItemRef.current,
+    pendingHistoryItem,
     pendingToolCallGroupDisplay,
   ].filter((i) => i !== undefined && i !== null);
 
@@ -786,8 +785,8 @@ export const useResearchStream = (
       );
 
       if (restorableToolCalls.length > 0) {
-        const checkpointDir = config.getProjectTempDir()
-          ? path.join(config.getProjectTempDir(), 'checkpoints')
+        const checkpointDir = config.storage
+          ? config.storage.getProjectTempCheckpointsDir()
           : undefined;
 
         if (!checkpointDir) {

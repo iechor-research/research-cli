@@ -13,7 +13,7 @@ import { useCallback } from 'react';
 import type { Config, ResearchClient } from '@iechor/research-cli-core';
 import { type PartListUnion } from '@google/genai';
 import { formatMemoryUsage } from '../utils/formatters.js';
-import { isBinary } from '../utils/textUtils.js';
+import { isBinary } from '@iechor/research-cli-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import crypto from 'node:crypto';
 import path from 'node:path';

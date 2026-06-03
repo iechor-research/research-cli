@@ -27,7 +27,7 @@ describe('useLoadingIndicator', () => {
 
   it('should initialize with default values when Idle', () => {
     const { result } = renderHook(() =>
-      useLoadingIndicator(StreamingState.Idle),
+      useLoadingIndicator({ streamingState: StreamingState.Idle, shouldShowFocusHint: false, retryStatus: null, showTips: false, showWit: true }),
     );
     expect(result.current.elapsedTime).toBe(0);
     expect(result.current.currentLoadingPhrase).toBe(WITTY_LOADING_PHRASES[0]);
@@ -35,7 +35,7 @@ describe('useLoadingIndicator', () => {
 
   it('should reflect values when Responding', async () => {
     const { result } = renderHook(() =>
-      useLoadingIndicator(StreamingState.Responding),
+      useLoadingIndicator({ streamingState: StreamingState.Responding, shouldShowFocusHint: false, retryStatus: null, showTips: false, showWit: true }),
     );
 
     // Initial state before timers advance
@@ -56,7 +56,7 @@ describe('useLoadingIndicator', () => {
 
   it('should show waiting phrase and retain elapsedTime when WaitingForConfirmation', async () => {
     const { result, rerender } = renderHook(
-      ({ streamingState }) => useLoadingIndicator(streamingState),
+      ({ streamingState }) => useLoadingIndicator({ streamingState, shouldShowFocusHint: false, retryStatus: null, showTips: false, showWit: true }),
       { initialProps: { streamingState: StreamingState.Responding } },
     );
 
@@ -83,7 +83,7 @@ describe('useLoadingIndicator', () => {
 
   it('should reset elapsedTime and use a witty phrase when transitioning from WaitingForConfirmation to Responding', async () => {
     const { result, rerender } = renderHook(
-      ({ streamingState }) => useLoadingIndicator(streamingState),
+      ({ streamingState }) => useLoadingIndicator({ streamingState, shouldShowFocusHint: false, retryStatus: null, showTips: false, showWit: true }),
       { initialProps: { streamingState: StreamingState.Responding } },
     );
 
@@ -116,7 +116,7 @@ describe('useLoadingIndicator', () => {
 
   it('should reset timer and phrase when streamingState changes from Responding to Idle', async () => {
     const { result, rerender } = renderHook(
-      ({ streamingState }) => useLoadingIndicator(streamingState),
+      ({ streamingState }) => useLoadingIndicator({ streamingState, shouldShowFocusHint: false, retryStatus: null, showTips: false, showWit: true }),
       { initialProps: { streamingState: StreamingState.Responding } },
     );
 

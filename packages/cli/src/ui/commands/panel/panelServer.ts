@@ -26,7 +26,7 @@ export interface PanelServer {
  * TODO: Implement actual server functionality in next phase
  */
 export async function startPanelServer(options: PanelServerOptions): Promise<PanelServer> {
-  const { type, port, host, context } = options;
+  const { port, host } = options;
   
   // For now, return a mock server
   // TODO: Implement actual Express server with React app

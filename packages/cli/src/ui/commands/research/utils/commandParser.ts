@@ -74,7 +74,6 @@ function parseArgsWithQuotes(input: string): string[] {
   
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
-    const nextChar = input[i + 1];
     
     if (!inQuotes) {
       if (char === '"' || char === "'") {
