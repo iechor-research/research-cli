@@ -24,7 +24,7 @@ of the artefacts that support the staged plan.
 | Artefact                                   | Purpose                                                                                                                                      |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.github/workflows/upstream-sync.yml`      | Weekly workflow that fetches upstream, mirrors it, regenerates the report, and opens a PR if needed.                                         |
-| `scripts/monitor-upstream.js`              | Generates `upstream-monitor-report.json` (categorisation by commit message **and** file path).                                               |
+| `scripts/monitor-upstream.js`              | *(removed)* Historical report generator; `upstream-monitor-report.json` is kept as a snapshot until the script is restored.               |
 | `scripts/upstream-config.js`               | Single source of truth for fork point, brand-replacement table, and path-to-subsystem mapping.                                               |
 | `scripts/rebrand.mjs`                      | Portable Node rebrander driven by `upstream-config.js`. Rewrites upstream brand strings in files or stdin.                                   |
 | `scripts/check-rebrand.mjs`                | CI guard (`npm run lint:rebrand`). Fails the build if forbidden upstream brand strings reappear in `packages/{cli,core}/{src,package.json}`. |
@@ -42,10 +42,9 @@ of the artefacts that support the staged plan.
 2. Force-pushes `refs/remotes/upstream/main` to `refs/heads/upstream-mirror`
    on `origin`. The mirror branch has independent history and is **only**
    used as a diff target — never merge it.
-3. Runs `node scripts/monitor-upstream.js --ci --skip-fetch`, which writes
-   the categorised report to `upstream-monitor-report.json`.
-4. If the report's content changed (ignoring the `timestamp` field), opens
-   or updates a PR with the new report.
+3. *(Skipped)* Report regeneration — `scripts/monitor-upstream.js` was removed
+   with the 2026-05 scripts cleanup. The workflow only mirrors upstream; update
+   `upstream-monitor-report.json` manually when needed.
 
 ## The report file
 

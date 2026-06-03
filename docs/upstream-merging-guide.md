@@ -1,3 +1,8 @@
+> **Note (2026-06):** `scripts/monitor-upstream.js`, `scripts/merge-upstream*.sh`, and
+> related release/build helpers were removed from this repo. Use
+> [`docs/upstream-sync/README.md`](upstream-sync/README.md) and manual cherry-picks
+> until those tools are restored.
+
 # Research CLI - Upstream Merging Guide
 
 This guide provides comprehensive instructions for safely merging upstream Gemini CLI changes into the Research CLI project.

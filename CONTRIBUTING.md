@@ -369,8 +369,9 @@ npm run lint
     `packages/cli` directory, pausing execution until a debugger attaches. You
     can then open `chrome://inspect` in your Chrome browser to connect to the
     debugger.
-2.  In VS Code, use the "Attach" launch configuration (found in
-    `.vscode/launch.json`).
+2.  In VS Code, run `npm run debug` from the repo root, then use **Run and Debug →
+    Attach to Node Process** (port 9229), or open `packages/vscode-ide-companion`
+    and use its **Run Extension** launch config for IDE companion work.
 
 Alternatively, you can use the "Launch Program" configuration in VS Code if you
 prefer to launch the currently open file directly, but 'F5' is generally

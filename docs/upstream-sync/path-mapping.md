@@ -49,10 +49,10 @@ If you change a mapping, change it in **both** places.
 
 ## 2. Subsystem path map
 
-This is the same map encoded in
-`UPSTREAM_CONFIG.pathCategories` and used by `monitor-upstream.js` to bucket
-upstream commits in `upstream-monitor-report.json > pathCategories`. It is
-also the order in which subsystems are tackled in Phase 2 of the sync plan.
+This is the same map encoded in `UPSTREAM_CONFIG.pathCategories`. It is also
+the order in which subsystems are tackled in Phase 2 of the sync plan. The
+historical `upstream-monitor-report.json` snapshot may still reference these
+buckets; regenerate that file only after restoring `scripts/monitor-upstream.js`.
 
 | Bucket               | Path prefix                                | Phase-2 order |
 | -------------------- | ------------------------------------------ | ------------- |
@@ -94,10 +94,9 @@ keep the fork's version.
 Top-level groupings (full list: `git diff --diff-filter=A --name-only upstream/main HEAD`):
 
 - `RESEARCH.md`, `Makefile` (fork-customised)
-- `SciToolAgent/` — research tool integration
-- `research-site/`, `research-terminal/`, `research-terminal-go/` — fork-only sub-projects
-- `qianwen_latex_demo/`, `baidu_latex_demo*` — research demos
-- `blogs/` — fork blog content
+- Former git submodules (`SciToolAgent`, `research-site`, `research-terminal`) and
+  sibling repos (`research-terminal-go`) live outside this monorepo — do not re-add
+  them as submodules during cherry-picks.
 - `docs/assets/research-screenshot*.png`, `docs/Uninstall.md`,
   `docs/cross-platform-release.md`, `docs/deployment.md`,
   `docs/github-actions-build.md`, `docs/tauri-desktop.md`
@@ -110,22 +109,13 @@ Top-level groupings (full list: `git diff --diff-filter=A --name-only upstream/m
   `.github/workflows/research-*-triage.yml`,
   `.github/workflows/e2e.yml`
 - `.gcp/release-docker.yaml` (fork release pipeline)
-- `scripts/build-cross-platform*.js`, `scripts/build-native-wrapper.js`,
-  `scripts/build-research-terminal.js`, `scripts/build-simple*.js`,
-  `scripts/build-standalone-package.js`, `scripts/build-hyper-style.js`,
-  `scripts/check-build-status.js`, `scripts/clean.js`,
-  `scripts/create-*-release.js`, `scripts/gh-release*.js`,
-  `scripts/get-release-version.js`, `scripts/local_telemetry.js`,
-  `scripts/merge-package-json.js`, `scripts/merge-upstream*`,
-  `scripts/monitor-upstream.js`, `scripts/qianwen_latex_demo.js`,
-  `scripts/release.js`, `scripts/replace-gemini-branding.sh`,
-  `scripts/test-*.js` (fork-specific test harnesses),
-  `scripts/trigger-github-build.js`, `scripts/upstream-config.js`,
-  `scripts/verify-upstream-system.js`
+- `scripts/upstream-config.js`, `scripts/rebrand.mjs`, `scripts/check-rebrand.mjs`,
+  `scripts/clean.js`, `scripts/prepare-package.js`, and other scripts present
+  under `scripts/` today (many legacy release/build helpers were removed in 2026-05)
 - `upstream-monitor-report.json`, `upstream-system-report.json`
 - Inside `packages/core/` and `packages/cli/`: any file added by the fork
-  to support research-specific tools (e.g. `SciToolAgent` integration,
-  iEchor telemetry / auth, model-provider adapters). When a cherry-pick
+  to support research-specific integrations, iEchor telemetry / auth, and
+  model-provider adapters. When a cherry-pick
   conflicts with one of these, keep the fork's version.
 
 To regenerate the canonical list:

@@ -23,6 +23,10 @@ bower_components
 # Editors
 .idea
 *.iml
+.vscode/
+
+# Local build / typecheck artefacts
+packages/cli/*.log
 
 # OS metadata
 .DS_Store

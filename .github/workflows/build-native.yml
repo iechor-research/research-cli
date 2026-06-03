@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   build:
+    if: false # Disabled 2026-06: Tauri/Electron/native release packaging removed from monorepo
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     permissions:

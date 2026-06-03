@@ -1,3 +1,6 @@
+> **Deprecated:** Tauri desktop packaging and `npm run tauri:*` scripts were removed
+> from the monorepo. This document is kept for historical reference only.
+
 # Research CLI Tauri 桌面应用
 
 ## 概述
