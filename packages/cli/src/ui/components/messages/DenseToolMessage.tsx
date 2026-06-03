@@ -17,7 +17,7 @@ import {
   isGrepResult,
   isListResult,
   isReadManyFilesResult,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   type IndividualToolCallDisplay,
   type ToolResultDisplay,

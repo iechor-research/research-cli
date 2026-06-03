@@ -1,10 +1,13 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { Theme, ColorsTheme } from './theme.js';
+import type { ColorsTheme } from './theme.js';
+import { Theme } from './theme.js';
 
 const noColorColorsTheme: ColorsTheme = {
   type: 'ansi',

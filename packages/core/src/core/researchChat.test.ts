@@ -11,7 +11,6 @@ import type {
   Content,
   Models,
   GenerateContentConfig,
-  Part,
   GenerateContentResponse,
 } from '@google/genai';
 import { ResearchChat } from './researchChat.js';

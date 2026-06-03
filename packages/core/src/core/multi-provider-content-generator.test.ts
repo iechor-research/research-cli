@@ -11,6 +11,7 @@ import { MultiProviderContentGenerator } from './multi-provider-content-generato
 import type { ContentGenerator } from './contentGenerator.js';
 import { ModelProvider } from './model-providers/types.js';
 import { GenerateContentResponse, FinishReason } from '@google/genai';
+import { LlmRole } from '../telemetry/llmRole.js';
 
 // Mock ContentGenerator
 class MockGeminiGenerator implements ContentGenerator {
@@ -95,10 +96,14 @@ describe('MultiProviderContentGenerator', () => {
     it('should use Gemini generator for Gemini models', async () => {
       const spy = vi.spyOn(mockGeminiGenerator, 'generateContent');
       
-      await multiProviderGenerator.generateContent({
-        model: 'gemini-1.5-pro',
-        contents: [{ role: 'user', parts: [{ text: 'test' }] }]
-      });
+      await multiProviderGenerator.generateContent(
+        {
+          model: 'gemini-1.5-pro',
+          contents: [{ role: 'user', parts: [{ text: 'test' }] }],
+        },
+        'prompt-id',
+        LlmRole.MAIN,
+      );
 
       expect(spy).toHaveBeenCalled();
     });

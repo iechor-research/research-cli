@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 // 导出所有研究命令
@@ -25,7 +27,7 @@ import { paperCommand } from './paperCommand.js';
 import { submitCommand } from './submitCommand.js';
 import { investigateCommand } from './investigateCommand.js';
 import { configCommand } from '../config/configCommand.js';
-import { SlashCommand } from '../types.js';
+import type { SlashCommand } from '../types.js';
 import { ArXivCommand } from './arxivCommand.js';
 
 /**

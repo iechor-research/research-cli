@@ -19,7 +19,7 @@ import {
   type WaitingToolCall,
   type CancelledToolCall,
   CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { ToolCallStatus, mapCoreStatusToDisplayStatus } from '../types.js';
 
 describe('toolMapping', () => {

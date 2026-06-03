@@ -15,7 +15,7 @@ import {
   type Config,
   CoreToolCallStatus,
   type SerializableConfirmationDetails,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { ConfirmingToolState } from '../hooks/useConfirmingTool.js';
 import { theme } from '../semantic-colors.js';
 
@@ -27,9 +27,9 @@ vi.mock('./StickyHeader.js', async (importOriginal) => {
   };
 });
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     validatePlanPath: vi.fn().mockResolvedValue(undefined),
@@ -141,7 +141,7 @@ describe('ToolConfirmationQueue', () => {
     expect(output).toContain('1 of 3');
     expect(output).toContain('ls'); // Tool name
     expect(output).toContain('list files'); // Tool description
-    expect(output).toContain('Allow execution of [ls]?');
+    expect(output).toContain('Allow execution of [Shell]?');
     expect(output).toMatchSnapshot();
 
     unmount();

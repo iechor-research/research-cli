@@ -13,7 +13,8 @@ import type {
   ResumedSessionData,
   ConversationRecord,
   MessageRecord,
-} from '@google/gemini-cli-core';
+  HistoryTurn,
+} from '@iechor/research-cli-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import type { HistoryItemWithoutId } from '../types.js';
 
@@ -527,10 +528,12 @@ describe('useSessionResume', () => {
 
       // Should only have the non-slash-command message
       expect(clientHistory).toHaveLength(1);
-      expect(clientHistory[0]).toEqual({
-        role: 'user',
-        parts: [{ text: 'Regular message' }],
-      });
+      expect(clientHistory.map((h: HistoryTurn) => h.content)).toEqual([
+        {
+          role: 'user',
+          parts: [{ text: 'Regular message' }],
+        },
+      ]);
 
       // But UI history should have both
       expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(2);

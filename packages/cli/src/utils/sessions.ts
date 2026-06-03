@@ -5,12 +5,12 @@
  */
 
 import {
-  ChatRecordingService,
+  deleteStoredSession,
   generateSummary,
   writeToStderr,
   writeToStdout,
   type Config,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   formatRelativeTime,
   SessionSelector,
@@ -95,9 +95,7 @@ export async function deleteSession(
   }
 
   try {
-    // Use ChatRecordingService to delete the session
-    const chatRecordingService = new ChatRecordingService(config);
-    await chatRecordingService.deleteSession(sessionToDelete.file);
+    await deleteStoredSession(config, sessionToDelete.file);
 
     const time = formatRelativeTime(sessionToDelete.lastUpdated);
     writeToStdout(

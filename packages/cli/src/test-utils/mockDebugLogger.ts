@@ -43,15 +43,15 @@ export function createMockDebugLogger(options: { stripAnsi?: boolean } = {}) {
 }
 
 /**
- * A helper specifically designed for `vi.mock('@google/gemini-cli-core', ...)` to easily
+ * A helper specifically designed for `vi.mock('@iechor/research-cli-core', ...)` to easily
  * mock both `debugLogger` and `coreEvents.emitConsoleLog`.
  *
  * Example:
  * ```typescript
- * vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+ * vi.mock('@iechor/research-cli-core', async (importOriginal) => {
  *   const { mockCoreDebugLogger } = await import('../../test-utils/mockDebugLogger.js');
  *   return mockCoreDebugLogger(
- *     await importOriginal<typeof import('@google/gemini-cli-core')>(),
+ *     await importOriginal<typeof import('@iechor/research-cli-core')>(),
  *     { stripAnsi: true }
  *   );
  * });

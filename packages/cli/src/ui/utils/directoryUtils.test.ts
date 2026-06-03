@@ -11,17 +11,12 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...original,
     homedir: () => mockHomeDir,
-    loadServerHierarchicalMemory: vi.fn().mockResolvedValue({
-      memoryContent: 'mock memory',
-      fileCount: 10,
-      filePaths: ['/a/b/c.md'],
-    }),
   };
 });
 

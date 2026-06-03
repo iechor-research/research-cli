@@ -7,7 +7,7 @@
 import {
   CoreToolCallStatus,
   belongsInConfirmationQueue,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   type HistoryItemWithoutId,
   type IndividualToolCallDisplay,

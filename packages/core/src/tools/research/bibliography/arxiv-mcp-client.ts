@@ -6,9 +6,7 @@
 
 import type {
   PaperMetadata,
-  SearchOptions as BaseSearchOptions} from '../types.js';
-import {
-  ResearchTool
+  SearchOptions as BaseSearchOptions,
 } from '../types.js';
 
 export interface ArXivSearchOptions extends BaseSearchOptions {

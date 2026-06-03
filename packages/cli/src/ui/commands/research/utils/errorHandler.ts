@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { formatError, formatWarning } from './outputFormatter.js';
@@ -24,9 +26,9 @@ export enum ResearchErrorType {
  * 研究命令错误类
  */
 export class ResearchCommandError extends Error {
-  public readonly type: ResearchErrorType;
-  public readonly suggestions: string[];
-  public readonly details?: any;
+  readonly type: ResearchErrorType;
+  readonly suggestions: string[];
+  readonly details?: any;
 
   constructor(
     message: string,
@@ -186,7 +188,7 @@ export function validateOption(
  */
 export function validateFileExists(filePath: string): void {
   try {
-    const fs = require('fs');
+    const fs = require('node:fs');
     if (!fs.existsSync(filePath)) {
       throw new ResearchCommandError(
         `File not found: ${filePath}`,

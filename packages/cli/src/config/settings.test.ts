@@ -84,7 +84,7 @@ import {
   Storage,
   AuthType,
   type MCPServerConfig,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { updateSettingsFilePreservingFormat } from '../utils/commentJson.js';
 import {
   getSettingsSchema,
@@ -130,9 +130,9 @@ const mockCoreEvents = vi.hoisted(() => ({
   emitSettingsChanged: vi.fn(),
 }));
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   const os = await import('node:os');
   const pathMod = await import('node:path');
   const fsMod = await import('node:fs');
@@ -1106,6 +1106,77 @@ describe('Settings Loading and Merging', () => {
       expect(settings.merged.mcp).toEqual({
         allowed: ['system-allowed'],
         excluded: ['workspace-excluded'],
+      });
+    });
+
+    describe('LoadedSettings MCP consolidation', () => {
+      it('should consolidate mcp excluded list across all scopes', () => {
+        const loaded = new LoadedSettings(
+          {
+            path: '',
+            settings: { mcp: { excluded: ['system-excluded'] } },
+            originalSettings: {},
+          },
+          {
+            path: '',
+            settings: { mcp: { excluded: ['defaults-excluded'] } },
+            originalSettings: {},
+          },
+          {
+            path: '',
+            settings: { mcp: { excluded: ['user-excluded'] } },
+            originalSettings: {},
+          },
+          {
+            path: '',
+            settings: { mcp: { excluded: ['workspace-excluded'] } },
+            originalSettings: {},
+          },
+          true,
+        );
+
+        expect(loaded.getConsolidatedExcludedMcpServers()).toEqual([
+          'system-excluded',
+          'defaults-excluded',
+          'user-excluded',
+          'workspace-excluded',
+        ]);
+      });
+
+      it('should consolidate allowed mcp list via case-insensitive intersection', () => {
+        const loaded = new LoadedSettings(
+          {
+            path: '',
+            settings: { mcp: { allowed: ['Server-A', 'Server-B'] } },
+            originalSettings: {},
+          },
+          {
+            path: '',
+            settings: { mcp: { allowed: ['server-a', 'Server-C'] } },
+            originalSettings: {},
+          },
+          { path: '', settings: {}, originalSettings: {} }, // no allowlist in user
+          {
+            path: '',
+            settings: { mcp: { allowed: ['SERVER-A', 'Server-D'] } },
+            originalSettings: {},
+          },
+          true,
+        );
+
+        expect(loaded.getConsolidatedAllowedMcpServers()).toEqual(['Server-A']);
+      });
+
+      it('should return undefined allowed list if no scopes define one', () => {
+        const loaded = new LoadedSettings(
+          { path: '', settings: {}, originalSettings: {} },
+          { path: '', settings: {}, originalSettings: {} },
+          { path: '', settings: {}, originalSettings: {} },
+          { path: '', settings: {}, originalSettings: {} },
+          true,
+        );
+
+        expect(loaded.getConsolidatedAllowedMcpServers()).toBeUndefined();
       });
     });
 

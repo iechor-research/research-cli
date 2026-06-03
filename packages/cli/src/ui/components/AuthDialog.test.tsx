@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { render } from 'ink-testing-library';
@@ -17,8 +19,8 @@ describe('AuthDialog', () => {
 
   beforeEach(() => {
     originalEnv = { ...process.env };
-    process.env.GEMINI_API_KEY = '';
-    process.env.RESEARCH_DEFAULT_AUTH_TYPE = '';
+    process.env['GEMINI_API_KEY'] = '';
+    process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = '';
     vi.clearAllMocks();
   });
 
@@ -27,14 +29,14 @@ describe('AuthDialog', () => {
   });
 
   it('should show an error if the initial auth type is invalid', () => {
-    process.env.GEMINI_API_KEY = '';
+    process.env['GEMINI_API_KEY'] = '';
 
     const settings: LoadedSettings = new LoadedSettings(
       {
         settings: {},
         path: '',
       },
-      { path: '/system/system-defaults.json', settings: {} },
+      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       {
         settings: {
           selectedAuthType: AuthType.USE_RESEARCH,
@@ -43,6 +45,7 @@ describe('AuthDialog', () => {
       },
       {
         settings: {},
+        originalSettings: {},
         path: '',
       },
       [],
@@ -63,7 +66,7 @@ describe('AuthDialog', () => {
 
   describe('GEMINI_API_KEY  environment variable', () => {
     it('should detect GEMINI_API_KEY  environment variable', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
+      process.env['GEMINI_API_KEY'] = 'foobar';
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -72,9 +75,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -90,8 +94,8 @@ describe('AuthDialog', () => {
     });
 
     it('should not show the GEMINI_API_KEY  message if RESEARCH_DEFAULT_AUTH_TYPE is set to something else', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
-      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
+      process.env['GEMINI_API_KEY'] = 'foobar';
+      process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.LOGIN_WITH_GOOGLE;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -100,9 +104,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -118,8 +123,8 @@ describe('AuthDialog', () => {
     });
 
     it('should show the GEMINI_API_KEY  message if RESEARCH_DEFAULT_AUTH_TYPE is set to use api key', () => {
-      process.env.GEMINI_API_KEY = 'foobar';
-      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.USE_RESEARCH;
+      process.env['GEMINI_API_KEY'] = 'foobar';
+      process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.USE_RESEARCH;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -128,9 +133,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -148,7 +154,7 @@ describe('AuthDialog', () => {
 
   describe('RESEARCH_DEFAULT_AUTH_TYPE environment variable', () => {
     it('should select the auth type specified by RESEARCH_DEFAULT_AUTH_TYPE', () => {
-      process.env.RESEARCH_DEFAULT_AUTH_TYPE = AuthType.LOGIN_WITH_GOOGLE;
+      process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.LOGIN_WITH_GOOGLE;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -157,9 +163,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -181,9 +188,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -198,7 +206,7 @@ describe('AuthDialog', () => {
     });
 
     it('should show an error and fall back to default if RESEARCH_DEFAULT_AUTH_TYPE is invalid', () => {
-      process.env.RESEARCH_DEFAULT_AUTH_TYPE = 'invalid-auth-type';
+      process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = 'invalid-auth-type';
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -207,9 +215,10 @@ describe('AuthDialog', () => {
           },
           path: '',
         },
-        { path: '/system/system-defaults.json', settings: {} },
+        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
         {
           settings: {},
+          originalSettings: {},
           path: '',
         },
         [],
@@ -235,7 +244,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
-      { path: '/system/system-defaults.json', settings: {} },
+      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       {
         settings: {
           selectedAuthType: undefined,
@@ -244,6 +253,7 @@ describe('AuthDialog', () => {
       },
       {
         settings: {},
+        originalSettings: {},
         path: '',
       },
       [],
@@ -273,9 +283,10 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
-      { path: '/system/system-defaults.json', settings: {} },
+      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       {
         settings: {},
+        originalSettings: {},
         path: '',
       },
       [],
@@ -308,7 +319,7 @@ describe('AuthDialog', () => {
         settings: {},
         path: '',
       },
-      { path: '/system/system-defaults.json', settings: {} },
+      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
       {
         settings: {
           selectedAuthType: AuthType.USE_RESEARCH,
@@ -317,6 +328,7 @@ describe('AuthDialog', () => {
       },
       {
         settings: {},
+        originalSettings: {},
         path: '',
       },
       [],

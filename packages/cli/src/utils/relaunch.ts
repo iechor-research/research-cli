@@ -13,14 +13,14 @@ import {
 import {
   writeToStderr,
   type AdminControlsSettings,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 export async function relaunchOnExitCode(runner: () => Promise<number>) {
   while (true) {
     try {
       const exitCode = await runner();
 
-      if (exitCode !== RELAUNCH_EXIT_CODE) {
+      if (process.platform === 'android' || exitCode !== RELAUNCH_EXIT_CODE) {
         process.exit(exitCode);
       }
     } catch (error) {

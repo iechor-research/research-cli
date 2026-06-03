@@ -5,7 +5,6 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SubmissionPreparator } from './submission-preparator.js';
-import { ArXivMCPClient } from '../bibliography/arxiv-mcp-client.js';
 import type { SubmissionResult } from './types.js';
 
 // Mock dependencies

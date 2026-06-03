@@ -15,16 +15,16 @@ import {
   type ToolCall,
   type ToolCallsUpdateMessage,
   MessageBusType,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { createMockConfig } from '../utils/testing_utils.js';
 import type { ExecutionEventBus, RequestContext } from '@a2a-js/sdk/server';
 import { CoderAgentEvent } from '../types.js';
 
 const mockProcessRestorableToolCalls = vi.hoisted(() => vi.fn());
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...original,
     processRestorableToolCalls: mockProcessRestorableToolCalls,
@@ -292,6 +292,66 @@ describe('Task', () => {
           text: citationText,
         },
       ]);
+    });
+
+    it('should capture usageMetadata on Finished event and include it in final status update', async () => {
+      const mockConfig = createMockConfig();
+      const mockEventBus: ExecutionEventBus = {
+        publish: vi.fn(),
+        on: vi.fn(),
+        off: vi.fn(),
+        once: vi.fn(),
+        removeAllListeners: vi.fn(),
+        finished: vi.fn(),
+      };
+
+      // @ts-expect-error - Calling private constructor for test purposes.
+      const task = new Task(
+        'task-id',
+        'context-id',
+        mockConfig as Config,
+        mockEventBus,
+      );
+
+      const finishedEvent = {
+        type: GeminiEventType.Finished,
+        value: {
+          reason: 'STOP',
+          usageMetadata: {
+            promptTokenCount: 100,
+            candidatesTokenCount: 50,
+            totalTokenCount: 150,
+          },
+        },
+      };
+
+      await task.acceptAgentMessage(finishedEvent);
+      expect(task.usageMetadata).toEqual({
+        promptTokenCount: 100,
+        candidatesTokenCount: 50,
+        totalTokenCount: 150,
+      });
+
+      task.setTaskStateAndPublishUpdate(
+        'input-required',
+        { kind: CoderAgentEvent.StateChangeEvent },
+        undefined,
+        undefined,
+        true, // final
+      );
+
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          final: true,
+          metadata: expect.objectContaining({
+            usageMetadata: {
+              promptTokenCount: 100,
+              candidatesTokenCount: 50,
+              totalTokenCount: 150,
+            },
+          }),
+        }),
+      );
     });
 
     it('should update modelInfo and reflect it in metadata and status updates', async () => {

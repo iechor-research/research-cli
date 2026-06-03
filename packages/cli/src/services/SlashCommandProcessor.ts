@@ -1,15 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { Config, GitService, Logger } from '@iechor/research-cli-core';
+import type { Config} from '@iechor/research-cli-core';
+import { GitService, Logger } from '@iechor/research-cli-core';
 import { CommandService } from './CommandService.js';
-import { SlashCommand, CommandContext } from '../ui/commands/types.js';
-import { LoadedSettings } from '../config/settings.js';
-import { HistoryItem } from '../ui/types.js';
-import { SessionStatsState } from '../ui/contexts/SessionContext.js';
+import type { SlashCommand, CommandContext } from '../ui/commands/types.js';
+import type { LoadedSettings } from '../config/settings.js';
+import type { HistoryItem } from '../ui/types.js';
+import type { SessionStatsState } from '../ui/contexts/SessionContext.js';
 
 export interface SlashCommandResult {
   type: 'handled' | 'not_found' | 'schedule_tool';
@@ -59,7 +62,7 @@ export class SlashCommandProcessor {
 
     for (const part of commandPath) {
       const foundCommand = currentCommands.find(
-        (cmd) => cmd.name === part || cmd.altName === part,
+        (cmd) => cmd.name === part || cmd.altNames === part,
       );
 
       if (foundCommand) {
@@ -180,7 +183,7 @@ export class SlashCommandProcessor {
     // Handle special legacy commands that need direct implementation
     const mainCommand = parts[0];
     if (mainCommand === 'tools') {
-      return await this.handleToolsCommand(context);
+      return this.handleToolsCommand(context);
     }
 
     return {

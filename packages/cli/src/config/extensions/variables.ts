@@ -6,7 +6,7 @@
 
 import * as path from 'node:path';
 import { type VariableSchema, VARIABLE_SCHEMA } from './variableSchema.js';
-import { GEMINI_DIR } from '@google/gemini-cli-core';
+import { GEMINI_DIR } from '@iechor/research-cli-core';
 
 /**
  * Represents a set of keys that will be considered invalid while unmarshalling
@@ -67,8 +67,7 @@ export function recursivelyHydrateStrings<T>(
   }
   if (Array.isArray(obj)) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    return obj.map((item) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return (obj as unknown[]).map((item) =>
       recursivelyHydrateStrings(item, values),
     ) as unknown as T;
   }

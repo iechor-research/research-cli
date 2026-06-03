@@ -6,7 +6,7 @@
 
 import { renderWithProviders, cleanup } from '../../test-utils/render.js';
 import { createMockSettings } from '../../test-utils/settings.js';
-import { makeFakeConfig } from '@google/gemini-cli-core';
+import { makeFakeConfig } from '@iechor/research-cli-core';
 import { waitFor } from '../../test-utils/async.js';
 import { act, useState, useMemo } from 'react';
 import type { EventEmitter } from 'node:events';
@@ -26,7 +26,7 @@ const { fakeTranscriptionProvider } = vi.hoisted(() => {
   };
 });
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = (await importOriginal()) as any;
   return {
@@ -54,7 +54,7 @@ import {
   debugLogger,
   coreEvents,
   type Config,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as path from 'node:path';
 import {
   CommandKind,
@@ -1962,8 +1962,8 @@ describe('InputPrompt', () => {
       },
       {
         name: 'should NOT trigger completion when cursor is after space following /',
-        text: '/memory add',
-        cursor: [0, 11],
+        text: '/memory list',
+        cursor: [0, 12],
         showSuggestions: false,
       },
       {
@@ -4898,6 +4898,60 @@ describe('InputPrompt', () => {
       unmount();
     });
 
+    it('should NOT open shortcuts help with ? in vim NORMAL mode', async () => {
+      const setShortcutsHelpVisible = vi.fn();
+      const vimHandleInput = vi.fn().mockReturnValue(true);
+
+      const { stdin, unmount } = await renderWithProviders(
+        <TestInputPrompt
+          {...props}
+          vimEnabled={true}
+          vimMode="NORMAL"
+          vimHandleInput={vimHandleInput}
+        />,
+        {
+          uiActions: { setShortcutsHelpVisible },
+        },
+      );
+
+      await act(async () => {
+        stdin.write('?');
+      });
+
+      expect(setShortcutsHelpVisible).not.toHaveBeenCalled();
+      expect(vimHandleInput).toHaveBeenCalled();
+      expect(mockBuffer.handleInput).not.toHaveBeenCalled();
+
+      unmount();
+    });
+
+    it('should open shortcuts help with ? in vim INSERT mode', async () => {
+      const setShortcutsHelpVisible = vi.fn();
+      const vimHandleInput = vi.fn().mockReturnValue(false);
+
+      const { stdin, unmount } = await renderWithProviders(
+        <TestInputPrompt
+          {...props}
+          vimEnabled={true}
+          vimMode="INSERT"
+          vimHandleInput={vimHandleInput}
+        />,
+        {
+          uiActions: { setShortcutsHelpVisible },
+        },
+      );
+
+      await act(async () => {
+        stdin.write('?');
+      });
+
+      await waitFor(() => {
+        expect(setShortcutsHelpVisible).toHaveBeenCalledWith(true);
+      });
+
+      unmount();
+    });
+
     it.each([
       {
         name: 'terminal paste event occurs',
@@ -5330,6 +5384,34 @@ describe('InputPrompt', () => {
         );
         unmount();
       });
+    });
+  });
+
+  describe('terminal buffer rendering', () => {
+    it('does not clip the last char of a visual line whose width equals inputWidth', async () => {
+      const fullLine = '1234567890'; // 10 chars, exactly props.inputWidth
+      props.inputWidth = 10;
+      props.suggestionsWidth = 10;
+      vi.spyOn(props.config, 'getUseTerminalBuffer').mockReturnValue(true);
+      mockBuffer.text = fullLine;
+      mockBuffer.lines = [fullLine];
+      mockBuffer.allVisualLines = [fullLine];
+      mockBuffer.viewportVisualLines = [fullLine];
+      mockBuffer.visualToLogicalMap = [[0, 0]];
+      mockBuffer.visualToTransformedMap = [0];
+      mockBuffer.transformationsByLine = [[]];
+      mockBuffer.cursor = [0, fullLine.length];
+      mockBuffer.visualCursor = [0, fullLine.length];
+
+      const { lastFrame, unmount } = await renderWithProviders(
+        <TestInputPrompt {...props} />,
+        { uiActions },
+      );
+
+      await waitFor(() => {
+        expect(clean(lastFrame())).toContain(fullLine);
+      });
+      unmount();
     });
   });
 });

@@ -9,8 +9,8 @@ import { ToolConfirmationMessage } from './ToolConfirmationMessage.js';
 import type {
   SerializableConfirmationDetails,
   Config,
-} from '@google/gemini-cli-core';
-import { initializeShellParsers } from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
+import { initializeShellParsers } from '@iechor/research-cli-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 
 describe('ToolConfirmationMessage Redirection', () => {

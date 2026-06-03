@@ -12,7 +12,7 @@ import {
   type ExtensionInstallMetadata,
   type GeminiCLIExtension,
   homedir,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { logger } from '../utils/logger.js';

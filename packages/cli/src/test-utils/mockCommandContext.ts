@@ -7,7 +7,7 @@
 import { vi } from 'vitest';
 import type { CommandContext } from '../ui/commands/types.js';
 import { mergeSettings, type LoadedSettings } from '../config/settings.js';
-import type { GitService } from '@google/gemini-cli-core';
+import type { GitService } from '@iechor/research-cli-core';
 import type { SessionStatsState } from '../ui/contexts/SessionContext.js';
 
 // A utility type to make all properties of an object, and its nested objects, partial.
@@ -112,5 +112,11 @@ export const createMockCommandContext = (
     return output;
   };
 
-  return merge(defaultMocks, overrides);
+  const merged: unknown = merge(defaultMocks, overrides);
+  const isCommandContext = (val: unknown): val is CommandContext =>
+    typeof val === 'object' && val !== null;
+  if (isCommandContext(merged)) {
+    return merged;
+  }
+  throw new Error('Unreachable');
 };

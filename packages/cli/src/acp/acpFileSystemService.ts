@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { isWithinRoot, type FileSystemService } from '@google/gemini-cli-core';
+import { isWithinRoot, type FileSystemService } from '@iechor/research-cli-core';
 import type * as acp from '@agentclientprotocol/sdk';
 import os from 'node:os';
 import path from 'node:path';
@@ -60,8 +60,11 @@ export class AcpFileSystemService implements FileSystemService {
         sessionId: this.sessionId,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return response.content;
+      const content: unknown = response.content;
+      if (typeof content !== 'string') {
+        throw new Error('content must be a string'); // replace with other response type formats when modified in the future
+      }
+      return content;
     } catch (err: unknown) {
       this.normalizeFileSystemError(err);
     }

@@ -8,10 +8,10 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { act } from 'react';
 import { renderWithProviders } from '../../test-utils/render.js';
 import { createMockSettings } from '../../test-utils/settings.js';
-import { makeFakeConfig } from '@google/gemini-cli-core';
+import { makeFakeConfig } from '@iechor/research-cli-core';
 import { waitFor } from '../../test-utils/async.js';
 import { AskUserDialog } from './AskUserDialog.js';
-import { QuestionType, type Question } from '@google/gemini-cli-core';
+import { QuestionType, type Question } from '@iechor/research-cli-core';
 import { UIStateContext, type UIState } from '../contexts/UIStateContext.js';
 
 // Helper to write to stdin with proper act() wrapping
@@ -1579,6 +1579,73 @@ describe('AskUserDialog', () => {
       expect(frame).toContain('Line 25');
       // Should still show the options
       expect(frame).toContain('1.  Option 1');
+    });
+  });
+
+  it('indents multi-line descriptions correctly', async () => {
+    const questions: Question[] = [
+      {
+        question: 'Single choice?',
+        header: 'Indent Test',
+        type: QuestionType.CHOICE,
+        options: [
+          {
+            label: 'Option 1',
+            description:
+              'This is a very long description that is expected to wrap onto multiple lines in a narrow terminal. We want to ensure that all lines are correctly indented.',
+          },
+        ],
+        multiSelect: false,
+      },
+    ];
+
+    const { lastFrame, waitUntilReady } = await renderWithProviders(
+      <AskUserDialog
+        questions={questions}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        width={40} // Narrow width to force wrapping
+      />,
+      { width: 40 },
+    );
+
+    await waitFor(async () => {
+      await waitUntilReady();
+      // Snapshot will capture the visual alignment
+      expect(lastFrame()).toMatchSnapshot();
+    });
+  });
+
+  it('indents multi-line descriptions correctly in multi-select mode', async () => {
+    const questions: Question[] = [
+      {
+        question: 'Multi-select?',
+        header: 'Indent Test',
+        type: QuestionType.CHOICE,
+        options: [
+          {
+            label: 'Option 1',
+            description:
+              'This is a very long description that is expected to wrap onto multiple lines in a narrow terminal. We want to ensure that all lines are correctly indented even with checkboxes.',
+          },
+        ],
+        multiSelect: true,
+      },
+    ];
+
+    const { lastFrame, waitUntilReady } = await renderWithProviders(
+      <AskUserDialog
+        questions={questions}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        width={40} // Narrow width to force wrapping
+      />,
+      { width: 40 },
+    );
+
+    await waitFor(async () => {
+      await waitUntilReady();
+      expect(lastFrame()).toMatchSnapshot();
     });
   });
 });

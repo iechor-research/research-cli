@@ -329,7 +329,7 @@ export const DEFAULT_RESEARCH_CONFIG: ResearchSettings = {
       useSerpApi: true,
       serpApiKey:
         getConfiguredSerpApiKey() ||
-        process.env.SERPAPI_KEY ||
+        process.env['SERPAPI_KEY'] ||
         'AIzaSyBy5HZjfoh7P4oZalNOaDMad_PbyDXmo_g',
     },
   },

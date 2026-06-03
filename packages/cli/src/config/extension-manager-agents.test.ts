@@ -9,7 +9,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { ExtensionManager } from './extension-manager.js';
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import { createTestMergedSettings } from './settings.js';
 import { createExtension } from '../test-utils/createExtension.js';
 import { EXTENSIONS_DIRECTORY_NAME } from './extensions/variables.js';
@@ -24,9 +24,9 @@ vi.mock('node:os', async (importOriginal) => {
   };
 });
 
-// Mock @google/gemini-cli-core
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const core = await importOriginal<typeof import('@google/gemini-cli-core')>();
+// Mock @iechor/research-cli-core
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
+  const core = await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...core,
     homedir: mockHomedir,

@@ -8,8 +8,15 @@
 
 import type { ToolRegistry } from '../tool-registry.js';
 import { researchToolRegistry } from './registry.js';
-import type { ToolResult } from '../tools.js';
-import { BaseTool } from '../tools.js';
+import {
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
+  type ExecuteOptions,
+  type ToolInvocation,
+  type ToolResult,
+} from '../tools.js';
+import type { MessageBus } from '../../confirmation-bus/message-bus.js';
 import type { ResearchToolParams } from './types.js';
 import { initializeResearchTools } from './init.js';
 
@@ -17,7 +24,7 @@ import { initializeResearchTools } from './init.js';
  * 研究工具适配器
  * 将研究工具适配为标准工具接口
  */
-export class ResearchToolAdapter extends BaseTool<
+export class ResearchToolAdapter extends BaseDeclarativeTool<
   ResearchToolParams,
   ToolResult
 > {
@@ -26,38 +33,70 @@ export class ResearchToolAdapter extends BaseTool<
     name: string,
     description: string,
     parameterSchema: Record<string, unknown>,
+    messageBus: MessageBus,
   ) {
     super(
       name,
       researchToolName,
       description,
+      Kind.Other,
       parameterSchema,
+      messageBus,
       true, // isOutputMarkdown - 研究工具通常输出格式化内容
       false, // canUpdateOutput
     );
   }
 
-  async execute(
+  protected createInvocation(
     params: ResearchToolParams,
-    signal: AbortSignal,
-  ): Promise<ToolResult> {
+    messageBus: MessageBus,
+    toolName?: string,
+    toolDisplayName?: string,
+  ): ToolInvocation<ResearchToolParams, ToolResult> {
+    return new ResearchToolInvocation(
+      params,
+      messageBus,
+      this.researchToolName,
+      toolName,
+      toolDisplayName,
+    );
+  }
+}
+
+class ResearchToolInvocation extends BaseToolInvocation<
+  ResearchToolParams,
+  ToolResult
+> {
+  constructor(
+    params: ResearchToolParams,
+    messageBus: MessageBus,
+    private readonly researchToolName: string,
+    toolName?: string,
+    toolDisplayName?: string,
+  ) {
+    super(params, messageBus, toolName, toolDisplayName);
+  }
+
+  getDescription(): string {
+    return `Execute research tool '${this.researchToolName}'`;
+  }
+
+  async execute(_options: ExecuteOptions): Promise<ToolResult> {
     try {
       const result = await researchToolRegistry.executeTool(
         this.researchToolName,
-        params,
+        this.params,
       );
 
       if (result.success) {
         const output = this.formatSuccessOutput(result.data);
         return {
-          summary: `Research tool '${this.researchToolName}' executed successfully`,
           llmContent: [{ text: output }],
           returnDisplay: output,
         };
       } else {
         const errorMessage = `Error in research tool '${this.researchToolName}': ${result.error}`;
         return {
-          summary: `Research tool '${this.researchToolName}' failed`,
           llmContent: [{ text: errorMessage }],
           returnDisplay: errorMessage,
         };
@@ -65,7 +104,6 @@ export class ResearchToolAdapter extends BaseTool<
     } catch (error) {
       const errorMessage = `Failed to execute research tool '${this.researchToolName}': ${error instanceof Error ? error.message : 'Unknown error'}`;
       return {
-        summary: `Research tool '${this.researchToolName}' crashed`,
         llmContent: [{ text: errorMessage }],
         returnDisplay: errorMessage,
       };
@@ -108,6 +146,7 @@ export function registerResearchTools(toolRegistry: ToolRegistry): void {
       `research_${researchTool.name}`,
       researchTool.description,
       generateParameterSchema(researchTool.name),
+      toolRegistry.getMessageBus(),
     );
 
     toolRegistry.registerTool(adapter);

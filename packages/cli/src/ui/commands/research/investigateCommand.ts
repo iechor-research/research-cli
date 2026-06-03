@@ -1,15 +1,18 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
-  SlashCommand,
-  SlashCommandActionReturn,
-  CommandContext,
+  CommandKind,
+  type SlashCommand,
+  type SlashCommandActionReturn,
+  type CommandContext,
 } from '../types.js';
-import { MessageType } from '../../types.js';
+import { CommandKind, MessageType } from '../../types.js';
 import {
   parseCommandArgs,
   getOptionValue,
@@ -38,10 +41,12 @@ import {
 export const investigateCommand: SlashCommand = {
   name: 'investigate',
   description: 'Comprehensive literature investigation with keyword-driven search and analysis',
+  kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'topic',
       description: 'Investigate a research topic with interactive keyword selection',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -85,7 +90,7 @@ export const investigateCommand: SlashCommand = {
           // Build research topic object
           const researchTopic = {
             title: topicTitle,
-            domain: domain,
+            domain,
             subdomains: [],
             timeframe: timeframeParts.length === 2 ? {
               start: timeframeParts[0],
@@ -152,6 +157,7 @@ export const investigateCommand: SlashCommand = {
     {
       name: 'keywords',
       description: 'Generate keyword sequences for a research topic',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -178,7 +184,7 @@ export const investigateCommand: SlashCommand = {
 
           const researchTopic = {
             title: topicTitle,
-            domain: domain,
+            domain,
             description: description || undefined,
           };
 
@@ -219,6 +225,7 @@ export const investigateCommand: SlashCommand = {
     {
       name: 'classify',
       description: 'Classify and categorize research papers',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -280,6 +287,7 @@ export const investigateCommand: SlashCommand = {
     {
       name: 'trends',
       description: 'Analyze research trends and identify gaps',
+      kind: CommandKind.BUILT_IN,
       action: async (
         context: CommandContext,
         args: string,
@@ -351,6 +359,7 @@ export const investigateCommand: SlashCommand = {
     {
       name: 'help',
       description: 'Show detailed help for the investigate command',
+      kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext): Promise<void> => {
         const helpText = `
 Research Investigation Tool

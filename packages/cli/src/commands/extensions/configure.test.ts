@@ -14,7 +14,7 @@ import {
 } from 'vitest';
 import { configureCommand } from './configure.js';
 import yargs from 'yargs';
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import {
   updateSetting,
   getScopedEnvContents,

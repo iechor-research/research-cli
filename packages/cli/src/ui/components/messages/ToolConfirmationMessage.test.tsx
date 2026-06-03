@@ -11,7 +11,7 @@ import {
   type ToolCallConfirmationDetails,
   type Config,
   ToolConfirmationOutcome,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { createMockSettings } from '../../../test-utils/settings.js';
 import { useToolActions } from '../../contexts/ToolActionsContext.js';
@@ -273,6 +273,108 @@ describe('ToolConfirmationMessage', () => {
 
     await expect(result).toMatchSvgSnapshot();
     result.unmount();
+  });
+
+  it('should use the tool name for display in the confirmation question', async () => {
+    const confirmationDetails: SerializableConfirmationDetails = {
+      type: 'exec',
+      title: 'Confirm Execution',
+      command: '# This is a comment\necho "hello"',
+      rootCommand: 'echo',
+      rootCommands: ['echo'],
+    };
+
+    const { lastFrame, unmount } = await renderWithProviders(
+      <ToolConfirmationMessage
+        callId="test-call-id"
+        confirmationDetails={confirmationDetails}
+        config={mockConfig}
+        getPreferredEditor={vi.fn()}
+        availableTerminalHeight={30}
+        terminalWidth={80}
+        toolName="shell"
+      />,
+    );
+
+    const output = lastFrame();
+    expect(output).toContain('Allow execution of [Shell]?');
+    unmount();
+  });
+
+  describe('tool name humanization', () => {
+    const cases = [
+      {
+        toolName: 'run_shell_command',
+        expected: 'Allow execution of [Shell]?',
+        desc: 'humanize run_shell_command to Shell',
+      },
+      {
+        toolName: 'shell',
+        expected: 'Allow execution of [Shell]?',
+        desc: 'humanize shell to Shell',
+      },
+      {
+        toolName: 'grep_search',
+        expected: 'Allow execution of [grep_search]?',
+        desc: 'keep raw name for non-shell tools',
+      },
+    ];
+
+    for (const { toolName, expected, desc } of cases) {
+      it(`should ${desc}`, async () => {
+        const confirmationDetails: SerializableConfirmationDetails = {
+          type: 'exec',
+          title: 'Confirm',
+          command: 'ls',
+          rootCommand: 'ls',
+          rootCommands: ['ls'],
+        };
+
+        const { lastFrame, unmount } = await renderWithProviders(
+          <ToolConfirmationMessage
+            callId="test-call-id"
+            confirmationDetails={confirmationDetails}
+            config={mockConfig}
+            getPreferredEditor={vi.fn()}
+            availableTerminalHeight={30}
+            terminalWidth={80}
+            toolName={toolName}
+          />,
+        );
+
+        expect(lastFrame()).toContain(expected);
+        unmount();
+      });
+    }
+
+    it('should humanize shell tool in sandbox expansion prompt', async () => {
+      const confirmationDetails: SerializableConfirmationDetails = {
+        type: 'sandbox_expansion',
+        title: 'Confirm',
+        command: 'ls',
+        rootCommand: 'ls',
+        additionalPermissions: {
+          network: true,
+        },
+      };
+
+      const { lastFrame, unmount } = await renderWithProviders(
+        <ToolConfirmationMessage
+          callId="test-call-id"
+          confirmationDetails={confirmationDetails}
+          config={mockConfig}
+          getPreferredEditor={vi.fn()}
+          availableTerminalHeight={30}
+          terminalWidth={80}
+          toolName="run_shell_command"
+        />,
+      );
+
+      expect(lastFrame()).toContain(
+        'To run [Shell], allow access to the following?',
+      );
+      unmount();
+    });
   });
 
   describe('with folder trust', () => {

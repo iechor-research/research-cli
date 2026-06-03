@@ -12,20 +12,9 @@ import { homedir, platform } from 'node:os';
 import type {
   ResearchSettings,
   ConfigValidationError,
-  ConfigValidationResult} from './research-config.js';
-import {
-  DEFAULT_RESEARCH_CONFIG,
-  AuthorInfo,
+  ConfigValidationResult,
 } from './research-config.js';
-import {
-  CitationStyle,
-  PaperType,
-  ResearchField,
-  LaTeXEngine,
-  WritingStyle,
-  TargetAudience,
-  ProjectMember,
-} from '../tools/research/types.js';
+import { DEFAULT_RESEARCH_CONFIG } from './research-config.js';
 
 /**
  * 配置文件作用域

@@ -8,9 +8,9 @@ import type {
   ResearchToolParams,
   PaperOutline,
   OutlineSection,
-  OutlineSubsection} from '../types.js';
+  OutlineSubsection,
+} from '../types.js';
 import {
-  ResearchToolResult,
   PaperType,
   ResearchField,
   JournalStyle,

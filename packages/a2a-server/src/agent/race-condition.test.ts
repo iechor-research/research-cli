@@ -11,7 +11,7 @@ import {
   CoreToolCallStatus,
   type Config,
   type MessageBus,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { createMockConfig } from '../utils/testing_utils.js';
 import type { RequestContext } from '@a2a-js/sdk/server';
 

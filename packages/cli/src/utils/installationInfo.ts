@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { debugLogger, isGitRepository } from '@google/gemini-cli-core';
+import { debugLogger, isGitRepository } from '@iechor/research-cli-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as childProcess from 'node:child_process';
@@ -22,6 +22,7 @@ export enum PackageManager {
   HOMEBREW = 'homebrew',
   NPX = 'npx',
   BINARY = 'binary',
+  VOLTA = 'volta',
   UNKNOWN = 'unknown',
 }
 
@@ -116,10 +117,25 @@ export function getInstallationInfo(
       }
     }
 
+    // Check for Volta
+    if (realPath.includes('/.volta/') || realPath.includes('/Volta/')) {
+      const updateCommand = 'volta install @google/gemini-cli@latest';
+      return {
+        packageManager: PackageManager.VOLTA,
+        isGlobal: true,
+        updateCommand,
+        updateMessage: isAutoUpdateEnabled
+          ? 'Installed with Volta. Attempting to automatically update now...'
+          : `Please run ${updateCommand} to update`,
+      };
+    }
+
     // Check for pnpm
     if (
       realPath.includes('/.pnpm/global') ||
-      realPath.includes('/.local/share/pnpm')
+      realPath.includes('/.local/share/pnpm') ||
+      realPath.includes('/Library/pnpm/global/') ||
+      realPath.includes('/AppData/Local/pnpm/global/')
     ) {
       const updateCommand = 'pnpm add -g @google/gemini-cli@latest';
       return {

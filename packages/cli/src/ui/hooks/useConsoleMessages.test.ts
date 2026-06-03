@@ -1,12 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { act, renderHook } from '@testing-library/react';
 import { useConsoleMessages } from './useConsoleMessages.js';
-import { ConsoleMessageItem } from '../types.js';
+import type { ConsoleMessageItem } from '../types.js';
 
 // Mock setTimeout and clearTimeout
 vi.useFakeTimers();

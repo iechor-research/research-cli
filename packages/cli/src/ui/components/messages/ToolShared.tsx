@@ -21,7 +21,7 @@ import {
   isCompletedAskUserTool,
   type ToolResultDisplay,
   CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { useInactivityTimer } from '../../hooks/useInactivityTimer.js';
 import { formatCommand } from '../../key/keybindingUtils.js';
 import { Command } from '../../key/keyBindings.js';
@@ -32,10 +32,12 @@ export const STATUS_INDICATOR_WIDTH = 3;
  * Returns true if the tool name corresponds to a shell tool.
  */
 export function isShellTool(name: string): boolean {
+  const normalized = name.toLowerCase();
   return (
     name === SHELL_COMMAND_NAME ||
     name === SHELL_NAME ||
-    name === SHELL_TOOL_NAME
+    name === SHELL_TOOL_NAME ||
+    normalized === 'shell'
   );
 }
 

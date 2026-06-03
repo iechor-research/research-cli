@@ -8,7 +8,7 @@ import os from 'node:os';
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { quote } from 'shell-quote';
-import { debugLogger, GEMINI_DIR } from '@google/gemini-cli-core';
+import { debugLogger, GEMINI_DIR } from '@iechor/research-cli-core';
 
 export const LOCAL_DEV_SANDBOX_IMAGE_NAME = 'gemini-cli-sandbox';
 export const SANDBOX_NETWORK_NAME = 'gemini-cli-sandbox';
@@ -49,22 +49,35 @@ export async function shouldUseCurrentUserInSandbox(): Promise<boolean> {
   if (os.platform() === 'linux') {
     try {
       const osReleaseContent = await readFile('/etc/os-release', 'utf8');
-      if (
-        osReleaseContent.includes('ID=debian') ||
-        osReleaseContent.includes('ID=ubuntu') ||
-        osReleaseContent.match(/^ID_LIKE=.*debian.*/m) || // Covers derivatives
-        osReleaseContent.match(/^ID_LIKE=.*ubuntu.*/m) // Covers derivatives
-      ) {
+      const isSupportedDistro =
+        osReleaseContent.match(
+          /^ID=["']?(?:debian|ubuntu|nixos|arch|fedora|suse|opensuse)/m,
+        ) ||
+        osReleaseContent.match(
+          /^ID_LIKE=["']?.*(?:debian|ubuntu|arch|fedora|suse).*/m,
+        );
+
+      if (isSupportedDistro) {
         debugLogger.log(
-          'Defaulting to use current user UID/GID for Debian/Ubuntu-based Linux.',
+          'Defaulting to use current user UID/GID for supported Linux distribution.',
         );
         return true;
+      }
+
+      // If we're on Linux but the distro is unrecognized, check for a UID mismatch
+      // that might cause permission issues in the sandbox.
+      const uid = os.userInfo().uid;
+      if (uid !== 1000 && uid !== 0) {
+        debugLogger.warn(
+          `Warning: Host UID mismatch detected (current UID: ${uid}). ` +
+            'If you encounter permission errors in the sandbox, try setting SANDBOX_SET_UID_GID=true.',
+        );
       }
     } catch {
       // Silently ignore if /etc/os-release is not found or unreadable.
       // The default (false) will be applied in this case.
       debugLogger.warn(
-        'Warning: Could not read /etc/os-release to auto-detect Debian/Ubuntu for UID/GID default.',
+        'Warning: Could not read /etc/os-release to auto-detect Linux distribution for UID/GID default.',
       );
     }
   }

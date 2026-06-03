@@ -21,8 +21,9 @@ import {
 } from '@google/genai';
 import { retryWithBackoff } from '../utils/retry.js';
 import { isFunctionResponse } from '../utils/messageInspectors.js';
-import type { ContentGenerator} from './contentGenerator.js';
+import type { ContentGenerator } from './contentGenerator.js';
 import { AuthType } from './contentGenerator.js';
+import { LlmRole } from '../telemetry/llmRole.js';
 import type { Config } from '../config/config.js';
 import {
   logApiRequest,
@@ -160,7 +161,12 @@ export class ResearchChat {
     const requestText = this._getRequestTextFromContents(contents);
     logApiRequest(
       this.config,
-      new ApiRequestEvent(model, prompt_id, requestText),
+      new ApiRequestEvent(
+        model,
+        { prompt_id, contents, generate_content_config: this.generationConfig },
+        requestText,
+        LlmRole.MAIN,
+      ),
     );
   }
 
@@ -175,10 +181,12 @@ export class ResearchChat {
       new ApiResponseEvent(
         this.config.getModel(),
         durationMs,
-        prompt_id,
+        { prompt_id, contents: [] },
+        {},
         this.config.getContentGeneratorConfig()?.authType,
         usageMetadata,
         responseText,
+        LlmRole.MAIN,
       ),
     );
   }
@@ -197,9 +205,11 @@ export class ResearchChat {
         this.config.getModel(),
         errorMessage,
         durationMs,
-        prompt_id,
+        { prompt_id, contents: [] },
         this.config.getContentGeneratorConfig()?.authType,
         errorType,
+        undefined,
+        LlmRole.MAIN,
       ),
     );
   }
@@ -298,15 +308,19 @@ export class ResearchChat {
           );
         }
 
-        return this.contentGenerator.generateContent({
-          model: modelToUse,
-          contents: requestContents,
-          config: { ...this.generationConfig, ...params.config },
-        });
+        return this.contentGenerator.generateContent(
+          {
+            model: modelToUse,
+            contents: requestContents,
+            config: { ...this.generationConfig, ...params.config },
+          },
+          prompt_id,
+          LlmRole.MAIN,
+        );
       };
 
       response = await retryWithBackoff(apiCall, {
-        shouldRetry: (error: Error) => {
+        shouldRetryOnError: (error: Error) => {
           if (error && error.message) {
             if (error.message.includes('429')) return true;
             if (error.message.match(/5\d{2}/)) return true;
@@ -405,11 +419,15 @@ export class ResearchChat {
           );
         }
 
-        return this.contentGenerator.generateContentStream({
-          model: modelToUse,
-          contents: requestContents,
-          config: { ...this.generationConfig, ...params.config },
-        });
+        return this.contentGenerator.generateContentStream(
+          {
+            model: modelToUse,
+            contents: requestContents,
+            config: { ...this.generationConfig, ...params.config },
+          },
+          prompt_id,
+          LlmRole.MAIN,
+        );
       };
 
       // Note: Retrying streams can be complex. If generateContentStream itself doesn't handle retries
@@ -417,7 +435,7 @@ export class ResearchChat {
       // the stream. For simple 429/500 errors on initial call, this is fine.
       // If errors occur mid-stream, this setup won't resume the stream; it will restart it.
       const streamResponse = await retryWithBackoff(apiCall, {
-        shouldRetry: (error: Error) => {
+        shouldRetryOnError: (error: Error) => {
           // Check error messages for status codes, or specific error names if known
           if (error && error.message) {
             if (error.message.includes('429')) return true;

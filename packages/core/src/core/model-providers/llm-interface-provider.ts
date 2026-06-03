@@ -15,12 +15,9 @@ import type {
   ChatRequest,
   ChatResponse,
   StreamResponse,
-  ModelInfo} from './types.js';
-import {
-  ModelProvider,
-  ConfigurationError,
-  APIError,
+  ModelInfo,
 } from './types.js';
+import { ModelProvider, ConfigurationError } from './types.js';
 
 /**
  * LLM Interface 提供商映射
@@ -556,7 +553,7 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     );
   }
 
-  protected extractUsage(response: any): ChatResponse['usage'] | undefined {
+  protected override extractUsage(response: any): ChatResponse['usage'] | undefined {
     if (response?.usage) {
       return {
         promptTokens: response.usage.prompt_tokens || 0,
@@ -567,7 +564,7 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     return undefined;
   }
 
-  protected extractFinishReason(
+  protected override extractFinishReason(
     response: any,
   ): ChatResponse['finishReason'] | undefined {
     const reason =
@@ -578,23 +575,23 @@ export class LLMInterfaceProvider extends BaseModelProvider {
     return undefined;
   }
 
-  protected extractMetadata(response: any): Record<string, any> | undefined {
+  protected override extractMetadata(response: any): Record<string, any> | undefined {
     const metadata: Record<string, any> = {};
 
     if (response?.id) {
-      metadata.id = response.id;
+      metadata['id'] = response.id;
     }
     if (response?.created) {
-      metadata.created = response.created;
+      metadata['created'] = response.created;
     }
     if (response?.model) {
-      metadata.model = response.model;
+      metadata['model'] = response.model;
     }
 
     return Object.keys(metadata).length > 0 ? metadata : undefined;
   }
 
-  protected getSupportedFeatures(): string[] {
+  protected override getSupportedFeatures(): string[] {
     const baseFeatures = super.getSupportedFeatures();
 
     // 根据不同提供商添加特定功能

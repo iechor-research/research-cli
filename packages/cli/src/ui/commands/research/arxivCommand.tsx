@@ -1,8 +1,10 @@
 /**
- * ArXiv Command - CLI interface for arXiv MCP integration
+ * @license
+ * Copyright 2026 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ResearchCommandContext } from './types.js';
+import type { ResearchCommandContext } from './types.js';
 import { Text, Box } from 'ink';
 import React from 'react';
 

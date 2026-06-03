@@ -25,7 +25,7 @@ import {
   type Config,
   tmpdir,
   NoopSandboxManager,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { createTestMergedSettings, SettingScope } from './settings.js';
 
 describe('ExtensionManager theme loading', () => {
@@ -109,6 +109,7 @@ describe('ExtensionManager theme loading', () => {
       getFileExclusions: () => ({
         isIgnored: () => false,
       }),
+      getMemoryContextManager: () => undefined,
       getGeminiMdFilePaths: () => [],
       getMcpServers: () => ({}),
       getAllowedMcpServers: () => [],
@@ -185,6 +186,7 @@ describe('ExtensionManager theme loading', () => {
       getWorkspaceContext: () => ({
         getDirectories: () => [],
       }),
+      getMemoryContextManager: () => undefined,
       getDebugMode: () => false,
       getFileService: () => ({
         findFiles: async () => [],

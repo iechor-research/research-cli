@@ -8,7 +8,7 @@ import {
   IdeClient,
   UserAccountManager,
   getVersion,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type {
   Command,
   CommandContext,

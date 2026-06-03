@@ -9,11 +9,11 @@ import { getInstallationInfo, PackageManager } from './installationInfo.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as childProcess from 'node:child_process';
-import { isGitRepository, debugLogger } from '@google/gemini-cli-core';
+import { isGitRepository, debugLogger } from '@iechor/research-cli-core';
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     isGitRepository: vi.fn(),
@@ -350,6 +350,30 @@ describe('getInstallationInfo', () => {
     // isAutoUpdateEnabled = false -> "Please run..."
     const infoDisabled = getInstallationInfo(projectRoot, false);
     expect(infoDisabled.updateMessage).toContain('Please run npm install');
+  });
+
+  it('should detect Volta installation (Unix-style)', () => {
+    const voltaPath =
+      '/Users/test/.volta/tools/image/node/20.0.0/lib/node_modules/@google/gemini-cli/dist/index.js';
+    process.argv[1] = voltaPath;
+    mockedRealPathSync.mockReturnValue(voltaPath);
+
+    const info = getInstallationInfo(projectRoot, true);
+
+    expect(info.packageManager).toBe(PackageManager.VOLTA);
+    expect(info.updateCommand).toBe('volta install @google/gemini-cli@latest');
+  });
+
+  it('should detect Volta installation (Windows-style)', () => {
+    const voltaPath =
+      'C:\\Users\\test\\AppData\\Local\\Volta\\tools\\image\\node\\20.0.0\\node_modules\\@google/gemini-cli\\dist\\index.js';
+    process.argv[1] = voltaPath;
+    mockedRealPathSync.mockReturnValue(voltaPath);
+
+    const info = getInstallationInfo(projectRoot, true);
+
+    expect(info.packageManager).toBe(PackageManager.VOLTA);
+    expect(info.updateCommand).toBe('volta install @google/gemini-cli@latest');
   });
 
   it('should NOT detect Homebrew if gemini-cli is installed in brew but running from npm location', () => {

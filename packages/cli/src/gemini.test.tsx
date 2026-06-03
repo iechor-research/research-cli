@@ -50,7 +50,7 @@ import {
   coreEvents,
   AuthType,
   ExitCodes,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { act } from 'react';
 import { type InitializationResult } from './core/initializer.js';
 import { runNonInteractive } from './nonInteractiveCli.js';
@@ -81,9 +81,9 @@ vi.mock('./utils/terminalNotifications.js', () => ({
     terminalNotificationMocks.buildRunEventNotificationContent,
 }));
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     recordSlowRender: vi.fn(),
@@ -275,6 +275,10 @@ vi.mock('./validateNonInterActiveAuth.js', () => ({
   validateNonInteractiveAuth: vi.fn().mockResolvedValue('google'),
 }));
 
+vi.mock('./config/auth.js', () => ({
+  validateAuthMethod: vi.fn().mockResolvedValue(null),
+}));
+
 describe('gemini.tsx main function', () => {
   let originalIsTTY: boolean | undefined;
   let initialUnhandledRejectionListeners: NodeJS.UnhandledRejectionListener[] =
@@ -386,7 +390,7 @@ describe('initializeOutputListenersAndFlush', () => {
   });
 
   it('should flush backlogs and setup listeners if no listeners exist', async () => {
-    const { coreEvents } = await import('@google/gemini-cli-core');
+    const { coreEvents } = await import('@iechor/research-cli-core');
     const { initializeOutputListenersAndFlush } = await import('./gemini.js');
 
     // Mock listenerCount to return 0
@@ -1077,7 +1081,7 @@ describe('resolveSessionId', () => {
       } as unknown as InstanceType<typeof SessionSelector>;
     });
 
-    const coreModule = await import('@google/gemini-cli-core');
+    const coreModule = await import('@iechor/research-cli-core');
     vi.spyOn(coreModule, 'loadConversationRecord').mockResolvedValueOnce({
       sessionId: 'old-session-id',
       projectHash: 'hash',
@@ -1189,6 +1193,39 @@ describe('resolveSessionId', () => {
     expect(sessionId).toBe('new-id');
     expect(resumedSessionData).toBeUndefined();
   });
+
+  it('should exit with FATAL_INPUT_ERROR when explicit resume session is missing', async () => {
+    vi.mocked(SessionSelector).mockImplementation(
+      () =>
+        ({
+          resolveSession: vi
+            .fn()
+            .mockRejectedValue(SessionError.noSessionsFound()),
+        }) as unknown as InstanceType<typeof SessionSelector>,
+    );
+
+    const emitFeedbackSpy = vi.spyOn(coreEvents, 'emitFeedback');
+    const processExitSpy = vi
+      .spyOn(process, 'exit')
+      .mockImplementation((code) => {
+        throw new MockProcessExitError(code);
+      });
+
+    try {
+      await resolveSessionId('explicit-session-id');
+    } catch (e) {
+      if (!(e instanceof MockProcessExitError)) throw e;
+    }
+
+    expect(emitFeedbackSpy).toHaveBeenCalledWith(
+      'error',
+      expect.stringContaining('Error resuming session:'),
+    );
+    expect(processExitSpy).toHaveBeenCalledWith(ExitCodes.FATAL_INPUT_ERROR);
+
+    emitFeedbackSpy.mockRestore();
+    processExitSpy.mockRestore();
+  });
 });
 
 describe('gemini.tsx main function exit codes', () => {
@@ -1240,6 +1277,44 @@ describe('gemini.tsx main function exit codes', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(MockProcessExitError);
       expect((e as MockProcessExitError).code).toBe(42);
+    }
+  });
+
+  it('should exit with 41 for validateAuthMethod failure during sandbox setup', async () => {
+    vi.stubEnv('SANDBOX', '');
+    vi.mocked(loadSandboxConfig).mockResolvedValue(
+      createMockSandboxConfig({
+        command: 'docker',
+        image: 'test-image',
+      }),
+    );
+    vi.mocked(loadCliConfig).mockResolvedValue(
+      createMockConfig({
+        refreshAuth: vi.fn().mockResolvedValue(undefined),
+        getRemoteAdminSettings: vi.fn().mockReturnValue(undefined),
+        isInteractive: vi.fn().mockReturnValue(true),
+      }),
+    );
+    vi.mocked(loadSettings).mockReturnValue(
+      createMockSettings({
+        merged: {
+          security: { auth: { selectedType: 'google', useExternal: false } },
+        },
+      }),
+    );
+    vi.mocked(parseArguments).mockResolvedValue({} as CliArgs);
+
+    const authModule = await import('./config/auth.js');
+    vi.mocked(authModule.validateAuthMethod).mockResolvedValueOnce(
+      'Auth method invalid',
+    );
+
+    try {
+      await main();
+      expect.fail('Should have thrown MockProcessExitError');
+    } catch (e) {
+      expect(e).toBeInstanceOf(MockProcessExitError);
+      expect((e as MockProcessExitError).code).toBe(41);
     }
   });
 
@@ -1640,7 +1715,7 @@ describe('startInteractiveUI', () => {
   });
 
   it('should enable mouse events when alternate buffer is enabled', async () => {
-    const { enableMouseEvents } = await import('@google/gemini-cli-core');
+    const { enableMouseEvents } = await import('@iechor/research-cli-core');
     await startTestInteractiveUI(
       mockConfig,
       mockSettings,
@@ -1667,7 +1742,7 @@ describe('startInteractiveUI', () => {
   });
 
   it('should perform all startup tasks in correct order', async () => {
-    const { getVersion } = await import('@google/gemini-cli-core');
+    const { getVersion } = await import('@iechor/research-cli-core');
     const { checkForUpdates } = await import('./ui/utils/updateCheck.js');
     const { registerCleanup } = await import('./utils/cleanup.js');
 
@@ -1696,7 +1771,7 @@ describe('startInteractiveUI', () => {
   });
 
   it('should not recordSlowRender when less than threshold', async () => {
-    const { recordSlowRender } = await import('@google/gemini-cli-core');
+    const { recordSlowRender } = await import('@iechor/research-cli-core');
     performance.now.mockReturnValueOnce(0);
     await startTestInteractiveUI(
       mockConfig,
@@ -1711,7 +1786,7 @@ describe('startInteractiveUI', () => {
   });
 
   it('should call recordSlowRender when more than threshold', async () => {
-    const { recordSlowRender } = await import('@google/gemini-cli-core');
+    const { recordSlowRender } = await import('@iechor/research-cli-core');
     performance.now.mockReturnValueOnce(0);
     performance.now.mockReturnValueOnce(300);
 

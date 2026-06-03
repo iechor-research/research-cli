@@ -9,18 +9,14 @@
 import { BaseResearchTool } from '../base-tool.js';
 import type {
   ResearchToolParams,
-  BibliographyEntry} from '../types.js';
+  BibliographyEntry,
+} from '../types.js';
 import {
   Database,
   CitationStyle,
   ResearchToolCategory,
-  LiteratureSearchParams,
 } from '../types.js';
-import {
-  cached,
-  monitored,
-  ParallelProcessor,
-} from '../utils/performance-optimizer.js';
+import { ParallelProcessor } from '../utils/performance-optimizer.js';
 import { GoogleScholarClient } from '../bibliography/google-scholar-client.js';
 
 /**
@@ -83,21 +79,6 @@ export interface BibliographyManageResult {
   entries?: BibliographyEntry[];
   exportData?: string;
   message?: string;
-}
-
-/**
- * arXiv API 响应接口
- */
-interface ArxivEntry {
-  id: string;
-  title: string;
-  authors: Array<{ name: string }>;
-  summary: string;
-  published: string;
-  updated: string;
-  doi?: string;
-  categories: string[];
-  links: Array<{ href: string; type: string; title?: string }>;
 }
 
 /**
@@ -616,27 +597,6 @@ export class BibliographyManager extends BaseResearchTool<
     return results;
   }
 
-  /**
-   * 文献去重
-   */
-  private deduplicateEntries(
-    entries: BibliographyEntry[],
-  ): BibliographyEntry[] {
-    const seen = new Set<string>();
-    const unique: BibliographyEntry[] = [];
-
-    for (const entry of entries) {
-      // 使用标题和年份作为去重键
-      const key = `${entry.title?.toLowerCase().trim()}_${entry.year}`;
-
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(entry);
-      }
-    }
-
-    return unique;
-  }
 
   /**
    * 优化的去重处理

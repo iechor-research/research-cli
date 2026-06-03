@@ -16,7 +16,7 @@ import {
   escapePath,
   type Config,
   type FileSearch,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   createTmpDir,
   cleanupTmpDir,

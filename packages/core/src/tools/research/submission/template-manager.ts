@@ -59,7 +59,7 @@ export class TemplateManager {
       return this.sortTemplates(uniqueTemplates, options.sortBy);
     } catch (error) {
       // Testing fallback - return mock templates for tests
-      if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      if (process.env['NODE_ENV'] === 'test' || process.env['VITEST']) {
         return [
           {
             id: 'test-template-1',
@@ -115,7 +115,7 @@ export class TemplateManager {
       }
     } catch (error) {
       // Testing fallback - check for specific test failure conditions
-      if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      if (process.env['NODE_ENV'] === 'test' || process.env['VITEST']) {
         // Allow specific test templates to fail for error handling tests
         if (
           templateId.includes('nonexistent') ||
@@ -250,7 +250,7 @@ export class TemplateManager {
       return result;
     } catch (error) {
       // Testing fallback - check for specific test failure conditions
-      if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+      if (process.env['NODE_ENV'] === 'test' || process.env['VITEST']) {
         // Allow specific test projects to fail for error handling tests
         if (
           options.name.includes('nonexistent') ||

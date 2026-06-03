@@ -12,8 +12,8 @@ import { act } from 'react';
 import { waitFor } from '../../test-utils/async.js';
 import { SettingScope } from '../../config/settings.js';
 
-vi.mock('@google/gemini-cli-core', async () => {
-  const actual = await vi.importActual('@google/gemini-cli-core');
+vi.mock('@iechor/research-cli-core', async () => {
+  const actual = await vi.importActual('@iechor/research-cli-core');
   return {
     ...actual,
     isBinaryAvailable: vi.fn().mockReturnValue(true),

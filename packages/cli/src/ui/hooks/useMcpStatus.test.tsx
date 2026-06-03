@@ -13,7 +13,7 @@ import {
   type Config,
   CoreEvent,
   coreEvents,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 describe('useMcpStatus', () => {
   let mockConfig: Config;

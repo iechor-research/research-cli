@@ -5,10 +5,7 @@
  */
 import type {
   TemplateData,
-  TemplateSearchOptions} from './types.js';
-import {
-  TemplateFile,
-  TemplateMetadata,
+  TemplateSearchOptions,
 } from './types.js';
 
 /**
@@ -18,7 +15,6 @@ import {
  * 在实际生产环境中，可能需要通过网页抓取或其他方式实现
  */
 export class OverleafClient {
-  private baseUrl = 'https://www.overleaf.com';
   private templateCache = new Map<string, TemplateData>();
 
   constructor() {

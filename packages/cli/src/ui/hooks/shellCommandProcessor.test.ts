@@ -1,15 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { useShellCommandProcessor } from './shellCommandProcessor';
-import { Config, ResearchClient } from '@iechor/research-cli-core';
-import * as fs from 'fs';
-import EventEmitter from 'events';
+import type { Config, ResearchClient } from '@iechor/research-cli-core';
+import * as fs from 'node:fs';
+import EventEmitter from 'node:events';
 
 // Mock dependencies
 vi.mock('child_process');
@@ -37,7 +39,7 @@ describe('useShellCommandProcessor', () => {
   let researchClientMock: ResearchClient;
 
   beforeEach(async () => {
-    const { spawn } = await import('child_process');
+    const { spawn } = await import('node:child_process');
     spawnEmitter = new EventEmitter();
     spawnEmitter.stdout = new EventEmitter();
     spawnEmitter.stderr = new EventEmitter();

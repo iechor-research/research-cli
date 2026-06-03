@@ -4,9 +4,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AuthType } from '@google/gemini-cli-core';
+import { AuthType } from '@iechor/research-cli-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { validateAuthMethod } from './auth.js';
+
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
+  return {
+    ...actual,
+    loadApiKey: vi.fn().mockResolvedValue(null),
+  };
+});
 
 vi.mock('./settings.js', () => ({
   loadEnvironment: vi.fn(),
@@ -90,10 +99,10 @@ describe('validateAuthMethod', () => {
       envs: {},
       expected: 'Invalid auth method selected.',
     },
-  ])('$description', ({ authType, envs, expected }) => {
+  ])('$description', async ({ authType, envs, expected }) => {
     for (const [key, value] of Object.entries(envs)) {
       vi.stubEnv(key, value as string);
     }
-    expect(validateAuthMethod(authType)).toBe(expected);
+    expect(await validateAuthMethod(authType)).toBe(expected);
   });
 });

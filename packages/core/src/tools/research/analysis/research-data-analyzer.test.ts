@@ -9,17 +9,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type {
   DataAnalyzerParams,
-  DataAnalysisResult} from './research-data-analyzer.js';
-import {
-  ResearchDataAnalyzer,
-  StatisticalSummary,
-  DescriptiveStats,
-  CorrelationAnalysis,
-  HypothesisTestResult,
-  MLAnalysisResult,
-  TimeSeriesAnalysis,
+  DataAnalysisResult,
 } from './research-data-analyzer.js';
-import { AnalysisType, DataFormat, ResearchToolCategory } from '../types.js';
+import { ResearchDataAnalyzer } from './research-data-analyzer.js';
+import { AnalysisType, ResearchToolCategory } from '../types.js';
 
 describe('ResearchDataAnalyzer', () => {
   let analyzer: ResearchDataAnalyzer;
@@ -484,8 +477,8 @@ describe('ResearchDataAnalyzer', () => {
         const result = await analyzer.execute(params);
         const data = result.data as DataAnalysisResult;
 
-        expect(data.summary.missingValues.score).toBeGreaterThan(0);
-        expect(data.summary.missingValues.age).toBeGreaterThan(0);
+        expect(data.summary.missingValues['score']).toBeGreaterThan(0);
+        expect(data.summary.missingValues['age']).toBeGreaterThan(0);
       });
     });
 

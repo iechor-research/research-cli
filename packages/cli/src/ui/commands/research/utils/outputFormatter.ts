@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 /**
@@ -53,7 +55,7 @@ export interface TableConfig {
  * 格式化表格数据
  */
 export function formatTable(
-  data: Record<string, any>[],
+  data: Array<Record<string, any>>,
   columns: TableColumn[],
   config: TableConfig = {
     showHeaders: true,

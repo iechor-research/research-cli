@@ -15,7 +15,7 @@ inputs:
     description: 'The GitHub token for creating the release.'
     required: true
   wombat-token-core:
-    description: 'The npm token for the wombat @google/gemini-cli-core'
+    description: 'The npm token for the wombat @iechor/research-cli-core'
     required: true
   wombat-token-cli:
     description: 'The npm token for wombat @google/gemini-cli'

@@ -7,7 +7,7 @@
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import {
   type CommandContext,
   type SlashCommand,

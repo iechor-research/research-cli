@@ -1,10 +1,12 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
-import { SlashCommand } from '../types.js';
+import { CommandKind, type SlashCommand } from '../types.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -88,6 +90,7 @@ function getApiKey(provider: string): string | undefined {
 export const modelCommand: SlashCommand = {
   name: 'model',
   description: 'Manage and switch between different AI models',
+  kind: CommandKind.BUILT_IN,
   action: async (context, args) => {
     const argsArray = args
       .trim()

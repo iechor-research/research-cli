@@ -14,9 +14,10 @@ import type {
   GitService,
   Logger,
   CommandActionReturn,
+  MessageActionReturn,
   AgentDefinition,
   AgentLoopContext,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { LoadedSettings } from '../../config/settings.js';
 import type { UseHistoryManagerReturn } from '../hooks/useHistoryManager.js';
 import type { SessionStatsState } from '../contexts/SessionContext.js';
@@ -26,6 +27,8 @@ import type {
 } from '../state/extensions.js';
 
 // Grouped dependencies for clarity and easier mocking
+export type { MessageActionReturn };
+
 export interface CommandContext {
   // Invocation properties for when commands are called.
   invocation?: {

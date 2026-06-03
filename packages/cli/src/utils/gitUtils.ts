@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import { execSync } from 'node:child_process';
 import { ProxyAgent } from 'undici';
 
@@ -83,8 +83,7 @@ export const getLatestGitHubRelease = async (
     if (!releaseTag) {
       throw new Error(`Response did not include tag_name field`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return releaseTag;
+    return typeof releaseTag === 'string' ? releaseTag : '';
   } catch (error) {
     debugLogger.debug(
       `Failed to determine latest run-gemini-cli release:`,

@@ -1,7 +1,9 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 const { mockProcessExit } = vi.hoisted(() => ({
@@ -54,24 +56,27 @@ vi.mock('../../utils/version.js', () => ({
 }));
 
 import { act, renderHook } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach, Mock } from 'vitest';
+import type { Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import open from 'open';
 import { useSlashCommandProcessor } from './slashCommandProcessor.js';
-import { MessageType, SlashCommandProcessorResult } from '../types.js';
-import {
+import type { SlashCommandProcessorResult } from '../types.js';
+import { MessageType } from '../types.js';
+import type {
   Config,
+  ResearchClient} from '@iechor/research-cli-core';
+import {
   MCPDiscoveryState,
   MCPServerStatus,
   getMCPDiscoveryState,
-  getMCPServerStatus,
-  ResearchClient,
+  getMCPServerStatus
 } from '@iechor/research-cli-core';
 import { useSessionStats } from '../contexts/SessionContext.js';
-import { LoadedSettings } from '../../config/settings.js';
+import type { LoadedSettings } from '../../config/settings.js';
 import * as ShowMemoryCommandModule from './useShowMemoryCommand.js';
 import { GIT_COMMIT_INFO } from '../../generated/git-commit.js';
 import { CommandService } from '../../services/CommandService.js';
-import { SlashCommand } from '../commands/types.js';
+import type { SlashCommand } from '../commands/types.js';
 
 vi.mock('../contexts/SessionContext.js', () => ({
   useSessionStats: vi.fn(),
@@ -281,8 +286,8 @@ describe('useSlashCommandProcessor', () => {
     it('should show the about box with all details including auth and project', async () => {
       // Arrange
       mockGetCliVersionFn.mockResolvedValue('test-version');
-      process.env.SANDBOX = 'research-sandbox';
-      process.env.GOOGLE_CLOUD_PROJECT = 'test-gcp-project';
+      process.env['SANDBOX'] = 'research-sandbox';
+      process.env['GOOGLE_CLOUD_PROJECT'] = 'test-gcp-project';
       vi.mocked(mockConfig.getModel).mockReturnValue('test-model-from-config');
 
       const settings = {
@@ -338,8 +343,8 @@ describe('useSlashCommandProcessor', () => {
     it('should show sandbox-exec profile when applicable', async () => {
       // Arrange
       mockGetCliVersionFn.mockResolvedValue('test-version');
-      process.env.SANDBOX = 'sandbox-exec';
-      process.env.SEATBELT_PROFILE = 'test-profile';
+      process.env['SANDBOX'] = 'sandbox-exec';
+      process.env['SEATBELT_PROFILE'] = 'test-profile';
       vi.mocked(mockConfig.getModel).mockReturnValue('test-model-from-config');
 
       const { result } = getProcessorHook();
@@ -378,7 +383,7 @@ describe('useSlashCommandProcessor', () => {
     beforeAll(async () => {
       const actual = (await vi.importActual(
         '../../services/CommandService.js',
-      )) as { CommandService: typeof CommandService };
+      ));
       ActualCommandService = actual.CommandService;
     });
 
@@ -620,14 +625,14 @@ describe('useSlashCommandProcessor', () => {
 
     it('should call open with the correct GitHub issue URL and return true', async () => {
       mockGetCliVersionFn.mockResolvedValue('test-version');
-      process.env.SANDBOX = 'research-sandbox';
-      process.env.SEATBELT_PROFILE = 'test_profile';
+      process.env['SANDBOX'] = 'research-sandbox';
+      process.env['SEATBELT_PROFILE'] = 'test_profile';
       const { handleSlashCommand } = getProcessor();
       const bugDescription = 'This is a test bug';
       const expectedUrl = getExpectedUrl(
         bugDescription,
-        process.env.SANDBOX,
-        process.env.SEATBELT_PROFILE,
+        process.env['SANDBOX'],
+        process.env['SEATBELT_PROFILE'],
         'test-version',
       );
       let commandResult: SlashCommandProcessorResult | false = false;
@@ -641,9 +646,9 @@ describe('useSlashCommandProcessor', () => {
     });
 
     it('should use the custom bug command URL from config if available', async () => {
-      process.env.CLI_VERSION = '0.1.0';
-      process.env.SANDBOX = 'sandbox-exec';
-      process.env.SEATBELT_PROFILE = 'permissive-open';
+      process.env['CLI_VERSION'] = '0.1.0';
+      process.env['SANDBOX'] = 'sandbox-exec';
+      process.env['SEATBELT_PROFILE'] = 'permissive-open';
       const bugCommand = {
         urlTemplate:
           'https://custom-bug-tracker.com/new?title={title}&info={info}',
@@ -652,7 +657,7 @@ describe('useSlashCommandProcessor', () => {
         ...mockConfig,
         getBugCommand: vi.fn(() => bugCommand),
       } as unknown as Config;
-      process.env.CLI_VERSION = '0.1.0';
+      process.env['CLI_VERSION'] = '0.1.0';
 
       const { handleSlashCommand } = getProcessor();
       const bugDescription = 'This is a custom bug';
@@ -902,7 +907,7 @@ describe('useSlashCommandProcessor', () => {
     });
 
     it('should display a message with a URL when no MCP servers are configured in a sandbox', async () => {
-      process.env.SANDBOX = 'sandbox';
+      process.env['SANDBOX'] = 'sandbox';
       mockConfig = {
         ...mockConfig,
         getToolRegistry: vi.fn().mockResolvedValue({
@@ -926,7 +931,7 @@ describe('useSlashCommandProcessor', () => {
         expect.any(Number),
       );
       expect(commandResult).toEqual({ type: 'handled' });
-      delete process.env.SANDBOX;
+      delete process.env['SANDBOX'];
     });
 
     it('should display a message and open a URL when no MCP servers are configured outside a sandbox', async () => {

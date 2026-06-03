@@ -8,9 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest';
-import type {
-  ToolCall,
-  ValidatingToolCall} from './coreToolScheduler.js';
+import type { ToolCall } from './coreToolScheduler.js';
 import {
   CoreToolScheduler,
   convertToFunctionResponse,
@@ -19,51 +17,77 @@ import type {
   ToolCallConfirmationDetails,
   ToolConfirmationPayload,
   ToolResult,
-  Config} from '../index.js';
+  Config,
+  ExecuteOptions,
+} from '../index.js';
 import {
-  BaseTool,
-  ToolConfirmationOutcome
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
+  ToolConfirmationOutcome,
 } from '../index.js';
 import type { Part, PartListUnion } from '@google/genai';
 
-import type { ModifiableTool, ModifyContext } from '../tools/modifiable-tool.js';
+import type {
+  ModifiableDeclarativeTool,
+  ModifyContext,
+} from '../tools/modifiable-tool.js';
 
-class MockTool extends BaseTool<Record<string, unknown>, ToolResult> {
+const mockMessageBus = {} as any;
+
+class MockTool extends BaseDeclarativeTool<Record<string, unknown>, ToolResult> {
   shouldConfirm = false;
   executeFn = vi.fn();
 
   constructor(name = 'mockTool') {
-    super(name, name, 'A mock tool', {});
+    super(name, name, 'A mock tool', Kind.Other, { type: 'object' }, mockMessageBus);
   }
 
-  async shouldConfirmExecute(
-    _params: Record<string, unknown>,
-    _abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
-    if (this.shouldConfirm) {
+  protected createInvocation(params: Record<string, unknown>) {
+    return new MockToolInvocation(params, this);
+  }
+}
+
+class MockToolInvocation extends BaseToolInvocation<
+  Record<string, unknown>,
+  ToolResult
+> {
+  constructor(
+    params: Record<string, unknown>,
+    private readonly tool: MockTool,
+  ) {
+    super(params, mockMessageBus, tool.name, tool.displayName);
+  }
+
+  getDescription(): string {
+    return 'A mock tool invocation';
+  }
+
+  override async shouldConfirmExecute(): Promise<
+    ToolCallConfirmationDetails | false
+  > {
+    if (this.tool.shouldConfirm) {
       return {
         type: 'exec',
         title: 'Confirm Mock Tool',
         command: 'do_thing',
         rootCommand: 'do_thing',
+        rootCommands: ['do_thing'],
         onConfirm: async () => {},
       };
     }
     return false;
   }
 
-  async execute(
-    params: Record<string, unknown>,
-    _abortSignal: AbortSignal,
-  ): Promise<ToolResult> {
-    this.executeFn(params);
+  async execute(_options: ExecuteOptions): Promise<ToolResult> {
+    this.tool.executeFn(this.params);
     return { llmContent: 'Tool executed', returnDisplay: 'Tool executed' };
   }
 }
 
 class MockModifiableTool
   extends MockTool
-  implements ModifiableTool<Record<string, unknown>>
+  implements ModifiableDeclarativeTool<Record<string, unknown>>
 {
   constructor(name = 'mockModifiableTool') {
     super(name);
@@ -85,16 +109,31 @@ class MockModifiableTool
     };
   }
 
-  async shouldConfirmExecute(
-    _params: Record<string, unknown>,
-    _abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
-    if (this.shouldConfirm) {
+  override build(params: Record<string, unknown>) {
+    return new MockModifiableToolInvocation(params, this);
+  }
+}
+
+class MockModifiableToolInvocation extends MockToolInvocation {
+  constructor(
+    params: Record<string, unknown>,
+    private readonly modifiableTool: MockModifiableTool,
+  ) {
+    super(params, modifiableTool);
+  }
+
+  override async shouldConfirmExecute(): Promise<
+    ToolCallConfirmationDetails | false
+  > {
+    if (this.modifiableTool.shouldConfirm) {
       return {
         type: 'edit',
         title: 'Confirm Mock Tool',
         fileName: 'test.txt',
+        filePath: 'test.txt',
         fileDiff: 'diff',
+        originalContent: 'old content',
+        newContent: 'new content',
         onConfirm: async () => {},
       };
     }
@@ -149,12 +188,9 @@ describe('CoreToolScheduler', () => {
     abortController.abort();
     await scheduler.schedule([request], abortController.signal);
 
-    const _waitingCall = onToolCallsUpdate.mock
-      .calls[1][0][0] as ValidatingToolCall;
-    const confirmationDetails = await mockTool.shouldConfirmExecute(
-      {},
-      abortController.signal,
-    );
+    const confirmationDetails = await mockTool
+      .build({})
+      .shouldConfirmExecute(abortController.signal);
     if (confirmationDetails) {
       await scheduler.handleConfirmationResponse(
         '1',
@@ -216,10 +252,7 @@ describe('CoreToolScheduler with payload', () => {
 
     await scheduler.schedule([request], abortController.signal);
 
-    const confirmationDetails = await mockTool.shouldConfirmExecute(
-      {},
-      abortController.signal,
-    );
+    const confirmationDetails = await mockTool.build({}).shouldConfirmExecute();
 
     if (confirmationDetails) {
       const payload: ToolConfirmationPayload = { newContent: 'final version' };

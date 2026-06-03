@@ -73,7 +73,7 @@ describe('Flash Fallback Integration', () => {
       maxAttempts: 2,
       initialDelayMs: 1,
       maxDelayMs: 10,
-      shouldRetry: (error: Error) => {
+      shouldRetryOnError: (error: Error) => {
         const status = (error as Error & { status?: number }).status;
         return status === 429;
       },
@@ -111,7 +111,7 @@ describe('Flash Fallback Integration', () => {
         maxAttempts: 5,
         initialDelayMs: 10,
         maxDelayMs: 100,
-        shouldRetry: (error: Error) => {
+        shouldRetryOnError: (error: Error) => {
           const status = (error as Error & { status?: number }).status;
           return status === 429;
         },

@@ -16,7 +16,7 @@ import {
 import { Box, Text, type DOMElement } from 'ink';
 import { useMouseClick } from '../hooks/useMouseClick.js';
 import { theme } from '../semantic-colors.js';
-import { checkExhaustive, type Question } from '@google/gemini-cli-core';
+import { checkExhaustive, type Question } from '@iechor/research-cli-core';
 import { BaseSelectionList } from './shared/BaseSelectionList.js';
 import type { SelectionListItem } from '../hooks/useSelectionList.js';
 import { TabHeader, type Tab } from './shared/TabHeader.js';
@@ -1004,13 +1004,15 @@ const ChoiceQuestionView: React.FC<ChoiceQuestionViewProps> = ({
                 )}
               </Box>
               {optionItem.description && (
-                <Text color={theme.text.secondary} wrap="wrap">
-                  {' '}
-                  <RenderInline
-                    text={optionItem.description}
-                    defaultColor={theme.text.secondary}
-                  />
-                </Text>
+                // Padding aligns with option label: 4 for multi-select (checkbox + space), 1 for single-select
+                <Box paddingLeft={showCheck ? 4 : 1}>
+                  <Text color={theme.text.secondary} wrap="wrap">
+                    <RenderInline
+                      text={optionItem.description}
+                      defaultColor={theme.text.secondary}
+                    />
+                  </Text>
+                </Box>
               )}
             </Box>
           );

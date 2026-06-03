@@ -7,7 +7,6 @@
  */
 
 import type { InvestigatedPaper } from './literature-investigator.js';
-import { ResearchTopic } from './keyword-generator.js';
 
 /**
  * Classification categories for research papers
@@ -173,11 +172,9 @@ export interface ClassificationGap {
  * Advanced reference classifier that categorizes papers across multiple dimensions
  */
 export class ReferenceClassifier {
-  private classificationRules: ClassificationRuleSet;
   private domainKnowledge: Map<string, DomainClassificationRules>;
 
   constructor() {
-    this.classificationRules = new ClassificationRuleSet();
     this.domainKnowledge = new Map();
     this.initializeDomainKnowledge();
   }
@@ -766,10 +763,7 @@ export class ReferenceClassifier {
 
       if (methodPapers.length >= 3) {
         const recentPapers = methodPapers.filter(p => p.year && p.year >= currentYear - 3);
-        const olderPapers = methodPapers.filter(p => p.year && p.year < currentYear - 3);
-        
         const recentRatio = recentPapers.length / methodPapers.length;
-        const olderRatio = olderPapers.length / methodPapers.length;
         
         let trend: 'increasing' | 'decreasing' | 'stable';
         if (recentRatio > 0.6) {
@@ -784,7 +778,7 @@ export class ReferenceClassifier {
           methodology,
           trend,
           timeframe: `${currentYear - 5}-${currentYear}`,
-          evidence: `${recentPapers.length} recent papers, ${olderPapers.length} older papers`,
+          evidence: `${recentPapers.length} recent papers, ${methodPapers.length - recentPapers.length} older papers`,
           papers: methodPapers.slice(0, 5),
         });
       }
@@ -929,13 +923,6 @@ export class ReferenceClassifier {
     this.domainKnowledge.set('psychology', new PsychologyDomainRules());
     this.domainKnowledge.set('economics', new EconomicsDomainRules());
   }
-}
-
-/**
- * Base classification rule set
- */
-class ClassificationRuleSet {
-  // Implementation of classification rules would go here
 }
 
 /**

@@ -21,13 +21,14 @@ import {
   ROOT_SCHEDULER_ID,
   CoreToolCallStatus,
   type WaitingToolCall,
-} from '@google/gemini-cli-core';
-import { createMockMessageBus } from '@google/gemini-cli-core/src/test-utils/mock-message-bus.js';
+  SubagentState,
+} from '@iechor/research-cli-core';
+import { createMockMessageBus } from '@iechor/research-cli-core/src/test-utils/mock-message-bus.js';
 
 // Mock Core Scheduler
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     Scheduler: vi.fn().mockImplementation(() => ({
@@ -274,7 +275,7 @@ describe('useToolScheduler', () => {
     };
 
     // Mock the specific return value for this test
-    const { Scheduler } = await import('@google/gemini-cli-core');
+    const { Scheduler } = await import('@iechor/research-cli-core');
     vi.mocked(Scheduler).mockImplementation(
       () =>
         ({
@@ -630,7 +631,7 @@ describe('useToolScheduler', () => {
           id: '1',
           type: 'thought',
           content: 'Thinking...',
-          status: 'running',
+          status: SubagentState.RUNNING,
         },
       });
     });
@@ -648,7 +649,7 @@ describe('useToolScheduler', () => {
           id: '2',
           type: 'tool_call',
           content: 'Calling tool',
-          status: 'completed',
+          status: SubagentState.COMPLETED,
         },
       });
     });
@@ -697,7 +698,7 @@ describe('useToolScheduler', () => {
           id: '1',
           type: 'thought',
           content: 'Thinking...',
-          status: 'running',
+          status: SubagentState.RUNNING,
         },
       });
     });
@@ -716,7 +717,7 @@ describe('useToolScheduler', () => {
           id: '1',
           type: 'thought',
           content: 'Thinking... Done!',
-          status: 'completed',
+          status: SubagentState.COMPLETED,
         },
       });
     });
@@ -726,6 +727,8 @@ describe('useToolScheduler', () => {
     expect(result.current[0][0].subagentHistory![0].content).toBe(
       'Thinking... Done!',
     );
-    expect(result.current[0][0].subagentHistory![0].status).toBe('completed');
+    expect(result.current[0][0].subagentHistory![0].status).toBe(
+      SubagentState.COMPLETED,
+    );
   });
 });

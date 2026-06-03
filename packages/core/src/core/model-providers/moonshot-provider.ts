@@ -332,7 +332,7 @@ export class MoonshotProvider extends BaseModelProvider {
   /**
    * 错误处理
    */
-  protected handleError(error: any): never {
+  protected override handleError(error: any): never {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const message = error.response?.data?.error?.message || error.message;

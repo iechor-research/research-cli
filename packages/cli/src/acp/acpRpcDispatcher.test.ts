@@ -20,7 +20,7 @@ import {
   type Config,
   type MessageBus,
   type Storage,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { loadCliConfig, type CliArgs } from '../config/config.js';
 import { loadSettings, SettingScope } from '../config/settings.js';
@@ -71,6 +71,7 @@ describe('GeminiAgent - RPC Dispatcher', () => {
       validatePathAccess: vi.fn().mockReturnValue(null),
       getWorkspaceContext: vi.fn().mockReturnValue({
         addReadOnlyPath: vi.fn(),
+        getDirectories: vi.fn().mockReturnValue(['/tmp']),
       }),
       getPolicyEngine: vi.fn().mockReturnValue({
         addRule: vi.fn(),

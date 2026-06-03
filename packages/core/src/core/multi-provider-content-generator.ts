@@ -13,19 +13,19 @@ import type {
   EmbedContentResponse,
   EmbedContentParameters,
   Content,
-  ContentListUnion} from '@google/genai';
+  ContentListUnion,
+} from '@google/genai';
 import {
   GenerateContentResponse
 } from '@google/genai';
 import type { ContentGenerator } from './contentGenerator.js';
 import { ModelProvider } from './model-providers/types.js';
-import { 
-  detectModelProvider, 
-  isGeminiModel, 
+import {
+  detectModelProvider,
   supportsCountTokens,
-  getModelTokenLimit 
 } from './model-providers/model-utils.js';
 import { modelProviderFactory } from './model-providers/model-provider-factory.js';
+import type { LlmRole } from '../telemetry/llmRole.js';
 
 /**
  * 多提供商 ContentGenerator 实现
@@ -36,8 +36,8 @@ export class MultiProviderContentGenerator implements ContentGenerator {
   private providerConfigs: Map<ModelProvider, any> = new Map();
 
   constructor(
-    private defaultGeminiGenerator: ContentGenerator,
-    private globalConfig: any = {}
+    defaultGeminiGenerator: ContentGenerator,
+    private globalConfig: any = {},
   ) {
     this.geminiGenerator = defaultGeminiGenerator;
   }
@@ -54,12 +54,14 @@ export class MultiProviderContentGenerator implements ContentGenerator {
    */
   async generateContent(
     request: GenerateContentParameters,
+    userPromptId: string,
+    role: LlmRole,
   ): Promise<GenerateContentResponse> {
     const provider = detectModelProvider(request.model);
     
     if (provider === ModelProvider.GEMINI) {
       // 使用原有的 Gemini generator
-      return this.geminiGenerator.generateContent(request);
+      return this.geminiGenerator.generateContent(request, userPromptId, role);
     }
 
     // 对于非 Gemini 模型，使用 LLM Interface Provider
@@ -78,12 +80,18 @@ export class MultiProviderContentGenerator implements ContentGenerator {
    */
   async generateContentStream(
     request: GenerateContentParameters,
+    userPromptId: string,
+    role: LlmRole,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const provider = detectModelProvider(request.model);
     
     if (provider === ModelProvider.GEMINI) {
       // 使用原有的 Gemini generator
-      return this.geminiGenerator.generateContentStream(request);
+      return this.geminiGenerator.generateContentStream(
+        request,
+        userPromptId,
+        role,
+      );
     }
 
     // 对于非 Gemini 模型，使用 LLM Interface Provider
@@ -119,14 +127,16 @@ export class MultiProviderContentGenerator implements ContentGenerator {
     return this.geminiGenerator.embedContent(request);
   }
 
-  /**
-   * 获取用户层级（如果支持）
-   */
-  async getTier?(): Promise<any> {
-    if (this.geminiGenerator.getTier) {
-      return this.geminiGenerator.getTier();
-    }
-    return undefined;
+  get userTier() {
+    return this.geminiGenerator.userTier;
+  }
+
+  get userTierName() {
+    return this.geminiGenerator.userTierName;
+  }
+
+  get paidTier() {
+    return this.geminiGenerator.paidTier;
   }
 
   /**

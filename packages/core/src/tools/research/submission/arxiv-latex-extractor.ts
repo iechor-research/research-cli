@@ -500,7 +500,7 @@ export class ArxivLatexExtractor {
     arxivId: string,
   ): Promise<Map<string, string>> {
     // Testing error condition
-    if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+    if (process.env['NODE_ENV'] === 'test' || process.env['VITEST']) {
       if (arxivId.includes('nonexistent') || arxivId.includes('error')) {
         throw new Error(`arXiv paper not found: ${arxivId}`);
       }

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "paths": {
-      "@google/gemini-cli-core": ["../packages/core/index.ts"],
+      "@iechor/research-cli-core": ["../packages/core/index.ts"],
       "@google/gemini-cli": ["../packages/cli/index.ts"]
     }
   },

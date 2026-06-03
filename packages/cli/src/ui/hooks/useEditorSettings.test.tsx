@@ -26,13 +26,13 @@ import {
   type EditorType,
   hasValidEditorCommand,
   allowEditorTypeInSandbox,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 
 import { SettingPaths } from '../../config/settingPaths.js';
 
-vi.mock('@google/gemini-cli-core', async () => {
-  const actual = await vi.importActual('@google/gemini-cli-core');
+vi.mock('@iechor/research-cli-core', async () => {
+  const actual = await vi.importActual('@iechor/research-cli-core');
   return {
     ...actual,
     hasValidEditorCommand: vi.fn(() => true),

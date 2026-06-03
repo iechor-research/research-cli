@@ -19,12 +19,12 @@ import {
   type MessageRecord,
   CoreToolCallStatus,
   loadConversationRecord,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import {
   coreEvents,
   convertSessionToClientHistory,
   uiTelemetryService,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 // Mock modules
 vi.mock('fs/promises');
@@ -37,9 +37,9 @@ vi.mock('../../utils/sessionUtils.js', async (importOriginal) => {
     getSessionFiles: vi.fn(),
   };
 });
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     uiTelemetryService: {
@@ -194,14 +194,16 @@ describe('convertSessionToHistoryFormats', () => {
 
     const clientHistory = convertSessionToClientHistory(messages);
     expect(clientHistory).toHaveLength(2);
-    expect(clientHistory[0]).toEqual({
-      role: 'user',
-      parts: [{ text: 'Hello' }],
-    });
-    expect(clientHistory[1]).toEqual({
-      role: 'model',
-      parts: [{ text: 'Hi there' }],
-    });
+    expect(clientHistory.map((h) => h.content)).toEqual([
+      {
+        role: 'user',
+        parts: [{ text: 'Hello' }],
+      },
+      {
+        role: 'model',
+        parts: [{ text: 'Hi there' }],
+      },
+    ]);
   });
 
   it('should convert thinking tokens (thoughts) to thinking history items', () => {
@@ -254,10 +256,12 @@ describe('convertSessionToHistoryFormats', () => {
 
     const clientHistory = convertSessionToClientHistory(messages);
     expect(clientHistory).toHaveLength(1);
-    expect(clientHistory[0]).toEqual({
-      role: 'user',
-      parts: [{ text: 'Expanded content' }],
-    });
+    expect(clientHistory.map((h) => h.content)).toEqual([
+      {
+        role: 'user',
+        parts: [{ text: 'Expanded content' }],
+      },
+    ]);
   });
 
   it('should filter out slash commands from client history but keep in UI', () => {
@@ -316,33 +320,35 @@ describe('convertSessionToHistoryFormats', () => {
 
     const clientHistory = convertSessionToClientHistory(messages);
     expect(clientHistory).toHaveLength(3); // User, Model (call), User (response)
-    expect(clientHistory[0]).toEqual({
-      role: 'user',
-      parts: [{ text: 'What time is it?' }],
-    });
-    expect(clientHistory[1]).toEqual({
-      role: 'model',
-      parts: [
-        {
-          functionCall: {
-            name: 'get_time',
-            args: {},
-            id: 'call_1',
+    expect(clientHistory.map((h) => h.content)).toEqual([
+      {
+        role: 'user',
+        parts: [{ text: 'What time is it?' }],
+      },
+      {
+        role: 'model',
+        parts: [
+          {
+            functionCall: {
+              name: 'get_time',
+              args: {},
+              id: 'call_1',
+            },
           },
-        },
-      ],
-    });
-    expect(clientHistory[2]).toEqual({
-      role: 'user',
-      parts: [
-        {
-          functionResponse: {
-            id: 'call_1',
-            name: 'get_time',
-            response: { output: '12:00' },
+        ],
+      },
+      {
+        role: 'user',
+        parts: [
+          {
+            functionResponse: {
+              name: 'get_time',
+              response: { output: '12:00' },
+              id: 'call_1',
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+    ]);
   });
 });

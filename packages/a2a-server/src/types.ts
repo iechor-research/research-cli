@@ -7,7 +7,7 @@
 import type {
   MCPServerStatus,
   ToolConfirmationOutcome,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import type { TaskState } from '@a2a-js/sdk';
 
 // Interfaces and enums for the CoderAgent protocol.
@@ -47,6 +47,7 @@ export interface AgentSettings {
   kind: CoderAgentEvent.StateAgentSettingsEvent;
   workspacePath: string;
   autoExecute?: boolean;
+  isTrusted?: boolean;
 }
 
 export interface ToolCallConfirmation {

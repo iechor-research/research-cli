@@ -10,9 +10,9 @@ import { useSessionStats } from '../contexts/SessionContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import {
   escapeShellArg,
-  getShellConfiguration,
   isWindows,
-} from '@google/gemini-cli-core';
+  type ShellType,
+} from '@iechor/research-cli-core';
 
 interface SessionSummaryDisplayProps {
   duration: string;
@@ -23,7 +23,7 @@ export const SessionSummaryDisplay: React.FC<SessionSummaryDisplayProps> = ({
 }) => {
   const { stats } = useSessionStats();
   const config = useConfig();
-  const { shell } = getShellConfiguration();
+  const shell: ShellType = isWindows() ? 'powershell' : 'bash';
 
   const worktreeSettings = config.getWorktreeSettings();
 

@@ -1,12 +1,14 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { configPanelCommand } from './configPanelCommand.js';
-import { CommandContext } from '../types.js';
+import type { CommandContext } from '../types.js';
 
 describe('configPanelCommand', () => {
   let mockContext: CommandContext;
@@ -34,7 +36,7 @@ describe('configPanelCommand', () => {
 
   it('should have correct command properties', () => {
     expect(configPanelCommand.name).toBe('config-panel');
-    expect(configPanelCommand.altName).toBe('panel config');
+    expect(configPanelCommand.altNames).toBe('panel config');
     expect(configPanelCommand.description).toBe('Open configuration panel in web browser');
   });
 

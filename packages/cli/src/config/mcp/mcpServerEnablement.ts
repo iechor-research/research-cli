@@ -6,7 +6,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Storage, coreEvents } from '@google/gemini-cli-core';
+import { Storage, coreEvents } from '@iechor/research-cli-core';
 
 /**
  * Stored in JSON file - represents persistent enablement state.
@@ -119,7 +119,7 @@ export async function canLoadServer(
   }
 
   // 2. Allowlist check
-  if (config.allowedList && config.allowedList.length > 0) {
+  if (config.allowedList !== undefined) {
     const { found, deprecationWarning } = isInSettingsList(
       normalizedId,
       config.allowedList,

@@ -1,15 +1,17 @@
 /**
  * @license
- * Copyright 2025 iEchor LLC
+ * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * @license
  */
 
 import {
   readPackageUp,
   type PackageJson as BasePackageJson,
 } from 'read-package-up';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 export type PackageJson = BasePackageJson & {
   config?: {

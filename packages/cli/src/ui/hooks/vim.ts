@@ -8,7 +8,7 @@ import { useCallback, useReducer, useEffect, useRef } from 'react';
 import type { Key } from './useKeypress.js';
 import type { TextBuffer } from '../components/shared/text-buffer.js';
 import { useVimMode } from '../contexts/VimModeContext.js';
-import { debugLogger } from '@google/gemini-cli-core';
+import { debugLogger } from '@iechor/research-cli-core';
 import { Command } from '../key/keyMatchers.js';
 import { useKeyMatchers } from './useKeyMatchers.js';
 import { toCodePoints } from '../utils/textUtils.js';
@@ -1485,6 +1485,17 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
 
             // Unknown command, clear count and pending states
             dispatch({ type: 'CLEAR_PENDING_STATES' });
+
+            // Ignore unmapped Insertable keys in Normal Mode, but let
+            // modifier-key chords (ctrl/alt/cmd) fall through to other handlers.
+            if (
+              normalizedKey.insertable &&
+              !normalizedKey.ctrl &&
+              !normalizedKey.alt &&
+              !normalizedKey.cmd
+            ) {
+              return true;
+            }
 
             // Not handled by vim so allow other handlers to process it.
             return false;

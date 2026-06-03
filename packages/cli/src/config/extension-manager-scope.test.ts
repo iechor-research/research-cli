@@ -14,13 +14,13 @@ import { cleanupTmpDir } from '@google/gemini-cli-test-utils';
 import {
   loadAgentsFromDirectory,
   loadSkillsFromDir,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 
 let currentTempHome = '';
 
-vi.mock('@google/gemini-cli-core', async (importOriginal) => {
+vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+    await importOriginal<typeof import('@iechor/research-cli-core')>();
   return {
     ...actual,
     homedir: () => currentTempHome,

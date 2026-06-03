@@ -12,7 +12,7 @@ import { Colors } from '../colors.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { useKeypress } from '../hooks/useKeypress.js';
 import path from 'node:path';
-import type { Config } from '@google/gemini-cli-core';
+import type { Config } from '@iechor/research-cli-core';
 import type { SessionInfo } from '../../utils/sessionUtils.js';
 import {
   formatRelativeTime,
@@ -561,6 +561,13 @@ export const useSessionBrowserInput = (
           state.setSearchQuery((prev) => prev.slice(0, -1));
           state.setActiveIndex(0);
           state.setScrollOffset(0);
+          return true;
+        } else if (key.name === 'enter') {
+          const selectedSession =
+            state.filteredAndSortedSessions[state.activeIndex];
+          if (selectedSession && !selectedSession.isCurrentSession) {
+            onResumeSession(selectedSession);
+          }
           return true;
         } else if (
           key.sequence &&

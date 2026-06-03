@@ -17,7 +17,7 @@ import {
   coreEvents,
   debugLogger,
   getErrorMessage,
-} from '@google/gemini-cli-core';
+} from '@iechor/research-cli-core';
 import { ExtensionManager } from '../../config/extension-manager.js';
 import { requestConsentNonInteractive } from '../../config/extensions/consent.js';
 import { loadSettings } from '../../config/settings.js';

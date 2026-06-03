@@ -5,7 +5,7 @@
  */
 
 import * as path from 'node:path';
-import { homedir } from '@google/gemini-cli-core';
+import { homedir } from '@iechor/research-cli-core';
 
 export function resolvePath(p: string): string {
   if (!p) {
