@@ -24,13 +24,13 @@ describe('usePhraseCycler', () => {
   });
 
   it('should initialize with the first witty phrase when not active and not waiting', () => {
-    const { result } = renderHook(() => usePhraseCycler(false, false));
+    const { result } = renderHook(() => usePhraseCycler(false, false, false, false, true));
     expect(result.current).toBe(WITTY_LOADING_PHRASES[0]);
   });
 
   it('should show "Waiting for user confirmation..." when isWaiting is true', () => {
     const { result, rerender } = renderHook(
-      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting),
+      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting, false, false, true),
       { initialProps: { isActive: true, isWaiting: false } },
     );
     rerender({ isActive: true, isWaiting: true });
@@ -38,7 +38,7 @@ describe('usePhraseCycler', () => {
   });
 
   it('should not cycle phrases if isActive is false and not waiting', () => {
-    const { result } = renderHook(() => usePhraseCycler(false, false));
+    const { result } = renderHook(() => usePhraseCycler(false, false, false, false, true));
     act(() => {
       vi.advanceTimersByTime(PHRASE_CHANGE_INTERVAL_MS * 2);
     });
@@ -46,10 +46,9 @@ describe('usePhraseCycler', () => {
   });
 
   it('should cycle through witty phrases when isActive is true and not waiting', () => {
-    const { result } = renderHook(() => usePhraseCycler(true, false));
+    const { result } = renderHook(() => usePhraseCycler(true, false, false, false, true));
     // Initial phrase should be one of the witty phrases
     expect(WITTY_LOADING_PHRASES).toContain(result.current);
-    const _initialPhrase = result.current;
 
     act(() => {
       vi.advanceTimersByTime(PHRASE_CHANGE_INTERVAL_MS);
@@ -57,7 +56,6 @@ describe('usePhraseCycler', () => {
     // Phrase should change and be one of the witty phrases
     expect(WITTY_LOADING_PHRASES).toContain(result.current);
 
-    const _secondPhrase = result.current;
     act(() => {
       vi.advanceTimersByTime(PHRASE_CHANGE_INTERVAL_MS);
     });
@@ -80,7 +78,7 @@ describe('usePhraseCycler', () => {
     });
 
     const { result, rerender } = renderHook(
-      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting),
+      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting, false, false, true),
       { initialProps: { isActive: false, isWaiting: false } },
     );
 
@@ -112,7 +110,7 @@ describe('usePhraseCycler', () => {
   });
 
   it('should clear phrase interval on unmount when active', () => {
-    const { unmount } = renderHook(() => usePhraseCycler(true, false));
+    const { unmount } = renderHook(() => usePhraseCycler(true, false, false, false, true));
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
     unmount();
     expect(clearIntervalSpy).toHaveBeenCalledOnce();
@@ -120,12 +118,11 @@ describe('usePhraseCycler', () => {
 
   it('should reset to a witty phrase when transitioning from waiting to active', () => {
     const { result, rerender } = renderHook(
-      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting),
+      ({ isActive, isWaiting }) => usePhraseCycler(isActive, isWaiting, false, false, true),
       { initialProps: { isActive: true, isWaiting: false } },
     );
 
-    const _initialPhrase = result.current;
-    expect(WITTY_LOADING_PHRASES).toContain(_initialPhrase);
+    expect(WITTY_LOADING_PHRASES).toContain(result.current);
 
     // Cycle to a different phrase (potentially)
     act(() => {

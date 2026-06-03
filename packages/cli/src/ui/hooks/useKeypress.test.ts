@@ -55,8 +55,7 @@ vi.mock('readline', () => {
 class MockStdin extends EventEmitter {
   isTTY = true;
   setRawMode = vi.fn();
-  on = this.addListener;
-  removeListener = this.removeListener;
+  override on = this.addListener;
   write = vi.fn();
   resume = vi.fn();
 
@@ -108,10 +107,10 @@ describe('useKeypress', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stdin = new MockStdin();
-    (useStdin as vi.Mock).mockReturnValue({
-      stdin,
+    vi.mocked(useStdin).mockReturnValue({
+      stdin: stdin as unknown as NodeJS.ReadStream,
       setRawMode: mockSetRawMode,
-    });
+    } as unknown as ReturnType<typeof useStdin>);
 
     originalNodeVersion = process.versions.node;
     delete process.env['PASTE_WORKAROUND'];

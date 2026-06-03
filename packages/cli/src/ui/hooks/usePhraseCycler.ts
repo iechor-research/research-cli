@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { INFORMATIVE_TIPS } from '../constants/tips.js';
 import { WITTY_LOADING_PHRASES } from '../constants/wittyPhrases.js';
+export { WITTY_LOADING_PHRASES } from '../constants/wittyPhrases.js';
 
 export const PHRASE_CHANGE_INTERVAL_MS = 10000;
 export const WITTY_PHRASE_CHANGE_INTERVAL_MS = 5000;

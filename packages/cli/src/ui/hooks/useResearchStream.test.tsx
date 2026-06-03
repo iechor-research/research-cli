@@ -16,10 +16,10 @@ import type {
   TrackedToolCall,
   TrackedCompletedToolCall,
   TrackedExecutingToolCall,
-  TrackedCancelledToolCall} from './useReactToolScheduler.js';
+  TrackedCancelledToolCall} from './useToolScheduler.js';
 import {
-  useReactToolScheduler
-} from './useReactToolScheduler.js';
+  useToolScheduler
+} from './useToolScheduler.js';
 import type { Config, EditorType} from '@iechor/research-cli-core';
 import { AuthType } from '@iechor/research-cli-core';
 import type { Part, PartListUnion } from '@google/genai';
@@ -63,12 +63,12 @@ vi.mock('@iechor/research-cli-core', async (importOriginal) => {
   };
 });
 
-const mockUseReactToolScheduler = useReactToolScheduler as Mock;
-vi.mock('./useReactToolScheduler.js', async (importOriginal) => {
+const mockUseReactToolScheduler = useToolScheduler as Mock;
+vi.mock('./useToolScheduler.js', async (importOriginal) => {
   const actualSchedulerModule = (await importOriginal()) as any;
   return {
     ...(actualSchedulerModule || {}),
-    useReactToolScheduler: vi.fn(),
+    useToolScheduler: vi.fn(),
   };
 });
 
@@ -271,8 +271,8 @@ describe('useResearchStream', () => {
 
     mockAddItem = vi.fn();
     mockSetShowHelp = vi.fn();
-    // Define the mock for getResearchClient
-    const mockGetResearchClient = vi.fn().mockImplementation(() => {
+    // Define the mock for getGeminiClient
+    const mockGetGeminiClient = vi.fn().mockImplementation(() => {
       // MockedResearchClientClass is defined in the module scope by the previous change.
       // It will use the mockStartChat and mockSendMessageStream that are managed within beforeEach.
       const clientInstance = new MockedResearchClientClass(mockConfig);
@@ -311,7 +311,7 @@ describe('useResearchStream', () => {
       ),
       getProjectRoot: vi.fn(() => '/test/dir'),
       getCheckpointingEnabled: vi.fn(() => false),
-      getResearchClient: mockGetResearchClient,
+      getGeminiClient: mockGetGeminiClient,
       getUsageStatisticsEnabled: () => true,
       getDebugMode: () => false,
       addHistory: vi.fn(),
@@ -327,12 +327,12 @@ describe('useResearchStream', () => {
     mockOnDebugMessage = vi.fn();
     mockHandleSlashCommand = vi.fn().mockResolvedValue(false);
 
-    // Mock return value for useReactToolScheduler
+    // Mock return value for useToolScheduler
     mockScheduleToolCalls = vi.fn();
     mockCancelAllToolCalls = vi.fn();
     mockMarkToolsAsSubmitted = vi.fn();
 
-    // Default mock for useReactToolScheduler to prevent toolCalls being undefined initially
+    // Default mock for useToolScheduler to prevent toolCalls being undefined initially
     mockUseReactToolScheduler.mockReturnValue([
       [], // Default to empty array for toolCalls
       mockScheduleToolCalls,
@@ -375,7 +375,7 @@ describe('useResearchStream', () => {
       mockMarkToolsAsSubmitted,
     ]);
 
-    const client = researchClient || mockConfig.getResearchClient();
+    const client = researchClient || mockConfig.getGeminiClient();
 
     const { result, rerender } = renderHook(
       (props: {

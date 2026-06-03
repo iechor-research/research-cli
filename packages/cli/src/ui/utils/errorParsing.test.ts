@@ -13,11 +13,10 @@ import {
   UserTierId,
   DEFAULT_RESEARCH_FLASH_MODEL,
   isProQuotaExceededError,
+  type StructuredError,
 } from '@iechor/research-cli-core';
 
 describe('parseAndFormatApiError', () => {
-  const _enterpriseMessage =
-    'upgrade to a Research Code Assist Standard or Enterprise plan with higher limits';
   const vertexMessage = 'request a quota increase through Vertex';
   const researchMessage = 'request a quota increase through AI Studio';
 
