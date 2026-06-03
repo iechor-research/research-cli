@@ -10,6 +10,7 @@ import { render } from 'ink-testing-library';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AuthDialog } from './AuthDialog.js';
 import { LoadedSettings, SettingScope } from '../../config/settings.js';
+import { createMockSettings } from '../../test-utils/settings.js';
 import { AuthType } from '@iechor/research-cli-core';
 
 describe('AuthDialog', () => {
@@ -31,25 +32,7 @@ describe('AuthDialog', () => {
   it('should show an error if the initial auth type is invalid', () => {
     process.env['GEMINI_API_KEY'] = '';
 
-    const settings: LoadedSettings = new LoadedSettings(
-      {
-        settings: {},
-        path: '',
-      },
-      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-      {
-        settings: {
-          selectedAuthType: AuthType.USE_RESEARCH,
-        },
-        path: '',
-      },
-      {
-        settings: {},
-        originalSettings: {},
-        path: '',
-      },
-      [],
-    );
+    const settings: LoadedSettings = createMockSettings({ selectedAuthType: AuthType.USE_RESEARCH });
 
     const { lastFrame } = render(
       <AuthDialog
@@ -68,21 +51,7 @@ describe('AuthDialog', () => {
     it('should detect GEMINI_API_KEY  environment variable', () => {
       process.env['GEMINI_API_KEY'] = 'foobar';
 
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -97,21 +66,7 @@ describe('AuthDialog', () => {
       process.env['GEMINI_API_KEY'] = 'foobar';
       process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.LOGIN_WITH_GOOGLE;
 
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -126,21 +81,7 @@ describe('AuthDialog', () => {
       process.env['GEMINI_API_KEY'] = 'foobar';
       process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.USE_RESEARCH;
 
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -156,21 +97,7 @@ describe('AuthDialog', () => {
     it('should select the auth type specified by RESEARCH_DEFAULT_AUTH_TYPE', () => {
       process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = AuthType.LOGIN_WITH_GOOGLE;
 
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -181,21 +108,7 @@ describe('AuthDialog', () => {
     });
 
     it('should fall back to default if RESEARCH_DEFAULT_AUTH_TYPE is not set', () => {
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -208,21 +121,7 @@ describe('AuthDialog', () => {
     it('should show an error and fall back to default if RESEARCH_DEFAULT_AUTH_TYPE is invalid', () => {
       process.env['RESEARCH_DEFAULT_AUTH_TYPE'] = 'invalid-auth-type';
 
-      const settings: LoadedSettings = new LoadedSettings(
-        {
-          settings: {
-            selectedAuthType: undefined,
-          },
-          path: '',
-        },
-        { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-        {
-          settings: {},
-          originalSettings: {},
-          path: '',
-        },
-        [],
-      );
+      const settings: LoadedSettings = createMockSettings();
 
       const { lastFrame } = render(
         <AuthDialog onSelect={() => {}} settings={settings} />,
@@ -239,25 +138,7 @@ describe('AuthDialog', () => {
 
   it('should prevent exiting when no auth method is selected and show error message', async () => {
     const onSelect = vi.fn();
-    const settings: LoadedSettings = new LoadedSettings(
-      {
-        settings: {},
-        path: '',
-      },
-      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-      {
-        settings: {
-          selectedAuthType: undefined,
-        },
-        path: '',
-      },
-      {
-        settings: {},
-        originalSettings: {},
-        path: '',
-      },
-      [],
-    );
+    const settings: LoadedSettings = createMockSettings();
 
     const { lastFrame, stdin, unmount } = render(
       <AuthDialog onSelect={onSelect} settings={settings} />,
@@ -278,19 +159,7 @@ describe('AuthDialog', () => {
 
   it('should not exit if there is already an error message', async () => {
     const onSelect = vi.fn();
-    const settings: LoadedSettings = new LoadedSettings(
-      {
-        settings: {},
-        path: '',
-      },
-      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-      {
-        settings: {},
-        originalSettings: {},
-        path: '',
-      },
-      [],
-    );
+    const settings: LoadedSettings = createMockSettings();
 
     const { lastFrame, stdin, unmount } = render(
       <AuthDialog
@@ -314,25 +183,7 @@ describe('AuthDialog', () => {
 
   it('should allow exiting when auth method is already selected', async () => {
     const onSelect = vi.fn();
-    const settings: LoadedSettings = new LoadedSettings(
-      {
-        settings: {},
-        path: '',
-      },
-      { path: '/system/system-defaults.json', settings: {}, originalSettings: {} },
-      {
-        settings: {
-          selectedAuthType: AuthType.USE_RESEARCH,
-        },
-        path: '',
-      },
-      {
-        settings: {},
-        originalSettings: {},
-        path: '',
-      },
-      [],
-    );
+    const settings: LoadedSettings = createMockSettings({ selectedAuthType: AuthType.USE_RESEARCH });
 
     const { stdin, unmount } = render(
       <AuthDialog onSelect={onSelect} settings={settings} />,
