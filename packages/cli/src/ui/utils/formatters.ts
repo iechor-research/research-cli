@@ -21,6 +21,12 @@ export const formatBytes = (bytes: number): string => {
 };
 
 /**
+ * Alias for {@link formatBytes}, retained for compatibility with callers that
+ * format memory/byte counts for display.
+ */
+export const formatMemoryUsage = formatBytes;
+
+/**
  * Formats a duration in milliseconds into a concise, human-readable string (e.g., "1h 5s").
  * It omits any time units that are zero.
  * @param milliseconds The duration in milliseconds.

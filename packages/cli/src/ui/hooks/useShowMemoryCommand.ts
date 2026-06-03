@@ -9,6 +9,7 @@
 import type { Message} from '../types.js';
 import { MessageType } from '../types.js';
 import type { Config } from '@iechor/research-cli-core';
+import { flattenMemory } from '@iechor/research-cli-core';
 import type { LoadedSettings } from '../../config/settings.js';
 
 export function createShowMemoryAction(
@@ -32,8 +33,8 @@ export function createShowMemoryAction(
       console.log('[DEBUG] Show Memory command invoked.');
     }
 
-    const currentMemory = config.getUserMemory();
-    const fileCount = config.getResearchMdFileCount();
+    const currentMemory = flattenMemory(config.getUserMemory());
+    const fileCount = config.getGeminiMdFileCount();
     const contextFileName = settings.merged.contextFileName;
     const contextFileNames = Array.isArray(contextFileName)
       ? contextFileName

@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { Colors } from '../colors.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
+import type { RadioSelectItem } from './shared/RadioButtonSelect.js';
 import type { LoadedSettings} from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import { AuthType } from '@iechor/research-cli-core';
@@ -63,24 +64,27 @@ export function AuthDialog({
     }
     return null;
   });
-  const items = [
+  const items: Array<RadioSelectItem<AuthType>> = [
     {
+      key: 'oauth-personal',
       label: 'Login with iEchor',
       value: AuthType.LOGIN_WITH_GOOGLE,
     },
     ...(process.env['CLOUD_SHELL'] === 'true'
       ? [
           {
+            key: 'cloud-shell',
             label: 'Use Cloud Shell user credentials',
-            value: AuthType.CLOUD_SHELL,
+            value: AuthType.LEGACY_CLOUD_SHELL,
           },
         ]
       : []),
     {
+      key: 'research',
       label: 'Use Research API Key',
       value: AuthType.USE_RESEARCH,
     },
-    { label: 'Vertex AI', value: AuthType.USE_VERTEX_AI },
+    { key: 'vertex-ai', label: 'Vertex AI', value: AuthType.USE_VERTEX_AI },
   ];
 
   const initialAuthIndex = items.findIndex((item) => {
@@ -102,8 +106,8 @@ export function AuthDialog({
     return item.value === AuthType.LOGIN_WITH_GOOGLE;
   });
 
-  const handleAuthSelect = (authMethod: AuthType) => {
-    const error = validateAuthMethod(authMethod);
+  const handleAuthSelect = async (authMethod: AuthType) => {
+    const error = await validateAuthMethod(authMethod);
     if (error) {
       setErrorMessage(error);
     } else {
