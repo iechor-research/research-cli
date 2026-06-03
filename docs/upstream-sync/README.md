@@ -23,12 +23,10 @@ of the artefacts that support the staged plan.
 
 | Artefact                                   | Purpose                                                                                                                                      |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/upstream-sync.yml`      | Weekly workflow that fetches upstream, mirrors it, regenerates the report, and opens a PR if needed.                                         |
-| `scripts/monitor-upstream.js`              | *(removed)* Historical report generator; `upstream-monitor-report.json` is kept as a snapshot until the script is restored.               |
+| `.github/workflows/upstream-sync.yml`      | Weekly workflow that mirrors `upstream/main` to `upstream-mirror` (report file no longer tracked in git).                                    |
 | `scripts/upstream-config.js`               | Single source of truth for fork point, brand-replacement table, and path-to-subsystem mapping.                                               |
 | `scripts/rebrand.mjs`                      | Portable Node rebrander driven by `upstream-config.js`. Rewrites upstream brand strings in files or stdin.                                   |
 | `scripts/check-rebrand.mjs`                | CI guard (`npm run lint:rebrand`). Fails the build if forbidden upstream brand strings reappear in `packages/{cli,core}/{src,package.json}`. |
-| `upstream-monitor-report.json` (repo root) | Machine-readable snapshot of "what upstream has that we don't yet".                                                                          |
 | `upstream-mirror` branch (in this repo)    | Force-mirrored copy of `upstream/main`. Used as a stable diff target for reviewers and tooling.                                              |
 | `docs/upstream-sync/path-mapping.md`       | Human-readable mapping of brand strings, subsystem paths, fork-only files, and upstream-only files.                                          |
 | `docs/upstream-sync/BRAND_OVERRIDES.md`    | Strings that look like brand leaks but are intentionally preserved (model IDs, env-var compatibility, etc.).                                 |
@@ -42,34 +40,19 @@ of the artefacts that support the staged plan.
 2. Force-pushes `refs/remotes/upstream/main` to `refs/heads/upstream-mirror`
    on `origin`. The mirror branch has independent history and is **only**
    used as a diff target — never merge it.
-3. *(Skipped)* Report regeneration — `scripts/monitor-upstream.js` was removed
-   with the 2026-05 scripts cleanup. The workflow only mirrors upstream; update
-   `upstream-monitor-report.json` manually when needed.
+3. Mirrors only — no report file is committed; cherry-pick batches are chosen
+   from `git log upstream/main` or the `upstream-mirror` branch diff.
 
-## The report file
+## Choosing commits to cherry-pick
 
-`upstream-monitor-report.json` contains:
 
-- `forkPoint`, `forkPointDate` — the upstream commit this fork started from.
-- `upstreamHeadSha`, `upstreamVersion` — the upstream commit being compared.
-- `commitCount` — how many upstream commits are unmerged.
-- `categories` — commits bucketed by **message keyword**
-  (`critical`, `security`, `feature`, `refactor`, `docs`, `test`, `build`,
-  `deps`, `other`).
-- `pathCategories` — commits bucketed by **file path / subsystem**
-  (e.g. `core-tools`, `cli-ui`, `docs`, `workflows`). A commit can appear in
-  more than one path bucket if it touches multiple subsystems. The mapping
-  is defined in `scripts/upstream-config.js > UPSTREAM_CONFIG.pathCategories`.
-- `recommendations` — high-level suggestions (informational only).
-- `mergeReady` — `false` in CI; meant only for manual local runs.
-
-## How to act on the report
+## How to act on upstream changes
 
 Picking up an upstream commit always follows the same shape, regardless of
 whether it is a doc fix, a bug fix, or a feature:
 
-1. Read the report and choose a small, related batch of commits from a
-   **single** path category (e.g. all under `core-utils`).
+1. Choose a small, related batch of commits from a **single** path category
+   (e.g. all under `core-utils`), using `git log upstream/main` or the mirror branch.
 2. Locally:
 
    ```sh

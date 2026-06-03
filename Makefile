@@ -1,24 +1,20 @@
-# Makefile for gemini-cli
+# Makefile for research-cli
 
-.PHONY: help install build build-sandbox build-all test lint format preflight clean start debug release run-npx create-alias
+.PHONY: help install build build-all test lint format preflight clean start debug
 
 help:
-	@echo "Makefile for gemini-cli"
+	@echo "Makefile for research-cli"
 	@echo ""
-	@echo "Usage:"
-	@echo "  make install          - Install npm dependencies"
-	@echo "  make build            - Build the main project"
-	@echo "  make build-all        - Build the main project and sandbox"
-	@echo "  make test             - Run the test suite"
-	@echo "  make lint             - Lint the code"
-	@echo "  make format           - Format the code"
-	@echo "  make preflight        - Run formatting, linting, and tests"
-	@echo "  make clean            - Remove generated files"
-	@echo "  make start            - Start the Gemini CLI"
-	@echo "  make debug            - Start the Gemini CLI in debug mode"
-	@echo ""
-	@echo "  make run-npx          - Run the CLI using npx (for testing the published package)"
-	@echo "  make create-alias     - Create a 'gemini' alias for your shell"
+	@echo "  make install    - npm install"
+	@echo "  make build      - npm run build"
+	@echo "  make build-all  - npm run build:all"
+	@echo "  make test       - npm run test:ci"
+	@echo "  make lint       - npm run lint:ci"
+	@echo "  make format     - npm run format"
+	@echo "  make preflight  - npm run preflight"
+	@echo "  make clean      - npm run clean"
+	@echo "  make start      - npm run start"
+	@echo "  make debug      - npm run debug"
 
 install:
 	npm install
@@ -26,15 +22,14 @@ install:
 build:
 	npm run build
 
-
 build-all:
 	npm run build:all
 
 test:
-	npm run test
+	npm run test:ci
 
 lint:
-	npm run lint
+	npm run lint:ci
 
 format:
 	npm run format
@@ -50,10 +45,3 @@ start:
 
 debug:
 	npm run debug
-
-
-run-npx:
-	npx https://github.com/google-gemini/gemini-cli
-
-create-alias:
-	scripts/create_alias.sh

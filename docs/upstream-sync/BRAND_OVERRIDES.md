@@ -58,19 +58,13 @@ in `scripts/check-rebrand.mjs > ALLOWLIST_FILES`:
 - `scripts/upstream-config.js` — the canonical mapping table.
 - `scripts/rebrand.mjs` — the rebrander itself.
 - `scripts/check-rebrand.mjs` — this guard.
-- `scripts/replace-gemini-branding.sh` — legacy bash rebrander (kept for
-  reference; superseded by `rebrand.mjs`).
 
 The broader rebrander (`scripts/rebrand.mjs > ALLOWLIST_FILES`) additionally
-exempts the upstream-sync docs and the report snapshots, which need to
-quote upstream strings verbatim:
+exempts the upstream-sync docs, which may quote upstream strings verbatim:
 
 - `docs/upstream-sync/README.md`
 - `docs/upstream-sync/path-mapping.md`
 - `docs/upstream-sync/BRAND_OVERRIDES.md` (this file)
-- `docs/upstream-merging-guide.md`
-- `upstream-monitor-report.json`
-- `upstream-system-report.json`
 
 ## 4. Directories not rebranded
 

@@ -97,14 +97,10 @@ const ALLOWLIST_FILES = new Set([
   'scripts/upstream-config.js',
   'scripts/rebrand.mjs',
   'scripts/check-rebrand.mjs',
-  'scripts/replace-gemini-branding.sh',
   'docs/upstream-sync/path-mapping.md',
   'docs/upstream-sync/BRAND_OVERRIDES.md',
   'docs/upstream-sync/README.md',
-  'docs/upstream-merging-guide.md',
   // Snapshot of upstream commits.
-  'upstream-monitor-report.json',
-  'upstream-system-report.json',
 ]);
 
 // -----------------------------------------------------------------------------

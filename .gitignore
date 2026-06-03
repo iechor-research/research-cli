@@ -72,3 +72,7 @@ temp_agents/
 
 # conductor extension and planning directories
 conductor/
+
+# Upstream sync snapshots (regenerate locally; do not commit)
+upstream-monitor-report.json
+upstream-system-report.json

@@ -66,7 +66,6 @@ const ALLOWLIST_FILES = new Set([
   'scripts/upstream-config.js',
   'scripts/rebrand.mjs',
   'scripts/check-rebrand.mjs',
-  'scripts/replace-gemini-branding.sh',
 ]);
 
 /** File extensions skipped as binary. */

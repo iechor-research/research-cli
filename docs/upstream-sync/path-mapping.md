@@ -51,8 +51,8 @@ If you change a mapping, change it in **both** places.
 
 This is the same map encoded in `UPSTREAM_CONFIG.pathCategories`. It is also
 the order in which subsystems are tackled in Phase 2 of the sync plan. The
-historical `upstream-monitor-report.json` snapshot may still reference these
-buckets; regenerate that file only after restoring `scripts/monitor-upstream.js`.
+Use `scripts/upstream-config.js > pathCategories` when reviewing upstream
+commits (no committed monitor report in this repo).
 
 | Bucket               | Path prefix                                | Phase-2 order |
 | -------------------- | ------------------------------------------ | ------------- |
@@ -101,17 +101,11 @@ Top-level groupings (full list: `git diff --diff-filter=A --name-only upstream/m
   `docs/deployment.md`
 - `eslint-rules/`
 - `install.sh`, `Dockerfile` (root-level)
-- `.github/workflows/build-cross-platform.yml`,
-  `.github/workflows/build-native*.yml`,
-  `.github/workflows/build-release.yml`,
-  `.github/workflows/release.yml`,
-  `.github/workflows/research-*-triage.yml`,
-  `.github/workflows/e2e.yml`
-- `.gcp/release-docker.yaml` (fork release pipeline)
+- `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`,
+  `.github/workflows/upstream-sync.yml`
+- `install.sh`, `Dockerfile` (root-level)
 - `scripts/upstream-config.js`, `scripts/rebrand.mjs`, `scripts/check-rebrand.mjs`,
-  `scripts/clean.js`, `scripts/prepare-package.js`, and other scripts present
-  under `scripts/` today (many legacy release/build helpers were removed in 2026-05)
-- `upstream-monitor-report.json`, `upstream-system-report.json`
+  `scripts/clean.js`, `scripts/prepare-package.js`, and other scripts under `scripts/`
 - Inside `packages/core/` and `packages/cli/`: any file added by the fork
   to support research-specific integrations, iEchor telemetry / auth, and
   model-provider adapters. When a cherry-pick
@@ -137,7 +131,6 @@ work, not Phase 1 / 2 mechanical sync.
 - `packages/sdk/` — public SDK package (~32 files)
 - `packages/devtools/`, `packages/test-utils/` — internal tooling Google
   added post-fork
-- `tools/gemini-cli-bot/` — upstream's release bot
 - `.gemini/` (commands + skills + config) — upstream-specific agent config
   (~80 files). Do **not** adopt: this fork has its own command set.
 - `.allstar/` — Google org policy files
@@ -166,7 +159,7 @@ historical path:
 
 | Fork path                                             | Upstream renamed to                                                                |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `.gcp/Dockerfile.research-code-builder`               | `.gcp/Dockerfile.gemini-code-builder` (keep fork name)                             |
+| *(removed)* `.gcp/Dockerfile.research-code-builder`    | `.gcp/Dockerfile.gemini-code-builder` (upstream only; fork dropped `.gcp/`)        |
 | `packages/cli/src/ui/components/AuthInProgress.tsx`   | `packages/cli/src/ui/auth/AuthInProgress.tsx`                                      |
 | `packages/cli/src/ui/hooks/useEditorSettings.test.ts` | `packages/cli/src/ui/hooks/useEditorSettings.test.tsx`                             |
 | `packages/cli/src/ui/themes/ansi.ts`                  | `packages/cli/src/ui/themes/builtin/dark/ansi-dark.ts`                             |
