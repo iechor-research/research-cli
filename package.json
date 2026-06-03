@@ -81,7 +81,6 @@
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "domexception": "^4.0.0",
-    "electron": "^37.2.5",
     "esbuild": "^0.25.0",
     "esbuild-plugin-wasm": "^1.1.0",
     "eslint": "^9.24.0",

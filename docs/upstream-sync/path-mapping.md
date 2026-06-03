@@ -98,8 +98,7 @@ Top-level groupings (full list: `git diff --diff-filter=A --name-only upstream/m
   sibling repos (`research-terminal-go`) live outside this monorepo — do not re-add
   them as submodules during cherry-picks.
 - `docs/assets/research-screenshot*.png`, `docs/Uninstall.md`,
-  `docs/cross-platform-release.md`, `docs/deployment.md`,
-  `docs/github-actions-build.md`, `docs/tauri-desktop.md`
+  `docs/deployment.md`
 - `eslint-rules/`
 - `install.sh`, `Dockerfile` (root-level)
 - `.github/workflows/build-cross-platform.yml`,
