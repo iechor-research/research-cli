@@ -95,7 +95,7 @@ jobs:
 
       - name: Publish Test Report (for non-forks)
         if: always() && (github.event.pull_request.head.repo.full_name == github.repository)
-        uses: dorny/test-reporter@890a17cecf52a379fc869ab770a71657660be727 # v2
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v2
         with:
           name: Test Results (Node ${{ matrix.node-version }})
           path: packages/*/junit.xml
